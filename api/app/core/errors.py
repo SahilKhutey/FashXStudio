@@ -68,3 +68,29 @@ class ConsentRequiredError(DomainError):
         msg = message or f"Consent for '{data_type}' has not been granted by user."
         super().__init__(message=msg, code="consent_required", field="consent")
         self.data_type = data_type
+
+
+class ConflictError(DomainError):
+    """Raised when an operation conflicts with current state."""
+
+    def __init__(self, message: str = "Resource conflict", field: str | None = None) -> None:
+        super().__init__(message=message, code="conflict", field=field)
+        self.status_code = 409
+
+
+class NotFoundError(EntityNotFoundError):
+    """Raised when a generic resource is not found."""
+
+    def __init__(self, message: str = "Resource not found", field: str | None = None) -> None:
+        super().__init__(entity_type="Resource", message=message)
+        self.field = field
+        self.status_code = 404
+
+
+class AuthorizationError(DomainError):
+    """Raised when user lacks permission for an operation."""
+
+    def __init__(self, message: str = "Permission denied") -> None:
+        super().__init__(message=message, code="permission_denied")
+        self.status_code = 403
+

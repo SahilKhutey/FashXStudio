@@ -1,9 +1,17 @@
 import asyncio
 from dataclasses import dataclass
 from enum import StrEnum
+from hashlib import sha256
 from typing import Any
+from uuid import UUID
 
 from .errors import IdempotencyConflictError
+
+
+def request_fingerprint(*parts: str | int | UUID | None) -> str:
+    """Deterministically fingerprint request inputs for idempotency comparisons."""
+    canonical = "|".join("" if part is None else str(part) for part in parts)
+    return sha256(canonical.encode("utf-8")).hexdigest()
 
 
 class IdempotencyStatus(StrEnum):
