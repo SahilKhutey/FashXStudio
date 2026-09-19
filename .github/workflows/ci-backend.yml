@@ -1,0 +1,70 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: fashx_test
+          POSTGRES_USER: fashx_user
+          POSTGRES_PASSWORD: fashx_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "./apps/api[dev]"
+
+      - name: Run Ruff Linter & Formatter Check
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Run Mypy Typecheck
+        run: |
+          mypy apps/api/app schemas
+
+      - name: Run Pydantic Contract Regression Tests
+        run: |
+          pytest apps/api/tests/contract
+
+      - name: Run Unit & Integration Tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://fashx_user:fashx_password@localhost:5432/fashx_test
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+        run: |
+          pytest apps/api/tests/unit apps/api/tests/integration
