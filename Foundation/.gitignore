@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local data
+*.sqlite3
+*.db
+coverage.xml
+htmlcov/
+
+# Secrets / credentials
+*.pem
+*.key
+
+# Generated
+*.log
+
+# ML artifacts
+ml/results/
+ml/checkpoints/

@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "AI Fashion Assistant",
+    "slug": "ai-fashion-assistant",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "aifashionassistant",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      "expo-image",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "barcodeScannerEnabled": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

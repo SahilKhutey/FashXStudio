@@ -1,0 +1,22 @@
+[
+  {
+    "merchant_name": "Demo D2C Store",
+    "merchant_type": "d2c",
+    "brand_name": "Demo Fashion",
+    "source_product_id": "DEMO-TEE-001",
+    "title": "Classic Black Cotton T-Shirt",
+    "description": "Minimal regular-fit black cotton t-shirt.",
+    "source_url": "https://example.com/products/demo-tee-001",
+    "category": "tops",
+    "subcategory": "t_shirt",
+    "price_minor": 89900,
+    "currency": "INR",
+    "images": [
+      {
+        "storage_key": "product-images/demo-tee-001/front.webp",
+        "content_hash": "0123456789abcdef0123456789abcdef",
+        "image_type": "front"
+      }
+    ]
+  }
+]
