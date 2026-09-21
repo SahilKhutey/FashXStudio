@@ -136,12 +136,25 @@ FEATURE_CATALOG: tuple[FeatureDefinition, ...] = (
             "personalization.ranking_generated",
         ),
     ),
-    FeatureDefinition("FX-F10", "Shopping Intelligence", "0.1.0", dependencies=("FX-F09",)),
-    FeatureDefinition("FX-F11", "Commerce Flow", "0.1.0", dependencies=("FX-F10",)),
-    FeatureDefinition("FX-F12", "Regional & Geography", "0.1.0", dependencies=("FX-F03",)),
-    FeatureDefinition("FX-F13", "Engagement", "0.1.0", dependencies=("FX-F06",)),
     FeatureDefinition(
-        "FX-F14", "Cross-Feature Integration", "0.1.0", dependencies=("FX-F11", "FX-F12", "FX-F13")
+        "FX-F10", "Shopping Intelligence", "1.0.0", dependencies=("FX-F09",),
+        capabilities=("wishlist", "comparison"), events=("shopping.item_saved", "shopping.compared"),
+    ),
+    FeatureDefinition(
+        "FX-F11", "Commerce Flow", "1.0.0", dependencies=("FX-F10",),
+        capabilities=("cart", "order_lifecycle", "checkout_boundary"), events=("order.created",),
+    ),
+    FeatureDefinition(
+        "FX-F12", "Regional & Geography", "1.0.0", dependencies=("FX-F03",),
+        capabilities=("regional_context", "climate_context"), events=("regional.context_updated",),
+    ),
+    FeatureDefinition(
+        "FX-F13", "Engagement", "1.0.0", dependencies=("FX-F06",),
+        capabilities=("likes", "follows", "reviews", "sharing"), events=("engagement.recorded",),
+    ),
+    FeatureDefinition(
+        "FX-F14", "Cross-Feature Integration", "1.0.0", dependencies=("FX-F11", "FX-F12", "FX-F13"),
+        capabilities=("workflows", "adapter_orchestration", "idempotent_execution"),
     ),
     FeatureDefinition("FX-F15", "Production QA & Validation", "0.1.0", dependencies=("FX-F14",)),
     FeatureDefinition("FX-F16", "Final Production Build", "0.1.0", dependencies=("FX-F15",)),

@@ -17,7 +17,7 @@ class FeatureRegistry:
     @staticmethod
     def _summary(feature: FeatureDefinition) -> FeatureSummary:
         phase = int(feature.feature_id.removeprefix("FX-F"))
-        status = FeatureStatus.ENABLED if phase <= 9 else FeatureStatus.PLANNED
+        status = FeatureStatus.ENABLED if phase <= 14 else FeatureStatus.PLANNED
         return FeatureSummary(
             id=feature.feature_id,
             name=feature.name,
