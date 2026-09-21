@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     )
     sentry_dsn: str | None = Field(default=None, validation_alias="SENTRY_DSN")
     sentry_environment: str = Field(default="development", validation_alias="SENTRY_ENVIRONMENT")
+    feature_flags: dict[str, bool] = Field(
+        default_factory=dict,
+        validation_alias="FEATURE_FLAGS",
+        description="JSON object of feature-id to enabled-state runtime overrides.",
+    )
 
     @property
     def is_production(self) -> bool:

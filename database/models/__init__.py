@@ -19,7 +19,13 @@ from .commerce_feedback import (
     WardrobeItem,
 )
 from .identity import ConsentRecord, User, UserPhoto
-from .profile import BodyProfile, UserMeasurement, UserPreference, UserStyleProfile
+from .profile import (
+    BodyProfile,
+    OnboardingProfile,
+    UserMeasurement,
+    UserPreference,
+    UserStyleProfile,
+)
 from .tryon import TryOnArtifact, TryOnJob
 
 __all__ = [
@@ -43,6 +49,7 @@ __all__ = [
     "User",
     "UserPhoto",
     "BodyProfile",
+    "OnboardingProfile",
     "UserMeasurement",
     "UserPreference",
     "UserStyleProfile",

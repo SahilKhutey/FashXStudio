@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .catalog.router import router as catalog_router
 from .commerce_wardrobe.router import router as commerce_wardrobe_router
+from .features.router import router as features_router
 from .core.logging import configure_logging
 from .core.observability import ContextFilter, configure_sentry
 from .core.settings import get_settings
@@ -48,6 +49,7 @@ def create_app() -> FastAPI:
 
     install_exception_handlers(app)
     app.include_router(health_router)
+    app.include_router(features_router, prefix="/api/v1")
     app.include_router(profile_router, prefix="/api/v1")
     app.include_router(catalog_router, prefix="/api/v1")
     app.include_router(recommendation_router, prefix="/api/v1")

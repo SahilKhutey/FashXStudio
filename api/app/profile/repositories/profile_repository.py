@@ -2,13 +2,13 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from uuid import UUID
 
-from database.models.identity import ConsentRecord, User, UserPhoto
-from database.models.profile import BodyProfile, UserMeasurement, UserPreference
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from api.app.core.repository import BaseRepository
 from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
+from database.models.identity import ConsentRecord, User, UserPhoto
+from database.models.profile import BodyProfile, OnboardingProfile, UserMeasurement, UserPreference
 
 
 class UserRepository(BaseRepository[User]):
@@ -154,6 +154,22 @@ class UserPreferenceRepository(BaseRepository[UserPreference]):
         return pref
 
 
+class OnboardingProfileRepository(BaseRepository[OnboardingProfile]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, OnboardingProfile)
+
+    async def get_by_user_id(self, user_id: UUID) -> OnboardingProfile | None:
+        return await self.session.get(OnboardingProfile, user_id)
+
+    async def create_if_missing(self, user_id: UUID) -> OnboardingProfile:
+        profile = await self.get_by_user_id(user_id)
+        if profile is None:
+            profile = OnboardingProfile(user_id=user_id)
+            self.add(profile)
+            await self.flush()
+        return profile
+
+
 class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of Work bundling Profile aggregate repositories."""
 
@@ -169,6 +185,7 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._measurements: UserMeasurementRepository | None = None
         self._photos: UserPhotoRepository | None = None
         self._preferences: UserPreferenceRepository | None = None
+        self._onboarding_profiles: OnboardingProfileRepository | None = None
 
     async def __aenter__(self) -> "ProfileUnitOfWork":
         await super().__aenter__()
@@ -178,6 +195,7 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._measurements = None
         self._photos = None
         self._preferences = None
+        self._onboarding_profiles = None
         return self
 
     @property
@@ -215,3 +233,9 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         if self._preferences is None:
             self._preferences = UserPreferenceRepository(self.session)
         return self._preferences
+
+    @property
+    def onboarding_profiles(self) -> OnboardingProfileRepository:
+        if self._onboarding_profiles is None:
+            self._onboarding_profiles = OnboardingProfileRepository(self.session)
+        return self._onboarding_profiles
