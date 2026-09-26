@@ -18,6 +18,8 @@ from app.domain.customer.entities import (
 )
 from app.domain.fulfillment.entities import (
     AddressSnapshot as FulfillmentAddressSnapshot,
+)
+from app.domain.fulfillment.entities import (
     Fulfillment,
     FulfillmentLine,
     Shipment,
