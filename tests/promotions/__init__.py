@@ -1,0 +1,1 @@
+"""Promotions test suite."""
