@@ -1,6 +1,9 @@
 import io
 
 import pytest
+from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -60,8 +63,6 @@ from api.app.tryon.application.submit_job import (
 )
 from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.catalog import Brand, Merchant
-from PIL import Image
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 def _generate_valid_portrait() -> bytes:

@@ -1,3 +1,6 @@
+from fastapi import APIRouter
+from fastapi.testclient import TestClient
+
 from api.app.core.errors import (
     ConsentRequiredError,
     DuplicateEntityError,
@@ -6,8 +9,6 @@ from api.app.core.errors import (
     ValidationError,
 )
 from api.app.main import app
-from fastapi import APIRouter
-from fastapi.testclient import TestClient
 
 router = APIRouter(prefix="/api/v1/test-errors")
 

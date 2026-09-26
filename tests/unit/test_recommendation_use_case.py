@@ -1,4 +1,6 @@
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -22,7 +24,6 @@ from api.app.recommendation.application.generate_feed import (
     GenerateFeedUseCase,
 )
 from database.models.catalog import Merchant
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 @pytest.mark.asyncio

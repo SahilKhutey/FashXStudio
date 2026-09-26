@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.commerce_wardrobe.application.submit_fit_feedback import (
     SubmitFitFeedbackCommand,
     SubmitFitFeedbackUseCase,
@@ -13,7 +15,6 @@ from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import 
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.errors import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 @pytest.mark.asyncio

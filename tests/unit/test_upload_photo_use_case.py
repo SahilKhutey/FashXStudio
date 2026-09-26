@@ -1,6 +1,9 @@
 import io
 
 import pytest
+from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.core.errors import ConsentRequiredError
 from api.app.core.ports.storage import InMemoryStorageAdapter
 from api.app.profile.application.create_profile import (
@@ -12,10 +15,8 @@ from api.app.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
-from PIL import Image
 from schemas.common.enums import DataType, PhotoStatus, PhotoType
 from schemas.identity.consent import ConsentUpdate
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 def create_portrait(width: int, height: int, color: tuple[int, int, int]) -> bytes:

@@ -2,6 +2,9 @@ import io
 from uuid import uuid4
 
 import pytest
+from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.core.ports.storage import InMemoryStorageAdapter
 from api.app.profile.application.create_profile import (
     CreateProfileCommand,
@@ -18,8 +21,6 @@ from api.app.profile.application.upload_photo import (
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.tryon import TryOnArtifact, TryOnJob
-from PIL import Image
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 def _create_portrait_image() -> bytes:

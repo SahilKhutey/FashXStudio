@@ -1,7 +1,8 @@
 import io
 
-from api.app.tryon.quality_validator import PostInferenceQualityValidator
 from PIL import Image
+
+from api.app.tryon.quality_validator import PostInferenceQualityValidator
 
 
 def _generate_png(size: tuple[int, int], color: tuple[int, int, int]) -> bytes:

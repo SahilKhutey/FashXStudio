@@ -1,5 +1,4 @@
 import pytest_asyncio
-from database.models import Base
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -7,6 +6,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.pool import StaticPool
+
+from database.models import Base
 
 
 @pytest_asyncio.fixture

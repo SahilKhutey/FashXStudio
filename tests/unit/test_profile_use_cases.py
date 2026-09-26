@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
 from api.app.profile.application.create_profile import (
     CreateProfileCommand,
@@ -13,7 +15,6 @@ from api.app.profile.application.record_measurement import (
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 from schemas.common.enums import BuildType, DataType, MeasurementSource
 from schemas.identity.consent import ConsentUpdate
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 @pytest.mark.asyncio

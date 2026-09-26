@@ -1,7 +1,8 @@
 import io
 
-from api.app.profile.capture.validator import PhotoQualityValidator
 from PIL import Image
+
+from api.app.profile.capture.validator import PhotoQualityValidator
 from schemas.common.enums import PhotoStatus
 
 

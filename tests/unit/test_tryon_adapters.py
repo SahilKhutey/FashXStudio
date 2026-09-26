@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import pytest
+
 from api.app.tryon.adapters.commercial_api_adapter import CommercialApiAdapter
 from api.app.tryon.adapters.mock_adapter import MockTryOnAdapter
 from api.app.tryon.adapters.research_diffusion_adapter import (

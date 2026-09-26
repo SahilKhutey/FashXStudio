@@ -2,6 +2,9 @@ import io
 from uuid import uuid4
 
 import pytest
+from PIL import Image
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -30,8 +33,6 @@ from api.app.tryon.application.submit_job import (
 from api.app.tryon.ports import InferenceInput, InferenceOutput
 from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.catalog import Merchant
-from PIL import Image
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 def _create_valid_portrait_bytes() -> bytes:

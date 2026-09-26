@@ -1,5 +1,6 @@
-from api.app.main import app
 from fastapi.testclient import TestClient
+
+from api.app.main import app
 
 
 def test_liveness() -> None:

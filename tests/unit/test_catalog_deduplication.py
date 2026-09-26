@@ -1,9 +1,10 @@
 import io
 from uuid import uuid4
 
+from PIL import Image
+
 from api.app.catalog.deduplication.hasher import ImageHasher
 from api.app.catalog.deduplication.matcher import GarmentMatcher, MatchConfidence
-from PIL import Image
 
 
 def create_test_image(color: tuple[int, int, int], pattern: bool = False) -> bytes:

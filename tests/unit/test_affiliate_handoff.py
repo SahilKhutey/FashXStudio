@@ -2,6 +2,8 @@ from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
@@ -21,7 +23,6 @@ from api.app.profile.application.create_profile import (
 )
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 from database.models.catalog import Merchant
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 @pytest.mark.asyncio

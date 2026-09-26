@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
@@ -8,7 +10,6 @@ from api.app.catalog.application.ingest_product import (
 from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.errors import EntityNotFoundError, ValidationError
 from database.models.catalog import Merchant
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 @pytest.mark.asyncio
