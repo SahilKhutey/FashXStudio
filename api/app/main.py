@@ -13,6 +13,7 @@ from .health.router import router as health_router
 from .profile.router import router as profile_router
 from .recommendation.router import router as recommendation_router
 from .tryon.router import router as tryon_router
+from .visual.router import router as visual_router
 
 
 def create_app() -> FastAPI:
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(recommendation_router, prefix="/api/v1")
     app.include_router(tryon_router, prefix="/api/v1")
     app.include_router(commerce_wardrobe_router, prefix="/api/v1")
+    app.include_router(visual_router, prefix="/api/v1")
 
     from app.api.v1.analytics import router as analytics_router
     from app.api.v1.cart import router as cart_router
