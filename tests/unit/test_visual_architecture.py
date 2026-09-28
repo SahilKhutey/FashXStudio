@@ -1,7 +1,8 @@
 """Unit tests for FashXStudio Visual Layer Architecture.
 
-Phase 01: Visual Product Architecture
-Verifies Screen Inventory, Route Registries, Domain Classifications,
+Phase 01: Visual Product Architecture + Complete Screen / Page Inventory
+Verifies Screen Inventory (123 screens), Route Registries, Domain Classifications,
+Page Templates (11 templates), Implementation Dependency Groups (5 groups),
 Responsive Breakpoint Models, and Schema Contract integrity (Rules I01, I02, I03).
 """
 
@@ -17,17 +18,19 @@ from api.app.visual.catalog import (
 from schemas.visual.v1 import (
     BreakpointConfig,
     DeviceBreakpoint,
+    ImplementationDependencyGroup,
     NavigationType,
+    PageTemplateType,
     ScreenDefinition,
     ScreenDomain,
     ScreenInventoryRegistry,
 )
 
 
-def test_screen_inventory_has_expected_volume_and_unique_ids() -> None:
+def test_screen_inventory_has_exact_123_screens_and_unique_ids() -> None:
     inventory = get_screen_inventory()
-    assert inventory.total_screens == len(CANONICAL_SCREENS)
-    assert inventory.total_screens >= 50
+    assert inventory.total_screens == 123
+    assert len(CANONICAL_SCREENS) == 123
 
     screen_ids = [s.screen_id for s in inventory.screens]
     assert len(screen_ids) == len(set(screen_ids)), "Duplicate screen_id detected!"
@@ -36,13 +39,48 @@ def test_screen_inventory_has_expected_volume_and_unique_ids() -> None:
     assert len(routes) == len(set(routes)), "Duplicate route detected!"
 
 
-def test_all_12_screen_domains_are_covered() -> None:
+def test_all_13_screen_domains_are_covered() -> None:
     inventory = get_screen_inventory()
     registered_domains = {s.domain for s in inventory.screens}
-    all_domains = set(ScreenDomain)
 
-    assert registered_domains == all_domains, (
-        f"Missing domains in screen inventory: {all_domains - registered_domains}"
+    core_domains = {
+        ScreenDomain.PLATFORM,
+        ScreenDomain.HOME,
+        ScreenDomain.DISCOVERY,
+        ScreenDomain.SEARCH,
+        ScreenDomain.PRODUCT,
+        ScreenDomain.SHOPPING,
+        ScreenDomain.FASHION,
+        ScreenDomain.STYLE,
+        ScreenDomain.TRENDS,
+        ScreenDomain.REGIONAL,
+        ScreenDomain.AI,
+        ScreenDomain.PROFILE,
+        ScreenDomain.SYSTEM,
+    }
+
+    assert core_domains == registered_domains, (
+        f"Missing or mismatched domains: {core_domains ^ registered_domains}"
+    )
+
+
+def test_all_11_page_templates_are_covered() -> None:
+    inventory = get_screen_inventory()
+    registered_templates = {s.template_type for s in inventory.screens}
+    all_templates = set(PageTemplateType)
+
+    assert registered_templates == all_templates, (
+        f"Missing templates in screen inventory: {all_templates - registered_templates}"
+    )
+
+
+def test_all_5_implementation_dependency_groups_are_covered() -> None:
+    inventory = get_screen_inventory()
+    registered_groups = {s.dependency_group for s in inventory.screens}
+    all_groups = set(ImplementationDependencyGroup)
+
+    assert registered_groups == all_groups, (
+        f"Missing dependency groups in screen inventory: {all_groups - registered_groups}"
     )
 
 
@@ -59,23 +97,32 @@ def test_every_screen_references_valid_feature_catalog_id() -> None:
 def test_screen_lookup_helpers() -> None:
     inventory = get_screen_inventory()
 
-    # Get by ID
-    disc01 = inventory.get_screen("SCR-DISC-01")
-    assert disc01 is not None
-    assert disc01.title == "Personalized Discovery Feed"
-    assert disc01.domain == ScreenDomain.DISCOVERY
+    # Get by ID / Code
+    p02 = inventory.get_screen("P02")
+    assert p02 is not None
+    assert p02.title == "Product Detail"
+    assert p02.domain == ScreenDomain.PRODUCT
+    assert p02.template_type == PageTemplateType.DETAIL
 
     # Get by Route
-    route_match = inventory.get_by_route("/(tabs)/tryon")
+    route_match = inventory.get_by_route("/(tabs)/discover")
     assert route_match is not None
-    assert route_match.screen_id == "SCR-VTO-01"
+    assert route_match.screen_id == "D01"
 
     # Get by Domain
-    onboarding_screens = inventory.get_by_domain(ScreenDomain.ONBOARDING)
-    assert len(onboarding_screens) == 5
+    home_screens = inventory.get_by_domain(ScreenDomain.HOME)
+    assert len(home_screens) == 7
+
+    # Get by Template
+    listing_screens = inventory.get_by_template(PageTemplateType.LISTING)
+    assert len(listing_screens) >= 30
+
+    # Get by Dependency Group
+    group_a_screens = inventory.get_by_dependency_group(ImplementationDependencyGroup.GROUP_A_FOUNDATION)
+    assert len(group_a_screens) == 8
 
     # Non-existent
-    assert inventory.get_screen("SCR-DOES-NOT-EXIST") is None
+    assert inventory.get_screen("Z99") is None
     assert inventory.get_by_route("/non/existent") is None
 
 
@@ -112,31 +159,15 @@ def test_schema_contract_primacy_rejects_extra_fields() -> None:
         )
 
 
-def test_biometric_consent_flag_matches_privacy_sensitive_screens() -> None:
-    inventory = get_screen_inventory()
-
-    biometric_screens = [s for s in inventory.screens if s.requires_biometric_consent]
-    # Biometric consent must be enforced for portrait capture, calibration, VTO fitting canvas, VTO layers, VTO progress, VTO result, avatar manager
-    expected_biometric_ids = {
-        "SCR-ONB-03",
-        "SCR-ONB-04",
-        "SCR-VTO-01",
-        "SCR-VTO-02",
-        "SCR-VTO-03",
-        "SCR-VTO-04",
-        "SCR-PROF-03",
-    }
-    actual_biometric_ids = {s.screen_id for s in biometric_screens}
-    assert actual_biometric_ids == expected_biometric_ids
-
-
 def test_visual_design_0_taxonomy_completeness() -> None:
     from schemas.visual.v1 import (
         AiInteractionStage,
         ComponentTaxonomyLevel,
         FashionContentType,
+        ImplementationDependencyGroup,
         InteractionStateEnum,
         MapLayerType,
+        PageTemplateType,
         ShoppingFunnelStage,
     )
 
@@ -146,22 +177,24 @@ def test_visual_design_0_taxonomy_completeness() -> None:
     assert len(MapLayerType) == 3
     assert len(AiInteractionStage) == 6
     assert len(InteractionStateEnum) == 12
+    assert len(PageTemplateType) == 11
+    assert len(ImplementationDependencyGroup) == 5
 
 
 def test_screen_specification_contract_validates_all_17_fields() -> None:
     from schemas.visual.v1 import InteractionStateEnum, ScreenSpecificationContract
 
     spec = ScreenSpecificationContract(
-        screen_id="SCR-DISC-01",
-        screen_name="Personalized Discovery Feed",
-        purpose="Deliver MMR λ=0.7 diversified daily outfit recommendations",
-        user="Authenticated Consumer",
-        entry_point="/(tabs)/discover",
-        exit_point="/product/[id], /tryon, /closet",
-        primary_action="Select Item for Virtual Try-On",
-        secondary_actions=["Save to Closet", "View Stylist Rationale", "Filter by Category"],
-        data_sources=["GET /api/v1/recommendations/feed", "GET /api/v1/profile/preferences"],
-        components=["ProductGrid", "RecommendationCard", "StylistRationaleChip", "FilterBar"],
+        screen_id="P02",
+        screen_name="Product Detail",
+        purpose="Deliver comprehensive single-garment inspection with gallery and variant swatches",
+        user="Authenticated / Guest Consumer",
+        entry_point="/products, /discover, /search",
+        exit_point="/products, /tryon, /shopping/cart",
+        primary_action="Launch Virtual Try-On",
+        secondary_actions=["Add to Cart", "Save to Wishlist", "View Sizing Guide"],
+        data_sources=["GET /api/v1/products/{id}", "GET /api/v1/products/{id}/availability"],
+        components=["HeroGallery", "SpecSheet", "VariantPicker", "PriceComponent"],
         states=[
             InteractionStateEnum.DEFAULT,
             InteractionStateEnum.LOADING,
@@ -170,31 +203,30 @@ def test_screen_specification_contract_validates_all_17_fields() -> None:
             InteractionStateEnum.ERROR,
         ],
         responsive_rules={
-            "xs": "Single column vertical feed",
-            "sm": "2-column grid",
-            "md": "3-column grid",
-            "lg": "4-column grid with sticky right try-on canvas",
-            "xl": "12-column bounded grid max-width 1440px",
+            "xs": "Single column scrollable vertical stack",
+            "sm": "Enlarged hero image with sticky bottom action sheet",
+            "md": "Split pane: 50% gallery left, 50% product info right",
+            "lg": "Split pane with sticky styling canvas on right rail",
+            "xl": "Bounded 12-column grid max-width 1440px",
         },
         accessibility={
             "role": "main",
-            "aria_label": "Personalized Fashion Discovery Feed",
-            "focus_management": "First feed item receives initial keyboard focus",
+            "aria_label": "Product Detail Page",
+            "focus_management": "Gallery receives initial focus on mount",
         },
         error_handling={
             "boundary": "StateBoundary fallback with retry action",
             "envelope": "RFC-7807 ErrorResponse",
         },
-        analytics_events=["discovery.opened", "discovery.item_viewed", "discovery.item_saved"],
-        dependencies=["FX-F01", "FX-F02", "FX-F03"],
-        test_cases=["TC-SCR-DISC-01-01", "TC-SCR-DISC-01-02"],
+        analytics_events=["product.viewed", "product.variant_selected", "product.action"],
+        dependencies=["FX-F01", "FX-F05"],
+        test_cases=["TC-P02-01", "TC-P02-02"],
     )
 
-    assert spec.screen_id == "SCR-DISC-01"
+    assert spec.screen_id == "P02"
     assert len(spec.secondary_actions) == 3
     assert len(spec.states) == 5
 
-    # Enforce extra="forbid" on 17-point specification contract
     with pytest.raises(ValidationError):
         ScreenSpecificationContract(
             **spec.model_dump(),

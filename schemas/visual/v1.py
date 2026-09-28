@@ -1,8 +1,8 @@
 """FashXStudio Visual Layer Contracts — Version 1.
 
 Governs the screen inventory, route registry, responsive layouts,
-interaction state models, and the 17-point Screen Specification Contract
-for the Screens / Pages / Visual Design subsystem.
+interaction state models, page templates, dependency groups,
+and the 17-point Screen Specification Contract for the Screens / Pages / Visual Design subsystem.
 Enforces Constitution Rule I02 (Contract Primacy) with extra="forbid".
 """
 
@@ -13,18 +13,51 @@ from schemas.base import BaseContractModel
 
 
 class ScreenDomain(StrEnum):
-    ONBOARDING = "onboarding"
+    # Core Experience Domains (Visual Design — 1)
+    PLATFORM = "platform"
+    HOME = "home"
     DISCOVERY = "discovery"
     SEARCH = "search"
     PRODUCT = "product"
+    SHOPPING = "shopping"
+    FASHION = "fashion"
+    STYLE = "style"
+    TRENDS = "trends"
+    REGIONAL = "regional"
+    AI = "ai"
+    PROFILE = "profile"
+    SYSTEM = "system"
+    # Aliases / Subdomain compatibility
+    ONBOARDING = "onboarding"
     VTO = "vto"
     CLOSET = "closet"
     OUTFIT = "outfit"
-    SHOPPING = "shopping"
-    REGIONAL = "regional"
     INTELLIGENCE = "intelligence"
-    PROFILE = "profile"
     ADMIN = "admin"
+
+
+class PageTemplateType(StrEnum):
+    """The 11 Reusable Page Templates (Visual Design — 1 Section 1.24)."""
+    LISTING = "listing"
+    DETAIL = "detail"
+    DISCOVERY = "discovery"
+    EDITORIAL = "editorial"
+    BUILDER = "builder"
+    MAP = "map"
+    DASHBOARD = "dashboard"
+    ASSISTANT = "assistant"
+    COMPARISON = "comparison"
+    CHECKOUT = "checkout"
+    SETTINGS = "settings"
+
+
+class ImplementationDependencyGroup(StrEnum):
+    """Implementation Sequencing by Dependency Order (Visual Design — 1 Section 1.20)."""
+    GROUP_A_FOUNDATION = "group_a_foundation"
+    GROUP_B_CORE_CONTENT = "group_b_core_content"
+    GROUP_C_ADVANCED_EXPERIENCES = "group_c_advanced_experiences"
+    GROUP_D_PERSONALIZATION = "group_d_personalization"
+    GROUP_E_PRODUCTION_QUALITY = "group_e_production_quality"
 
 
 class NavigationType(StrEnum):
@@ -101,12 +134,18 @@ class AiInteractionStage(StrEnum):
 
 
 class ScreenDefinition(BaseContractModel):
-    screen_id: str = Field(..., description="Unique screen identifier e.g. SCR-DISC-01")
+    screen_id: str = Field(..., description="Unique screen identifier e.g. SCR-DISC-01 or P02")
+    screen_code: str | None = Field(default=None, description="Short screen catalog code e.g. P02, A01, D01")
     title: str = Field(..., description="Human-readable screen title")
     domain: ScreenDomain = Field(..., description="Product domain classification")
     route: str = Field(..., description="Canonical route or deep-link path")
     navigation_type: NavigationType = Field(default=NavigationType.STACK, description="Presentation mode")
     feature_id: str = Field(..., description="Bound Feature Platform ID e.g. FX-F03")
+    template_type: PageTemplateType = Field(default=PageTemplateType.DISCOVERY, description="Reusable page template")
+    dependency_group: ImplementationDependencyGroup = Field(
+        default=ImplementationDependencyGroup.GROUP_B_CORE_CONTENT,
+        description="Implementation dependency sequence",
+    )
     requires_auth: bool = Field(default=True, description="Whether authentication is required")
     requires_biometric_consent: bool = Field(default=False, description="Whether GDPR biometric consent is required")
     supported_breakpoints: list[DeviceBreakpoint] = Field(
@@ -138,7 +177,7 @@ class ScreenInventoryRegistry(BaseContractModel):
 
     def get_screen(self, screen_id: str) -> ScreenDefinition | None:
         for s in self.screens:
-            if s.screen_id == screen_id:
+            if s.screen_id == screen_id or s.screen_code == screen_id:
                 return s
         return None
 
@@ -148,13 +187,19 @@ class ScreenInventoryRegistry(BaseContractModel):
                 return s
         return None
 
-    def get_by_domain(self, domain: ScreenDomain) -> list[ScreenDefinition]:
+    def get_by_domain(self, domain: ScreenDomain | str) -> list[ScreenDefinition]:
         return [s for s in self.screens if s.domain == domain]
+
+    def get_by_template(self, template: PageTemplateType) -> list[ScreenDefinition]:
+        return [s for s in self.screens if s.template_type == template]
+
+    def get_by_dependency_group(self, group: ImplementationDependencyGroup) -> list[ScreenDefinition]:
+        return [s for s in self.screens if s.dependency_group == group]
 
 
 class ScreenSpecificationContract(BaseContractModel):
     """The 17-point Screen Specification Contract governing every FashXStudio screen."""
-    screen_id: str = Field(..., description="1. Unique Screen ID e.g. SCR-DISC-01")
+    screen_id: str = Field(..., description="1. Unique Screen ID e.g. P02 or SCR-DISC-01")
     screen_name: str = Field(..., description="2. Formal human-readable screen name")
     purpose: str = Field(..., description="3. Concise business/user purpose of the screen")
     user: str = Field(..., description="4. User persona or role target")
