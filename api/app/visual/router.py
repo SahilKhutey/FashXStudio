@@ -32,6 +32,35 @@ from .tokens_service import (
     get_token_registry,
     validate_tokens,
 )
+from schemas.visual.shell import (
+    ApplicationShellContract,
+    BreadcrumbItemContract,
+    LayoutTemplate,
+    LayoutTemplateContract,
+    NavigationConfigContract,
+    OverlayContract,
+    OverlayRegistryContract,
+    OverlayType,
+    PageHeaderContract,
+    PageHeaderVariant,
+    ToastContract,
+    ToastType,
+)
+from .shell_service import (
+    build_application_shell,
+    build_layout_template,
+    build_page_header,
+    create_overlay,
+    create_toast,
+    dismiss_toast,
+    get_navigation_config,
+    pop_overlay,
+    push_overlay,
+    push_toast,
+    resolve_breadcrumbs,
+    resolve_shell_layout_mode,
+    resolve_sidebar_mode,
+)
 
 router = APIRouter(prefix="/visual", tags=["Visual Architecture"])
 
@@ -213,3 +242,101 @@ def calculate_grid(
         "gutter_px": gutter_px,
         "columns": columns,
     }
+
+
+# ---------------------------------------------------------------------------
+# Application Shell Endpoints (Phase 03)
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/shell",
+    response_model=ApplicationShellContract,
+    summary="Get resolved application shell for a viewport and route",
+)
+def get_shell(
+    viewport_width: int = Query(default=375, ge=1, description="Viewport width in pixels"),
+    active_route: str = Query(default="/", description="Current active route path"),
+    theme_mode: str = Query(default="light", description="Theme mode: light or dark"),
+    notification_count: int = Query(default=0, ge=0, description="Notification badge count"),
+) -> ApplicationShellContract:
+    """Return a fully resolved application shell with navigation, layout mode, header, and sidebar."""
+    return build_application_shell(
+        viewport_width_px=viewport_width,
+        active_route=active_route,
+        theme_mode=theme_mode,
+        notification_count=notification_count,
+    )
+
+
+@router.get(
+    "/shell/navigation",
+    response_model=NavigationConfigContract,
+    summary="Get canonical application navigation configuration",
+)
+def get_navigation() -> NavigationConfigContract:
+    """Return the full navigation configuration including primary, personal, and bottom bar items."""
+    return get_navigation_config()
+
+
+@router.get(
+    "/shell/breadcrumbs",
+    response_model=list[BreadcrumbItemContract],
+    summary="Resolve breadcrumb trail for a route path",
+)
+def get_breadcrumbs(
+    route: str = Query(..., description="Route path to resolve (e.g. /shopping/products/123)"),
+) -> list[BreadcrumbItemContract]:
+    """Resolve the breadcrumb trail from a URL pathname."""
+    return resolve_breadcrumbs(route)
+
+
+@router.get(
+    "/shell/layout-mode",
+    summary="Resolve shell layout mode from viewport width",
+)
+def get_layout_mode(
+    viewport_width: int = Query(..., ge=1, description="Viewport width in pixels"),
+) -> dict[str, str]:
+    """Return the shell layout mode (desktop, tablet, mobile) and sidebar mode from viewport width."""
+    layout_mode = resolve_shell_layout_mode(viewport_width)
+    sidebar_mode = resolve_sidebar_mode(viewport_width)
+    return {
+        "viewport_width_px": str(viewport_width),
+        "layout_mode": layout_mode.value,
+        "sidebar_mode": sidebar_mode.value,
+    }
+
+
+@router.get(
+    "/shell/page-header",
+    response_model=PageHeaderContract,
+    summary="Build a typed page header with automatic breadcrumb resolution",
+)
+def get_page_header(
+    title: str = Query(..., description="Page title"),
+    route: str = Query(default="/", description="Active route for breadcrumb resolution"),
+    variant: PageHeaderVariant = Query(default=PageHeaderVariant.STANDARD),
+    description: str | None = Query(default=None),
+    result_count: int | None = Query(default=None),
+) -> PageHeaderContract:
+    """Generate a typed page header contract for a given route and variant."""
+    return build_page_header(
+        title=title,
+        variant=variant,
+        description=description,
+        route=route,
+        result_count=result_count,
+    )
+
+
+@router.get(
+    "/shell/layout-template",
+    response_model=LayoutTemplateContract,
+    summary="Build a typed layout template specification",
+)
+def get_layout_template(
+    template: LayoutTemplate = Query(..., description="Layout template type"),
+    max_width: str = Query(default="1280px", description="Container max-width"),
+) -> LayoutTemplateContract:
+    """Return a layout template contract with container config and scroll behavior."""
+    return build_layout_template(template=template, max_width=max_width)
