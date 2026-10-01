@@ -14,3 +14,5 @@ export * from "./navigation";
 export * from "./shell";
 export * from "./tokens";
 export * from "./components";
+export * from "./fashion";
+
