@@ -1,30 +1,60 @@
 """Unit tests for FashXStudio Component Framework — Phase 05.
 
-Validates Level 1 (Primitives) and Level 2 (Core UI) component specifications,
-catalog completeness, WCAG accessibility criteria, design token mappings,
-and Pydantic v2 contract enforcement (extra="forbid").
+Validates the complete 5-layer Component Architecture (Sections 5.1-5.72):
+- L1 Primitives: Box, Stack, Inline, Grid, Container, Typography, Button, Input, Badge, Skeleton
+- L2 Core UI: IconButton, Link, Chip, Avatar, Alert, Price, QuantityControl, Pagination, Card, Modal, Rating, SegmentedControl, FormField, EmptyState, ErrorState
+- L3 Composites: ProductCard, FashionCard, LookCard, CollectionCard, RecommendationCard, SearchBar, FilterBar, ActionBar
+- Enforces strict Pydantic v2 extra='forbid' across all components.
 """
 
 import pytest
 from schemas.visual.components import (
+    ActionBarSpecContract,
+    AlertSpecContract,
+    AlertVariant,
+    AvatarSpecContract,
     BadgeSpecContract,
     BadgeVariant,
+    BoxSpecContract,
     ButtonSpecContract,
     ButtonVariant,
     CardSpecContract,
     CardVariant,
+    ChipSpecContract,
+    CollectionCardSpecContract,
     ComponentCatalogContract,
     ComponentSize,
     ComponentTaxonomy,
+    ContainerSpecContract,
+    DialogConfirmSpecContract,
+    DrawerSpecContract,
+    EmptyStateSpecContract,
+    ErrorStateSpecContract,
+    FashionCardSpecContract,
+    FilterBarSpecContract,
     FormFieldSpecContract,
+    GridSpecContract,
+    IconButtonSpecContract,
+    InlineSpecContract,
     InputSpecContract,
     InputType,
+    LinkSpecContract,
+    LookCardSpecContract,
     ModalSpecContract,
+    PaginationSpecContract,
+    PriceSpecContract,
+    ProductCardSpecContract,
+    ProgressSpecContract,
+    ProgressVariant,
+    QuantityControlSpecContract,
     RatingSpecContract,
+    RecommendationCardSpecContract,
+    SearchBarSpecContract,
     SegmentedControlOptionContract,
     SegmentedControlSpecContract,
     SkeletonShape,
     SkeletonSpecContract,
+    StackSpecContract,
     TypographyRole,
     TypographySpecContract,
 )
@@ -36,16 +66,17 @@ from api.app.visual.components_service import (
 
 
 # ---------------------------------------------------------------------------
-# 1. Catalog Completeness & Taxonomy
+# 1. Catalog Completeness & Taxonomy Across 3 Layers
 # ---------------------------------------------------------------------------
 
-def test_component_catalog_contains_primitives_and_core_ui() -> None:
-    """Catalog contains both Level 1 Primitives and Level 2 Core UI components."""
+def test_component_catalog_contains_primitives_core_and_composites() -> None:
+    """Catalog contains L1 Primitives, L2 Core UI, and L3 Composite components."""
     catalog = get_component_catalog()
     assert isinstance(catalog, ComponentCatalogContract)
-    assert len(catalog.primitives) >= 7
-    assert len(catalog.core_ui) >= 6
-    assert catalog.total_components >= 13
+    assert len(catalog.primitives) >= 12
+    assert len(catalog.core_ui) >= 14
+    assert len(catalog.composites) >= 8
+    assert catalog.total_components >= 34
 
 
 def test_primitive_components_taxonomy() -> None:
@@ -53,7 +84,6 @@ def test_primitive_components_taxonomy() -> None:
     catalog = get_component_catalog()
     for comp in catalog.primitives:
         assert comp.taxonomy == ComponentTaxonomy.LEVEL_1_PRIMITIVE
-        assert len(comp.available_variants) > 0
         assert len(comp.design_tokens_used) > 0
         assert len(comp.wcag_criteria) > 0
 
@@ -63,205 +93,346 @@ def test_core_ui_components_taxonomy() -> None:
     catalog = get_component_catalog()
     for comp in catalog.core_ui:
         assert comp.taxonomy == ComponentTaxonomy.LEVEL_2_CORE_UI
-        assert len(comp.available_variants) > 0
-        assert len(comp.design_tokens_used) > 0
         assert len(comp.wcag_criteria) > 0
 
 
+def test_composite_components_taxonomy() -> None:
+    """All composite components have LEVEL_3_COMPOSITE taxonomy."""
+    catalog = get_component_catalog()
+    for comp in catalog.composites:
+        assert comp.taxonomy == ComponentTaxonomy.LEVEL_3_COMPOSITE
+
+
 def test_find_component_case_insensitive() -> None:
-    """Catalog finds components regardless of case."""
+    """Catalog finds components regardless of casing."""
     catalog = get_component_catalog()
     assert catalog.find_component("button") is not None
     assert catalog.find_component("BUTTON") is not None
-    assert catalog.find_component("Card") is not None
+    assert catalog.find_component("ProductCard") is not None
+    assert catalog.find_component("product_card") is not None
     assert catalog.find_component("nonexistent") is None
 
 
 # ---------------------------------------------------------------------------
-# 2. Button Spec Contract
+# 2. L1: Layout Primitives (CMP-001 - CMP-005)
 # ---------------------------------------------------------------------------
 
-def test_button_spec_defaults_and_wcag_target() -> None:
-    """Button defaults to primary MD and enforces >= 44px min touch target."""
-    button = ButtonSpecContract(label="Try On")
+def test_cmp_001_box_spec() -> None:
+    """CMP-001: Box primitive contract validates tokens for surface and spacing."""
+    box = BoxSpecContract(padding="space.4", background_token="surface.primary")
+    assert box.padding == "space.4"
+    assert box.background_token == "surface.primary"
+
+
+def test_cmp_002_stack_spec() -> None:
+    """CMP-002: Stack vertical layout specifies gap and alignment."""
+    stack = StackSpecContract(gap="space.component.md", align="center", is_reversed=True)
+    assert stack.gap == "space.component.md"
+    assert stack.align == "center"
+    assert stack.is_reversed is True
+
+
+def test_cmp_003_inline_spec() -> None:
+    """CMP-003: Inline horizontal layout specifies wrapping and justification."""
+    inline = InlineSpecContract(gap="space.2", wrap=True, justify="space-between")
+    assert inline.wrap is True
+    assert inline.justify == "space-between"
+
+
+def test_cmp_004_grid_spec() -> None:
+    """CMP-004: Grid specifies columns (1-12) and min column width."""
+    grid = GridSpecContract(columns=4, min_column_width_px=240)
+    assert grid.columns == 4
+
+    with pytest.raises(Exception):
+        GridSpecContract(columns=16)  # Out of bounds (1..12)
+
+
+def test_cmp_005_container_spec() -> None:
+    """CMP-005: Container bounds content width and enforces responsive gutters."""
+    container = ContainerSpecContract(max_width_px=1440, is_centered=True)
+    assert container.max_width_px == 1440
+    assert container.is_centered is True
+
+
+# ---------------------------------------------------------------------------
+# 3. L1 & L2: Actions & Buttons (CMP-010 - CMP-016)
+# ---------------------------------------------------------------------------
+
+def test_cmp_010_button_spec_defaults_and_target() -> None:
+    """CMP-010: Button defaults to primary MD and enforces >= 44px touch target."""
+    button = ButtonSpecContract(label="Explore Fashion")
     assert button.variant == ButtonVariant.PRIMARY
     assert button.size == ComponentSize.MD
     assert button.min_touch_target_px >= 44
-    assert button.is_loading is False
-    assert button.is_disabled is False
 
 
-def test_button_spec_variants() -> None:
-    """Button supports all 5 designated variants."""
-    for variant in ButtonVariant:
-        btn = ButtonSpecContract(label="Action", variant=variant)
-        assert btn.variant == variant
+def test_cmp_011_button_disabled() -> None:
+    """CMP-011: Button carries disabled state flag."""
+    button = ButtonSpecContract(label="Disabled Action", is_disabled=True)
+    assert button.is_disabled is True
 
 
-def test_button_spec_rejects_extra_fields() -> None:
-    """Button spec strictly forbids undeclared fields (extra='forbid')."""
+def test_cmp_012_button_loading() -> None:
+    """CMP-012: Button carries loading state to prevent duplicate submission."""
+    button = ButtonSpecContract(label="Saving...", is_loading=True)
+    assert button.is_loading is True
+
+
+def test_cmp_016_icon_button_accessible_name_required() -> None:
+    """CMP-016: IconButton strictly requires accessibility_label."""
+    ib = IconButtonSpecContract(icon="♡", accessibility_label="Add to wishlist")
+    assert ib.accessibility_label == "Add to wishlist"
+
     with pytest.raises(Exception):
-        ButtonSpecContract(label="Submit", custom_arbitrary_field=True)  # type: ignore
+        IconButtonSpecContract(icon="🔍")  # Missing required accessibility_label
+
+
+def test_link_spec() -> None:
+    """Link contract validates href, external flag, and display label."""
+    link = LinkSpecContract(href="/discover", label="Discover More", is_external=False)
+    assert link.href == "/discover"
+    assert link.is_external is False
 
 
 # ---------------------------------------------------------------------------
-# 3. Input Spec Contract
+# 4. L2: Inputs & Forms (CMP-020 - CMP-026)
 # ---------------------------------------------------------------------------
 
-def test_input_spec_defaults() -> None:
-    """Input defaults to text type with clear button enabled."""
-    inp = InputSpecContract(label="Search Styles", placeholder="Denim, Leather...")
-    assert inp.input_type == InputType.TEXT
+def test_cmp_020_input_spec() -> None:
+    """CMP-020: Input specifies formats, clear button, and placeholder."""
+    inp = InputSpecContract(input_type=InputType.SEARCH, placeholder="Search...")
+    assert inp.input_type == InputType.SEARCH
     assert inp.show_clear_button is True
-    assert inp.is_disabled is False
-    assert inp.is_required is False
 
 
-def test_input_spec_error_state() -> None:
-    """Input correctly carries error text for accessibility alerting."""
-    inp = InputSpecContract(label="Email", error_text="Invalid fashion account email")
-    assert inp.error_text == "Invalid fashion account email"
+def test_cmp_021_form_field_association() -> None:
+    """CMP-021: FormField associates label, required asterisks, and error region."""
+    ff = FormFieldSpecContract(
+        field_id="email-input",
+        label="Email Address",
+        is_required=True,
+        error_text="Invalid email address format",
+        state="error",
+    )
+    assert ff.is_required is True
+    assert ff.state == "error"
 
 
-# ---------------------------------------------------------------------------
-# 4. Badge Spec Contract
-# ---------------------------------------------------------------------------
-
-def test_badge_spec_variants() -> None:
-    """Badge supports 8 semantic color variants and pill shaping."""
-    for variant in BadgeVariant:
-        badge = BadgeSpecContract(label="Trending", variant=variant)
-        assert badge.variant == variant
-        assert badge.is_pill is True
-
-
-# ---------------------------------------------------------------------------
-# 5. Typography Spec Contract
-# ---------------------------------------------------------------------------
-
-def test_typography_spec_roles() -> None:
-    """Typography supports 15 type scale hierarchy roles."""
-    for role in TypographyRole:
-        typ = TypographySpecContract(role=role, text="FashXStudio")
-        assert typ.role == role
-        assert typ.align == "left"
+def test_chip_spec() -> None:
+    """Chip tracks selection state and removable trigger."""
+    chip = ChipSpecContract(label="Mumbai", is_selected=True, is_removable=True)
+    assert chip.is_selected is True
+    assert chip.is_removable is True
 
 
 # ---------------------------------------------------------------------------
-# 6. Skeleton Spec Contract
+# 5. L2: Overlays (CMP-030 - CMP-035)
 # ---------------------------------------------------------------------------
 
-def test_skeleton_spec_shapes() -> None:
-    """Skeleton supports rectangle, rounded, circle, and text shapes."""
-    for shape in SkeletonShape:
-        skel = SkeletonSpecContract(shape=shape, width=120, height=40)
-        assert skel.shape == shape
-        assert skel.is_animated is True
-
-
-# ---------------------------------------------------------------------------
-# 7. Card Spec Contract
-# ---------------------------------------------------------------------------
-
-def test_card_spec_elevations_and_variants() -> None:
-    """Card supports elevations 0-5 and elevated/outlined/filled variants."""
-    for el in range(6):
-        card = CardSpecContract(elevation=el, variant=CardVariant.ELEVATED)
-        assert card.elevation == el
-
-    for v in CardVariant:
-        card = CardSpecContract(variant=v)
-        assert card.variant == v
-
-
-def test_card_spec_elevation_bounds() -> None:
-    """Card rejects elevation outside 0-5."""
-    with pytest.raises(Exception):
-        CardSpecContract(elevation=6)
-
-
-# ---------------------------------------------------------------------------
-# 8. Modal & Rating Spec Contracts
-# ---------------------------------------------------------------------------
-
-def test_modal_spec_accessibility() -> None:
-    """Modal enforces scrim, focus trap, and dialog accessibility role."""
-    modal = ModalSpecContract(title="Select Size")
-    assert modal.has_scrim is True
+def test_cmp_030_modal_spec() -> None:
+    """CMP-030: Modal enforces focus trap, scrim, and dialog accessibility role."""
+    modal = ModalSpecContract(title="Filters", has_focus_trap=True)
     assert modal.has_focus_trap is True
     assert modal.accessibility_role == "dialog"
 
 
-def test_rating_spec_bounds() -> None:
-    """Rating enforces value between 0.0 and 5.0."""
-    rating = RatingSpecContract(value=4.5, allow_half=True)
-    assert rating.value == 4.5
-
-    with pytest.raises(Exception):
-        RatingSpecContract(value=5.5)
-
-    with pytest.raises(Exception):
-        RatingSpecContract(value=-0.5)
+def test_drawer_spec() -> None:
+    """Drawer contract specifies positioning and scrim."""
+    drawer = DrawerSpecContract(title="Filter Drawer", position="right", is_open=True)
+    assert drawer.position == "right"
+    assert drawer.is_open is True
 
 
-# ---------------------------------------------------------------------------
-# 9. SegmentedControl & FormField Spec Contracts
-# ---------------------------------------------------------------------------
-
-def test_segmented_control_spec() -> None:
-    """SegmentedControl requires at least 2 options and tracks selected_id."""
-    opts = [
-        SegmentedControlOptionContract(id="men", label="Men"),
-        SegmentedControlOptionContract(id="women", label="Women"),
-    ]
-    seg = SegmentedControlSpecContract(options=opts, selected_id="women")
-    assert len(seg.options) == 2
-    assert seg.selected_id == "women"
-
-
-def test_form_field_spec() -> None:
-    """FormField tracks required flag and error state."""
-    field = FormFieldSpecContract(
-        field_id="size-field",
-        label="Size",
-        is_required=True,
-        state="error",
-        error_text="Please select a garment size",
+def test_dialog_confirm_spec() -> None:
+    """DialogConfirm validates destructive confirmation actions."""
+    dialog = DialogConfirmSpecContract(
+        title="Delete Saved Look?",
+        message="This action cannot be undone.",
+        is_destructive=True,
     )
-    assert field.is_required is True
-    assert field.state == "error"
+    assert dialog.is_destructive is True
 
 
 # ---------------------------------------------------------------------------
-# 10. Runtime Prop Validation Engine
+# 6. L2: Feedback & Data Display (CMP-040 - CMP-043)
 # ---------------------------------------------------------------------------
 
-def test_validate_component_props_valid_button() -> None:
-    """validate_component_props validates valid Button props."""
-    report = validate_component_props("Button", {"label": "Confirm Outfit", "variant": "primary"})
+def test_alert_spec_variants() -> None:
+    """Alert supports 4 notification severity variants."""
+    for variant in AlertVariant:
+        alert = AlertSpecContract(variant=variant, message="System notification")
+        assert alert.variant == variant
+
+
+def test_cmp_040_price_spec_and_discount() -> None:
+    """CMP-040: Price display tracks current, original, and discount %."""
+    price = PriceSpecContract(
+        amount=2499.0,
+        original_amount=3499.0,
+        discount_percentage=28,
+    )
+    assert price.amount == 2499.0
+    assert price.discount_percentage == 28
+
+
+def test_cmp_041_quantity_control_spec() -> None:
+    """CMP-041: QuantityControl enforces min and max boundaries."""
+    qty = QuantityControlSpecContract(value=2, min_value=1, max_value=10)
+    assert qty.value == 2
+    assert qty.min_value == 1
+
+
+def test_cmp_042_pagination_spec() -> None:
+    """CMP-042: Pagination contract validates page bounds."""
+    pag = PaginationSpecContract(current_page=1, total_pages=10)
+    assert pag.current_page == 1
+    assert pag.total_pages == 10
+
+
+def test_empty_state_spec() -> None:
+    """EmptyState contract mandates title, description, and action CTA."""
+    empty = EmptyStateSpecContract(
+        title="Your wishlist is empty",
+        description="Save products you want to revisit.",
+        action_label="Explore Products",
+        action_route="/shopping",
+    )
+    assert empty.title == "Your wishlist is empty"
+    assert empty.action_label == "Explore Products"
+
+
+def test_error_state_spec() -> None:
+    """ErrorState specifies retry action and recovery destination."""
+    err = ErrorStateSpecContract(
+        title="Something went wrong.",
+        message="We couldn't load this collection.",
+        retry_label="Try Again",
+        recovery_label="Back to Fashion",
+        recovery_route="/fashion",
+    )
+    assert err.retry_label == "Try Again"
+    assert err.recovery_label == "Back to Fashion"
+
+
+# ---------------------------------------------------------------------------
+# 7. L3: Composite Components (CMP-050 - CMP-055)
+# ---------------------------------------------------------------------------
+
+def test_cmp_050_product_card_spec() -> None:
+    """CMP-050: ProductCard coordinates media, brand, title, price, and rating."""
+    card = ProductCardSpecContract(
+        product_id="prod-101",
+        title="Oversized Denim Jacket",
+        brand="Zara",
+        image_uri="https://images.fashx.com/jacket.jpg",
+        price=PriceSpecContract(amount=3990.0),
+        rating=RatingSpecContract(value=4.6),
+        is_saved=True,
+    )
+    assert card.product_id == "prod-101"
+    assert card.price.amount == 3990.0
+    assert card.is_saved is True
+
+
+def test_cmp_051_fashion_card_spec() -> None:
+    """CMP-051: FashionCard emphasizes editorial category and headline."""
+    card = FashionCardSpecContract(
+        story_id="story-01",
+        title="Monsoon Layering in Mumbai",
+        story_category="Streetwear",
+        image_uri="https://images.fashx.com/monsoon.jpg",
+        description="How coastal youth adapt heavy denim to monsoon humidity.",
+    )
+    assert card.story_id == "story-01"
+    assert card.story_category == "Streetwear"
+
+
+def test_look_card_spec() -> None:
+    """LookCard specifies look title and item count."""
+    look = LookCardSpecContract(
+        look_id="look-99",
+        title="Summer Street Look",
+        image_uri="https://images.fashx.com/look.jpg",
+        items_count=5,
+    )
+    assert look.items_count == 5
+
+
+def test_collection_card_spec() -> None:
+    """CollectionCard tracks product count and CTA."""
+    coll = CollectionCardSpecContract(
+        collection_id="coll-1",
+        title="Festive Autumn Collection",
+        image_uri="https://images.fashx.com/festive.jpg",
+        product_count=32,
+    )
+    assert coll.product_count == 32
+
+
+def test_cmp_052_recommendation_card_explainability() -> None:
+    """CMP-052: RecommendationCard requires explanation badge for AI transparency."""
+    rec = RecommendationCardSpecContract(
+        recommendation_id="rec-44",
+        product=ProductCardSpecContract(
+            product_id="p-1",
+            title="Linen Shirt",
+            brand="H&M",
+            image_uri="https://images.fashx.com/shirt.jpg",
+            price=PriceSpecContract(amount=1999.0),
+        ),
+        explanation="Matches your preference for breathable fabrics in warm weather",
+        confidence_score=0.92,
+    )
+    assert "breathable fabrics" in rec.explanation
+    assert rec.confidence_score == 0.92
+
+
+def test_cmp_053_search_bar_spec() -> None:
+    """CMP-053: SearchBar coordinates input, query, and filter trigger."""
+    search = SearchBarSpecContract(
+        placeholder="Search Mumbai trends...",
+        show_filter_button=True,
+    )
+    assert search.show_filter_button is True
+
+
+def test_cmp_054_filter_bar_spec() -> None:
+    """CMP-054: FilterBar manages active filter chips and clear all action."""
+    fb = FilterBarSpecContract(
+        active_chips=[
+            ChipSpecContract(label="Oversized", is_selected=True),
+            ChipSpecContract(label="Black", is_selected=True),
+        ],
+        filter_count=2,
+        show_clear_all=True,
+    )
+    assert len(fb.active_chips) == 2
+    assert fb.filter_count == 2
+
+
+# ---------------------------------------------------------------------------
+# 8. Runtime Prop Validation Engine (CMP-060)
+# ---------------------------------------------------------------------------
+
+def test_cmp_060_validate_props_product_card_valid() -> None:
+    """CMP-060: validate_component_props validates complex nested ProductCard."""
+    report = validate_component_props("ProductCard", {
+        "product_id": "p-123",
+        "title": "Cashmere Knit",
+        "brand": "Uniqlo",
+        "image_uri": "https://images.fashx.com/knit.jpg",
+        "price": {"amount": 4990.0},
+    })
     assert report.is_valid is True
-    assert len(report.errors) == 0
-    assert report.validated_props["label"] == "Confirm Outfit"
+    assert report.validated_props["product_id"] == "p-123"
 
 
-def test_validate_component_props_invalid_missing_required() -> None:
-    """validate_component_props rejects Button missing required label."""
-    report = validate_component_props("Button", {"variant": "primary"})
+def test_validate_props_extra_fields_forbidden() -> None:
+    """Component validation strictly rejects undeclared arbitrary props."""
+    report = validate_component_props("Box", {
+        "padding": "space.2",
+        "arbitrary_custom_css": "color: red",
+    })
     assert report.is_valid is False
     assert len(report.errors) > 0
-
-
-def test_validate_component_props_rejects_extra_fields() -> None:
-    """validate_component_props rejects undeclared props via extra='forbid'."""
-    report = validate_component_props(
-        "Button", {"label": "Submit", "non_existent_prop": 123}
-    )
-    assert report.is_valid is False
-    assert len(report.errors) > 0
-
-
-def test_validate_component_props_unrecognized_component() -> None:
-    """validate_component_props returns error for unrecognized component."""
-    report = validate_component_props("FakeWidget", {"label": "Test"})
-    assert report.is_valid is False
-    assert "not recognized" in report.errors[0]

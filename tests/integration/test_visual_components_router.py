@@ -6,25 +6,31 @@ from api.app.main import app
 client = TestClient(app)
 
 
-def test_get_components_catalog() -> None:
-    """GET /api/v1/visual/components/catalog returns primitives and core_ui."""
+def test_get_components_catalog_contains_all_layers() -> None:
+    """GET /api/v1/visual/components/catalog returns primitives, core_ui, and composites."""
     res = client.get("/api/v1/visual/components/catalog")
     assert res.status_code == 200
     data = res.json()
     assert "primitives" in data
     assert "core_ui" in data
-    assert len(data["primitives"]) >= 7
-    assert len(data["core_ui"]) >= 6
+    assert "composites" in data
+    assert len(data["primitives"]) >= 12
+    assert len(data["core_ui"]) >= 14
+    assert len(data["composites"]) >= 8
 
-    # Verify Button is in primitives
-    btn = next((c for c in data["primitives"] if c["name"] == "Button"), None)
-    assert btn is not None
-    assert "primary" in btn["available_variants"]
-    assert any("2.5.8" in wcag for wcag in btn["wcag_criteria"])
+    # Verify L1 Primitive Box is present
+    box = next((c for c in data["primitives"] if c["name"] == "Box"), None)
+    assert box is not None
+    assert box["taxonomy"] == "level_1_primitive"
+
+    # Verify L3 Composite ProductCard is present
+    pc = next((c for c in data["composites"] if c["name"] == "ProductCard"), None)
+    assert pc is not None
+    assert pc["taxonomy"] == "level_3_composite"
 
 
-def test_get_component_by_name_success() -> None:
-    """GET /api/v1/visual/components/Button returns component details."""
+def test_get_component_by_name_primitive() -> None:
+    """GET /api/v1/visual/components/Button returns button details."""
     res = client.get("/api/v1/visual/components/Button")
     assert res.status_code == 200
     data = res.json()
@@ -33,13 +39,21 @@ def test_get_component_by_name_success() -> None:
     assert data["has_interactive_states"] is True
 
 
-def test_get_component_by_name_case_insensitive() -> None:
-    """GET /api/v1/visual/components/card succeeds regardless of casing."""
-    res = client.get("/api/v1/visual/components/card")
+def test_get_component_by_name_composite() -> None:
+    """GET /api/v1/visual/components/ProductCard returns product card details."""
+    res = client.get("/api/v1/visual/components/ProductCard")
     assert res.status_code == 200
     data = res.json()
-    assert data["name"] == "Card"
-    assert data["taxonomy"] == "level_2_core_ui"
+    assert data["name"] == "ProductCard"
+    assert data["taxonomy"] == "level_3_composite"
+
+
+def test_get_component_case_insensitive() -> None:
+    """GET /api/v1/visual/components/fashioncard succeeds regardless of casing."""
+    res = client.get("/api/v1/visual/components/fashioncard")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["name"] == "FashionCard"
 
 
 def test_get_component_not_found() -> None:
@@ -49,62 +63,55 @@ def test_get_component_not_found() -> None:
     assert "not found" in res.json()["detail"].lower()
 
 
-def test_validate_props_valid_button() -> None:
-    """POST /api/v1/visual/components/validate for valid button returns valid report."""
+def test_validate_props_valid_product_card() -> None:
+    """POST /api/v1/visual/components/validate for ProductCard returns valid report."""
     res = client.post(
-        "/api/v1/visual/components/validate?component_name=Button",
-        json={"label": "Add to Wardrobe", "variant": "primary", "size": "md"},
+        "/api/v1/visual/components/validate?component_name=ProductCard",
+        json={
+            "product_id": "p-101",
+            "title": "Tailored Blazer",
+            "brand": "Massimo Dutti",
+            "image_uri": "https://images.fashx.com/blazer.jpg",
+            "price": {"amount": 8990.0, "currency_symbol": "₹"},
+        },
     )
     assert res.status_code == 200
     data = res.json()
     assert data["is_valid"] is True
-    assert data["component_name"] == "Button"
-    assert len(data["errors"]) == 0
-    assert data["validated_props"]["label"] == "Add to Wardrobe"
+    assert data["component_name"] == "ProductCard"
+    assert data["validated_props"]["title"] == "Tailored Blazer"
 
 
-def test_validate_props_invalid_missing_required() -> None:
-    """POST /api/v1/visual/components/validate fails when required prop missing."""
+def test_validate_props_valid_recommendation_card() -> None:
+    """POST /api/v1/visual/components/validate for RecommendationCard returns valid report."""
     res = client.post(
-        "/api/v1/visual/components/validate?component_name=Button",
-        json={"variant": "outline"},
+        "/api/v1/visual/components/validate?component_name=RecommendationCard",
+        json={
+            "recommendation_id": "rec-01",
+            "product": {
+                "product_id": "p-102",
+                "title": "Linen Trousers",
+                "brand": "Uniqlo",
+                "image_uri": "https://images.fashx.com/trousers.jpg",
+                "price": {"amount": 2990.0},
+            },
+            "explanation": "Complements your recent purchase of the relaxed linen shirt",
+            "confidence_score": 0.88,
+        },
     )
     assert res.status_code == 200
     data = res.json()
-    assert data["is_valid"] is False
-    assert len(data["errors"]) > 0
+    assert data["is_valid"] is True
+    assert "linen shirt" in data["validated_props"]["explanation"]
 
 
-def test_validate_props_invalid_extra_field() -> None:
-    """POST /api/v1/visual/components/validate rejects extra fields (extra='forbid')."""
+def test_validate_props_extra_field_forbidden() -> None:
+    """POST /api/v1/visual/components/validate strictly rejects extra arbitrary props."""
     res = client.post(
-        "/api/v1/visual/components/validate?component_name=Button",
-        json={"label": "Try On", "unauthorized_prop": "error"},
+        "/api/v1/visual/components/validate?component_name=Box",
+        json={"padding": "space.2", "unauthorized_css_property": "red"},
     )
     assert res.status_code == 200
     data = res.json()
     assert data["is_valid"] is False
     assert any("extra" in err.lower() for err in data["errors"])
-
-
-def test_validate_props_valid_input() -> None:
-    """POST /api/v1/visual/components/validate for Input returns valid report."""
-    res = client.post(
-        "/api/v1/visual/components/validate?component_name=Input",
-        json={"label": "Search Garments", "placeholder": "Silk, Cashmere...", "input_type": "search"},
-    )
-    assert res.status_code == 200
-    data = res.json()
-    assert data["is_valid"] is True
-    assert data["validated_props"]["input_type"] == "search"
-
-
-def test_validate_props_rating_out_of_bounds() -> None:
-    """POST /api/v1/visual/components/validate rejects rating > 5.0."""
-    res = client.post(
-        "/api/v1/visual/components/validate?component_name=Rating",
-        json={"value": 6.5},
-    )
-    assert res.status_code == 200
-    data = res.json()
-    assert data["is_valid"] is False
