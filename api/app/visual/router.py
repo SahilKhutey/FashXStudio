@@ -340,3 +340,152 @@ def get_layout_template(
 ) -> LayoutTemplateContract:
     """Return a layout template contract with container config and scroll behavior."""
     return build_layout_template(template=template, max_width=max_width)
+
+
+# ---------------------------------------------------------------------------
+# Navigation System Endpoints (Phase 04)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.navigation import (
+    BreadcrumbChainContract,
+    ContextNavigationContract,
+    FeatureFlagNavContract,
+    NavigationAnalyticsEventContract,
+    NavigationErrorContract,
+    NavigationEventType,
+    NavigationGuardResultContract,
+    NavigationResolverResultContract,
+    RouteRegistryContract,
+    TabGroupContract,
+)
+from .navigation_service import (
+    build_404_error,
+    build_breadcrumb_chain,
+    build_data_failure_error,
+    build_forbidden_error,
+    build_nav_event,
+    evaluate_navigation_guards,
+    get_context_navigation,
+    get_product_tabs,
+    get_route_registry,
+    resolve_navigation,
+    resolve_feature_flag_nav,
+    PROFILE_CONTEXT_NAV,
+)
+
+
+@router.get(
+    "/navigation/registry",
+    response_model=RouteRegistryContract,
+    summary="Get the canonical FashXStudio route registry",
+)
+def get_nav_registry() -> RouteRegistryContract:
+    """Return the complete navigation route registry (primary + personal with nested children)."""
+    return get_route_registry()
+
+
+@router.get(
+    "/navigation/resolve",
+    response_model=NavigationResolverResultContract,
+    summary="Resolve navigation state for a route + viewport",
+)
+def resolve_nav(
+    route: str = Query(default="/", description="Route path to resolve"),
+    viewport_width: int = Query(default=375, ge=1, description="Viewport width in pixels"),
+    sidebar_collapsed: bool = Query(default=False),
+    is_authenticated: bool = Query(default=False),
+) -> NavigationResolverResultContract:
+    """Return full navigation resolver result: active item, parent, breadcrumbs, state, guards."""
+    return resolve_navigation(
+        route=route,
+        viewport_width_px=viewport_width,
+        sidebar_collapsed=sidebar_collapsed,
+        is_authenticated=is_authenticated,
+    )
+
+
+@router.get(
+    "/navigation/breadcrumbs",
+    response_model=BreadcrumbChainContract,
+    summary="Build breadcrumb chain for a route path",
+)
+def get_nav_breadcrumbs(
+    route: str = Query(..., description="Route path (e.g. /shopping/products/123)"),
+) -> BreadcrumbChainContract:
+    """Return the typed breadcrumb chain with mobile_label and isTruncated metadata."""
+    return build_breadcrumb_chain(route)
+
+
+@router.get(
+    "/navigation/guards",
+    response_model=list[NavigationGuardResultContract],
+    summary="Evaluate navigation item visibility for all routes",
+)
+def get_nav_guards(
+    is_authenticated: bool = Query(default=False, description="Is the user authenticated?"),
+    feature_flags: str = Query(default="", description="Comma-separated active feature flag keys"),
+) -> list[NavigationGuardResultContract]:
+    """Evaluate visibility (visible/hidden/disabled/restricted) for every navigation item."""
+    active_flags: set[str] = {f.strip() for f in feature_flags.split(",") if f.strip()}
+    registry = get_route_registry()
+    return evaluate_navigation_guards(
+        registry=registry,
+        active_feature_flags=active_flags,
+        is_authenticated=is_authenticated,
+    )
+
+
+@router.get(
+    "/navigation/tabs/product",
+    response_model=TabGroupContract,
+    summary="Build product detail tab group for a product ID and active route",
+)
+def get_product_tab_group(
+    product_id: str = Query(..., description="Product identifier (e.g. 'abc123')"),
+    active_route: str = Query(default="", description="Current active route"),
+) -> TabGroupContract:
+    """Return the product detail tabs (Overview / Reviews / Specs / Styling) with active state."""
+    return get_product_tabs(active_route=active_route, product_id=product_id)
+
+
+@router.get(
+    "/navigation/context",
+    response_model=ContextNavigationContract,
+    summary="Get context navigation for a named context",
+)
+def get_context_nav(
+    context_id: str = Query(..., description="Context ID (e.g. 'profile-context-nav')"),
+    active_route: str = Query(default="", description="Current active route"),
+) -> ContextNavigationContract:
+    """Return context navigation items with active state for a given page section."""
+    ctx = get_context_navigation(context_id=context_id, active_route=active_route)
+    if ctx is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Context navigation '{context_id}' not found",
+        )
+    return ctx
+
+
+@router.get(
+    "/navigation/error/404",
+    response_model=NavigationErrorContract,
+    summary="Build 404 navigation error contract",
+)
+def get_nav_404(
+    route: str = Query(..., description="The attempted route that was not found"),
+) -> NavigationErrorContract:
+    """Return a typed 404 navigation error with recovery routes."""
+    return build_404_error(route)
+
+
+@router.get(
+    "/navigation/error/data-failure",
+    response_model=NavigationErrorContract,
+    summary="Build data-failure navigation error contract",
+)
+def get_nav_data_failure(
+    route: str = Query(..., description="The route that failed to load data"),
+) -> NavigationErrorContract:
+    """Return a typed data-failure error with Try Again + Return to Discover recovery."""
+    return build_data_failure_error(route)
