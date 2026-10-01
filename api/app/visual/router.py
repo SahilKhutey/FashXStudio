@@ -636,3 +636,259 @@ def get_template_listing(
     return get_listing_template(category=category)
 
 
+# ---------------------------------------------------------------------------
+# Shopping UI & Commerce Experience Endpoints (Phase 07)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.shopping import (
+    AddToCartRequestContract,
+    CartContract,
+    CartTemplateSpecContract,
+    CartValidationResultContract,
+    CategoryTemplateSpecContract,
+    CheckoutStateContract,
+    CheckoutSubmitRequestContract,
+    CheckoutTemplateSpecContract,
+    ConfirmationTemplateSpecContract,
+    OrderDetailTemplateSpecContract,
+    OrderContract,
+    OrderReviewTemplateSpecContract,
+    OrdersTemplateSpecContract,
+    ProductComparisonContract,
+    ProductDetailTemplateSpecContract,
+    SearchResultsTemplateSpecContract,
+    ShoppingHomeTemplateSpecContract,
+    ShoppingProductDetailContract,
+    SortOption,
+    UpdateCartQuantityRequestContract,
+    WishlistContract,
+    WishlistTemplateSpecContract,
+    WishlistToggleRequestContract,
+    WishlistToggleResultContract,
+)
+from .shopping_service import (
+    add_item_to_cart,
+    compare_products,
+    get_cart_template,
+    get_category_template,
+    get_checkout_template,
+    get_confirmation_template,
+    get_order_detail_template,
+    get_order_review_template,
+    get_orders_template,
+    get_product_detail,
+    get_product_detail_template,
+    get_shopping_home_template,
+    get_user_cart,
+    get_wishlist_template,
+    search_catalog_products,
+    toggle_user_wishlist,
+    update_cart_item_quantity,
+    validate_cart_state,
+)
+
+
+@router.get(
+    "/shopping/product/{product_id}",
+    response_model=ShoppingProductDetailContract,
+    summary="Get detailed shopping product data including variants and delivery",
+)
+def get_shopping_product(product_id: str) -> ShoppingProductDetailContract:
+    """Retrieve product detail by ID."""
+    prod = get_product_detail(product_id)
+    if not prod:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Shopping product '{product_id}' not found",
+        )
+    return prod
+
+
+@router.get(
+    "/shopping/search",
+    response_model=SearchResultsTemplateSpecContract,
+    summary="Search catalog products with facet filters and sorting",
+)
+def search_products(
+    q: str = Query(default=""),
+    category: str | None = Query(default=None),
+    sort: SortOption = Query(default=SortOption.RELEVANCE),
+) -> SearchResultsTemplateSpecContract:
+    """Search catalog items and retrieve filter facets."""
+    return search_catalog_products(query=q, category=category, sort_option=sort)
+
+
+@router.post(
+    "/shopping/compare",
+    response_model=ProductComparisonContract,
+    summary="Compare attributes across multiple products",
+)
+def post_compare_products(product_ids: list[str]) -> ProductComparisonContract:
+    """Generate product comparison matrix."""
+    return compare_products(product_ids=product_ids)
+
+
+@router.get(
+    "/shopping/cart",
+    response_model=CartContract,
+    summary="Get user shopping cart",
+)
+def get_cart(cart_id: str = Query(default="cart-user-1")) -> CartContract:
+    """Retrieve active user cart."""
+    return get_user_cart(cart_id=cart_id)
+
+
+@router.post(
+    "/shopping/cart/add",
+    response_model=CartContract,
+    summary="Add product variant to shopping cart",
+)
+def post_add_to_cart(
+    payload: AddToCartRequestContract,
+    cart_id: str = Query(default="cart-user-1"),
+) -> CartContract:
+    """Add item to cart and recompute summary."""
+    try:
+        return add_item_to_cart(cart_id=cart_id, payload=payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post(
+    "/shopping/cart/update",
+    response_model=CartContract,
+    summary="Update quantity or remove item from shopping cart",
+)
+def post_update_cart_quantity(
+    payload: UpdateCartQuantityRequestContract,
+    cart_id: str = Query(default="cart-user-1"),
+) -> CartContract:
+    """Update line item quantity."""
+    try:
+        return update_cart_item_quantity(cart_id=cart_id, payload=payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get(
+    "/shopping/cart/validate",
+    response_model=CartValidationResultContract,
+    summary="Validate cart before proceeding to checkout",
+)
+def get_cart_validation(cart_id: str = Query(default="cart-user-1")) -> CartValidationResultContract:
+    """Validate cart readiness."""
+    return validate_cart_state(cart_id=cart_id)
+
+
+@router.post(
+    "/shopping/wishlist/toggle",
+    response_model=WishlistToggleResultContract,
+    summary="Toggle product presence in user wishlist",
+)
+def post_toggle_wishlist(
+    payload: WishlistToggleRequestContract,
+    user_id: str = Query(default="user-1"),
+) -> WishlistToggleResultContract:
+    """Execute wishlist toggle."""
+    return toggle_user_wishlist(user_id=user_id, payload=payload)
+
+
+# --- 12 Shopping Screen Templates (SH01 - SH12) ---
+
+@router.get(
+    "/shopping/templates/home",
+    response_model=ShoppingHomeTemplateSpecContract,
+    summary="SH01: Shopping Home template",
+)
+def get_template_shopping_home() -> ShoppingHomeTemplateSpecContract:
+    return get_shopping_home_template()
+
+
+@router.get(
+    "/shopping/templates/category/{category_id}",
+    response_model=CategoryTemplateSpecContract,
+    summary="SH02: Category browsing template",
+)
+def get_template_category(category_id: str) -> CategoryTemplateSpecContract:
+    return get_category_template(category_id=category_id)
+
+
+@router.get(
+    "/shopping/templates/product-detail/{product_id}",
+    response_model=ProductDetailTemplateSpecContract,
+    summary="SH07-adjacent: Product Detail template",
+)
+def get_template_product_detail(product_id: str) -> ProductDetailTemplateSpecContract:
+    try:
+        return get_product_detail_template(product_id=product_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get(
+    "/shopping/templates/wishlist",
+    response_model=WishlistTemplateSpecContract,
+    summary="SH05: Wishlist template",
+)
+def get_template_wishlist(user_id: str = Query(default="user-1")) -> WishlistTemplateSpecContract:
+    return get_wishlist_template(user_id=user_id)
+
+
+@router.get(
+    "/shopping/templates/cart",
+    response_model=CartTemplateSpecContract,
+    summary="SH06: Shopping Cart template",
+)
+def get_template_cart(cart_id: str = Query(default="cart-user-1")) -> CartTemplateSpecContract:
+    return get_cart_template(cart_id=cart_id)
+
+
+@router.get(
+    "/shopping/templates/checkout",
+    response_model=CheckoutTemplateSpecContract,
+    summary="SH08: Progressive Checkout template",
+)
+def get_template_checkout(checkout_id: str = Query(default="chk-101")) -> CheckoutTemplateSpecContract:
+    return get_checkout_template(checkout_id=checkout_id)
+
+
+@router.get(
+    "/shopping/templates/order-review",
+    response_model=OrderReviewTemplateSpecContract,
+    summary="SH09: Order Review template",
+)
+def get_template_order_review(checkout_id: str = Query(default="chk-101")) -> OrderReviewTemplateSpecContract:
+    return get_order_review_template(checkout_id=checkout_id)
+
+
+@router.get(
+    "/shopping/templates/confirmation",
+    response_model=ConfirmationTemplateSpecContract,
+    summary="SH10: Order Confirmation template",
+)
+def get_template_confirmation(order_id: str = Query(default="ord-98210")) -> ConfirmationTemplateSpecContract:
+    return get_confirmation_template(order_id=order_id)
+
+
+@router.get(
+    "/shopping/templates/orders",
+    response_model=OrdersTemplateSpecContract,
+    summary="SH11: Customer Order History template",
+)
+def get_template_orders(user_id: str = Query(default="user-1")) -> OrdersTemplateSpecContract:
+    return get_orders_template(user_id=user_id)
+
+
+@router.get(
+    "/shopping/templates/order-detail/{order_id}",
+    response_model=OrderDetailTemplateSpecContract,
+    summary="SH12: Order Detail template",
+)
+def get_template_order_detail(order_id: str) -> OrderDetailTemplateSpecContract:
+    try:
+        return get_order_detail_template(order_id=order_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+
