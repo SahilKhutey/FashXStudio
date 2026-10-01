@@ -489,3 +489,59 @@ def get_nav_data_failure(
 ) -> NavigationErrorContract:
     """Return a typed data-failure error with Try Again + Return to Discover recovery."""
     return build_data_failure_error(route)
+
+
+# ---------------------------------------------------------------------------
+# Component Framework Endpoints (Phase 05)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.components import (
+    ComponentCatalogContract,
+    ComponentDefinitionContract,
+    ComponentValidationReportContract,
+)
+from .components_service import (
+    get_component_catalog,
+    get_component_definition,
+    validate_component_props,
+)
+
+
+@router.get(
+    "/components/catalog",
+    response_model=ComponentCatalogContract,
+    summary="Get complete catalog of Level 1 (Primitives) and Level 2 (Core UI) components",
+)
+def get_catalog() -> ComponentCatalogContract:
+    """Return all primitive and core UI components with variants, sizing, and WCAG criteria."""
+    return get_component_catalog()
+
+
+@router.get(
+    "/components/{name}",
+    response_model=ComponentDefinitionContract,
+    summary="Get component definition, tokens used, and accessibility criteria by name",
+)
+def get_component(name: str) -> ComponentDefinitionContract:
+    """Find a specific component definition in the catalog."""
+    component = get_component_definition(name)
+    if not component:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Component '{name}' not found in component catalog",
+        )
+    return component
+
+
+@router.post(
+    "/components/validate",
+    response_model=ComponentValidationReportContract,
+    summary="Validate runtime props against component contract",
+)
+def validate_props(
+    component_name: str = Query(..., description="Component name to validate against (e.g. Button, Input)"),
+    props: dict[str, Any] = ...,
+) -> ComponentValidationReportContract:
+    """Validate component props payload against its strict Pydantic contract."""
+    return validate_component_props(component_name=component_name, props=props)
+
