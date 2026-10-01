@@ -545,3 +545,94 @@ def validate_props(
     """Validate component props payload against its strict Pydantic contract."""
     return validate_component_props(component_name=component_name, props=props)
 
+
+# ---------------------------------------------------------------------------
+# Fashion Content Endpoints (Phase 06)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.fashion import (
+    DiscoveryTemplateSpecContract,
+    FashionContentType,
+    FashionFeedContract,
+    ListingTemplateSpecContract,
+    SaveToggleRequestContract,
+    SaveToggleResultContract,
+    VisualContentModel,
+)
+from .fashion_service import (
+    get_discovery_template,
+    get_fashion_content,
+    get_fashion_feed,
+    get_listing_template,
+    to_visual_content_model,
+    toggle_content_save,
+)
+
+
+@router.get(
+    "/fashion/feed",
+    response_model=FashionFeedContract,
+    summary="Get mixed fashion discovery feed",
+)
+def get_feed(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    content_type: FashionContentType | None = Query(default=None),
+) -> FashionFeedContract:
+    """Return a mixed discovery feed combining Stories, Looks, Products, Trends, and Collections."""
+    return get_fashion_feed(page=page, limit=limit, content_type=content_type)
+
+
+@router.get(
+    "/fashion/content/{content_type}/{content_id}",
+    summary="Get a specific fashion content item by type and ID",
+)
+def get_content_item(
+    content_type: FashionContentType,
+    content_id: str,
+) -> dict[str, Any]:
+    """Return raw or adapted fashion content object."""
+    item = get_fashion_content(content_type, content_id)
+    if not item:
+        type_str = getattr(content_type, "value", str(content_type)).capitalize()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"{type_str} '{content_id}' not found",
+        )
+    return item.model_dump()
+
+
+@router.post(
+    "/fashion/save-toggle",
+    response_model=SaveToggleResultContract,
+    summary="Toggle save/unsave for a fashion content item",
+)
+def post_save_toggle(
+    payload: SaveToggleRequestContract,
+) -> SaveToggleResultContract:
+    """Execute save/unsave interaction with deterministic state machine."""
+    return toggle_content_save(payload.content_type, payload.content_id, payload.current_saved)
+
+
+@router.get(
+    "/fashion/templates/discovery",
+    response_model=DiscoveryTemplateSpecContract,
+    summary="Get Discovery template specification payload",
+)
+def get_template_discovery() -> DiscoveryTemplateSpecContract:
+    """Return template data for the top-level Discovery experience."""
+    return get_discovery_template()
+
+
+@router.get(
+    "/fashion/templates/listing",
+    response_model=ListingTemplateSpecContract,
+    summary="Get Listing template specification payload",
+)
+def get_template_listing(
+    category: str = Query(default="all"),
+) -> ListingTemplateSpecContract:
+    """Return template data for a catalog or look listing experience."""
+    return get_listing_template(category=category)
+
+
