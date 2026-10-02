@@ -23,4 +23,5 @@ export * from "./geography";
 export * from "./ai";
 export * from "./personal";
 export * from "./interaction";
+export * from "./release";
 
