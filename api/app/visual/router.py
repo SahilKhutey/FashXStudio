@@ -2198,6 +2198,115 @@ def get_visual_qa_matrix() -> list[VisualQASpecContract]:
     return list_visual_qa_fixtures()
 
 
+# ---------------------------------------------------------------------------
+# Production Release & Integration Endpoints (Phase 16 - FINAL)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.release import (
+    EndToEndJourneySpecContract,
+    GoldenArtifactContract,
+    NavigationRegistryEntryContract,
+    ProductionReleaseReportContract,
+    ScreenRegistryEntryContract,
+    TokenValidationReportContract,
+    TokenValidationRequestContract,
+    VisualChecklistItemContract,
+    VisualReleaseGateAuditRequest,
+    VisualTrackStatusContract,
+)
+from .release_service import (
+    get_e2e_journeys,
+    get_golden_artifacts,
+    get_navigation_registry,
+    get_screen_registry,
+    get_visual_quality_checklist,
+    get_visual_track_completion_status,
+    run_production_release_gate,
+    validate_token_reference,
+)
+
+
+@router.get(
+    "/release/screens",
+    response_model=list[ScreenRegistryEntryContract],
+    summary="Retrieve canonical screen registry with routing and dependencies",
+)
+def get_release_screens() -> list[ScreenRegistryEntryContract]:
+    """Retrieve production screen registry with routes, templates, features, and dependencies."""
+    return get_screen_registry()
+
+
+@router.get(
+    "/release/navigation",
+    response_model=list[NavigationRegistryEntryContract],
+    summary="Retrieve unified production navigation registry",
+)
+def get_release_navigation() -> list[NavigationRegistryEntryContract]:
+    """Retrieve centralized navigation registry mapping routes to screens and permission groups."""
+    return get_navigation_registry()
+
+
+@router.post(
+    "/release/token-validation",
+    response_model=TokenValidationReportContract,
+    summary="Validate token references against rogue values and broken hierarchies",
+)
+def post_validate_token(payload: TokenValidationRequestContract) -> TokenValidationReportContract:
+    """Validate design token hierarchy (Screen -> Component -> Semantic -> Primitive)."""
+    return validate_token_reference(request=payload)
+
+
+@router.post(
+    "/release/gate-audit",
+    response_model=ProductionReleaseReportContract,
+    summary="Execute comprehensive 5-gate production release audit",
+)
+def post_release_gate_audit(payload: VisualReleaseGateAuditRequest) -> ProductionReleaseReportContract:
+    """Audit functional, visual, accessibility, performance, and integration gates for release."""
+    return run_production_release_gate(request=payload)
+
+
+@router.get(
+    "/release/checklist",
+    response_model=list[VisualChecklistItemContract],
+    summary="Retrieve Master Visual Quality Checklist across 13 categories",
+)
+def get_release_checklist() -> list[VisualChecklistItemContract]:
+    """Retrieve complete production quality checklist covering Foundation through QA."""
+    return get_visual_quality_checklist()
+
+
+@router.get(
+    "/release/e2e-journeys",
+    response_model=list[EndToEndJourneySpecContract],
+    summary="Retrieve specifications and status for Master E2E User Journeys",
+)
+def get_release_e2e_journeys() -> list[EndToEndJourneySpecContract]:
+    """Retrieve verified E2E user journeys (E2E-001 through E2E-005)."""
+    return get_e2e_journeys()
+
+
+@router.get(
+    "/release/golden-artifacts",
+    response_model=list[GoldenArtifactContract],
+    summary="Retrieve 15 Golden Screens and 15 Golden Components regression anchors",
+)
+def get_release_golden_artifacts() -> list[GoldenArtifactContract]:
+    """Retrieve golden regression targets and allowed match thresholds."""
+    return get_golden_artifacts()
+
+
+@router.get(
+    "/release/status",
+    response_model=VisualTrackStatusContract,
+    summary="Retrieve master completion status of the entire VD-00 through VD-16 Track",
+)
+def get_release_track_status() -> VisualTrackStatusContract:
+    """Retrieve track completion metrics and final handoff status declaration."""
+    return get_visual_track_completion_status()
+
+
+
 
 
 
