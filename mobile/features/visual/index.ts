@@ -18,4 +18,5 @@ export * from "./fashion";
 export * from "./shopping";
 export * from "./discovery";
 export * from "./detail";
+export * from "./styling";
 
