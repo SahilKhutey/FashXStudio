@@ -2011,6 +2011,98 @@ def delete_saved_item_endpoint(
     return remove_saved_item(item_type=item_type, item_id=item_id)
 
 
+# ---------------------------------------------------------------------------
+# Responsive & Adaptive Visual System Endpoints (Phase 14)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.responsive import (
+    CardContentPruningRequest,
+    CardContentPruningResult,
+    CrossSystemScreenResponsiveContract,
+    ResponsiveBreakpoint,
+    ResponsiveContainerContract,
+    ResponsiveGridCalculationRequest,
+    ResponsiveGridCalculationResult,
+    ViewportEvaluationRequest,
+    ViewportEvaluationResult,
+)
+from .responsive_service import (
+    CONTAINER_CONFIGS,
+    calculate_fluid_grid,
+    evaluate_viewport,
+    get_cross_system_screen_qa,
+    prune_card_content,
+    resolve_breakpoint,
+    resolve_container_config,
+)
+
+
+@router.get(
+    "/responsive/breakpoints",
+    response_model=list[ResponsiveBreakpoint],
+    summary="List all responsive layout thresholds (XS, SM, MD, LG, XL, 2XL)",
+)
+def get_responsive_breakpoints() -> list[ResponsiveBreakpoint]:
+    """Retrieve all supported responsive breakpoint layout thresholds."""
+    return list(CONTAINER_CONFIGS.keys())
+
+
+@router.get(
+    "/responsive/containers",
+    response_model=list[ResponsiveContainerContract],
+    summary="List master container specifications and boundaries",
+)
+def get_responsive_containers() -> list[ResponsiveContainerContract]:
+    """Retrieve master container constraints, gutters, and paddings for all breakpoints."""
+    return list(CONTAINER_CONFIGS.values())
+
+
+@router.post(
+    "/responsive/evaluate",
+    response_model=ViewportEvaluationResult,
+    summary="Evaluate viewport dimensions and return responsive layout directives",
+)
+def post_evaluate_viewport(payload: ViewportEvaluationRequest) -> ViewportEvaluationResult:
+    """Evaluate viewport width, height, and input mode into deterministic layout directives."""
+    return evaluate_viewport(request=payload)
+
+
+@router.post(
+    "/responsive/grid-calculate",
+    response_model=ResponsiveGridCalculationResult,
+    summary="Compute optimal fluid columns and card width without breakpoint-heavy code",
+)
+def post_calculate_fluid_grid(
+    payload: ResponsiveGridCalculationRequest,
+) -> ResponsiveGridCalculationResult:
+    """Calculate fluid grid columns, exact item width, and container utilization."""
+    return calculate_fluid_grid(request=payload)
+
+
+@router.post(
+    "/responsive/card-prune",
+    response_model=CardContentPruningResult,
+    summary="Prune card metadata according to content priority (P0-P3) and layout mode",
+)
+def post_prune_card_content(payload: CardContentPruningRequest) -> CardContentPruningResult:
+    """Evaluate content priority pruning for a card based on available space."""
+    return prune_card_content(request=payload)
+
+
+@router.get(
+    "/responsive/screen-qa/{screen_id}",
+    response_model=CrossSystemScreenResponsiveContract,
+    summary="Verify cross-system screen responsiveness across earlier phases (VD-03 to VD-13)",
+)
+def get_screen_responsive_qa(
+    screen_id: str,
+    width_px: int = Query(default=390, gt=0),
+) -> CrossSystemScreenResponsiveContract:
+    """Validate screen responsive layout mode, density, and sticky actions."""
+    return get_cross_system_screen_qa(screen_id=screen_id, width_px=width_px)
+
+
+
 
 
 
