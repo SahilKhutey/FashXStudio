@@ -1004,5 +1004,148 @@ def post_advanced_search(criteria: AdvancedSearchCriteriaContract) -> AdvancedSe
     return execute_advanced_search(criteria=criteria)
 
 
+# ---------------------------------------------------------------------------
+# Product & Fashion Detail Screens Endpoints (Phase 09)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.detail import (
+    BrandStoryDetailTemplateSpecContract,
+    ComprehensiveProductDetailTemplateSpecContract,
+    EditorialViewTemplateSpecContract,
+    FashionArticleDetailTemplateSpecContract,
+    FashionCollectionDetailTemplateSpecContract,
+    FashionInspirationDetailTemplateSpecContract,
+    FashionLookDetailTemplateSpecContract,
+    FashionStoryDetailTemplateSpecContract,
+    ProductAvailabilityTemplateSpecContract,
+    ProductComparisonTemplateSpecContract,
+    ProductReviewsTemplateSpecContract,
+)
+from .detail_service import (
+    get_brand_story_template,
+    get_editorial_view_template,
+    get_fashion_article_template,
+    get_fashion_collection_template,
+    get_fashion_inspiration_template,
+    get_fashion_look_template,
+    get_fashion_story_template,
+    get_product_availability_template,
+    get_product_comparison_template,
+    get_product_detail_template as get_comprehensive_product_detail_template,
+    get_product_reviews_template,
+)
+
+
+@router.get(
+    "/detail/product/{product_id}",
+    response_model=ComprehensiveProductDetailTemplateSpecContract,
+    summary="P02: Product Detail screen specification with media, variants, specs & relationships",
+)
+def get_detail_product(product_id: str) -> ComprehensiveProductDetailTemplateSpecContract:
+    """Retrieve comprehensive product detail view model."""
+    return get_comprehensive_product_detail_template(product_id=product_id)
+
+
+@router.get(
+    "/detail/product/{product_id}/reviews",
+    response_model=ProductReviewsTemplateSpecContract,
+    summary="P05: Product Reviews screen specification with rating distribution and verified reviews",
+)
+def get_detail_product_reviews(product_id: str) -> ProductReviewsTemplateSpecContract:
+    """Retrieve product reviews and star rating histogram."""
+    return get_product_reviews_template(product_id=product_id)
+
+
+@router.get(
+    "/detail/product/{product_id}/availability",
+    response_model=ProductAvailabilityTemplateSpecContract,
+    summary="P10: Product Availability, stock units, and delivery estimates",
+)
+def get_detail_product_availability(product_id: str) -> ProductAvailabilityTemplateSpecContract:
+    """Retrieve real-time inventory availability and fulfillment lead times."""
+    return get_product_availability_template(product_id=product_id)
+
+
+@router.post(
+    "/detail/product/compare",
+    response_model=ProductComparisonTemplateSpecContract,
+    summary="P09: Product Comparison specification across multiple products",
+)
+def post_detail_product_compare(product_ids: list[str]) -> ProductComparisonTemplateSpecContract:
+    """Generate side-by-side product comparison matrix."""
+    return get_product_comparison_template(product_ids=product_ids)
+
+
+@router.get(
+    "/detail/fashion/story/{story_id}",
+    response_model=FashionStoryDetailTemplateSpecContract,
+    summary="F03: Fashion Story template specification",
+)
+def get_detail_fashion_story(story_id: str) -> FashionStoryDetailTemplateSpecContract:
+    """Retrieve editorial fashion story detail."""
+    return get_fashion_story_template(story_id=story_id)
+
+
+@router.get(
+    "/detail/fashion/article/{article_id}",
+    response_model=FashionArticleDetailTemplateSpecContract,
+    summary="F04: Fashion Article template specification",
+)
+def get_detail_fashion_article(article_id: str) -> FashionArticleDetailTemplateSpecContract:
+    """Retrieve longform fashion article with inline media."""
+    return get_fashion_article_template(article_id=article_id)
+
+
+@router.get(
+    "/detail/fashion/collection/{collection_id}",
+    response_model=FashionCollectionDetailTemplateSpecContract,
+    summary="F05: Fashion Collection template specification",
+)
+def get_detail_fashion_collection(collection_id: str) -> FashionCollectionDetailTemplateSpecContract:
+    """Retrieve seasonal collection capsule detail."""
+    return get_fashion_collection_template(collection_id=collection_id)
+
+
+@router.get(
+    "/detail/fashion/look/{look_id}",
+    response_model=FashionLookDetailTemplateSpecContract,
+    summary="F06: Fashion Look template specification with shoppable hotspots",
+)
+def get_detail_fashion_look(look_id: str) -> FashionLookDetailTemplateSpecContract:
+    """Retrieve styled look detail with outfit constituent items and interactive hotspots."""
+    return get_fashion_look_template(look_id=look_id)
+
+
+@router.get(
+    "/detail/fashion/inspiration/{inspiration_id}",
+    response_model=FashionInspirationDetailTemplateSpecContract,
+    summary="F07: Fashion Inspiration moodboard detail specification",
+)
+def get_detail_fashion_inspiration(inspiration_id: str) -> FashionInspirationDetailTemplateSpecContract:
+    """Retrieve fashion inspiration moodboard with style tags and constituent links."""
+    return get_fashion_inspiration_template(inspiration_id=inspiration_id)
+
+
+@router.get(
+    "/detail/fashion/brand/{brand_id}",
+    response_model=BrandStoryDetailTemplateSpecContract,
+    summary="F08: Brand Story detail specification with ethos and collections",
+)
+def get_detail_brand_story(brand_id: str) -> BrandStoryDetailTemplateSpecContract:
+    """Retrieve brand heritage, values, collections, and verified merchant identity."""
+    return get_brand_story_template(brand_id=brand_id)
+
+
+@router.get(
+    "/detail/fashion/editorial/{editorial_id}",
+    response_model=EditorialViewTemplateSpecContract,
+    summary="F09: Editorial View canvas with large visual rhythm",
+)
+def get_detail_editorial_view(editorial_id: str) -> EditorialViewTemplateSpecContract:
+    """Retrieve high-rhythm editorial narrative with pull quotes and featured items."""
+    return get_editorial_view_template(editorial_id=editorial_id)
+
+
+
 
 
