@@ -205,9 +205,32 @@ from .shopping import (
     VariantType,
     WishlistContract,
     WishlistItemContract,
-    WishlistTemplateSpecContract,
     WishlistToggleRequestContract,
     WishlistToggleResultContract,
+)
+from .discovery import (
+    AdvancedSearchCriteriaContract,
+    AdvancedSearchTemplateSpecContract,
+    DiscoveryHeroContract,
+    DiscoveryHomeTemplateSpecContract,
+    DiscoveryModuleActionContract,
+    DiscoveryModuleContract,
+    DiscoveryModuleType,
+    DiscoveryResultsTemplateSpecContract,
+    DiscoveryScreenId,
+    DiscoveryState,
+    DiscoveryViewModelContract,
+    ExploreTemplateSpecContract,
+    ExploreType,
+    PersonalizedDiscoveryTemplateSpecContract,
+    RecentSearchContract,
+    SearchResultCountsContract,
+    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
+    SearchResultType,
+    SearchHomeTemplateSpecContract,
+    SearchSuggestionContract,
+    SearchViewModelContract,
+    SuggestionType,
 )
 
 __all__ = [

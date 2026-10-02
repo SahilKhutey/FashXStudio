@@ -891,4 +891,118 @@ def get_template_order_detail(order_id: str) -> OrderDetailTemplateSpecContract:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
+# ---------------------------------------------------------------------------
+# Discovery + Search Screens Endpoints (Phase 08)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.discovery import (
+    AdvancedSearchCriteriaContract,
+    AdvancedSearchTemplateSpecContract,
+    DiscoveryHeroContract,
+    DiscoveryHomeTemplateSpecContract,
+    ExploreTemplateSpecContract,
+    ExploreType,
+    PersonalizedDiscoveryTemplateSpecContract,
+    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
+    SearchResultType,
+    SearchHomeTemplateSpecContract,
+    SearchSuggestionContract,
+)
+from .discovery_service import (
+    execute_advanced_search,
+    get_discovery_hero,
+    get_discovery_home_template,
+    get_explore_template,
+    get_personalized_discovery_template,
+    get_search_home_template,
+    get_search_suggestions,
+    search_unified_catalog,
+)
+
+
+@router.get(
+    "/discovery/home",
+    response_model=DiscoveryHomeTemplateSpecContract,
+    summary="D01: Discovery Home gateway template",
+)
+def get_discovery_home() -> DiscoveryHomeTemplateSpecContract:
+    """Return primary Discovery Home experience specification."""
+    return get_discovery_home_template()
+
+
+@router.get(
+    "/discovery/hero",
+    response_model=DiscoveryHeroContract,
+    summary="Get Discovery Hero banner",
+)
+def get_hero() -> DiscoveryHeroContract:
+    """Return configured hero banner."""
+    return get_discovery_hero()
+
+
+@router.get(
+    "/discovery/explore/{explore_type}",
+    response_model=ExploreTemplateSpecContract,
+    summary="D02 - D08: Focused Explore template (fashion, products, looks, collections, brands, styles, trends)",
+)
+def get_explore_screen(explore_type: ExploreType) -> ExploreTemplateSpecContract:
+    """Return explore screen template for specific content dimension."""
+    return get_explore_template(explore_type=explore_type)
+
+
+@router.get(
+    "/discovery/personalized",
+    response_model=PersonalizedDiscoveryTemplateSpecContract,
+    summary="D09: Personalized Discovery template with explainability",
+)
+def get_personalized_discovery(user_id: str = Query(default="user-1")) -> PersonalizedDiscoveryTemplateSpecContract:
+    """Return personalized discovery modules tailored to user profile."""
+    return get_personalized_discovery_template(user_id=user_id)
+
+
+@router.get(
+    "/discovery/search-home",
+    response_model=SearchHomeTemplateSpecContract,
+    summary="S01: Search Home gateway with recent & trending queries",
+)
+def get_search_home() -> SearchHomeTemplateSpecContract:
+    """Return search home gateway specification."""
+    return get_search_home_template()
+
+
+@router.get(
+    "/discovery/suggestions",
+    response_model=list[SearchSuggestionContract],
+    summary="S02: Debounced search suggestions and autocomplete",
+)
+def get_suggestions(q: str = Query(default="")) -> list[SearchSuggestionContract]:
+    """Retrieve autocomplete suggestions for query."""
+    return get_search_suggestions(query=q)
+
+
+@router.get(
+    "/discovery/search",
+    response_model=UnifiedSearchResultsTemplateSpecContract,
+    summary="S03 - S07, S10: Multi-content search results across Products, Looks, Brands, Styles, Trends",
+)
+def get_search_results(
+    q: str = Query(default=""),
+    result_type: SearchResultType = Query(default=SearchResultType.ALL),
+    sort: SortOption = Query(default=SortOption.RELEVANCE),
+) -> UnifiedSearchResultsTemplateSpecContract:
+    """Execute unified search across heterogeneous fashion dimensions."""
+    return search_unified_catalog(query=q, result_type=result_type, sort=sort)
+
+
+@router.post(
+    "/discovery/advanced-search",
+    response_model=AdvancedSearchTemplateSpecContract,
+    summary="S09: Structured multi-attribute advanced search",
+)
+def post_advanced_search(criteria: AdvancedSearchCriteriaContract) -> AdvancedSearchTemplateSpecContract:
+    """Execute structured advanced search query."""
+    return execute_advanced_search(criteria=criteria)
+
+
+
 
