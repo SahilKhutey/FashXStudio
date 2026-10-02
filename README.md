@@ -207,6 +207,7 @@ python -m pytest tests -p no:cacheprovider -v
 ```
 
 ### Documentation & Milestone Task Logs
+- [Visual Design Track VD-00–VD-16 Master Task & Dev Log](docs/task-log-visual-design-vd00-vd16.md)
 - [Visual Design 16 (FINAL): Production Visual Integration, Verification, Validation & Release Framework](docs/visual-design-16-production-integration-release-framework.md)
 - [Visual Design 15: Interaction, State, Accessibility & Visual QA System](docs/visual-design-15-interaction-state-qa-system.md)
 - [Visual Design 14: Responsive / Adaptive Visual System](docs/visual-design-14-responsive-adaptive-system.md)
