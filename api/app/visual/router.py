@@ -1146,6 +1146,238 @@ def get_detail_editorial_view(editorial_id: str) -> EditorialViewTemplateSpecCon
     return get_editorial_view_template(editorial_id=editorial_id)
 
 
+# ---------------------------------------------------------------------------
+# Outfit, Styling & Fashion Experience Endpoints (Phase 10)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.styling import (
+    AddSlotItemRequestContract,
+    LookBuilderTemplateSpecContract,
+    MixMatchTemplateSpecContract,
+    OutfitBuilderTemplateSpecContract,
+    OutfitContract,
+    OutfitDetailTemplateSpecContract,
+    OutfitPreviewTemplateSpecContract,
+    ReplaceSlotItemRequestContract,
+    SavedLookContract,
+    SavedLooksTemplateSpecContract,
+    SaveOutfitRequestContract,
+    ShopOutfitAvailabilityContract,
+    StyleHomeTemplateSpecContract,
+    StylePreferenceContract,
+    StylePreferencesTemplateSpecContract,
+    StyleRecommendationTemplateSpecContract,
+)
+from .styling_service import (
+    add_item_to_outfit,
+    delete_saved_look,
+    duplicate_saved_look,
+    get_look_builder_template,
+    get_mix_match_template,
+    get_outfit_builder_template,
+    get_outfit_detail_template,
+    get_outfit_preview_template,
+    get_saved_looks_template,
+    get_style_home_template,
+    get_style_preferences_template,
+    get_style_recommendation_template,
+    remove_item_from_outfit,
+    replace_item_in_outfit,
+    reset_outfit_slots,
+    save_outfit_as_look,
+    update_style_preferences,
+    validate_outfit_for_shopping,
+)
+
+
+@router.get(
+    "/styling/home",
+    response_model=StyleHomeTemplateSpecContract,
+    summary="ST01: Style Home gateway specification",
+)
+def get_styling_home() -> StyleHomeTemplateSpecContract:
+    """Retrieve primary Style Home screen specification."""
+    return get_style_home_template()
+
+
+@router.get(
+    "/styling/builder",
+    response_model=OutfitBuilderTemplateSpecContract,
+    summary="ST02: Primary interactive outfit workspace",
+)
+def get_styling_builder(outfit_id: str | None = Query(default=None)) -> OutfitBuilderTemplateSpecContract:
+    """Retrieve outfit builder workspace state."""
+    return get_outfit_builder_template(outfit_id=outfit_id)
+
+
+@router.post(
+    "/styling/builder/{outfit_id}/add",
+    response_model=OutfitContract,
+    summary="Add product into an outfit slot",
+)
+def post_outfit_add_item(outfit_id: str, payload: AddSlotItemRequestContract) -> OutfitContract:
+    """Assign product item to designated slot."""
+    return add_item_to_outfit(outfit_id=outfit_id, payload=payload)
+
+
+@router.post(
+    "/styling/builder/{outfit_id}/replace",
+    response_model=OutfitContract,
+    summary="Replace existing product in an outfit slot",
+)
+def post_outfit_replace_item(outfit_id: str, payload: ReplaceSlotItemRequestContract) -> OutfitContract:
+    """Swap existing slot item with alternative product choice."""
+    return replace_item_in_outfit(outfit_id=outfit_id, payload=payload)
+
+
+@router.delete(
+    "/styling/builder/{outfit_id}/slot/{slot_id}",
+    response_model=OutfitContract,
+    summary="Remove item from designated outfit slot",
+)
+def delete_outfit_item(outfit_id: str, slot_id: str) -> OutfitContract:
+    """Reset slot to empty."""
+    return remove_item_from_outfit(outfit_id=outfit_id, slot_id=slot_id)
+
+
+@router.post(
+    "/styling/builder/{outfit_id}/reset",
+    response_model=OutfitContract,
+    summary="Reset all slots in the outfit to empty",
+)
+def post_outfit_reset(outfit_id: str) -> OutfitContract:
+    """Clear all occupied slots."""
+    return reset_outfit_slots(outfit_id=outfit_id)
+
+
+@router.get(
+    "/styling/look-builder",
+    response_model=LookBuilderTemplateSpecContract,
+    summary="ST03: Creative visual look builder canvas",
+)
+def get_styling_look_builder(look_id: str | None = Query(default=None)) -> LookBuilderTemplateSpecContract:
+    """Retrieve creative look builder canvas."""
+    return get_look_builder_template(look_id=look_id)
+
+
+@router.get(
+    "/styling/mix-match",
+    response_model=MixMatchTemplateSpecContract,
+    summary="ST04: Mix & Match rapid experimentation matrix",
+)
+def get_styling_mix_match(outfit_id: str | None = Query(default=None)) -> MixMatchTemplateSpecContract:
+    """Retrieve Mix & Match candidate matrix for active outfit."""
+    return get_mix_match_template(outfit_id=outfit_id)
+
+
+@router.get(
+    "/styling/recommendation",
+    response_model=StyleRecommendationTemplateSpecContract,
+    summary="ST05: Explainable style recommendations",
+)
+def get_styling_recommendation(user_id: str = Query(default="user-1")) -> StyleRecommendationTemplateSpecContract:
+    """Retrieve personalized style recommendation with explainability rationale."""
+    return get_style_recommendation_template(user_id=user_id)
+
+
+@router.get(
+    "/styling/preview/{outfit_id}",
+    response_model=OutfitPreviewTemplateSpecContract,
+    summary="ST06: Clean read-only outfit composition preview",
+)
+def get_styling_preview(outfit_id: str) -> OutfitPreviewTemplateSpecContract:
+    """Retrieve non-editable outfit preview."""
+    return get_outfit_preview_template(outfit_id=outfit_id)
+
+
+@router.get(
+    "/styling/detail/{outfit_id}",
+    response_model=OutfitDetailTemplateSpecContract,
+    summary="ST07: Comprehensive outfit detail with shoppable pieces",
+)
+def get_styling_detail(outfit_id: str) -> OutfitDetailTemplateSpecContract:
+    """Retrieve complete outfit detail with constituent product links."""
+    return get_outfit_detail_template(outfit_id=outfit_id)
+
+
+@router.get(
+    "/styling/validate-shop/{outfit_id}",
+    response_model=ShopOutfitAvailabilityContract,
+    summary="Validate outfit availability before cart handoff",
+)
+def get_styling_validate_shop(outfit_id: str) -> ShopOutfitAvailabilityContract:
+    """Evaluate inventory and pricing integrity before cart transfer."""
+    return validate_outfit_for_shopping(outfit_id=outfit_id)
+
+
+@router.get(
+    "/styling/saved-looks",
+    response_model=SavedLooksTemplateSpecContract,
+    summary="ST08: User saved looks archive and collection manager",
+)
+def get_styling_saved_looks(
+    user_id: str = Query(default="user-1"),
+    filter_tag: str = Query(default="all"),
+) -> SavedLooksTemplateSpecContract:
+    """Retrieve saved looks collection."""
+    return get_saved_looks_template(user_id=user_id, filter_tag=filter_tag)
+
+
+@router.post(
+    "/styling/saved-looks",
+    response_model=SavedLookContract,
+    summary="Save an outfit as a persistent saved look",
+)
+def post_styling_save_look(payload: SaveOutfitRequestContract) -> SavedLookContract:
+    """Persist outfit into saved looks archive."""
+    return save_outfit_as_look(payload=payload)
+
+
+@router.post(
+    "/styling/saved-looks/{look_id}/duplicate",
+    response_model=SavedLookContract,
+    summary="Duplicate a saved look for experimentation",
+)
+def post_styling_duplicate_look(look_id: str) -> SavedLookContract:
+    """Clone saved look into a new editable instance."""
+    return duplicate_saved_look(look_id=look_id)
+
+
+@router.delete(
+    "/styling/saved-looks/{look_id}",
+    response_model=dict[str, bool],
+    summary="Delete a saved look from the user archive",
+)
+def delete_styling_saved_look(look_id: str) -> dict[str, bool]:
+    """Remove saved look from registry."""
+    success = delete_saved_look(look_id=look_id)
+    return {"success": success}
+
+
+@router.get(
+    "/styling/preferences",
+    response_model=StylePreferencesTemplateSpecContract,
+    summary="ST09: User style preference settings",
+)
+def get_styling_preferences(user_id: str = Query(default="user-1")) -> StylePreferencesTemplateSpecContract:
+    """Retrieve user aesthetic preference profile."""
+    return get_style_preferences_template(user_id=user_id)
+
+
+@router.put(
+    "/styling/preferences",
+    response_model=StylePreferenceContract,
+    summary="Update user style preferences",
+)
+def put_styling_preferences(
+    preferences: StylePreferenceContract,
+    user_id: str = Query(default="user-1"),
+) -> StylePreferenceContract:
+    """Persist updated style preferences."""
+    return update_style_preferences(user_id=user_id, preferences=preferences)
+
+
+
 
 
 

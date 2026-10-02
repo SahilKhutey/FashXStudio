@@ -264,6 +264,32 @@ from .detail import (
     VariantOptionItemContract,
     VariantOptionState,
 )
+from .styling import (
+    AddSlotItemRequestContract,
+    BuilderState,
+    CandidateItemContract,
+    LookBuilderTemplateSpecContract,
+    MixMatchContract,
+    MixMatchTemplateSpecContract,
+    OutfitBuilderTemplateSpecContract,
+    OutfitContract,
+    OutfitDetailTemplateSpecContract,
+    OutfitItemContract,
+    OutfitPreviewTemplateSpecContract,
+    OutfitSlotContract,
+    OutfitSource,
+    ReplaceSlotItemRequestContract,
+    SavedLookContract,
+    SavedLooksTemplateSpecContract,
+    ShopOutfitAvailabilityContract,
+    SlotCategory,
+    SlotState,
+    StyleHomeTemplateSpecContract,
+    StylePreferenceContract,
+    StylePreferencesTemplateSpecContract,
+    StyleRecommendationTemplateSpecContract,
+    StylingScreenId,
+)
 
 __all__ = [
     "AiInteractionStage",
