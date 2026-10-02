@@ -1743,6 +1743,275 @@ def post_feedback(payload: PostAIFeedbackRequestContract) -> AIFeedbackContract:
     )
 
 
+# ---------------------------------------------------------------------------
+# Profile, Personalization & Saved Space Endpoints (Phase 13)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.personal import (
+    AccountSettingsTemplateSpecContract,
+    ClearHistoryRequestContract,
+    PersonalDashboardTemplateSpecContract,
+    PreferencesTemplateSpecContract,
+    ProfileTemplateSpecContract,
+    RecentlyViewedTemplateSpecContract,
+    RecommendationPreferencesTemplateSpecContract,
+    RegionalPreferencesTemplateSpecContract,
+    SavedFashionTemplateSpecContract,
+    SavedItemToggleRequestContract,
+    SavedItemToggleResultContract,
+    SavedItemType,
+    SavedLooksTemplateSpecContract,
+    SavedProductsTemplateSpecContract,
+    UpdateAccountSettingsRequestContract,
+    UpdateExplicitPreferencesRequestContract,
+    UpdateRecommendationPreferencesRequestContract,
+    UpdateRegionalPreferencesRequestContract,
+    WishlistTemplateSpecContract,
+)
+from .personal_service import (
+    clear_recently_viewed_history,
+    get_account_settings_template,
+    get_personal_dashboard_template,
+    get_personal_saved_looks_template,
+    get_personal_wishlist_template,
+    get_preferences_template,
+    get_profile_template,
+    get_recently_viewed_template,
+    get_recommendation_preferences_template,
+    get_regional_preferences_template,
+    get_saved_fashion_template,
+    get_saved_products_template,
+    remove_saved_item,
+    reset_personalization_signals,
+    toggle_saved_item,
+    update_account_settings,
+    update_explicit_preferences,
+    update_recommendation_preferences,
+    update_regional_preferences,
+)
+
+
+@router.get(
+    "/personal/profile",
+    response_model=ProfileTemplateSpecContract,
+    summary="PR01: User Profile main personal space",
+)
+def get_profile_endpoint(user_id: str = Query(default="usr_fashx_01")) -> ProfileTemplateSpecContract:
+    """Retrieve personal profile specification."""
+    return get_profile_template(user_id=user_id)
+
+
+@router.get(
+    "/personal/dashboard",
+    response_model=PersonalDashboardTemplateSpecContract,
+    summary="PR02: Personal Dashboard prioritizing Continue -> Saved -> Recommendations",
+)
+def get_personal_dashboard_endpoint(
+    user_id: str = Query(default="usr_fashx_01"),
+    fail_recommendations: bool = Query(default=False),
+) -> PersonalDashboardTemplateSpecContract:
+    """Retrieve personal dashboard specification with graceful module degradation."""
+    return get_personal_dashboard_template(
+        user_id=user_id,
+        fail_recommendations=fail_recommendations,
+    )
+
+
+@router.get(
+    "/personal/saved/products",
+    response_model=SavedProductsTemplateSpecContract,
+    summary="PR03: Saved products catalog with filter and sort",
+)
+def get_saved_products_endpoint(
+    filter_category: str | None = Query(default=None),
+    sort_by: str = Query(default="recently_saved"),
+) -> SavedProductsTemplateSpecContract:
+    """Retrieve saved products list."""
+    return get_saved_products_template(filter_category=filter_category, sort_by=sort_by)
+
+
+@router.get(
+    "/personal/saved/looks",
+    response_model=SavedLooksTemplateSpecContract,
+    summary="PR04: Saved outfit collections and looks canvas",
+)
+def get_saved_looks_endpoint(
+    collection_id: str | None = Query(default=None),
+) -> SavedLooksTemplateSpecContract:
+    """Retrieve saved looks grouped by collection."""
+    return get_personal_saved_looks_template(collection_id=collection_id)
+
+
+@router.get(
+    "/personal/saved/fashion",
+    response_model=SavedFashionTemplateSpecContract,
+    summary="PR05: Saved editorial stories, trends, and inspiration",
+)
+def get_saved_fashion_endpoint(
+    tab: str = Query(default="all"),
+) -> SavedFashionTemplateSpecContract:
+    """Retrieve saved fashion content filtered by tab."""
+    return get_saved_fashion_template(tab=tab)
+
+
+@router.get(
+    "/personal/wishlist",
+    response_model=WishlistTemplateSpecContract,
+    summary="PR06: Commercial wishlist with availability tracking",
+)
+def get_wishlist_endpoint() -> WishlistTemplateSpecContract:
+    """Retrieve wishlist specification."""
+    return get_personal_wishlist_template()
+
+
+@router.get(
+    "/personal/recent",
+    response_model=RecentlyViewedTemplateSpecContract,
+    summary="PR07: Browsing activity history",
+)
+def get_recently_viewed_endpoint(
+    entity_type: str | None = Query(default=None),
+) -> RecentlyViewedTemplateSpecContract:
+    """Retrieve recently viewed history."""
+    return get_recently_viewed_template(entity_type=entity_type)
+
+
+@router.post(
+    "/personal/recent/clear",
+    summary="PR07: Clear browsing activity history",
+)
+def post_clear_recent_history(
+    payload: ClearHistoryRequestContract | None = None,
+) -> dict[str, Any]:
+    """Clear browsing activity history."""
+    et = payload.entity_type.value if payload and payload.entity_type else None
+    return clear_recently_viewed_history(entity_type=et)
+
+
+@router.get(
+    "/personal/preferences",
+    response_model=PreferencesTemplateSpecContract,
+    summary="PR08: Modular explicit style and wardrobe preferences",
+)
+def get_preferences_endpoint() -> PreferencesTemplateSpecContract:
+    """Retrieve user explicit and inferred preferences."""
+    return get_preferences_template()
+
+
+@router.put(
+    "/personal/preferences",
+    response_model=PreferencesTemplateSpecContract,
+    summary="PR08: Update explicit preferences",
+)
+def put_preferences_endpoint(
+    payload: UpdateExplicitPreferencesRequestContract,
+) -> PreferencesTemplateSpecContract:
+    """Update explicit preferences."""
+    return update_explicit_preferences(payload=payload)
+
+
+@router.get(
+    "/personal/preferences/recommendations",
+    response_model=RecommendationPreferencesTemplateSpecContract,
+    summary="PR09: Algorithmic recommendation tuning & transparency",
+)
+def get_recommendation_preferences_endpoint() -> RecommendationPreferencesTemplateSpecContract:
+    """Retrieve recommendation preferences specification."""
+    return get_recommendation_preferences_template()
+
+
+@router.put(
+    "/personal/preferences/recommendations",
+    response_model=RecommendationPreferencesTemplateSpecContract,
+    summary="PR09: Update recommendation toggle controls",
+)
+def put_recommendation_preferences_endpoint(
+    payload: UpdateRecommendationPreferencesRequestContract,
+) -> RecommendationPreferencesTemplateSpecContract:
+    """Update recommendation preferences."""
+    return update_recommendation_preferences(payload=payload)
+
+
+@router.post(
+    "/personal/preferences/recommendations/reset",
+    response_model=RecommendationPreferencesTemplateSpecContract,
+    summary="PR09: Reset personalization signals and inferred history",
+)
+def post_reset_personalization_endpoint() -> RecommendationPreferencesTemplateSpecContract:
+    """Reset personalization signals."""
+    return reset_personalization_signals()
+
+
+@router.get(
+    "/personal/preferences/regional",
+    response_model=RegionalPreferencesTemplateSpecContract,
+    summary="PR10: Regional fashion culture context preferences",
+)
+def get_regional_preferences_endpoint() -> RegionalPreferencesTemplateSpecContract:
+    """Retrieve regional preferences specification."""
+    return get_regional_preferences_template()
+
+
+@router.put(
+    "/personal/preferences/regional",
+    response_model=RegionalPreferencesTemplateSpecContract,
+    summary="PR10: Update regional preferences",
+)
+def put_regional_preferences_endpoint(
+    payload: UpdateRegionalPreferencesRequestContract,
+) -> RegionalPreferencesTemplateSpecContract:
+    """Update regional preferences."""
+    return update_regional_preferences(payload=payload)
+
+
+@router.get(
+    "/personal/settings",
+    response_model=AccountSettingsTemplateSpecContract,
+    summary="PR11: Account security, notification & privacy settings",
+)
+def get_account_settings_endpoint() -> AccountSettingsTemplateSpecContract:
+    """Retrieve account settings specification."""
+    return get_account_settings_template()
+
+
+@router.put(
+    "/personal/settings",
+    response_model=AccountSettingsTemplateSpecContract,
+    summary="PR11: Update account settings",
+)
+def put_account_settings_endpoint(
+    payload: UpdateAccountSettingsRequestContract,
+) -> AccountSettingsTemplateSpecContract:
+    """Update account settings."""
+    return update_account_settings(payload=payload)
+
+
+@router.post(
+    "/personal/saved/toggle",
+    response_model=SavedItemToggleResultContract,
+    summary="Toggle save state for product, look, fashion, or wishlist",
+)
+def post_toggle_saved_item_endpoint(
+    payload: SavedItemToggleRequestContract,
+) -> SavedItemToggleResultContract:
+    """Toggle save state for an item."""
+    return toggle_saved_item(payload=payload)
+
+
+@router.delete(
+    "/personal/saved/{item_type}/{item_id}",
+    response_model=SavedItemToggleResultContract,
+    summary="Explicitly remove saved item",
+)
+def delete_saved_item_endpoint(
+    item_type: SavedItemType,
+    item_id: str,
+) -> SavedItemToggleResultContract:
+    """Remove item from saved registry."""
+    return remove_saved_item(item_type=item_type, item_id=item_id)
+
+
+
 
 
 
