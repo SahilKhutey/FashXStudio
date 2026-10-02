@@ -21,4 +21,5 @@ export * from "./detail";
 export * from "./styling";
 export * from "./geography";
 export * from "./ai";
+export * from "./personal";
 
