@@ -5,7 +5,7 @@
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0.54-red.svg)](https://www.sqlalchemy.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 [![Expo SDK 57](https://img.shields.io/badge/Expo-SDK%2057%20%2F%20React%20Native%200.86-000020.svg)](https://expo.dev/)
-[![Tests](https://img.shields.io/badge/Tests-1027%20Passed%20(100%25)-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-1089%20Passed%20(100%25)-brightgreen.svg)]()
 [![Release Gates](https://img.shields.io/badge/Release%20Gates-G1--G6%20Verified-success.svg)]()
 [![License](https://img.shields.io/badge/License-Commercial%20Proprietary-darkred.svg)](LICENSE)
 
@@ -201,12 +201,13 @@ python -m alembic upgrade head
 
 ### 4. Run Automated Test Suite
 ```bash
-# Run all 663 unit, domain, integration, and cross-core tests
+# Run all 1089 unit, domain, integration, and cross-core tests
 $env:PYTHONPATH=".;api"
 python -m pytest tests -p no:cacheprovider -v
 ```
 
 ### Documentation & Milestone Task Logs
+- [Visual Design 12: AI / Intelligence System](docs/visual-design-12-ai-intelligence-system.md)
 - [Visual Design 11: Regional Maps & Geography System](docs/visual-design-11-regional-maps-geography.md)
 - [Visual Design 10: Styling Experience System](docs/visual-design-10-styling-experience-system.md)
 - [Visual Design 9: Detail Screens System](docs/visual-design-9-detail-screens-system.md)
