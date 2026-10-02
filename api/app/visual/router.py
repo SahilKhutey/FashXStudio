@@ -1552,6 +1552,197 @@ def get_geo_breadcrumbs(region_id: str) -> list[RegionBreadcrumbContract]:
     return get_region_breadcrumbs(region_id=region_id)
 
 
+# ---------------------------------------------------------------------------
+# AI / Intelligence Endpoints (Phase 12)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.ai import (
+    AIAssistantTemplateSpecContract,
+    AIFeedbackContract,
+    AIHomeTemplateSpecContract,
+    AIMessageContract,
+    AIOutfitRecommendationTemplateSpecContract,
+    AIPreferencesContract,
+    AIPreferencesTemplateSpecContract,
+    AIProductAssistantTemplateSpecContract,
+    AIRecommendationDetailTemplateSpecContract,
+    AIResultExplanationTemplateSpecContract,
+    AISearchTemplateSpecContract,
+    AISessionContract,
+    AIStyleAssistantTemplateSpecContract,
+    PostAIFeedbackRequestContract,
+    PostAIMessageRequestContract,
+)
+from .ai_service import (
+    ai_search,
+    create_ai_session,
+    get_ai_assistant_template,
+    get_ai_home_template,
+    get_ai_preferences,
+    get_ai_session,
+    get_outfit_recommendation_template,
+    get_product_assistant_template,
+    get_recommendation_detail,
+    get_result_explanation,
+    get_style_assistant_template,
+    post_ai_message,
+    submit_ai_feedback,
+    update_ai_preferences,
+)
+
+
+@router.get(
+    "/ai/home",
+    response_model=AIHomeTemplateSpecContract,
+    summary="AI01: AI Home central intelligence entry point",
+)
+def get_ai_home() -> AIHomeTemplateSpecContract:
+    """Retrieve AI Home gateway specification."""
+    return get_ai_home_template()
+
+
+@router.post(
+    "/ai/session",
+    response_model=AISessionContract,
+    summary="Instantiate a new conversation session",
+)
+def post_create_session(title: str = Query(default="New Fashion Session")) -> AISessionContract:
+    """Create a new AI conversation session."""
+    return create_ai_session(title=title)
+
+
+@router.get(
+    "/ai/session/{session_id}",
+    response_model=AISessionContract,
+    summary="Retrieve an active or archived conversation session",
+)
+def get_session(session_id: str) -> AISessionContract:
+    """Retrieve AI session details and message history."""
+    return get_ai_session(session_id=session_id)
+
+
+@router.post(
+    "/ai/session/{session_id}/message",
+    response_model=AIMessageContract,
+    summary="Post user message and generate transparent assistant reply",
+)
+def post_session_message(
+    session_id: str,
+    payload: PostAIMessageRequestContract,
+) -> AIMessageContract:
+    """Append user message and return assistant reply."""
+    return post_ai_message(
+        session_id=session_id,
+        content=payload.content,
+        context_items=payload.context_items,
+    )
+
+
+@router.get(
+    "/ai/assistant",
+    response_model=AIAssistantTemplateSpecContract,
+    summary="AI02: Multi-turn conversational fashion assistant",
+)
+def get_assistant(session_id: str | None = Query(default=None)) -> AIAssistantTemplateSpecContract:
+    """Retrieve conversational assistant template."""
+    return get_ai_assistant_template(session_id=session_id)
+
+
+@router.get(
+    "/ai/product-assistant/{product_id}",
+    response_model=AIProductAssistantTemplateSpecContract,
+    summary="AI03: Product-specific Q&A with strict fact vs guidance separation",
+)
+def get_product_assistant(product_id: str) -> AIProductAssistantTemplateSpecContract:
+    """Retrieve product assistant view with catalog facts separated from AI styling guidance."""
+    return get_product_assistant_template(product_id=product_id)
+
+
+@router.get(
+    "/ai/style-assistant",
+    response_model=AIStyleAssistantTemplateSpecContract,
+    summary="AI04: Aesthetic recommendation with explainable matching",
+)
+def get_style_assistant(style_id: str | None = Query(default=None)) -> AIStyleAssistantTemplateSpecContract:
+    """Retrieve style assistant recommendation view."""
+    return get_style_assistant_template(style_id=style_id)
+
+
+@router.get(
+    "/ai/outfit-recommendation",
+    response_model=AIOutfitRecommendationTemplateSpecContract,
+    summary="AI05: AI outfit recommendation with user editing controls",
+)
+def get_outfit_recommendation(look_id: str | None = Query(default=None)) -> AIOutfitRecommendationTemplateSpecContract:
+    """Retrieve outfit recommendation template with wearability explanations."""
+    return get_outfit_recommendation_template(look_id=look_id)
+
+
+@router.get(
+    "/ai/search",
+    response_model=AISearchTemplateSpecContract,
+    summary="AI06: Natural language query search with intent understanding",
+)
+def get_ai_search(q: str = Query(default="")) -> AISearchTemplateSpecContract:
+    """Execute natural language search with multi-stage observable steps."""
+    return ai_search(query=q)
+
+
+@router.get(
+    "/ai/recommendation/{recommendation_id}",
+    response_model=AIRecommendationDetailTemplateSpecContract,
+    summary="AI07: Deep dive into an individual recommendation",
+)
+def get_recommendation_detail_endpoint(recommendation_id: str) -> AIRecommendationDetailTemplateSpecContract:
+    """Retrieve recommendation detail specification."""
+    return get_recommendation_detail(recommendation_id=recommendation_id)
+
+
+@router.get(
+    "/ai/explanation/{result_id}",
+    response_model=AIResultExplanationTemplateSpecContract,
+    summary="AI08: Dedicated why this result explanation canvas",
+)
+def get_explanation_endpoint(result_id: str) -> AIResultExplanationTemplateSpecContract:
+    """Retrieve detailed explanation for a result."""
+    return get_result_explanation(result_id=result_id)
+
+
+@router.get(
+    "/ai/preferences",
+    response_model=AIPreferencesTemplateSpecContract,
+    summary="AI09: AI tuning preferences control canvas",
+)
+def get_preferences(user_id: str = Query(default="user-default")) -> AIPreferencesTemplateSpecContract:
+    """Retrieve user AI preferences."""
+    return get_ai_preferences(user_id=user_id)
+
+
+@router.put(
+    "/ai/preferences",
+    response_model=AIPreferencesContract,
+    summary="Update user AI tuning preferences",
+)
+def put_preferences(payload: AIPreferencesContract) -> AIPreferencesContract:
+    """Update AI preferences."""
+    return update_ai_preferences(preferences=payload)
+
+
+@router.post(
+    "/ai/feedback",
+    response_model=AIFeedbackContract,
+    summary="Explicit user evaluation of AI output",
+)
+def post_feedback(payload: PostAIFeedbackRequestContract) -> AIFeedbackContract:
+    """Submit evaluation feedback for an AI result."""
+    return submit_ai_feedback(
+        result_id=payload.result_id,
+        feedback_type=payload.feedback_type,
+        reason=payload.reason,
+        note=payload.note,
+    )
+
+
 
 
 
