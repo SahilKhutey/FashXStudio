@@ -17,4 +17,5 @@ export * from "./components";
 export * from "./fashion";
 export * from "./shopping";
 export * from "./discovery";
+export * from "./detail";
 
