@@ -5,7 +5,7 @@
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0.54-red.svg)](https://www.sqlalchemy.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-336791.svg)](https://github.com/pgvector/pgvector)
 [![Expo SDK 57](https://img.shields.io/badge/Expo-SDK%2057%20%2F%20React%20Native%200.86-000020.svg)](https://expo.dev/)
-[![Tests](https://img.shields.io/badge/Tests-887%20Passed%20(100%25)-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-913%20Passed%20(100%25)-brightgreen.svg)]()
 [![Release Gates](https://img.shields.io/badge/Release%20Gates-G1--G6%20Verified-success.svg)]()
 [![License](https://img.shields.io/badge/License-Commercial%20Proprietary-darkred.svg)](LICENSE)
 
@@ -207,6 +207,9 @@ python -m pytest tests -p no:cacheprovider -v
 ```
 
 ### Documentation & Milestone Task Logs
+- [Visual Design 8: Discovery & Search System](docs/visual-design-8-discovery-search-system.md)
+- [Visual Design 7: Shopping UI System](docs/visual-design-7-shopping-ui-system.md)
+- [Visual Design 6: Fashion Content System](docs/visual-design-6-fashion-content-system.md)
 - [Core Services C01–C24 Deep-Dive Audit & Task Log](docs/task-log-core-services-c01-c24.md)
 - [Feature Platform F10–F16 Task Log](docs/task-log-feature-build-f10-f16.md)
 - [Feature Platform F00–F09 Task Log](docs/task-log-feature-build-f00-f09.md)
