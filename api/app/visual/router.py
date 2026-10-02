@@ -2102,6 +2102,103 @@ def get_screen_responsive_qa(
     return get_cross_system_screen_qa(screen_id=screen_id, width_px=width_px)
 
 
+# ---------------------------------------------------------------------------
+# Interaction, State, Accessibility & Visual QA System Endpoints (Phase 15)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.interaction import (
+    AccessibilityAuditRequest,
+    AccessibilityAuditResult,
+    ComponentStateContract,
+    ComponentStateEvaluationRequest,
+    FeedbackDispatchRequest,
+    FeedbackEventContract,
+    FormFieldValidationRequest,
+    FormFieldValidationResult,
+    ScreenLifecycleState,
+    ScreenStateContract,
+    VisualQASpecContract,
+)
+from .interaction_service import (
+    dispatch_feedback_event,
+    evaluate_component_state,
+    get_screen_state,
+    list_visual_qa_fixtures,
+    run_accessibility_audit,
+    validate_form_field,
+)
+
+
+@router.post(
+    "/interaction/component-state",
+    response_model=ComponentStateContract,
+    summary="Evaluate active component state under strict precedence hierarchy",
+)
+def post_evaluate_component_state(
+    payload: ComponentStateEvaluationRequest,
+) -> ComponentStateContract:
+    """Resolve component interaction state (Error > Disabled > Loading > Selected > etc.)."""
+    return evaluate_component_state(request=payload)
+
+
+@router.post(
+    "/interaction/form-validate",
+    response_model=FormFieldValidationResult,
+    summary="Validate form field input with contextual fix guidance",
+)
+def post_validate_form_field(
+    payload: FormFieldValidationRequest,
+) -> FormFieldValidationResult:
+    """Validate form field and return actionable guidance and ARIA invalid attributes."""
+    return validate_form_field(request=payload)
+
+
+@router.post(
+    "/interaction/feedback/dispatch",
+    response_model=FeedbackEventContract,
+    summary="Determine optimal, accessible feedback mechanism (Toast, Alert, Banner, Dialog)",
+)
+def post_dispatch_feedback(payload: FeedbackDispatchRequest) -> FeedbackEventContract:
+    """Map situation to the least-disruptive, accessible feedback presentation."""
+    return dispatch_feedback_event(request=payload)
+
+
+@router.get(
+    "/interaction/screen-state/{screen_id}",
+    response_model=ScreenStateContract,
+    summary="Retrieve screen lifecycle state (loading, empty, error, partial, offline)",
+)
+def get_screen_lifecycle_state(
+    screen_id: str,
+    lifecycle_state: ScreenLifecycleState = Query(default=ScreenLifecycleState.LOADED),
+) -> ScreenStateContract:
+    """Retrieve screen lifecycle specifications, skeletons, and error recovery guidance."""
+    return get_screen_state(screen_id=screen_id, lifecycle_state=lifecycle_state)
+
+
+@router.post(
+    "/interaction/accessibility-audit",
+    response_model=AccessibilityAuditResult,
+    summary="Audit component or screen against WCAG 2.1 AA standards",
+)
+def post_run_accessibility_audit(
+    payload: AccessibilityAuditRequest,
+) -> AccessibilityAuditResult:
+    """Evaluate touch targets, contrast, keyboard trapping, visible focus, and color independence."""
+    return run_accessibility_audit(request=payload)
+
+
+@router.get(
+    "/interaction/qa-matrix",
+    response_model=list[VisualQASpecContract],
+    summary="List automated visual regression QA test specifications",
+)
+def get_visual_qa_matrix() -> list[VisualQASpecContract]:
+    """Retrieve master catalog of visual regression fixtures across viewports and states."""
+    return list_visual_qa_fixtures()
+
+
+
 
 
 

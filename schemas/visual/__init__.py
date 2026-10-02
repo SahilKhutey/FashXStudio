@@ -411,6 +411,23 @@ from .responsive import (
     ViewportEvaluationRequest,
     ViewportEvaluationResult,
 )
+from .interaction import (
+    AccessibilityAuditRequest,
+    AccessibilityAuditResult,
+    ComponentStateContract,
+    ComponentStateEvaluationRequest,
+    FeedbackDispatchRequest,
+    FeedbackEventContract,
+    FeedbackType,
+    FormFieldValidationRequest,
+    FormFieldValidationResult,
+    InteractionState,
+    MotionCategory,
+    ScreenLifecycleState,
+    ScreenStateContract,
+    VisualQASpecContract,
+    VisualRegressionClassification,
+)
 
 __all__ = [
     "AIActionContract",
@@ -557,4 +574,19 @@ __all__ = [
     "TypographyScaleToken",
     "ViewportEvaluationRequest",
     "ViewportEvaluationResult",
+    "AccessibilityAuditRequest",
+    "AccessibilityAuditResult",
+    "ComponentStateContract",
+    "ComponentStateEvaluationRequest",
+    "FeedbackDispatchRequest",
+    "FeedbackEventContract",
+    "FeedbackType",
+    "FormFieldValidationRequest",
+    "FormFieldValidationResult",
+    "InteractionState",
+    "MotionCategory",
+    "ScreenLifecycleState",
+    "ScreenStateContract",
+    "VisualQASpecContract",
+    "VisualRegressionClassification",
 ]
