@@ -290,6 +290,33 @@ from .styling import (
     StyleRecommendationTemplateSpecContract,
     StylingScreenId,
 )
+from .geography import (
+    CityTemplateSpecContract,
+    CountryTemplateSpecContract,
+    FashionMapTemplateSpecContract,
+    GeographyLayerType,
+    GeographyState,
+    LocalProductsTemplateSpecContract,
+    LocationDetailTemplateSpecContract,
+    MapClusterContract,
+    MapMarkerContract,
+    MapViewModelContract,
+    MapViewportContract,
+    MarkerCategory,
+    RegionBreadcrumbContract,
+    RegionContract,
+    RegionType,
+    RegionalCollectionsTemplateSpecContract,
+    RegionalComparisonContract,
+    RegionalComparisonMetricContract,
+    RegionalContentCardContract,
+    RegionalExplorerTemplateSpecContract,
+    RegionalHomeTemplateSpecContract,
+    RegionalScreenId,
+    RegionalTrendContract,
+    RegionalTrendsTemplateSpecContract,
+    StateTemplateSpecContract,
+)
 
 __all__ = [
     "AiInteractionStage",

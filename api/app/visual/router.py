@@ -1377,6 +1377,181 @@ def put_styling_preferences(
     return update_style_preferences(user_id=user_id, preferences=preferences)
 
 
+# ---------------------------------------------------------------------------
+# Regional Maps & Geography Endpoints (Phase 11)
+# ---------------------------------------------------------------------------
+
+from schemas.visual.geography import (
+    CityTemplateSpecContract,
+    CountryTemplateSpecContract,
+    FashionMapTemplateSpecContract,
+    GeographyLayerType,
+    LocalProductsTemplateSpecContract,
+    LocationDetailTemplateSpecContract,
+    RegionBreadcrumbContract,
+    RegionContract,
+    RegionType,
+    RegionalCollectionsTemplateSpecContract,
+    RegionalComparisonContract,
+    RegionalExplorerTemplateSpecContract,
+    RegionalHomeTemplateSpecContract,
+    RegionalTrendContract,
+    RegionalTrendsTemplateSpecContract,
+    StateTemplateSpecContract,
+)
+from .geography_service import (
+    compare_regions,
+    get_city_template,
+    get_country_template,
+    get_fashion_map_template,
+    get_local_products_template,
+    get_location_detail_template,
+    get_region_breadcrumbs,
+    get_regional_collections_template,
+    get_regional_explorer_template,
+    get_regional_home_template,
+    get_regional_trends_template,
+    get_state_template,
+    search_regions,
+)
+
+
+@router.get(
+    "/geography/home",
+    response_model=RegionalHomeTemplateSpecContract,
+    summary="M01: Regional Home gateway specification",
+)
+def get_geo_home() -> RegionalHomeTemplateSpecContract:
+    """Retrieve Regional Home gateway specification."""
+    return get_regional_home_template()
+
+
+@router.get(
+    "/geography/map",
+    response_model=FashionMapTemplateSpecContract,
+    summary="M02: Primary interactive fashion map specification",
+)
+def get_geo_map(region_id: str | None = Query(default=None)) -> FashionMapTemplateSpecContract:
+    """Retrieve fashion map viewport, markers, and selected region."""
+    return get_fashion_map_template(region_id=region_id)
+
+
+@router.get(
+    "/geography/explorer",
+    response_model=RegionalExplorerTemplateSpecContract,
+    summary="M03: Hierarchical accessible text/list browsing explorer",
+)
+def get_geo_explorer(
+    parent_id: str | None = Query(default=None),
+    q: str = Query(default=""),
+) -> RegionalExplorerTemplateSpecContract:
+    """Retrieve hierarchical region explorer view."""
+    return get_regional_explorer_template(parent_id=parent_id, query=q)
+
+
+@router.get(
+    "/geography/country/{country_id}",
+    response_model=CountryTemplateSpecContract,
+    summary="M04: Country level fashion culture canvas",
+)
+def get_geo_country(country_id: str) -> CountryTemplateSpecContract:
+    """Retrieve country-level fashion culture view."""
+    return get_country_template(country_id=country_id)
+
+
+@router.get(
+    "/geography/state/{state_id}",
+    response_model=StateTemplateSpecContract,
+    summary="M05: State or province level fashion canvas",
+)
+def get_geo_state(state_id: str) -> StateTemplateSpecContract:
+    """Retrieve state-level fashion view."""
+    return get_state_template(state_id=state_id)
+
+
+@router.get(
+    "/geography/city/{city_id}",
+    response_model=CityTemplateSpecContract,
+    summary="M06: City and urban fashion hub canvas",
+)
+def get_geo_city(city_id: str) -> CityTemplateSpecContract:
+    """Retrieve city-level fashion hub view."""
+    return get_city_template(city_id=city_id)
+
+
+@router.get(
+    "/geography/trends/{region_id}",
+    response_model=RegionalTrendsTemplateSpecContract,
+    summary="M07: Dedicated regional trends feed",
+)
+def get_geo_trends(region_id: str) -> RegionalTrendsTemplateSpecContract:
+    """Retrieve localized fashion trends for region."""
+    return get_regional_trends_template(region_id=region_id)
+
+
+@router.get(
+    "/geography/products/{region_id}",
+    response_model=LocalProductsTemplateSpecContract,
+    summary="M08: Localized products listing reusing commerce grid",
+)
+def get_geo_products(region_id: str) -> LocalProductsTemplateSpecContract:
+    """Retrieve local products for region."""
+    return get_local_products_template(region_id=region_id)
+
+
+@router.get(
+    "/geography/collections/{region_id}",
+    response_model=RegionalCollectionsTemplateSpecContract,
+    summary="M09: Regional capsule collections specification",
+)
+def get_geo_collections(region_id: str) -> RegionalCollectionsTemplateSpecContract:
+    """Retrieve curated regional capsule collections."""
+    return get_regional_collections_template(region_id=region_id)
+
+
+@router.get(
+    "/geography/location/{location_id}",
+    response_model=LocationDetailTemplateSpecContract,
+    summary="M10: Deep contextual location profile",
+)
+def get_geo_location(location_id: str) -> LocationDetailTemplateSpecContract:
+    """Retrieve comprehensive contextual location view."""
+    return get_location_detail_template(location_id=location_id)
+
+
+@router.get(
+    "/geography/search",
+    response_model=list[RegionContract],
+    summary="Search regions with entity classification type filtering",
+)
+def get_geo_search(
+    q: str = Query(default=""),
+    region_type: RegionType | None = Query(default=None),
+) -> list[RegionContract]:
+    """Search region entities by query and optional type."""
+    return search_regions(query=q, region_type=region_type)
+
+
+@router.post(
+    "/geography/compare",
+    response_model=RegionalComparisonContract,
+    summary="Factual side-by-side geographic fashion comparison matrix",
+)
+def post_geo_compare(region_ids: list[str]) -> RegionalComparisonContract:
+    """Generate regional comparison matrix."""
+    return compare_regions(region_ids=region_ids)
+
+
+@router.get(
+    "/geography/breadcrumbs/{region_id}",
+    response_model=list[RegionBreadcrumbContract],
+    summary="Hierarchical geographic breadcrumbs from root to leaf",
+)
+def get_geo_breadcrumbs(region_id: str) -> list[RegionBreadcrumbContract]:
+    """Retrieve ordered breadcrumbs for region."""
+    return get_region_breadcrumbs(region_id=region_id)
+
+
 
 
 
