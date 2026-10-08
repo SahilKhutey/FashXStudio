@@ -2,7 +2,7 @@ import pathlib, re, subprocess, sys
 
 apply = "--apply" in sys.argv
 name = sys.argv[1]
-SKIP_DIRS = ("docs/", "backend/fashx/frozen_never/")
+SKIP_DIRS = ("docs/", "backend/fashx/frozen_never/", "apps/")
 EXTS = (".py", ".ini", ".toml", ".yml", ".yaml", ".cfg", ".sh", ".ps1")
 NAMES = ("Makefile", "Dockerfile")
 RISKY = {"state", "router", "routes", "middleware", "extra", "get", "post", "put", "delete", "mount", "title", "version", "debug"}
