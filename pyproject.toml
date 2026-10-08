@@ -13,6 +13,18 @@ dependencies = [
   "alembic==1.20.0",
   "redis==6.4.0",
   "sentry-sdk[fastapi]==2.37.1",
+  "pillow>=10.4.0",
+  "numpy>=1.26.0",
+  "aiosqlite>=0.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx==0.28.1",
+  "pytest==8.4.2",
+  "pytest-asyncio==1.2.0",
+  "ruff==0.13.0",
+  "mypy==1.18.2",
 ]
 
 [dependency-groups]
@@ -30,18 +42,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 
-[tool.ruff]
-line-length = 100
-target-version = "py312"
-src = ["api", "app", "schemas", "tests", "database"]
 
-[tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
-
-[tool.mypy]
-python_version = "3.12"
-strict = true
-mypy_path = ["."]
 
 [build-system]
 requires = ["hatchling>=1.27.0,<2"]
