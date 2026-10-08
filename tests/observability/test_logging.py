@@ -1,8 +1,8 @@
 import logging
 from uuid import uuid4
 
-from app.observability.correlation import get_correlation_id, set_correlation_id
-from app.observability.logging import CorrelationFilter
+from fashx.observability.correlation import get_correlation_id, set_correlation_id
+from fashx.observability.logging import CorrelationFilter
 
 
 def test_correlation_filter_with_id():

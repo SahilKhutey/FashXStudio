@@ -43,7 +43,7 @@ from app.integration.handlers import (
     OrderCompletedIntegrationHandler,
     PaymentCapturedIntegrationHandler,
 )
-from app.observability.correlation import (
+from fashx.observability.correlation import (
     get_correlation_id,
     set_correlation_id,
 )
