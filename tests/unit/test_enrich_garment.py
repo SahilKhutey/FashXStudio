@@ -1,19 +1,19 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.catalog.application.enrich_garment import (
+from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
 )
-from api.app.catalog.application.ingest_product import (
+from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
 )
-from api.app.catalog.application.parse_size_chart import (
+from fashx.catalog.application.parse_size_chart import (
     ParseSizeChartCommand,
     ParseSizeChartUseCase,
 )
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from database.models.catalog import Merchant
 
 

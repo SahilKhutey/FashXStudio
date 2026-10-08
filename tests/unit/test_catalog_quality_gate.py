@@ -1,4 +1,4 @@
-from api.app.catalog.quality.quality_gate import CatalogQualityGate
+from fashx.catalog.quality.quality_gate import CatalogQualityGate
 
 
 def test_catalog_quality_gate_passes_complete_batch() -> None:

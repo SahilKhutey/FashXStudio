@@ -4,8 +4,8 @@ from uuid import UUID
 
 from database.models.catalog import SizeChart, SizeMeasurement
 
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.catalog.sizing.size_parser import SizeChartParser
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.sizing.size_parser import SizeChartParser
 from api.app.core.errors import EntityNotFoundError
 
 

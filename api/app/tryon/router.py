@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.database import get_session_factory
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.tryon.application.get_job_status import (

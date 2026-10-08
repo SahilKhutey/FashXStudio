@@ -3,7 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from api.app.core.transactions import transaction
-from api.app.catalog.repositories.catalog import CatalogRepository
+from fashx.catalog.repositories.catalog import CatalogRepository
 
 
 class CatalogApplicationService:

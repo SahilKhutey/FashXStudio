@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.commerce_wardrobe.application.create_buy_click import (
     CreateBuyClickCommand,
     CreateBuyClickUseCase,

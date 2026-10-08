@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import get_db_session
-from api.app.catalog.repositories.catalog import CatalogRepository
+from fashx.catalog.repositories.catalog import CatalogRepository
 from api.app.profile.repositories.profile import ProfileRepository
 
 

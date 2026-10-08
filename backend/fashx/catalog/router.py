@@ -4,20 +4,20 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
 
-from api.app.catalog.application.enrich_garment import (
+from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
 )
-from api.app.catalog.application.ingest_product import (
+from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
 )
-from api.app.catalog.application.parse_size_chart import (
+from fashx.catalog.application.parse_size_chart import (
     ParseSizeChartCommand,
     ParseSizeChartUseCase,
 )
-from api.app.catalog.quality.quality_gate import CatalogQualityGate
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.quality.quality_gate import CatalogQualityGate
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.database import get_session_factory
 from api.app.core.errors import EntityNotFoundError
 

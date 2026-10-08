@@ -4,11 +4,11 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.catalog.application.ingest_product import (
+from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
 )
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.commerce_wardrobe.application.create_buy_click import (
     CreateBuyClickCommand,
     CreateBuyClickUseCase,

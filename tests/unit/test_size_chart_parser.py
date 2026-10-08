@@ -1,4 +1,4 @@
-from api.app.catalog.sizing.size_parser import SizeChartParser
+from fashx.catalog.sizing.size_parser import SizeChartParser
 
 
 def test_size_chart_parser_parses_centimeter_table() -> None:
