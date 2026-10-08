@@ -42,3 +42,8 @@ htmlcov/
 # ML artifacts
 ml/results/
 ml/checkpoints/
+
+# Temporary / staging kits
+Restructure KIt/
+fashx-restructure/
+
