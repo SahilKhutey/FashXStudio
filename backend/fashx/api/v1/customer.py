@@ -1,4 +1,4 @@
-from app.api.v1.customers import (
+from fashx.api.v1.customers import (
     get_customer_service,
     router,
 )

@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from app.api.v1.checkout import router
+from fashx.api.v1.checkout import router
 from app.main import app
 
 client = TestClient(app)

@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-from app.api.v1.orders import router
+from fashx.api.v1.orders import router
 from fashx.core.bootstrap import register_core_services
 from fashx.core.runtime import get_core_runtime
 from fashx.domain.order.entities import (

@@ -63,22 +63,22 @@ def create_app() -> FastAPI:
     app.include_router(commerce_wardrobe_router, prefix="/api/v1")
     app.include_router(visual_router, prefix="/api/v1")
 
-    from app.api.v1.analytics import router as analytics_router
-    from app.api.v1.cart import router as cart_router
-    from app.api.v1.checkout import router as checkout_router
-    from app.api.v1.commerce import router as commerce_router
-    from app.api.v1.customer import router as customer_router
-    from app.api.v1.fashion import router as fashion_router
-    from app.api.v1.fulfillment import router as fulfillment_router
-    from app.api.v1.inventory import router as inventory_router
-    from app.api.v1.orders import router as orders_router
-    from app.api.v1.payments import router as payments_router
-    from app.api.v1.pricing import router as pricing_router
-    from app.api.v1.promotions import router as promotions_router
-    from app.api.v1.recommendations import router as recommendations_router
-    from app.api.v1.returns import router as returns_router
-    from app.api.v1.system import router as system_router
-    from app.api.v1.trends import router as trends_router
+    from fashx.api.v1.analytics import router as analytics_router
+    from fashx.api.v1.cart import router as cart_router
+    from fashx.api.v1.checkout import router as checkout_router
+    from fashx.api.v1.commerce import router as commerce_router
+    from fashx.api.v1.customer import router as customer_router
+    from fashx.api.v1.fashion import router as fashion_router
+    from fashx.api.v1.fulfillment import router as fulfillment_router
+    from fashx.api.v1.inventory import router as inventory_router
+    from fashx.api.v1.orders import router as orders_router
+    from fashx.api.v1.payments import router as payments_router
+    from fashx.api.v1.pricing import router as pricing_router
+    from fashx.api.v1.promotions import router as promotions_router
+    from fashx.api.v1.recommendations import router as recommendations_router
+    from fashx.api.v1.returns import router as returns_router
+    from fashx.api.v1.system import router as system_router
+    from fashx.api.v1.trends import router as trends_router
     from fashx.core.bootstrap import register_core_services
     from fashx.core.errors import CoreError
     from fashx.integration.errors import core_error_handler
