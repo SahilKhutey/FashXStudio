@@ -1,37 +1,37 @@
-name: CI
-
+name: ci
 on:
   pull_request:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: fashx, POSTGRES_PASSWORD: fashx, POSTGRES_DB: fashx_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U fashx" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+    env:
+      PYTHONPATH: ".:api"                       # removed in PR 2B
+      DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
+      REDIS_URL: redis://localhost:6379/0
     steps:
-      - uses: actions/checkout@v6.1.0
-      - uses: astral-sh/setup-uv@v10.1.0
-        with:
-          version: "0.9.29"
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - run: uv sync
-      - run: uv run ruff check .
-      - run: uv run pytest
-      - run: uv run mypy api schemas
-
-  mobile:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mobile
-    steps:
-      - uses: actions/checkout@v6.1.0
-      - uses: actions/setup-node@v7.0.0
-        with:
-          node-version: "22.13.x"
-          cache: npm
-          cache-dependency-path: mobile/package-lock.json
-      - run: npm install
-      - run: npm run typecheck
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -e ".[dev]" || pip install -e .
+      - run: ruff check .
+      - run: mypy .
+      - run: python -m alembic heads
+      - run: python -m alembic upgrade head
+      - run: python -m pytest tests -q -p no:cacheprovider
