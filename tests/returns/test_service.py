@@ -35,7 +35,7 @@ from app.domain.returns.events import (
 from app.domain.returns.service import (
     ReturnsService,
 )
-from app.repositories.returns.memory import (
+from fashx.repositories.returns.memory import (
     InMemoryCancellationRepository,
     InMemoryRefundRepository,
     InMemoryReplacementRepository,

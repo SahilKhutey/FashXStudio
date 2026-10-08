@@ -21,7 +21,7 @@ from app.domain.promotions.enums import (
 from app.domain.promotions.service import (
     PromotionService,
 )
-from app.repositories.promotions.memory import (
+from fashx.repositories.promotions.memory import (
     InMemoryOfferRepository,
     InMemoryPromotionRepository,
 )

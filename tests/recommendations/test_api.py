@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.domain.recommendations.entities import RecommendationCandidate
 from app.main import app
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
 

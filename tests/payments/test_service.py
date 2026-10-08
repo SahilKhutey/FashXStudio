@@ -22,7 +22,7 @@ from app.domain.payments.provider import (
 from app.domain.payments.service import (
     PaymentService,
 )
-from app.repositories.payments.memory import (
+from fashx.repositories.payments.memory import (
     InMemoryPaymentRepository,
     InMemoryPaymentTransactionRepository,
 )

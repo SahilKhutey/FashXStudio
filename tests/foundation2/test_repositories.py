@@ -6,7 +6,7 @@ import pytest
 
 from fashx.application.idempotency import IdempotencyService
 from api.app.core.errors import ConflictError
-from api.app.repositories.idempotency import IdempotencyRepository
+from fashx.repositories.idempotency import IdempotencyRepository
 
 
 class _Result:

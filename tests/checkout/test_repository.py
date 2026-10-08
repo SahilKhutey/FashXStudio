@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 
 from app.domain.checkout.entities import CheckoutSession
-from app.repositories.checkout.memory import InMemoryCheckoutRepository
+from fashx.repositories.checkout.memory import InMemoryCheckoutRepository
 
 
 @pytest.mark.asyncio

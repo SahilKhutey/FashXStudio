@@ -12,7 +12,7 @@ from app.domain.customer.enums import (
     AddressType,
     ConsentType,
 )
-from app.repositories.customer.memory import (
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerConsentRepository,
     InMemoryCustomerPreferencesRepository,

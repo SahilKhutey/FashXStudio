@@ -12,7 +12,7 @@ from app.domain.promotions.enums import (
     DiscountType,
     PromotionScope,
 )
-from app.repositories.promotions.memory import (
+from fashx.repositories.promotions.memory import (
     InMemoryOfferRepository,
     InMemoryPromotionRepository,
 )

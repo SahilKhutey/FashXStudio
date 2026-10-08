@@ -6,7 +6,7 @@ from app.domain.fashion.entities import (
     TaxonomyNode,
 )
 from app.domain.fashion.enums import TaxonomyType
-from app.repositories.fashion.memory import (
+from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,
 )

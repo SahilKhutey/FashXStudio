@@ -14,7 +14,7 @@ from app.domain.recommendations.recommendation_context import (
 from app.domain.recommendations.service import (
     RecommendationService,
 )
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
 

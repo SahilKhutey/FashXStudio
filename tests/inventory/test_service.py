@@ -16,7 +16,7 @@ from app.domain.inventory.enums import (
 from app.domain.inventory.service import (
     InventoryService,
 )
-from app.repositories.inventory.memory import (
+from fashx.repositories.inventory.memory import (
     InMemoryInventoryRepository,
     InMemoryStockLocationRepository,
     InMemoryStockMovementRepository,

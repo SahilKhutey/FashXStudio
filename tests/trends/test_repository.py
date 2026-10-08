@@ -5,7 +5,7 @@ import pytest
 
 from app.domain.trends.entities import Trend, TrendObservation
 from app.domain.trends.enums import TrendStatus, TrendType
-from app.repositories.trends.memory import (
+from fashx.repositories.trends.memory import (
     InMemoryTrendObservationRepository,
     InMemoryTrendRepository,
 )

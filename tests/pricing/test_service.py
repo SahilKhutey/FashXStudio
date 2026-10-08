@@ -20,7 +20,7 @@ from app.domain.pricing.events import (
 )
 from app.domain.pricing.rules import PricingContext
 from app.domain.pricing.service import PricingService
-from app.repositories.pricing.memory import (
+from fashx.repositories.pricing.memory import (
     InMemoryPriceRepository,
     InMemoryPricingRuleRepository,
 )

@@ -19,8 +19,8 @@ from app.domain.order.entities import (
     OrderLine,
 )
 from app.domain.order.service import OrderService
-from app.repositories.checkout.memory import InMemoryCheckoutRepository
-from app.repositories.order.memory import (
+from fashx.repositories.checkout.memory import InMemoryCheckoutRepository
+from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,
     InMemoryOrderRepository,
 )

@@ -8,7 +8,7 @@ from app.domain.customer.entities import (
     CustomerPreference,
 )
 from app.domain.customer.enums import PreferenceScope
-from app.repositories.customer.memory import (
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerPreferenceRepository,
     InMemoryCustomerRepository,

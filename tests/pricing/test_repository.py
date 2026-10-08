@@ -5,7 +5,7 @@ import pytest
 
 from app.domain.pricing.entities import Price, PricingRule
 from app.domain.pricing.enums import PriceStatus, PriceType, RuleStatus
-from app.repositories.pricing.memory import (
+from fashx.repositories.pricing.memory import (
     InMemoryPriceRepository,
     InMemoryPricingRuleRepository,
 )

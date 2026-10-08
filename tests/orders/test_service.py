@@ -20,7 +20,7 @@ from app.domain.order.events import (
 from app.domain.order.service import (
     OrderService,
 )
-from app.repositories.order.memory import (
+from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,
     InMemoryOrderRepository,
 )

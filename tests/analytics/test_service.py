@@ -15,7 +15,7 @@ from app.domain.analytics.events import (
     AnalyticsMetricAggregated,
 )
 from app.domain.analytics.service import AnalyticsService
-from app.repositories.analytics.memory import (
+from fashx.repositories.analytics.memory import (
     InMemoryAnalyticsEventRepository,
     InMemoryAnalyticsMetricRepository,
 )

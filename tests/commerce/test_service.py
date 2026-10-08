@@ -13,7 +13,7 @@ from app.domain.commerce.enums import (
     ListingStatus,
 )
 from app.domain.commerce.service import CommerceService
-from app.repositories.commerce.memory import (
+from fashx.repositories.commerce.memory import (
     InMemoryBrandRepository,
     InMemoryListingRepository,
     InMemoryMarketplaceRepository,

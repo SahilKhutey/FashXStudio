@@ -30,7 +30,7 @@ from app.domain.fulfillment.enums import (
 from app.domain.fulfillment.service import (
     FulfillmentService,
 )
-from app.repositories.fulfillment.memory import (
+from fashx.repositories.fulfillment.memory import (
     InMemoryFulfillmentLineRepository,
     InMemoryFulfillmentRepository,
     InMemoryShipmentRepository,

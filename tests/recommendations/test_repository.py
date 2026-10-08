@@ -5,7 +5,7 @@ import pytest
 from app.domain.recommendations.entities import (
     RecommendationCandidate,
 )
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
 

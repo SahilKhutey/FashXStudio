@@ -9,7 +9,7 @@ from app.domain.inventory.entities import (
     StockMovement,
 )
 from app.domain.inventory.enums import StockAdjustmentType
-from app.repositories.inventory.memory import (
+from fashx.repositories.inventory.memory import (
     InMemoryInventoryRepository,
     InMemoryStockLocationRepository,
     InMemoryStockMovementRepository,

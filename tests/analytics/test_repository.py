@@ -11,7 +11,7 @@ from app.domain.analytics.enums import (
     AggregationPeriod,
     AnalyticsEventType,
 )
-from app.repositories.analytics.memory import (
+from fashx.repositories.analytics.memory import (
     InMemoryAnalyticsEventRepository,
     InMemoryAnalyticsMetricRepository,
 )

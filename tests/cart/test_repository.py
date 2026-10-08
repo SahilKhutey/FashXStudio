@@ -7,7 +7,7 @@ import pytest
 
 from app.domain.cart.entities import Cart, CartLine
 from app.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
-from app.repositories.cart.memory import (
+from fashx.repositories.cart.memory import (
     InMemoryCartLineRepository,
     InMemoryCartRepository,
 )

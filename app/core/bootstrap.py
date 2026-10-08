@@ -19,71 +19,71 @@ from app.domain.recommendations.provider import DefaultPersonalizationProvider
 from app.domain.recommendations.service import RecommendationService
 from app.domain.returns.service import ReturnsService
 from app.domain.trends.service import TrendService
-from app.repositories.analytics.memory import (
+from fashx.repositories.analytics.memory import (
     InMemoryAnalyticsEventRepository,
     InMemoryAnalyticsMetricRepository,
 )
-from app.repositories.cart.memory import (
+from fashx.repositories.cart.memory import (
     InMemoryCartLineRepository,
     InMemoryCartRepository,
 )
-from app.repositories.checkout.memory import InMemoryCheckoutRepository
-from app.repositories.commerce.memory import (
+from fashx.repositories.checkout.memory import InMemoryCheckoutRepository
+from fashx.repositories.commerce.memory import (
     InMemoryBrandRepository,
     InMemoryListingRepository,
     InMemoryMarketplaceRepository,
     InMemoryProductBrandRepository,
     InMemorySellerRepository,
 )
-from app.repositories.customer.memory import (
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerConsentRepository,
     InMemoryCustomerPreferenceRepository,
     InMemoryCustomerPreferencesRepository,
     InMemoryCustomerRepository,
 )
-from app.repositories.fashion.memory import (
+from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,
 )
-from app.repositories.fulfillment.memory import (
+from fashx.repositories.fulfillment.memory import (
     InMemoryFulfillmentLineRepository,
     InMemoryFulfillmentRepository,
     InMemoryShipmentPackageRepository,
     InMemoryShipmentRepository,
 )
-from app.repositories.inventory.memory import (
+from fashx.repositories.inventory.memory import (
     InMemoryInventoryRepository,
     InMemoryStockLocationRepository,
     InMemoryStockMovementRepository,
 )
-from app.repositories.order.memory import (
+from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,
     InMemoryOrderRepository,
 )
-from app.repositories.payments.memory import (
+from fashx.repositories.payments.memory import (
     InMemoryPaymentRepository,
     InMemoryPaymentTransactionRepository,
 )
-from app.repositories.pricing.memory import (
+from fashx.repositories.pricing.memory import (
     InMemoryPriceRepository,
     InMemoryPricingRuleRepository,
 )
-from app.repositories.promotions.memory import (
+from fashx.repositories.promotions.memory import (
     InMemoryOfferRepository,
     InMemoryPromotionRepository,
 )
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
-from app.repositories.returns.memory import (
+from fashx.repositories.returns.memory import (
     InMemoryCancellationRepository,
     InMemoryRefundRepository,
     InMemoryReplacementRepository,
     InMemoryReturnLineRepository,
     InMemoryReturnRepository,
 )
-from app.repositories.trends.memory import (
+from fashx.repositories.trends.memory import (
     InMemoryTrendObservationRepository,
     InMemoryTrendRepository,
 )

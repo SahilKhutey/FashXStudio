@@ -1,6 +1,6 @@
 import uuid
 from typing import Optional
-from app.repositories.models import TryOnJobModel
+from fashx.repositories.models import TryOnJobModel
 from fashx.tryon.repositories.tryon_repository import TryOnRepository
 
 

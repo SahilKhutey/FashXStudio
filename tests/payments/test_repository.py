@@ -10,7 +10,7 @@ from app.domain.payments.entities import (
     PaymentTransaction,
 )
 from app.domain.payments.enums import TransactionType
-from app.repositories.payments.memory import (
+from fashx.repositories.payments.memory import (
     InMemoryPaymentRepository,
     InMemoryPaymentTransactionRepository,
 )

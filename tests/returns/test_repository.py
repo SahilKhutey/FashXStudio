@@ -10,7 +10,7 @@ from app.domain.returns.entities import (
     ReturnLine,
     ReturnRequest,
 )
-from app.repositories.returns.memory import (
+from fashx.repositories.returns.memory import (
     InMemoryCancellationRepository,
     InMemoryRefundRepository,
     InMemoryReplacementRepository,

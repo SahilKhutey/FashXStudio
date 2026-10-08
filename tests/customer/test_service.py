@@ -27,7 +27,7 @@ from app.domain.customer.events import (
 from app.domain.customer.service import (
     CustomerService,
 )
-from app.repositories.customer.memory import (
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerPreferenceRepository,
     InMemoryCustomerRepository,

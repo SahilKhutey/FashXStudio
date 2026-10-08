@@ -6,7 +6,7 @@ from uuid import UUID
 from api.app.core.errors import ConflictError
 from api.app.core.idempotency import request_fingerprint
 from api.app.core.transactions import transaction
-from api.app.repositories.idempotency import IdempotencyRepository
+from fashx.repositories.idempotency import IdempotencyRepository
 
 
 @dataclass(frozen=True, slots=True)

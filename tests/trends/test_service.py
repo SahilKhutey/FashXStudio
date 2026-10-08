@@ -15,7 +15,7 @@ from app.domain.trends.events import (
 )
 from app.domain.trends.provider import TestTrendProvider
 from app.domain.trends.service import TrendService
-from app.repositories.trends.memory import (
+from fashx.repositories.trends.memory import (
     InMemoryTrendObservationRepository,
     InMemoryTrendRepository,
 )

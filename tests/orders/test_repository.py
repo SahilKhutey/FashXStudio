@@ -8,7 +8,7 @@ from app.domain.order.entities import (
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.repositories.order.memory import (
+from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,
     InMemoryOrderRepository,
 )

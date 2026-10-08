@@ -5,7 +5,7 @@ from app.domain.commerce.entities import (
     Brand,
     Seller,
 )
-from app.repositories.commerce.memory import (
+from fashx.repositories.commerce.memory import (
     InMemoryBrandRepository,
     InMemorySellerRepository,
 )

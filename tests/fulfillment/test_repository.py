@@ -11,7 +11,7 @@ from app.domain.fulfillment.entities import (
     Shipment,
     ShipmentPackage,
 )
-from app.repositories.fulfillment.memory import (
+from fashx.repositories.fulfillment.memory import (
     InMemoryFulfillmentLineRepository,
     InMemoryFulfillmentRepository,
     InMemoryShipmentPackageRepository,
