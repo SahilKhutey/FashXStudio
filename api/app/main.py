@@ -11,7 +11,7 @@ from .gateway.errors import install_exception_handlers
 from .gateway.middleware import RequestContextMiddleware
 from fashx.health.router import router as health_router
 from fashx.profile.router import router as profile_router
-from .recommendation.router import router as recommendation_router
+from fashx.recommendation.router import router as recommendation_router
 from .tryon.router import router as tryon_router
 from .visual.router import router as visual_router
 

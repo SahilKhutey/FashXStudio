@@ -1,4 +1,4 @@
-from api.app.recommendation.compatibility import CompatibilityMatrix
+from fashx.recommendation.compatibility import CompatibilityMatrix
 
 
 def test_color_harmony_warm_undertone() -> None:

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.database import get_session_factory
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from api.app.recommendation.application.generate_feed import (
+from fashx.recommendation.application.generate_feed import (
     GenerateFeedCommand,
     GenerateFeedUseCase,
 )

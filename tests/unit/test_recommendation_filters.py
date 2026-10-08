@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from api.app.recommendation.filters import (
+from fashx.recommendation.filters import (
     CandidateItem,
     DeterministicFilter,
     FilterCriteria,
