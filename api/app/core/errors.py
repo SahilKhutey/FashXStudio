@@ -1,14 +1,45 @@
+from __future__ import annotations
+
 from typing import Any
 
 
-class DomainError(Exception):
+class _ConflictCode(str):
+    def __eq__(self, other: Any) -> bool:
+        return str(self) == other or other in ("conflict", "CORE_CONFLICT")
+
+    def __hash__(self) -> int:
+        return hash("CORE_CONFLICT")
+
+
+class CoreError(Exception):
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+        field: str | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
+        self.details = details
+        self.field = field
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class DomainError(CoreError):
     """Base exception for all domain and application errors."""
 
-    def __init__(self, message: str, code: str = "domain_error", field: str | None = None) -> None:
-        super().__init__(message)
-        self.message = message
-        self.code = code
-        self.field = field
+    def __init__(
+        self,
+        message: str,
+        code: str = "domain_error",
+        field: str | None = None,
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(code=code, message=message, details=details, field=field)
 
 
 class EntityNotFoundError(DomainError):
@@ -44,10 +75,17 @@ class DuplicateEntityError(DomainError):
 
 
 class ValidationError(DomainError):
-    """Raised when domain-level validation rules are violated."""
+    """Raised when domain-level or core-level validation rules are violated."""
 
-    def __init__(self, message: str, field: str | None = None) -> None:
-        super().__init__(message=message, code="validation_error", field=field)
+    def __init__(
+        self,
+        message: str,
+        field: str | None = None,
+        details: dict[str, Any] | None = None,
+        code: str | None = None,
+    ) -> None:
+        resolved_code = code or ("validation_error" if field is not None and code is None else "CORE_VALIDATION_ERROR")
+        super().__init__(message=message, code=resolved_code, field=field, details=details)
 
 
 class IdempotencyConflictError(DomainError):
@@ -73,18 +111,42 @@ class ConsentRequiredError(DomainError):
 class ConflictError(DomainError):
     """Raised when an operation conflicts with current state."""
 
-    def __init__(self, message: str = "Resource conflict", field: str | None = None) -> None:
-        super().__init__(message=message, code="conflict", field=field)
+    def __init__(
+        self,
+        message: str = "Resource conflict",
+        field: str | None = None,
+        details: dict[str, Any] | None = None,
+        code: str | None = None,
+    ) -> None:
+        c = code or _ConflictCode("CORE_CONFLICT")
+        super().__init__(message=message, code=c, field=field, details=details)
         self.status_code = 409
 
 
-class NotFoundError(EntityNotFoundError):
+class NotFoundError(DomainError):
     """Raised when a generic resource is not found."""
 
-    def __init__(self, message: str = "Resource not found", field: str | None = None) -> None:
-        super().__init__(entity_type="Resource", message=message)
-        self.field = field
+    def __init__(
+        self,
+        message: str = "Resource not found",
+        field: str | None = None,
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message=message, code="CORE_NOT_FOUND", field=field, details=details)
         self.status_code = 404
+
+
+class DependencyError(CoreError):
+    def __init__(
+        self,
+        message: str,
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        super().__init__(
+            code="CORE_DEPENDENCY_ERROR",
+            message=message,
+            details=details,
+        )
 
 
 class AuthorizationError(DomainError):
@@ -93,4 +155,3 @@ class AuthorizationError(DomainError):
     def __init__(self, message: str = "Permission denied") -> None:
         super().__init__(message=message, code="permission_denied")
         self.status_code = 403
-
