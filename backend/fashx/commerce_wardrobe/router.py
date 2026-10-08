@@ -1,30 +1,30 @@
 from uuid import UUID
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.commerce_wardrobe.application.create_buy_click import (
+from fashx.commerce_wardrobe.application.create_buy_click import (
     CreateBuyClickCommand,
     CreateBuyClickUseCase,
 )
-from api.app.commerce_wardrobe.application.list_wardrobe import (
+from fashx.commerce_wardrobe.application.list_wardrobe import (
     ListWardrobeUseCase,
     WardrobeItemView,
 )
-from api.app.commerce_wardrobe.application.remove_from_wardrobe import (
+from fashx.commerce_wardrobe.application.remove_from_wardrobe import (
     RemoveFromWardrobeUseCase,
 )
-from api.app.commerce_wardrobe.application.save_to_wardrobe import (
+from fashx.commerce_wardrobe.application.save_to_wardrobe import (
     SaveToWardrobeCommand,
     SaveToWardrobeUseCase,
 )
-from api.app.commerce_wardrobe.application.submit_fit_feedback import (
+from fashx.commerce_wardrobe.application.submit_fit_feedback import (
     SubmitFitFeedbackCommand,
     SubmitFitFeedbackUseCase,
 )
-from api.app.commerce_wardrobe.application.submit_tryon_feedback import (
+from fashx.commerce_wardrobe.application.submit_tryon_feedback import (
     SubmitTryOnFeedbackCommand,
     SubmitTryOnFeedbackUseCase,
 )
-from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
+from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.database import get_session_factory

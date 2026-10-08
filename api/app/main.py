@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
-from .commerce_wardrobe.router import router as commerce_wardrobe_router
+from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
 from .core.logging import configure_logging
 from .core.observability import ContextFilter, configure_sentry
 from .core.settings import get_settings

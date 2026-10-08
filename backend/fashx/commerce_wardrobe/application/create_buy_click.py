@@ -3,7 +3,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from uuid import UUID, uuid4
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
+from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.errors import EntityNotFoundError

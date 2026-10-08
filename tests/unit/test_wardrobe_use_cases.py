@@ -8,15 +8,15 @@ from fashx.catalog.application.ingest_product import (
     IngestProductCommand,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.commerce_wardrobe.application.list_wardrobe import ListWardrobeUseCase
-from api.app.commerce_wardrobe.application.remove_from_wardrobe import (
+from fashx.commerce_wardrobe.application.list_wardrobe import ListWardrobeUseCase
+from fashx.commerce_wardrobe.application.remove_from_wardrobe import (
     RemoveFromWardrobeUseCase,
 )
-from api.app.commerce_wardrobe.application.save_to_wardrobe import (
+from fashx.commerce_wardrobe.application.save_to_wardrobe import (
     SaveToWardrobeCommand,
     SaveToWardrobeUseCase,
 )
-from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
+from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.errors import EntityNotFoundError
