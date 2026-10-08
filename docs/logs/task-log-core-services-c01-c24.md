@@ -1,3 +1,5 @@
+> **Historical record.** Written during development; counts, 'verified' claims and gate results may be outdated. Current truth: [STATUS](../STATUS.md).
+
 # FashXStudio System Deep-Dive Audit & Core Services Task Log — C01–C24
 
 **Recorded:** 2026-09-27  

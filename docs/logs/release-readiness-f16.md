@@ -1,3 +1,5 @@
+> **Historical record.** Written during development; counts, 'verified' claims and gate results may be outdated. Current truth: [STATUS](../STATUS.md).
+
 # F16 — Final Production Build Readiness
 
 ## Implemented repository baseline

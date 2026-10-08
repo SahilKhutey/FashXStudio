@@ -1,12 +1,8 @@
-# Engineering Rules
+# Contributing
 
-1. Router code does not access repositories directly.
-2. Application/use-case code orchestrates side effects.
-3. Domain code does not import FastAPI, SQLAlchemy, Redis, R2, or vendor SDKs.
-4. Repositories do not cross domain ownership boundaries.
-5. External SDKs are used only behind ports/adapters.
-6. Database changes require Alembic migrations.
-7. Shared schemas are versioned and never copy-pasted between consumers.
-8. Async jobs must be atomically claimed and idempotent.
-9. Artifact/cache keys are distinct from request idempotency keys.
-10. Sensitive media access is capability-scoped.
+- Work on a branch (`feat/…`, `fix/…`, `chore/…`); open a PR to `main`. No direct pushes to `main`.
+- Commit style: `type(scope): summary`, using feat, fix, chore, docs, test, refactor.
+- One logical change per commit, especially for code moves (move first, edit later).
+- Every PR: tests green locally, `ruff check .`, `mypy .`, and `docs/STATUS.md` updated if a status changed.
+- Do not extend frozen modules (docs/architecture/FROZEN.md).
+- Never commit secrets, `.env`, archives (`*.zip`) or model weights.

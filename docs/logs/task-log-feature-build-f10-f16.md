@@ -1,3 +1,5 @@
+> **Historical record.** Written during development; counts, 'verified' claims and gate results may be outdated. Current truth: [STATUS](../STATUS.md).
+
 # FashXStudio Feature Build Task Log — F10–F16
 
 **Recorded:** 2026-09-21
