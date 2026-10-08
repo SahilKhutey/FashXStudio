@@ -6,7 +6,7 @@ and RFC-7807 error envelopes for Screen Inventory, Templates, and Breakpoints.
 
 from fastapi.testclient import TestClient
 
-from api.app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

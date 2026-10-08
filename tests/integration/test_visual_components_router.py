@@ -1,7 +1,7 @@
 """Integration tests for Component Framework REST API endpoints — Phase 05."""
 
 from fastapi.testclient import TestClient
-from api.app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

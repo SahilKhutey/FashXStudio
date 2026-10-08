@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from api.app.main import app
+from fashx.main import app
 
 
 def test_feature_routes_publish_the_registry_and_availability() -> None:

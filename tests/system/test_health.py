@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from api.app.main import app
+from fashx.main import app
 from fashx.core.bootstrap import register_core_services
 from fashx.core.runtime import CoreRuntime
 from fashx.core.version import CORE_API_VERSION, CORE_VERSION, PRODUCT_NAME

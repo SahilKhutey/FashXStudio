@@ -8,7 +8,7 @@ from fashx.core.errors import (
     IdempotencyConflictError,
     ValidationError,
 )
-from api.app.main import app
+from fashx.main import app
 
 router = APIRouter(prefix="/api/v1/test-errors")
 

@@ -1,7 +1,7 @@
 """Integration tests for Navigation System REST API endpoints — Phase 04."""
 
 from fastapi.testclient import TestClient
-from api.app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

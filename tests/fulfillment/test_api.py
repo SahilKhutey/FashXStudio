@@ -8,7 +8,7 @@ from fashx.core.bootstrap import register_core_services
 from fashx.core.context import CoreContext
 from fashx.core.runtime import get_core_runtime
 from fashx.domain.fulfillment.enums import FulfillmentStatus
-from app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

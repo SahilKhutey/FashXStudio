@@ -12,7 +12,7 @@ from fashx.domain.order.entities import (
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

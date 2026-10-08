@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from fashx.core.bootstrap import register_core_services
 from fashx.core.runtime import get_core_runtime
 from fashx.domain.orders.entities import Order
-from app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

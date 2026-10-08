@@ -24,7 +24,7 @@ Tests All 13 Geography Endpoints & 5 Cross-System Integration Flows:
 
 import pytest
 from fastapi.testclient import TestClient
-from api.app.main import app
+from fashx.main import app
 from fashx.visual.geography_service import reset_geography_fixtures
 from fashx.visual.styling_service import INITIAL_OUTFIT, reset_styling_fixtures
 
