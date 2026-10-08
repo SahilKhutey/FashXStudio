@@ -5,8 +5,8 @@ import pytest
 
 from app.core.errors import DependencyError
 from app.core.events import DomainEvent
-from app.integration.contracts import IntegrationHandler, IntegrationMessage
-from app.integration.dispatcher import IntegrationDispatcher
+from fashx.integration.contracts import IntegrationHandler, IntegrationMessage
+from fashx.integration.dispatcher import IntegrationDispatcher
 
 
 @dataclass(frozen=True, slots=True)

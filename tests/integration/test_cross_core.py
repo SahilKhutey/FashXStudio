@@ -37,9 +37,9 @@ from app.domain.order.events import OrderCreated
 from app.domain.payments.entities import Payment
 from app.domain.payments.events import PaymentCaptured
 from app.domain.pricing.entities import Price
-from app.integration.contracts import IntegrationMessage
-from app.integration.dispatcher import IntegrationDispatcher
-from app.integration.handlers import (
+from fashx.integration.contracts import IntegrationMessage
+from fashx.integration.dispatcher import IntegrationDispatcher
+from fashx.integration.handlers import (
     OrderCompletedIntegrationHandler,
     PaymentCapturedIntegrationHandler,
 )

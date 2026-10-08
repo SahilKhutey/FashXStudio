@@ -9,7 +9,7 @@ from app.core.errors import (
     NotFoundError,
     ValidationError,
 )
-from app.integration.errors import core_error_handler
+from fashx.integration.errors import core_error_handler
 from fashx.security.authorization import Actor, require_role
 from fashx.security.validation import SystemConfig
 

@@ -81,7 +81,7 @@ def create_app() -> FastAPI:
     from app.api.v1.trends import router as trends_router
     from app.core.bootstrap import register_core_services
     from app.core.errors import CoreError
-    from app.integration.errors import core_error_handler
+    from fashx.integration.errors import core_error_handler
 
     app.add_exception_handler(CoreError, core_error_handler)
     register_core_services(runtime)
