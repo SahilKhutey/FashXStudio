@@ -1,5 +1,5 @@
-from api.app.catalog.normalization.brand_normalizer import BrandNormalizer
-from api.app.catalog.normalization.text_normalizer import TextNormalizer
+from fashx.catalog.normalization.brand_normalizer import BrandNormalizer
+from fashx.catalog.normalization.text_normalizer import TextNormalizer
 
 
 def test_brand_normalizer_resolves_aliases() -> None:

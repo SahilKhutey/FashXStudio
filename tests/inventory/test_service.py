@@ -2,21 +2,21 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ConflictError, NotFoundError, ValidationError
-from app.core.event_bus import EventBus
-from app.domain.inventory.entities import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import ConflictError, NotFoundError, ValidationError
+from fashx.core.event_bus import EventBus
+from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,
 )
-from app.domain.inventory.enums import (
+from fashx.domain.inventory.enums import (
     InventoryStatus,
     StockAdjustmentType,
 )
-from app.domain.inventory.service import (
+from fashx.domain.inventory.service import (
     InventoryService,
 )
-from app.repositories.inventory.memory import (
+from fashx.repositories.inventory.memory import (
     InMemoryInventoryRepository,
     InMemoryStockLocationRepository,
     InMemoryStockMovementRepository,

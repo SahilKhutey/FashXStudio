@@ -1,10 +1,10 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.customer.enums import (
+from fashx.core.errors import ValidationError
+from fashx.domain.customer.enums import (
     CustomerStatus,
 )
-from app.domain.customer.lifecycle import (
+from fashx.domain.customer.lifecycle import (
     validate_customer_transition,
 )
 

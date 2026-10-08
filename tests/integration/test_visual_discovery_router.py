@@ -13,7 +13,7 @@ Tests Discovery & Search Endpoints:
 """
 
 from fastapi.testclient import TestClient
-from api.app.main import app
+from fashx.main import app
 
 client = TestClient(app)
 

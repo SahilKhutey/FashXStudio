@@ -1,7 +1,7 @@
 import pytest
 
-from app.core.event_bus import EventBus
-from app.core.events import EntityCreated
+from fashx.core.event_bus import EventBus
+from fashx.core.events import EntityCreated
 
 
 @pytest.mark.asyncio

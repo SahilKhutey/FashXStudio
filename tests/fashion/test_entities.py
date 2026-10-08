@@ -1,12 +1,12 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.fashion.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.fashion.entities import (
     FashionAttribute,
     ProductFashionProfile,
     TaxonomyNode,
 )
-from app.domain.fashion.enums import (
+from fashx.domain.fashion.enums import (
     ClassificationSource,
     TaxonomyType,
 )
@@ -61,7 +61,7 @@ def test_profile_requires_product():
 
 
 def test_profile_confidence_range():
-    from app.core.ids import new_id
+    from fashx.core.ids import new_id
 
     profile = ProductFashionProfile(
         product_id=new_id(),

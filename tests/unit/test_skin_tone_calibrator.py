@@ -1,4 +1,4 @@
-from api.app.profile.calibration.skin_tone import SkinToneCalibrator
+from fashx.profile.calibration.skin_tone import SkinToneCalibrator
 
 
 def test_skin_tone_calibrator_light_monk_scale() -> None:

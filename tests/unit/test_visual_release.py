@@ -26,7 +26,7 @@ from schemas.visual.release import (
     VisualReleaseGateAuditRequest,
     VisualTrackStatusContract,
 )
-from api.app.visual.release_service import (
+from fashx.visual.release_service import (
     get_e2e_journeys,
     get_golden_artifacts,
     get_navigation_registry,

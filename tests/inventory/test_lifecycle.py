@@ -1,10 +1,10 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.inventory.enums import (
+from fashx.core.errors import ValidationError
+from fashx.domain.inventory.enums import (
     InventoryStatus,
 )
-from app.domain.inventory.lifecycle import (
+from fashx.domain.inventory.lifecycle import (
     validate_inventory_transition,
 )
 

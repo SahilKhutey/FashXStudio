@@ -21,11 +21,9 @@ Modular monolith with clean layering (router, use case, pure domain, repository,
 Copy-Item .env.example .env
 docker compose up -d postgres redis
 python -m alembic upgrade head
-$env:PYTHONPATH = ".;api"
 python -m pytest tests -q -p no:cacheprovider
-python -m uvicorn api.app.main:app --reload --port 8000
+python -m uvicorn fashx.main:app --reload --port 8000
 ```
-macOS/Linux: use `export PYTHONPATH=".:api"`.
 Mobile: `cd mobile && npm install && npx expo start`
 
 ## Docs

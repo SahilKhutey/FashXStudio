@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.events import DomainEvent
-from app.integration.outbox import InMemoryOutboxRepository, OutboxMessage
+from fashx.core.events import DomainEvent
+from fashx.integration.outbox import InMemoryOutboxRepository, OutboxMessage
 
 
 @dataclass(frozen=True, slots=True)

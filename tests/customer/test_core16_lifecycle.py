@@ -1,8 +1,8 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.customer.enums import CustomerStatus
-from app.domain.customer.lifecycle import validate_transition
+from fashx.core.errors import ValidationError
+from fashx.domain.customer.enums import CustomerStatus
+from fashx.domain.customer.lifecycle import validate_transition
 
 
 def test_core16_pending_transitions():

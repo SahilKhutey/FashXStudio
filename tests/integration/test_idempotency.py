@@ -3,9 +3,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.events import DomainEvent
-from app.integration.contracts import IntegrationHandler, IntegrationMessage
-from app.integration.idempotency import IdempotentHandler, InMemoryIdempotencyStore
+from fashx.core.events import DomainEvent
+from fashx.integration.contracts import IntegrationHandler, IntegrationMessage
+from fashx.integration.idempotency import IdempotentHandler, InMemoryIdempotencyStore
 
 
 @dataclass(frozen=True, slots=True)

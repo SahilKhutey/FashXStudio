@@ -5,9 +5,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.cart.entities import Cart, CartLine
-from app.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
-from app.repositories.cart.memory import (
+from fashx.domain.cart.entities import Cart, CartLine
+from fashx.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
+from fashx.repositories.cart.memory import (
     InMemoryCartLineRepository,
     InMemoryCartRepository,
 )

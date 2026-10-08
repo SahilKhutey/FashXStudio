@@ -3,18 +3,18 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.commerce_wardrobe.application.submit_fit_feedback import (
+from fashx.commerce_wardrobe.application.submit_fit_feedback import (
     SubmitFitFeedbackCommand,
     SubmitFitFeedbackUseCase,
 )
-from api.app.commerce_wardrobe.application.submit_tryon_feedback import (
+from fashx.commerce_wardrobe.application.submit_tryon_feedback import (
     SubmitTryOnFeedbackCommand,
     SubmitTryOnFeedbackUseCase,
 )
-from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
+from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 
 @pytest.mark.asyncio

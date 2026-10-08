@@ -3,12 +3,12 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.repositories.order.memory import (
+from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,
     InMemoryOrderRepository,
 )

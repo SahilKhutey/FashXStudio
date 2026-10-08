@@ -4,14 +4,14 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.trends.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.trends.entities import (
     Trend,
     TrendContext,
     TrendObservation,
     TrendSnapshot,
 )
-from app.domain.trends.enums import (
+from fashx.domain.trends.enums import (
     SignalType,
     TrendDirection,
     TrendSource,

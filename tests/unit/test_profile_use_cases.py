@@ -3,16 +3,16 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
-from api.app.profile.application.create_profile import (
+from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.record_measurement import (
+from fashx.profile.application.record_measurement import (
     RecordMeasurementCommand,
     RecordMeasurementUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from schemas.common.enums import BuildType, DataType, MeasurementSource
 from schemas.identity.consent import ConsentUpdate
 

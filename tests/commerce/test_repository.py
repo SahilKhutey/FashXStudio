@@ -1,11 +1,11 @@
 import pytest
 
-from app.core.errors import ConflictError
-from app.domain.commerce.entities import (
+from fashx.core.errors import ConflictError
+from fashx.domain.commerce.entities import (
     Brand,
     Seller,
 )
-from app.repositories.commerce.memory import (
+from fashx.repositories.commerce.memory import (
     InMemoryBrandRepository,
     InMemorySellerRepository,
 )

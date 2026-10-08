@@ -1,12 +1,12 @@
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError
-from app.core.event_bus import EventBus
-from app.domain.fashion.entities import TaxonomyNode
-from app.domain.fashion.enums import TaxonomyType
-from app.domain.fashion.service import FashionService
-from app.repositories.fashion.memory import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError
+from fashx.core.event_bus import EventBus
+from fashx.domain.fashion.entities import TaxonomyNode
+from fashx.domain.fashion.enums import TaxonomyType
+from fashx.domain.fashion.service import FashionService
+from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,
 )
@@ -41,7 +41,7 @@ async def test_create_root_taxonomy(service):
 
 @pytest.mark.asyncio
 async def test_missing_parent_rejected(service):
-    from app.core.ids import new_id
+    from fashx.core.ids import new_id
 
     node = TaxonomyNode(
         name="Shirt",

@@ -25,10 +25,10 @@ Tests All 14 AI Endpoints & 5 Cross-System Integration Flows:
 
 import pytest
 from fastapi.testclient import TestClient
-from api.app.main import app
-from api.app.visual.ai_service import reset_ai_fixtures
-from api.app.visual.styling_service import reset_styling_fixtures
-from api.app.visual.geography_service import reset_geography_fixtures
+from fashx.main import app
+from fashx.visual.ai_service import reset_ai_fixtures
+from fashx.visual.styling_service import reset_styling_fixtures
+from fashx.visual.geography_service import reset_geography_fixtures
 
 client = TestClient(app)
 

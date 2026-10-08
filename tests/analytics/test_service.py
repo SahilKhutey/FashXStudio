@@ -3,19 +3,19 @@ from decimal import Decimal
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.event_bus import EventBus
-from app.domain.analytics.entities import AnalyticsEvent
-from app.domain.analytics.enums import (
+from fashx.core.context import CoreContext
+from fashx.core.event_bus import EventBus
+from fashx.domain.analytics.entities import AnalyticsEvent
+from fashx.domain.analytics.enums import (
     AggregationPeriod,
     AnalyticsEventType,
 )
-from app.domain.analytics.events import (
+from fashx.domain.analytics.events import (
     AnalyticsEventRecorded,
     AnalyticsMetricAggregated,
 )
-from app.domain.analytics.service import AnalyticsService
-from app.repositories.analytics.memory import (
+from fashx.domain.analytics.service import AnalyticsService
+from fashx.repositories.analytics.memory import (
     InMemoryAnalyticsEventRepository,
     InMemoryAnalyticsMetricRepository,
 )

@@ -1,12 +1,12 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.returns.enums import (
+from fashx.core.errors import ValidationError
+from fashx.domain.returns.enums import (
     CancellationStatus,
     RefundStatus,
     ReturnStatus,
 )
-from app.domain.returns.lifecycle import (
+from fashx.domain.returns.lifecycle import (
     CANCELLATION_TRANSITIONS,
     REFUND_TRANSITIONS,
     RETURN_TRANSITIONS,

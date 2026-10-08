@@ -40,7 +40,7 @@ from schemas.visual.detail import (
     VariantOptionItemContract,
     VariantOptionState,
 )
-from api.app.visual.detail_service import (
+from fashx.visual.detail_service import (
     get_brand_story_template,
     get_editorial_view_template,
     get_fashion_article_template,

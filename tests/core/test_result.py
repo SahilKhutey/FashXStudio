@@ -1,5 +1,5 @@
-from app.core.errors import ValidationError
-from app.core.result import Failure, Success
+from fashx.core.errors import ValidationError
+from fashx.core.result import Failure, Success
 
 
 def test_success_result():

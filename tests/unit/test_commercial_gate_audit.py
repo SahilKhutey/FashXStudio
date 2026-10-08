@@ -1,4 +1,4 @@
-from api.app.core.readiness_audit import ProductionReadinessAuditor
+from fashx.core.readiness_audit import ProductionReadinessAuditor
 
 
 def test_g2_ml_quality_gate() -> None:

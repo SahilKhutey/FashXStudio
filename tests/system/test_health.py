@@ -1,10 +1,10 @@
 from fastapi.testclient import TestClient
 
-from api.app.main import app
-from app.core.bootstrap import register_core_services
-from app.core.runtime import CoreRuntime
-from app.core.version import CORE_API_VERSION, CORE_VERSION, PRODUCT_NAME
-from app.integration.health import evaluate_system_health
+from fashx.main import app
+from fashx.core.bootstrap import register_core_services
+from fashx.core.runtime import CoreRuntime
+from fashx.core.version import CORE_API_VERSION, CORE_VERSION, PRODUCT_NAME
+from fashx.integration.health import evaluate_system_health
 
 client = TestClient(app)
 

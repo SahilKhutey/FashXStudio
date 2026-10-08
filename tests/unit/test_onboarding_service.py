@@ -1,11 +1,11 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.features.onboarding.contracts import BasicProfileInput, ContextInput, PreferenceInput
-from api.app.features.onboarding.errors import OnboardingStepError, ProfileValidationError
-from api.app.features.onboarding.service import OnboardingService
-from api.app.profile.application.create_profile import CreateProfileCommand, CreateProfileUseCase
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.features.onboarding.contracts import BasicProfileInput, ContextInput, PreferenceInput
+from fashx.features.onboarding.errors import OnboardingStepError, ProfileValidationError
+from fashx.features.onboarding.service import OnboardingService
+from fashx.profile.application.create_profile import CreateProfileCommand, CreateProfileUseCase
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 async def create_user(session_factory: async_sessionmaker[AsyncSession]):

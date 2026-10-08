@@ -2,13 +2,13 @@ from uuid import uuid4
 
 import pytest
 
-from api.app.tryon.adapters.commercial_api_adapter import CommercialApiAdapter
-from api.app.tryon.adapters.mock_adapter import MockTryOnAdapter
-from api.app.tryon.adapters.research_diffusion_adapter import (
+from fashx.tryon.adapters.commercial_api_adapter import CommercialApiAdapter
+from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
+from fashx.tryon.adapters.research_diffusion_adapter import (
     CommercialLicenseViolationError,
     ResearchDiffusionAdapter,
 )
-from api.app.tryon.ports import InferenceInput
+from fashx.tryon.ports import InferenceInput
 
 
 @pytest.mark.asyncio

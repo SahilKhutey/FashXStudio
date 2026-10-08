@@ -1,0 +1,1 @@
+"""FashX journey subpackage."""

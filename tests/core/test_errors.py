@@ -1,4 +1,4 @@
-from app.core.errors import (
+from fashx.core.errors import (
     ConflictError,
     DependencyError,
     NotFoundError,

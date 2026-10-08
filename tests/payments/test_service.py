@@ -5,24 +5,24 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
     ValidationError,
 )
-from app.core.event_bus import EventBus
-from app.domain.payments.entities import Payment
-from app.domain.payments.enums import PaymentStatus
-from app.domain.payments.provider import (
+from fashx.core.event_bus import EventBus
+from fashx.domain.payments.entities import Payment
+from fashx.domain.payments.enums import PaymentStatus
+from fashx.domain.payments.provider import (
     PaymentProvider,
     ProviderPaymentResult,
     TestPaymentProvider,
 )
-from app.domain.payments.service import (
+from fashx.domain.payments.service import (
     PaymentService,
 )
-from app.repositories.payments.memory import (
+from fashx.repositories.payments.memory import (
     InMemoryPaymentRepository,
     InMemoryPaymentTransactionRepository,
 )

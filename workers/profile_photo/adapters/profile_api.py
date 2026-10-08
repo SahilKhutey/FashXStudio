@@ -5,7 +5,7 @@ from uuid import UUID
 
 import httpx
 
-from api.app.core.settings import get_settings
+from fashx.core.settings import get_settings
 
 
 class ProfilePhotoApiClient:

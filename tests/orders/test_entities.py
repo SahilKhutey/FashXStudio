@@ -3,8 +3,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.order.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,

@@ -9,9 +9,9 @@ provider is configured.
 import json
 from uuid import UUID
 
-from api.app.profile.integrations.r2_client import R2StorageClient
-from api.app.tryon.integrations.gpu_client import ConfiguredTryOnProvider
-from api.app.tryon.integrations.media import ResultQualityError, TryOnExecutionGateway
+from fashx.profile.integrations.r2_client import R2StorageClient
+from fashx.tryon.integrations.gpu_client import ConfiguredTryOnProvider
+from fashx.tryon.integrations.media import ResultQualityError, TryOnExecutionGateway
 from schemas.common.enums import TryOnFailureReason, TryOnStatus
 from schemas.tryon.worker import TryOnWorkerComplete, TryOnWorkerFailure, TryOnWorkerProgress, TryOnWorkerResultQuality
 from workers.tryon_gpu.api_client import TryOnInternalApiClient

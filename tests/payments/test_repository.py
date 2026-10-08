@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.payments.entities import (
+from fashx.domain.payments.entities import (
     Payment,
     PaymentTransaction,
 )
-from app.domain.payments.enums import TransactionType
-from app.repositories.payments.memory import (
+from fashx.domain.payments.enums import TransactionType
+from fashx.repositories.payments.memory import (
     InMemoryPaymentRepository,
     InMemoryPaymentTransactionRepository,
 )

@@ -2,13 +2,13 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.customer.entities import (
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerPreference,
 )
-from app.domain.customer.enums import PreferenceScope
-from app.repositories.customer.memory import (
+from fashx.domain.customer.enums import PreferenceScope
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerPreferenceRepository,
     InMemoryCustomerRepository,

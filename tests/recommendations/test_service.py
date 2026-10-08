@@ -3,18 +3,18 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.event_bus import EventBus
-from app.domain.recommendations.entities import (
+from fashx.core.event_bus import EventBus
+from fashx.domain.recommendations.entities import (
     RecommendationCandidate,
 )
-from app.domain.recommendations.events import RecommendationsGenerated
-from app.domain.recommendations.recommendation_context import (
+from fashx.domain.recommendations.events import RecommendationsGenerated
+from fashx.domain.recommendations.recommendation_context import (
     RecommendationContext,
 )
-from app.domain.recommendations.service import (
+from fashx.domain.recommendations.service import (
     RecommendationService,
 )
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
 

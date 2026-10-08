@@ -4,9 +4,9 @@ from uuid import uuid4
 
 import pytest
 
-from api.app.application.idempotency import IdempotencyService
-from api.app.core.errors import ConflictError
-from api.app.repositories.idempotency import IdempotencyRepository
+from fashx.application.idempotency import IdempotencyService
+from fashx.core.errors import ConflictError
+from fashx.repositories.idempotency import IdempotencyRepository
 
 
 class _Result:

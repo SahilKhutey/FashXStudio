@@ -1,0 +1,1 @@
+"""FashX commerce wardrobe subpackage."""

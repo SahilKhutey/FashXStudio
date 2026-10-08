@@ -2,14 +2,14 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ConflictError
-from app.domain.inventory.entities import (
+from fashx.core.errors import ConflictError
+from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,
     StockMovement,
 )
-from app.domain.inventory.enums import StockAdjustmentType
-from app.repositories.inventory.memory import (
+from fashx.domain.inventory.enums import StockAdjustmentType
+from fashx.repositories.inventory.memory import (
     InMemoryInventoryRepository,
     InMemoryStockLocationRepository,
     InMemoryStockMovementRepository,

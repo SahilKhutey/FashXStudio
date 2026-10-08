@@ -4,12 +4,12 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.promotions.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.promotions.entities import (
     Offer,
     Promotion,
 )
-from app.domain.promotions.enums import (
+from fashx.domain.promotions.enums import (
     DiscountType,
     PromotionScope,
     PromotionStatus,

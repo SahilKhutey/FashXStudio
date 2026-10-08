@@ -1,8 +1,8 @@
 from uuid import uuid4
 
-from api.app.recommendation.compatibility import CompatibilityScore
-from api.app.recommendation.filters import CandidateItem
-from api.app.recommendation.ranker import PersonalizedRanker, ScoredItem
+from fashx.recommendation.compatibility import CompatibilityScore
+from fashx.recommendation.filters import CandidateItem
+from fashx.recommendation.ranker import PersonalizedRanker, ScoredItem
 
 
 def make_scored(

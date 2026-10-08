@@ -3,15 +3,15 @@ import json
 import pytest
 from starlette.requests import Request
 
-from app.core.errors import (
+from fashx.core.errors import (
     ConflictError,
     DependencyError,
     NotFoundError,
     ValidationError,
 )
-from app.integration.errors import core_error_handler
-from app.security.authorization import Actor, require_role
-from app.security.validation import SystemConfig
+from fashx.integration.errors import core_error_handler
+from fashx.security.authorization import Actor, require_role
+from fashx.security.validation import SystemConfig
 
 
 @pytest.mark.asyncio

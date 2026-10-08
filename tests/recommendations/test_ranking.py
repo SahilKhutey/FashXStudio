@@ -1,10 +1,10 @@
 from decimal import Decimal
 from uuid import UUID, uuid4
 
-from app.domain.recommendations.entities import (
+from fashx.domain.recommendations.entities import (
     RecommendationCandidate,
 )
-from app.domain.recommendations.ranking import (
+from fashx.domain.recommendations.ranking import (
     apply_diversity,
     rank_candidates,
 )

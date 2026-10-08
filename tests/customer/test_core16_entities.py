@@ -2,15 +2,15 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.customer.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerConsent,
     CustomerPreferences,
     generate_customer_number,
 )
-from app.domain.customer.enums import (
+from fashx.domain.customer.enums import (
     AddressType,
     ConsentType,
     CustomerStatus,

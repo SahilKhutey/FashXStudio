@@ -2,12 +2,12 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
-from app.domain.inventory.entities import (
+from fashx.core.errors import ValidationError
+from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,
 )
-from app.domain.inventory.enums import (
+from fashx.domain.inventory.enums import (
     AvailabilityStatus,
     InventoryStatus,
 )

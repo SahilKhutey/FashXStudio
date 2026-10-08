@@ -1,5 +1,5 @@
-from app.core.health import core_health
-from app.core.version import CORE_VERSION
+from fashx.core.health import core_health
+from fashx.core.version import CORE_VERSION
 
 
 def test_core_health():

@@ -2,10 +2,10 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.recommendations.entities import (
+from fashx.domain.recommendations.entities import (
     RecommendationCandidate,
 )
-from app.repositories.recommendations.memory import (
+from fashx.repositories.recommendations.memory import (
     InMemoryRecommendationCandidateRepository,
 )
 

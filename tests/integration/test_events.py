@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import DependencyError
-from app.core.events import DomainEvent
-from app.integration.contracts import IntegrationHandler, IntegrationMessage
-from app.integration.dispatcher import IntegrationDispatcher
+from fashx.core.errors import DependencyError
+from fashx.core.events import DomainEvent
+from fashx.integration.contracts import IntegrationHandler, IntegrationMessage
+from fashx.integration.dispatcher import IntegrationDispatcher
 
 
 @dataclass(frozen=True, slots=True)

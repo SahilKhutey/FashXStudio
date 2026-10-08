@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 
-from api.app.features.application import FeatureAvailabilityService
-from api.app.features.registry import FeatureRegistry
-from api.app.features.runtime import (
+from fashx.features.application import FeatureAvailabilityService
+from fashx.features.registry import FeatureRegistry
+from fashx.features.runtime import (
     FeatureRuntime,
     InMemoryFeatureEventPublisher,
     lifecycle_event_type,

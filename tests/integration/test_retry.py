@@ -1,6 +1,6 @@
 import pytest
 
-from app.integration.retry import RetryPolicy
+from fashx.integration.retry import RetryPolicy
 
 
 @pytest.mark.asyncio

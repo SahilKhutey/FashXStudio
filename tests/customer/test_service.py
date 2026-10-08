@@ -2,20 +2,20 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ConflictError, NotFoundError, ValidationError
-from app.core.event_bus import EventBus
-from app.domain.customer.entities import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import ConflictError, NotFoundError, ValidationError
+from fashx.core.event_bus import EventBus
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerPreference,
 )
-from app.domain.customer.enums import (
+from fashx.domain.customer.enums import (
     AddressStatus,
     CustomerStatus,
     PreferenceScope,
 )
-from app.domain.customer.events import (
+from fashx.domain.customer.events import (
     AddressArchived,
     AddressCreated,
     CustomerCreated,
@@ -24,10 +24,10 @@ from app.domain.customer.events import (
     DefaultAddressChanged,
     PreferenceChanged,
 )
-from app.domain.customer.service import (
+from fashx.domain.customer.service import (
     CustomerService,
 )
-from app.repositories.customer.memory import (
+from fashx.repositories.customer.memory import (
     InMemoryCustomerAddressRepository,
     InMemoryCustomerPreferenceRepository,
     InMemoryCustomerRepository,

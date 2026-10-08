@@ -6,7 +6,7 @@ and theme resolution under Constitution Rule I02 (Contract Primacy).
 """
 
 import pytest
-from api.app.visual.tokens_service import (
+from fashx.visual.tokens_service import (
     calculate_adaptive_columns,
     calculate_contrast_ratio,
     get_theme_tokens,

@@ -4,14 +4,14 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     AddressSnapshot,
     Fulfillment,
     FulfillmentLine,
     Shipment,
     ShipmentPackage,
 )
-from app.repositories.fulfillment.memory import (
+from fashx.repositories.fulfillment.memory import (
     InMemoryFulfillmentLineRepository,
     InMemoryFulfillmentRepository,
     InMemoryShipmentPackageRepository,

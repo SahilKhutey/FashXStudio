@@ -3,7 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 import httpx
 
-from api.app.core.settings import get_settings
+from fashx.core.settings import get_settings
 from schemas.tryon.worker import TryOnWorkerClaim, TryOnWorkerComplete, TryOnWorkerFailure, TryOnWorkerProgress
 
 

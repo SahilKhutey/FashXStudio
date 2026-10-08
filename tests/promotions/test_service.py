@@ -3,25 +3,25 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ValidationError
-from app.core.event_bus import EventBus
-from app.domain.pricing.enums import Currency
-from app.domain.pricing.money import money
-from app.domain.promotions.entities import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import ValidationError
+from fashx.core.event_bus import EventBus
+from fashx.domain.pricing.enums import Currency
+from fashx.domain.pricing.money import money
+from fashx.domain.promotions.entities import (
     Offer,
     Promotion,
 )
-from app.domain.promotions.enums import (
+from fashx.domain.promotions.enums import (
     DiscountType,
     OfferStatus,
     PromotionScope,
     PromotionStatus,
 )
-from app.domain.promotions.service import (
+from fashx.domain.promotions.service import (
     PromotionService,
 )
-from app.repositories.promotions.memory import (
+from fashx.repositories.promotions.memory import (
     InMemoryOfferRepository,
     InMemoryPromotionRepository,
 )

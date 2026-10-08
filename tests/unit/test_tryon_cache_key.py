@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from api.app.tryon.cache_key import compute_tryon_cache_key
+from fashx.tryon.cache_key import compute_tryon_cache_key
 
 
 def test_tryon_cache_key_deterministic() -> None:

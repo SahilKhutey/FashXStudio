@@ -44,7 +44,7 @@ from schemas.visual.responsive import (
     ViewportEvaluationRequest,
     ViewportEvaluationResult,
 )
-from api.app.visual.responsive_service import (
+from fashx.visual.responsive_service import (
     CONTAINER_CONFIGS,
     calculate_fluid_grid,
     evaluate_viewport,

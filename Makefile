@@ -10,7 +10,7 @@ lint:
 	python -m ruff check .
 
 typecheck:
-	python -m mypy api schemas database
+	python -m mypy backend/fashx schemas database
 
 migration-sql:
 	python -m alembic upgrade head --sql

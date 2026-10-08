@@ -6,13 +6,13 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError, ValidationError
-from app.core.event_bus import EventBus
-from app.domain.cart.entities import Cart, CartLine
-from app.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
-from app.domain.cart.service import CartService
-from app.repositories.cart.memory import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError, ValidationError
+from fashx.core.event_bus import EventBus
+from fashx.domain.cart.entities import Cart, CartLine
+from fashx.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
+from fashx.domain.cart.service import CartService
+from fashx.repositories.cart.memory import (
     InMemoryCartLineRepository,
     InMemoryCartRepository,
 )

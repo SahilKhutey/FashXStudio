@@ -1,11 +1,11 @@
 import pytest
 
-from api.app.features.content.contracts import CreateContentRequest, PublishContentRequest
-from api.app.features.content.enums import ContentStatus, ContentVisibility
-from api.app.features.content.errors import ContentPublishError, ContentTemplateError
-from api.app.features.content.linking import link_outfit, link_product
-from api.app.features.content.repository import ContentRepository
-from api.app.features.content.service import ContentService
+from fashx.features.content.contracts import CreateContentRequest, PublishContentRequest
+from fashx.features.content.enums import ContentStatus, ContentVisibility
+from fashx.features.content.errors import ContentPublishError, ContentTemplateError
+from fashx.features.content.linking import link_outfit, link_product
+from fashx.features.content.repository import ContentRepository
+from fashx.features.content.service import ContentService
 
 
 def test_create_link_and_publish_content() -> None:
@@ -16,7 +16,7 @@ def test_create_link_and_publish_content() -> None:
     linked = link_outfit(link_product(content, "p1"), "o1")
     service.repository.replace(linked)
     published = __import__(
-        "api.app.features.content.publishing", fromlist=["publish_content"]
+        "fashx.features.content.publishing", fromlist=["publish_content"]
     ).publish_content(service, PublishContentRequest(linked.content_id, "author"))
     assert (
         published.status == ContentStatus.PUBLISHED
@@ -32,5 +32,5 @@ def test_content_rejects_bad_template_and_unauthorized_publish() -> None:
     content = service.create(CreateContentRequest("a", "x", "post", "fashion_post"))
     with pytest.raises(ContentPublishError):
         __import__(
-            "api.app.features.content.publishing", fromlist=["publish_content"]
+            "fashx.features.content.publishing", fromlist=["publish_content"]
         ).publish_content(service, PublishContentRequest(content.content_id, "other"))

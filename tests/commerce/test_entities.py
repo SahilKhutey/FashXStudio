@@ -1,14 +1,14 @@
 import pytest
 
-from app.core.errors import ValidationError
-from app.core.ids import new_id
-from app.domain.commerce.entities import (
+from fashx.core.errors import ValidationError
+from fashx.core.ids import new_id
+from fashx.domain.commerce.entities import (
     Brand,
     Marketplace,
     MarketplaceListing,
     Seller,
 )
-from app.domain.commerce.enums import (
+from fashx.domain.commerce.enums import (
     SellerType,
 )
 

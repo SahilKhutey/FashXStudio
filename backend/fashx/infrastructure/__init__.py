@@ -1,0 +1,1 @@
+"""FashX infrastructure subpackage."""

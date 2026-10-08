@@ -34,7 +34,7 @@ from schemas.visual.interaction import (
     VisualQASpecContract,
     VisualRegressionClassification,
 )
-from api.app.visual.interaction_service import (
+from fashx.visual.interaction_service import (
     dispatch_feedback_event,
     evaluate_component_state,
     get_screen_state,

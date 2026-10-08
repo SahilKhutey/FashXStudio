@@ -39,7 +39,7 @@ from schemas.visual.geography import (
     RegionalTrendsTemplateSpecContract,
     StateTemplateSpecContract,
 )
-from api.app.visual.geography_service import (
+from fashx.visual.geography_service import (
     CANONICAL_REGIONS,
     REGIONAL_TRENDS_FIXTURES,
     REGIONS_REGISTRY,

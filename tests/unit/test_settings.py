@@ -1,4 +1,4 @@
-from api.app.core.settings import Settings
+from fashx.core.settings import Settings
 
 
 def test_production_settings_flag() -> None:

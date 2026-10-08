@@ -1,7 +1,7 @@
 import pytest
 
-from api.app.core.errors import IdempotencyConflictError
-from api.app.core.idempotency import IdempotencyManager, IdempotencyStatus
+from fashx.core.errors import IdempotencyConflictError
+from fashx.core.idempotency import IdempotencyManager, IdempotencyStatus
 
 
 @pytest.mark.asyncio

@@ -1,12 +1,12 @@
 import pytest
 
-from app.core.ids import new_id
-from app.domain.fashion.entities import (
+from fashx.core.ids import new_id
+from fashx.domain.fashion.entities import (
     ProductFashionProfile,
     TaxonomyNode,
 )
-from app.domain.fashion.enums import TaxonomyType
-from app.repositories.fashion.memory import (
+from fashx.domain.fashion.enums import TaxonomyType
+from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,
 )
@@ -47,7 +47,7 @@ async def test_taxonomy_slug_unique():
 
     await repository.save(first)
 
-    from app.core.errors import ConflictError
+    from fashx.core.errors import ConflictError
 
     with pytest.raises(ConflictError):
         await repository.save(second)

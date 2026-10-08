@@ -29,7 +29,7 @@ from schemas.visual.discovery import (
     SearchSuggestionContract,
     SuggestionType,
 )
-from api.app.visual.discovery_service import (
+from fashx.visual.discovery_service import (
     execute_advanced_search,
     get_discovery_hero,
     get_discovery_home_template,

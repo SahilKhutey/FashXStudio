@@ -5,33 +5,33 @@ import pytest
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.catalog.application.enrich_garment import (
+from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
 )
-from api.app.catalog.application.ingest_product import (
+from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
 )
-from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.errors import ConsentRequiredError
-from api.app.profile.application.create_profile import (
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.core.errors import ConsentRequiredError
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.upload_photo import (
+from fashx.profile.application.upload_photo import (
     UploadPhotoCommand,
     UploadUserPhotoUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
-from api.app.tryon.application.get_job_status import GetTryOnJobStatusUseCase
-from api.app.tryon.application.process_job import ProcessTryOnJobUseCase
-from api.app.tryon.application.submit_job import (
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.tryon.application.get_job_status import GetTryOnJobStatusUseCase
+from fashx.tryon.application.process_job import ProcessTryOnJobUseCase
+from fashx.tryon.application.submit_job import (
     SubmitTryOnJobCommand,
     SubmitTryOnJobUseCase,
 )
-from api.app.tryon.ports import InferenceInput, InferenceOutput
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.ports import InferenceInput, InferenceOutput
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.catalog import Merchant
 
 

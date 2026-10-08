@@ -1,4 +1,4 @@
-from app.observability.metrics import Counter, MetricsRegistry
+from fashx.observability.metrics import Counter, MetricsRegistry
 
 
 def test_counter_increment():

@@ -4,33 +4,33 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
     ValidationError,
 )
-from app.core.event_bus import EventBus
-from app.domain.fulfillment.carrier import (
+from fashx.core.event_bus import EventBus
+from fashx.domain.fulfillment.carrier import (
     CarrierProvider,
     ShipmentCreationResult,
     TestCarrierProvider,
 )
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     AddressSnapshot,
     Fulfillment,
     FulfillmentLine,
     Shipment,
 )
-from app.domain.fulfillment.enums import (
+from fashx.domain.fulfillment.enums import (
     DeliveryStatus,
     FulfillmentStatus,
     ShipmentStatus,
 )
-from app.domain.fulfillment.service import (
+from fashx.domain.fulfillment.service import (
     FulfillmentService,
 )
-from app.repositories.fulfillment.memory import (
+from fashx.repositories.fulfillment.memory import (
     InMemoryFulfillmentLineRepository,
     InMemoryFulfillmentRepository,
     InMemoryShipmentRepository,

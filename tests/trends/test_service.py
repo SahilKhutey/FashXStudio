@@ -3,19 +3,19 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ConflictError, NotFoundError
-from app.core.event_bus import EventBus
-from app.domain.trends.entities import Trend, TrendObservation
-from app.domain.trends.enums import TrendStatus, TrendType
-from app.domain.trends.events import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import ConflictError, NotFoundError
+from fashx.core.event_bus import EventBus
+from fashx.domain.trends.entities import Trend, TrendObservation
+from fashx.domain.trends.enums import TrendStatus, TrendType
+from fashx.domain.trends.events import (
     TrendActivated,
     TrendCreated,
     TrendObservationCreated,
 )
-from app.domain.trends.provider import TestTrendProvider
-from app.domain.trends.service import TrendService
-from app.repositories.trends.memory import (
+from fashx.domain.trends.provider import TestTrendProvider
+from fashx.domain.trends.service import TrendService
+from fashx.repositories.trends.memory import (
     InMemoryTrendObservationRepository,
     InMemoryTrendRepository,
 )

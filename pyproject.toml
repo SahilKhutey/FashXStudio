@@ -39,7 +39,7 @@ dev = [
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "backend"]
 asyncio_mode = "auto"
 
 
@@ -49,4 +49,8 @@ requires = ["hatchling>=1.27.0,<2"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["api", "app", "schemas", "database"]
+packages = ["backend/fashx", "schemas", "database"]
+
+[tool.hatch.build.targets.wheel.sources]
+"backend" = ""
+

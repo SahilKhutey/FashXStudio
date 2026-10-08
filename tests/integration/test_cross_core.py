@@ -3,47 +3,47 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.bootstrap import register_core_services
-from app.core.context import CoreContext
-from app.core.runtime import CoreRuntime
-from app.domain.analytics.entities import AnalyticsEvent
-from app.domain.analytics.enums import AnalyticsEventType
-from app.domain.cart.entities import Cart, CartLine
-from app.domain.cart.enums import CartOwnerType
-from app.domain.checkout.entities import CheckoutSession
-from app.domain.checkout.enums import CheckoutStatus
-from app.domain.customer.entities import (
+from fashx.core.bootstrap import register_core_services
+from fashx.core.context import CoreContext
+from fashx.core.runtime import CoreRuntime
+from fashx.domain.analytics.entities import AnalyticsEvent
+from fashx.domain.analytics.enums import AnalyticsEventType
+from fashx.domain.cart.entities import Cart, CartLine
+from fashx.domain.cart.enums import CartOwnerType
+from fashx.domain.checkout.entities import CheckoutSession
+from fashx.domain.checkout.enums import CheckoutStatus
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
 )
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     AddressSnapshot as FulfillmentAddressSnapshot,
 )
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     Fulfillment,
     FulfillmentLine,
     Shipment,
 )
-from app.domain.fulfillment.enums import (
+from fashx.domain.fulfillment.enums import (
     FulfillmentStatus,
     ShipmentStatus,
 )
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.domain.order.events import OrderCreated
-from app.domain.payments.entities import Payment
-from app.domain.payments.events import PaymentCaptured
-from app.domain.pricing.entities import Price
-from app.integration.contracts import IntegrationMessage
-from app.integration.dispatcher import IntegrationDispatcher
-from app.integration.handlers import (
+from fashx.domain.order.events import OrderCreated
+from fashx.domain.payments.entities import Payment
+from fashx.domain.payments.events import PaymentCaptured
+from fashx.domain.pricing.entities import Price
+from fashx.integration.contracts import IntegrationMessage
+from fashx.integration.dispatcher import IntegrationDispatcher
+from fashx.integration.handlers import (
     OrderCompletedIntegrationHandler,
     PaymentCapturedIntegrationHandler,
 )
-from app.observability.correlation import (
+from fashx.observability.correlation import (
     get_correlation_id,
     set_correlation_id,
 )

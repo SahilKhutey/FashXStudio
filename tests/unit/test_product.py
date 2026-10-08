@@ -1,12 +1,12 @@
 import pytest
 
-from api.app.features.product.availability import product_availability
-from api.app.features.product.contracts import ProductRequest, VariantSelection
-from api.app.features.product.enums import AvailabilityStatus
-from api.app.features.product.errors import VariantUnavailableError
-from api.app.features.product.models import Product, ProductVariant
-from api.app.features.product.repository import ProductRepository
-from api.app.features.product.service import ProductService
+from fashx.features.product.availability import product_availability
+from fashx.features.product.contracts import ProductRequest, VariantSelection
+from fashx.features.product.enums import AvailabilityStatus
+from fashx.features.product.errors import VariantUnavailableError
+from fashx.features.product.models import Product, ProductVariant
+from fashx.features.product.repository import ProductRepository
+from fashx.features.product.service import ProductService
 
 
 def product() -> Product:

@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from api.app.core.settings import get_settings
+from fashx.core.settings import get_settings
 from workers.profile_photo.pose.heuristic import HeuristicPoseEstimator
 from workers.profile_photo.pose.mediapipe_adapter import MediaPipePoseEstimator
 from workers.profile_photo.pose.scoring import CaptureQuality, score_capture
