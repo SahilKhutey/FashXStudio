@@ -31,8 +31,23 @@ def upgrade() -> None:
     )
     op.create_index("ix_idempotency_records_user_id", "idempotency_records", ["user_id"])
 
-    op.execute("ALTER TABLE user_style_profiles ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector")
-    op.execute("ALTER TABLE garment_enrichments ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector")
+    op.execute("""
+        DO $$
+        BEGIN
+            IF EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'user_style_profiles' AND column_name = 'embedding' AND data_type = 'text'
+            ) THEN
+                ALTER TABLE user_style_profiles ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector;
+            END IF;
+            IF EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'garment_enrichments' AND column_name = 'embedding' AND data_type = 'text'
+            ) THEN
+                ALTER TABLE garment_enrichments ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector;
+            END IF;
+        END $$;
+    """)
 
 
 def downgrade() -> None:
