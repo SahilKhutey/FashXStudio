@@ -13,6 +13,8 @@ if name in RISKY:
 pat = re.compile(rf"(?<![\w.])(?:api\.)?app(?=\.{re.escape(name)}\b)")
 # from app import <name>  /  from api.app import <name>
 pat2 = re.compile(rf"(?<![\w.])from\s+(?:api\.)?app\s+import\s+{re.escape(name)}\b")
+# from .{name} or from ..{name} -> from fashx.{name}
+pat3 = re.compile(rf"(?<![\w.])from\s+\.{1,2}{re.escape(name)}\b")
 
 files = subprocess.run(["git", "ls-files"], capture_output=True, text=True).stdout.split("\n")
 changed = 0
@@ -26,6 +28,7 @@ for f in filter(None, files):
         continue
     new = pat.sub("fashx", text)
     new = pat2.sub(f"from fashx import {name}", new)
+    new = pat3.sub(f"from fashx.{name}", new)
     if new != text:
         changed += 1
         print(f"rewrite: {f}")

@@ -9,7 +9,7 @@ from .core.settings import get_settings
 from .features.router import router as features_router
 from .gateway.errors import install_exception_handlers
 from .gateway.middleware import RequestContextMiddleware
-from .health.router import router as health_router
+from fashx.health.router import router as health_router
 from .profile.router import router as profile_router
 from .recommendation.router import router as recommendation_router
 from .tryon.router import router as tryon_router
