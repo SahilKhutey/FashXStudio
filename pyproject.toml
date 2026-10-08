@@ -39,18 +39,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 
-[tool.ruff]
-line-length = 100
-target-version = "py312"
-src = ["api", "app", "schemas", "tests", "database"]
 
-[tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
-
-[tool.mypy]
-python_version = "3.12"
-strict = true
-mypy_path = ["."]
 
 [build-system]
 requires = ["hatchling>=1.27.0,<2"]
