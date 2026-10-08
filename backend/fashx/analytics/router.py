@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.app.auth.dependencies import current_user_id
 from api.app.auth.internal import require_internal_service
 from api.app.core.dependencies import db_session
-from api.app.analytics.application import AnalyticsService
-from api.app.analytics.repository import AnalyticsRepository
+from fashx.analytics.application import AnalyticsService
+from fashx.analytics.repository import AnalyticsRepository
 from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, ValidationMetrics
 
 router = APIRouter(prefix="/api/v1/analytics", tags=["analytics"])

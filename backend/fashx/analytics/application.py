@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 from api.app.core.transactions import transaction
 from api.app.events.repository import EventRepository
-from api.app.analytics.repository import AnalyticsRepository
+from fashx.analytics.repository import AnalyticsRepository
 from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, AnalyticsWindow, ValidationMetrics
 
 
