@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     )
     sentry_dsn: str | None = Field(default=None, validation_alias="SENTRY_DSN")
     sentry_environment: str = Field(default="development", validation_alias="SENTRY_ENVIRONMENT")
+    enable_frozen: bool = Field(
+        default=False,
+        validation_alias="FASHX_ENABLE_FROZEN",
+    )
     feature_flags: dict[str, bool] = Field(
         default_factory=dict,
         validation_alias="FEATURE_FLAGS",

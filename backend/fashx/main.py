@@ -87,20 +87,25 @@ def create_app() -> FastAPI:
     register_core_services(runtime)
     app.include_router(fashion_router, prefix="/api/v1")
     app.include_router(commerce_router, prefix="/api/v1")
-    app.include_router(inventory_router, prefix="/api/v1")
-    app.include_router(promotions_router, prefix="/api/v1")
-    app.include_router(cart_router, prefix="/api/v1")
-    app.include_router(checkout_router, prefix="/api/v1")
-    app.include_router(orders_router, prefix="/api/v1")
-    app.include_router(payments_router, prefix="/api/v1")
-    app.include_router(fulfillment_router, prefix="/api/v1")
     app.include_router(customer_router, prefix="/api/v1")
-    app.include_router(returns_router, prefix="/api/v1")
     app.include_router(pricing_router, prefix="/api/v1")
     app.include_router(recommendations_router, prefix="/api/v1")
     app.include_router(trends_router, prefix="/api/v1")
     app.include_router(analytics_router, prefix="/api/v1")
     app.include_router(system_router, prefix="/api/v1")
+
+    import os
+
+    enable_frozen = settings.enable_frozen or os.getenv("FASHX_ENABLE_FROZEN", "0") == "1"
+    if enable_frozen:
+        app.include_router(inventory_router, prefix="/api/v1")
+        app.include_router(promotions_router, prefix="/api/v1")
+        app.include_router(cart_router, prefix="/api/v1")
+        app.include_router(checkout_router, prefix="/api/v1")
+        app.include_router(orders_router, prefix="/api/v1")
+        app.include_router(payments_router, prefix="/api/v1")
+        app.include_router(fulfillment_router, prefix="/api/v1")
+        app.include_router(returns_router, prefix="/api/v1")
 
 
     @app.get("/", tags=["system"])

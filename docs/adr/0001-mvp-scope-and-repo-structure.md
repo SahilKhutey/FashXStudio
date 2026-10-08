@@ -16,7 +16,7 @@ The repo grew a full commerce backend (inventory, cart, checkout, payments, fulf
 ```
 FashXStudio/
 ├─ README.md  LICENSE  CONTRIBUTING.md  Makefile  pyproject.toml  alembic.ini  .env.example
-├─ backend/fashx/   (api, application, domain[+frozen], infrastructure, platform)   <- Phase 2 merge of api/ + app/
+├─ backend/fashx/   (api, application, domain, infrastructure, platform; frozen kept in place, router-gated by FASHX_ENABLE_FROZEN, tests marked frozen)
 ├─ workers/  ml/  mobile/  schemas/  database/  infra/  scripts/  tests/
 └─ docs/  STATUS.md  product/  architecture/  adr/  design/  logs/  archive/
 ```
