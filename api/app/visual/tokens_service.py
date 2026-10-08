@@ -5,23 +5,12 @@ computes adaptive grid columns, and serves pre-bound component tokens.
 Adheres to Rule I01 (Layer Separation) and Constitution Rule I02 (Contract Primacy).
 """
 
-import math
-from typing import Any
 from schemas.visual.tokens import (
-    BrandColorPalette,
-    DensityMode,
     DesignTokenRegistry,
-    DomainColorPalette,
-    FocusTokens,
-    MonkSkinTonePalette,
-    NeutralColorPrimitives,
-    ProductCardComponentTokens,
-    FashionCardComponentTokens,
     SemanticActions,
     SemanticBorders,
     SemanticContent,
     SemanticSurfaces,
-    StatusColorPalette,
     ThemeMode,
     ThemeTokens,
     TokenContrastCheck,

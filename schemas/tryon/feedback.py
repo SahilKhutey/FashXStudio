@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import List, Optional
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 
 
@@ -10,6 +11,6 @@ class TryOnFeedbackV1(BaseContractModel):
     job_id: str
     user_id: str
     rating: int = Field(ge=1, le=5)
-    artifact_issues: List[str] = Field(default_factory=list)
-    comment: Optional[str] = None
+    artifact_issues: list[str] = Field(default_factory=list)
+    comment: str | None = None
     submitted_at: datetime

@@ -11,7 +11,6 @@ Verifies:
   - Journey F: Profile -> Personalization (preference changes, saved state, signal reset)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 from api.app.main import app

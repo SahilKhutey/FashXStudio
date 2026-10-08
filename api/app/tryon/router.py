@@ -1,6 +1,9 @@
 from typing import Any
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, Header, status
+from pydantic import BaseModel
+
 from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.database import get_session_factory
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
@@ -12,8 +15,6 @@ from api.app.tryon.application.submit_job import (
     SubmitTryOnJobUseCase,
 )
 from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
-from fastapi import APIRouter, Depends, Header, status
-from pydantic import BaseModel
 from schemas.common.enums import TryOnFailureReason, TryOnStatus
 
 router = APIRouter(prefix="/tryon", tags=["try-on"])

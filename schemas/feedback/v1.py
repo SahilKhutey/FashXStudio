@@ -5,8 +5,9 @@ Strict separation of Taste/Preference Feedback from Physical Sizing Ground Truth
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 
 
@@ -24,11 +25,11 @@ class PreferenceFeedbackV1(BaseContractModel):
     user_id: str
     canonical_garment_id: str
     action: PreferenceAction
-    rejection_tags: Optional[List[str]] = Field(
+    rejection_tags: list[str] | None = Field(
         default=None,
         description="e.g. ['color_mismatch', 'too_loose', 'price_too_high']",
     )
-    feed_context: Optional[str] = Field(
+    feed_context: str | None = Field(
         default="home_feed",
         description="e.g. 'home_feed', 'trending', 'closet_builder'",
     )
@@ -62,10 +63,10 @@ class FitFeedbackV1(BaseContractModel):
     variant_id: str
     purchased_size: str
     overall_fit: FitOutcome
-    chest_fit: Optional[FitOutcome] = None
-    waist_fit: Optional[FitOutcome] = None
-    length_fit: Optional[FitOutcome] = None
-    shoulder_fit: Optional[FitOutcome] = None
+    chest_fit: FitOutcome | None = None
+    waist_fit: FitOutcome | None = None
+    length_fit: FitOutcome | None = None
+    shoulder_fit: FitOutcome | None = None
     disposition: Disposition
-    notes: Optional[str] = None
+    notes: str | None = None
     timestamp: datetime

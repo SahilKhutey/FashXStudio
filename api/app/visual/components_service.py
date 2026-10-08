@@ -6,6 +6,7 @@ Adheres to Rule I01 (Layer Separation) and Rule I02 (Contract Primacy).
 """
 
 from typing import Any
+
 from schemas.visual.components import (
     ActionBarSpecContract,
     AlertSpecContract,
@@ -48,7 +49,6 @@ from schemas.visual.components import (
     StackSpecContract,
     TypographySpecContract,
 )
-
 
 # ---------------------------------------------------------------------------
 # Canonical Component Catalog (Sections 5.2 - 5.55)

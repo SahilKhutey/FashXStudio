@@ -12,34 +12,9 @@ Verifies:
 
 import pytest
 from pydantic import ValidationError
-from schemas.visual.styling import (
-    AddSlotItemRequestContract,
-    BuilderState,
-    CandidateItemContract,
-    LookBuilderTemplateSpecContract,
-    MixMatchContract,
-    MixMatchTemplateSpecContract,
-    OutfitContract,
-    OutfitDetailTemplateSpecContract,
-    OutfitItemContract,
-    OutfitPreviewTemplateSpecContract,
-    OutfitSlotContract,
-    OutfitSource,
-    ReplaceSlotItemRequestContract,
-    SavedLookContract,
-    SavedLooksTemplateSpecContract,
-    ShopOutfitAvailabilityContract,
-    SlotCategory,
-    SlotState,
-    StyleHomeTemplateSpecContract,
-    StylePreferenceContract,
-    StylePreferencesTemplateSpecContract,
-    StyleRecommendationTemplateSpecContract,
-    StylingScreenId,
-)
+
 from api.app.visual.styling_service import (
     INITIAL_OUTFIT,
-    SAMPLE_OUTFIT_ITEMS,
     add_item_to_outfit,
     delete_saved_look,
     duplicate_saved_look,
@@ -56,9 +31,23 @@ from api.app.visual.styling_service import (
     replace_item_in_outfit,
     reset_outfit_slots,
     reset_styling_fixtures,
-    save_outfit_as_look,
     update_style_preferences,
     validate_outfit_for_shopping,
+)
+from schemas.visual.styling import (
+    AddSlotItemRequestContract,
+    BuilderState,
+    OutfitContract,
+    OutfitItemContract,
+    OutfitSlotContract,
+    OutfitSource,
+    ReplaceSlotItemRequestContract,
+    SavedLookContract,
+    ShopOutfitAvailabilityContract,
+    SlotCategory,
+    SlotState,
+    StylePreferenceContract,
+    StylingScreenId,
 )
 
 

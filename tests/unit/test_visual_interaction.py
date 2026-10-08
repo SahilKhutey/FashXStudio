@@ -17,13 +17,19 @@ Verifies:
 import pytest
 from pydantic import ValidationError
 
+from api.app.visual.interaction_service import (
+    dispatch_feedback_event,
+    evaluate_component_state,
+    get_screen_state,
+    list_visual_qa_fixtures,
+    run_accessibility_audit,
+    validate_form_field,
+)
 from schemas.visual.interaction import (
     AccessibilityAuditRequest,
-    AccessibilityAuditResult,
     ComponentStateContract,
     ComponentStateEvaluationRequest,
     FeedbackDispatchRequest,
-    FeedbackEventContract,
     FeedbackType,
     FormFieldValidationRequest,
     FormFieldValidationResult,
@@ -34,15 +40,6 @@ from schemas.visual.interaction import (
     VisualQASpecContract,
     VisualRegressionClassification,
 )
-from api.app.visual.interaction_service import (
-    dispatch_feedback_event,
-    evaluate_component_state,
-    get_screen_state,
-    list_visual_qa_fixtures,
-    run_accessibility_audit,
-    validate_form_field,
-)
-
 
 # ---------------------------------------------------------------------------
 # INT-UNIT-001 & INT-UNIT-002: State Precedence Hierarchy

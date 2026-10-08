@@ -4,8 +4,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
-from schemas.common.enums import BuildType, MeasurementSource, PhotoType
-from schemas.identity.consent import ConsentUpdate
 
 from api.app.core.database import get_session_factory
 from api.app.core.errors import EntityNotFoundError, ValidationError
@@ -26,6 +24,8 @@ from api.app.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from schemas.common.enums import BuildType, MeasurementSource, PhotoType
+from schemas.identity.consent import ConsentUpdate
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 

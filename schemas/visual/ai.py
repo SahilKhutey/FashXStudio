@@ -7,10 +7,11 @@ context chips, explainable recommendations, and multi-tier feedback (Sections 12
 
 from enum import StrEnum
 from typing import Any
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 from schemas.visual.fashion import VisualContentModel
-
 
 # ---------------------------------------------------------------------------
 # Enums & Taxonomies (Sections 12.2, 12.5, 12.11, 12.26, 12.37, 12.42)

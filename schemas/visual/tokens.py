@@ -7,10 +7,10 @@ All tokens follow the strict 3-tier hierarchy: Primitive -> Semantic -> Componen
 """
 
 from enum import StrEnum
-from typing import Any
-from pydantic import Field
-from schemas.base import BaseContractModel
 
+from pydantic import Field
+
+from schemas.base import BaseContractModel
 
 # ---------------------------------------------------------------------------
 # Enums

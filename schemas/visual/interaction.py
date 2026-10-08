@@ -6,10 +6,10 @@ Adheres strictly to Constitution Rule I02 (Contract Primacy) with extra="forbid"
 """
 
 from enum import StrEnum
-from typing import Any
-from pydantic import Field
-from schemas.base import BaseContractModel
 
+from pydantic import Field
+
+from schemas.base import BaseContractModel
 
 # ---------------------------------------------------------------------------
 # Enums

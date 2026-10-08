@@ -12,7 +12,15 @@ Covers: FASH-001 through FASH-015 (Sections 6.1-6.62)
 """
 
 import pytest
-from schemas.visual.components import PriceSpecContract, RatingSpecContract
+
+from api.app.visual.fashion_service import (
+    get_discovery_template,
+    get_fashion_feed,
+    get_listing_template,
+    to_visual_content_model,
+    toggle_content_save,
+)
+from schemas.visual.components import PriceSpecContract
 from schemas.visual.fashion import (
     BrandItemContract,
     CollectionItemContract,
@@ -32,17 +40,7 @@ from schemas.visual.fashion import (
     TrendItemContract,
     TrendMomentum,
     TrendSignalPointContract,
-    VisualContentModel,
 )
-from api.app.visual.fashion_service import (
-    get_discovery_template,
-    get_fashion_content,
-    get_fashion_feed,
-    get_listing_template,
-    to_visual_content_model,
-    toggle_content_save,
-)
-
 
 # ---------------------------------------------------------------------------
 # FASH-001 - FASH-004: Product Visual System

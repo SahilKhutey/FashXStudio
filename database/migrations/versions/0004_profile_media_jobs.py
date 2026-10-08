@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0004_profile_media_jobs"
 down_revision: str | Sequence[str] | None = "0003_operations_and_vector_upgrade"

@@ -1,5 +1,12 @@
-target-version = "py311"
+target-version = "py312"
 line-length = 100
+exclude = [
+    "docs/archive",
+    "Restructure KIt",
+    "fashx-restructure",
+    "node_modules",
+    ".venv",
+]
 
 [lint]
 select = [
@@ -14,7 +21,17 @@ select = [
 ignore = [
     "E501", # line length handled by black/ruff format
     "B008", # do not perform function calls in argument defaults (FastAPI Depends/Query pattern)
+    "UP042", # str, Enum inheritance
+    "UP046", # Generic[T] subclass inheritance
+    "E741", # ambiguous variable name
+    "B017", # blind exception in test asserts
 ]
 
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F811"]
+"api/app/visual/router.py" = ["E402"]
+"*/test_*.py" = ["B017", "F841"]
+
 [lint.isort]
-known-first-party = ["api", "schemas", "workers", "ml"]
+known-first-party = ["api", "schemas", "workers", "ml", "app"]
+

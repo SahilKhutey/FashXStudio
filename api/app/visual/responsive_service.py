@@ -6,11 +6,11 @@ Adheres to Rule I01 (Layer Separation) and Rule I02 (Contract Primacy with extra
 """
 
 from typing import Any
+
 from schemas.visual.responsive import (
     CardContentPruningRequest,
     CardContentPruningResult,
     CheckoutLayoutType,
-    ContentPriorityLevel,
     CrossSystemScreenResponsiveContract,
     DeviceOrientation,
     FilterAdaptationType,
@@ -24,12 +24,9 @@ from schemas.visual.responsive import (
     ResponsiveContainerContract,
     ResponsiveGridCalculationRequest,
     ResponsiveGridCalculationResult,
-    SafeAreaInsetsContract,
-    TypographyScaleToken,
     ViewportEvaluationRequest,
     ViewportEvaluationResult,
 )
-
 
 # ---------------------------------------------------------------------------
 # Master Container Configurations (Section 14.3, 14.5 - 14.7)

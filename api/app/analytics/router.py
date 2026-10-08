@@ -1,17 +1,21 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.app.analytics.application import AnalyticsService
+from api.app.analytics.repository import AnalyticsRepository
 from api.app.auth.dependencies import current_user_id
 from api.app.auth.internal import require_internal_service
 from api.app.core.dependencies import db_session
-from api.app.analytics.application import AnalyticsService
-from api.app.analytics.repository import AnalyticsRepository
-from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, ValidationMetrics
+from schemas.analytics.validation import (
+    AnalyticsEventCreate,
+    AnalyticsEventResponse,
+    ValidationMetrics,
+)
 
 router = APIRouter(prefix="/api/v1/analytics", tags=["analytics"])
 
@@ -38,7 +42,7 @@ async def validation_metrics(
     end_at: datetime | None = Query(default=None),
     service: AnalyticsService = Depends(analytics_service),
 ) -> ValidationMetrics:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     end = end_at or now
     start = start_at or (end - timedelta(days=30))
     return await service.validation_metrics(start_at=start, end_at=end)

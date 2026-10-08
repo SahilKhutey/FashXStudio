@@ -1,7 +1,7 @@
-from fastapi import HTTPException, Security, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from typing import Optional
 import uuid
+
+from fastapi import Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 security = HTTPBearer(auto_error=False)
 
@@ -13,7 +13,7 @@ class AuthUser:
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Security(security),
+    credentials: HTTPAuthorizationCredentials | None = Security(security),
 ) -> AuthUser:
     # In production, verify JWT signature and claims
     # Default fallback to deterministic dev user for local development

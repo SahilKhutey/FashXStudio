@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime
-from uuid import UUID
 
-from sqlalchemy import DateTime, and_, case, cast, distinct, func, select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.commerce_feedback import BuyClick, DomainEvent, TryOnFeedback, WardrobeItem

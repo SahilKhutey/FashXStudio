@@ -14,8 +14,8 @@ Implements the unified navigation model from Section 4.2 (Rule 01–03):
 from schemas.visual.navigation import (
     BreadcrumbChainContract,
     BreadcrumbEntryContract,
-    ContextNavItemContract,
     ContextNavigationContract,
+    ContextNavItemContract,
     FeatureFlagNavContract,
     NavigationAnalyticsEventContract,
     NavigationErrorCode,
@@ -28,13 +28,11 @@ from schemas.visual.navigation import (
     NavigationRouteContract,
     NavigationStateContract,
     NavigationVisibility,
-    NestedNavExpansion,
     RouteRegistryContract,
     TabContract,
     TabGroupContract,
     TabMode,
 )
-
 
 # ---------------------------------------------------------------------------
 # 1. Canonical Route Registry (Section 4.3 & 4.4)

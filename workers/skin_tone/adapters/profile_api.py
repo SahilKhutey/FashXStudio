@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from uuid import UUID
+
 import httpx
 
 from api.app.core.settings import get_settings

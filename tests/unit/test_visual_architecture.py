@@ -16,14 +16,12 @@ from api.app.visual.catalog import (
     get_screen_inventory,
 )
 from schemas.visual.v1 import (
-    BreakpointConfig,
     DeviceBreakpoint,
     ImplementationDependencyGroup,
     NavigationType,
     PageTemplateType,
     ScreenDefinition,
     ScreenDomain,
-    ScreenInventoryRegistry,
 )
 
 

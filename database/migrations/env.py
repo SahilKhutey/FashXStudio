@@ -1,11 +1,11 @@
 from logging.config import fileConfig
 
 from alembic import context
-from api.app.core.settings import get_settings
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 import database.models  # noqa: F401
+from api.app.core.settings import get_settings
 from database.models import Base  # noqa: F401
 
 config = context.config

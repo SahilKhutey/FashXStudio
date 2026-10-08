@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.identity import User

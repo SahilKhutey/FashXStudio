@@ -6,8 +6,8 @@ Revises: 0002_domain_foundation
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0003_operations_and_vector_upgrade"
 down_revision: str | Sequence[str] | None = "0002_domain_foundation"

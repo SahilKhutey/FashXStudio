@@ -1,16 +1,17 @@
 import asyncio
-from typing import Any, Dict
+from typing import Any
+
 from api.app.infrastructure.queue.queue_port import QueuePort
 
 
 class RedisQueueAdapter(QueuePort):
     def __init__(self, redis_url: str = "redis://localhost:6379/0"):
         self.redis_url = redis_url
-        self._memory_queues: Dict[str, asyncio.Queue] = {}
-        self._claimed: Dict[str, str] = {}
-        self._completed: Dict[str, Dict[str, Any]] = {}
+        self._memory_queues: dict[str, asyncio.Queue] = {}
+        self._claimed: dict[str, str] = {}
+        self._completed: dict[str, dict[str, Any]] = {}
 
-    async def enqueue(self, queue_name: str, payload: Dict[str, Any], job_id: str) -> bool:
+    async def enqueue(self, queue_name: str, payload: dict[str, Any], job_id: str) -> bool:
         if queue_name not in self._memory_queues:
             self._memory_queues[queue_name] = asyncio.Queue()
         await self._memory_queues[queue_name].put({"job_id": job_id, "payload": payload})
@@ -22,6 +23,6 @@ class RedisQueueAdapter(QueuePort):
         self._claimed[job_id] = worker_id
         return True
 
-    async def complete_job(self, job_id: str, result: Dict[str, Any]) -> bool:
+    async def complete_job(self, job_id: str, result: dict[str, Any]) -> bool:
         self._completed[job_id] = result
         return True

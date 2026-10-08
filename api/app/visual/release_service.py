@@ -5,16 +5,15 @@ design token governance, release gate auditing, visual quality checklist,
 golden regression fixtures, and E2E journeys for Phase 16 (VD-16 — FINAL).
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from schemas.visual.release import (
     EndToEndJourneySpecContract,
     GoldenArtifactContract,
     GoldenArtifactType,
     NavigationRegistryEntryContract,
-    ProductionLayer,
     ProductionReleaseReportContract,
     QualityCategory,
-    ReleaseEnvironment,
     ReleaseGateResultContract,
     ReleaseGateStatus,
     ScreenRegistryEntryContract,
@@ -28,7 +27,7 @@ from schemas.visual.release import (
 
 def _get_current_iso_timestamp() -> str:
     """Return formatted ISO timestamp with UTC timezone."""
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 # ---------------------------------------------------------------------------

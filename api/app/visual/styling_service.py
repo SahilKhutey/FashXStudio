@@ -4,11 +4,10 @@ Provides domain models, builder state machines, slot managers, mix & match candi
 recommendation adapters, saved looks persistence, and shopping validation (Sections 10.1 - 10.88).
 """
 
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+
 from schemas.visual.fashion import (
     FashionContentType,
-    VisualContentModel,
 )
 from schemas.visual.styling import (
     AddSlotItemRequestContract,
@@ -37,13 +36,13 @@ from schemas.visual.styling import (
     StyleRecommendationTemplateSpecContract,
     StylingScreenId,
 )
+
 from .fashion_service import (
     SAMPLE_LOOKS,
     SAMPLE_PRODUCTS,
     SAMPLE_STYLES,
     to_visual_content_model,
 )
-
 
 # ---------------------------------------------------------------------------
 # Initial Fixtures & In-Memory Stores (Sections 10.3 - 10.6, 10.29, 10.33)
@@ -565,7 +564,7 @@ def get_saved_looks_template(user_id: str = "user-1", filter_tag: str = "all") -
 def save_outfit_as_look(payload: SaveOutfitRequestContract) -> SavedLookContract:
     """Save an outfit as a persistent saved look (Section 10.31)."""
     outfit = OUTFITS_REGISTRY.get(payload.outfit_id, INITIAL_OUTFIT)
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     new_id = f"saved-{payload.outfit_id}-{len(SAVED_LOOKS_REGISTRY) + 1}"
 
     saved_look = SavedLookContract(
@@ -590,7 +589,7 @@ def duplicate_saved_look(look_id: str, new_name: str | None = None) -> SavedLook
     if not source_look:
         source_look = list(SAVED_LOOKS_REGISTRY.values())[0]
 
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     dup_id = f"{source_look.id}-copy-{len(SAVED_LOOKS_REGISTRY) + 1}"
 
     duplicated = SavedLookContract(

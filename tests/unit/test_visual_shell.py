@@ -5,25 +5,6 @@ page header factories, overlay/toast management, and layout template contracts.
 Enforces Constitution Rule I02 (Contract Primacy) with extra="forbid" models.
 """
 
-import pytest
-from schemas.visual.shell import (
-    ApplicationShellContract,
-    BreadcrumbItemContract,
-    LayoutTemplate,
-    LayoutTemplateContract,
-    MobileDrawerState,
-    NavigationGroup,
-    NavigationItemContract,
-    NavigationItemState,
-    OverlayRegistryContract,
-    OverlayType,
-    PageHeaderContract,
-    PageHeaderVariant,
-    ShellLayoutMode,
-    ShellLoadState,
-    SidebarMode,
-    ToastType,
-)
 from api.app.visual.shell_service import (
     build_application_shell,
     build_layout_template,
@@ -39,7 +20,18 @@ from api.app.visual.shell_service import (
     resolve_shell_layout_mode,
     resolve_sidebar_mode,
 )
-
+from schemas.visual.shell import (
+    LayoutTemplate,
+    MobileDrawerState,
+    NavigationGroup,
+    OverlayRegistryContract,
+    OverlayType,
+    PageHeaderVariant,
+    ShellLayoutMode,
+    ShellLoadState,
+    SidebarMode,
+    ToastType,
+)
 
 # ---------------------------------------------------------------------------
 # 1. Navigation Configuration

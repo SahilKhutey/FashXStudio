@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from database.models.catalog import CanonicalGarment, MerchantProduct
-
 from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.errors import EntityNotFoundError, ValidationError
+from database.models.catalog import CanonicalGarment, MerchantProduct
 
 
 @dataclass

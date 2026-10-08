@@ -4,8 +4,10 @@ Catalog, Garments, Offers and Variants Domain Contracts v1
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import Field, HttpUrl
+
 from schemas.base import BaseContractModel
 
 
@@ -35,7 +37,7 @@ class RawMerchantVariantV1(BaseContractModel):
     mrp: float = Field(gt=0.0)
     currency: str = Field(default="INR", pattern="^[A-Z]{3}$")
     in_stock: bool
-    stock_count: Optional[int] = None
+    stock_count: int | None = None
 
 
 class MerchantProductV1(BaseContractModel):
@@ -46,10 +48,10 @@ class MerchantProductV1(BaseContractModel):
     source_url: HttpUrl
     raw_title: str
     raw_brand: str
-    raw_description: Optional[str] = None
-    raw_size_chart: Optional[Dict[str, Any]] = None
-    source_image_urls: List[HttpUrl] = Field(min_length=1)
-    variants: List[RawMerchantVariantV1] = Field(min_length=1)
+    raw_description: str | None = None
+    raw_size_chart: dict[str, Any] | None = None
+    source_image_urls: list[HttpUrl] = Field(min_length=1)
+    variants: list[RawMerchantVariantV1] = Field(min_length=1)
     ingested_at: datetime
 
 
@@ -60,19 +62,19 @@ class CanonicalGarmentV1(BaseContractModel):
     subcategory: str = Field(description="e.g. 'overshirt', 'chinos', 'hoodie'")
     gender_target: str = Field(pattern="^(men|women|unisex)$")
     silhouette: GarmentSilhouette
-    neckline: Optional[str] = None
-    sleeves: Optional[str] = None
+    neckline: str | None = None
+    sleeves: str | None = None
     pattern: str = "solid"
     primary_color: str
     color_hex: str = Field(pattern="^#[0-9A-Fa-f]{6}$")
     color_palette_type: str
     material: str
-    fabric_weight_gsm: Optional[int] = Field(default=None, gt=0, lt=1000)
-    occasion_tags: List[str] = Field(default_factory=list)
+    fabric_weight_gsm: int | None = Field(default=None, gt=0, lt=1000)
+    occasion_tags: list[str] = Field(default_factory=list)
     formality_level: str = "casual"
-    canonical_images: List[str] = Field(min_length=1)
-    flat_lay_image_url: Optional[str] = None
-    embedding_siglip: Optional[List[float]] = Field(
+    canonical_images: list[str] = Field(min_length=1)
+    flat_lay_image_url: str | None = None
+    embedding_siglip: list[float] | None = Field(
         default=None,
         min_length=768,
         max_length=768,

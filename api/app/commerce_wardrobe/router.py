@@ -1,5 +1,8 @@
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, Query, status
+from pydantic import BaseModel, Field
+
 from api.app.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.commerce_wardrobe.application.create_buy_click import (
     CreateBuyClickCommand,
@@ -29,8 +32,6 @@ from api.app.commerce_wardrobe.repositories.commerce_wardrobe_repository import 
 )
 from api.app.core.database import get_session_factory
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
-from fastapi import APIRouter, Depends, Query, status
-from pydantic import BaseModel, Field
 from schemas.common.enums import FitVerdict, VisualAccuracy
 
 router = APIRouter(tags=["commerce-wardrobe-feedback"])

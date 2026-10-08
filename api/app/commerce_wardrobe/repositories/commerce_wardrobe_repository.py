@@ -1,6 +1,9 @@
 from collections.abc import Callable, Sequence
 from uuid import UUID
 
+from sqlalchemy import desc, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from api.app.core.repository import BaseRepository
 from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.commerce_feedback import (
@@ -9,8 +12,6 @@ from database.models.commerce_feedback import (
     TryOnFeedback,
     WardrobeItem,
 )
-from sqlalchemy import desc, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 class WardrobeRepository(BaseRepository[WardrobeItem]):

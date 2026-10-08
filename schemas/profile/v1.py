@@ -4,16 +4,17 @@ Profile, Body, Measurements and Consent Domain Contracts v1
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 
 
 class ConsentScopeV1(BaseContractModel):
     granted: bool
-    granted_at: Optional[datetime] = None
-    revoked_at: Optional[datetime] = None
-    ip_address_hash: Optional[str] = None
+    granted_at: datetime | None = None
+    revoked_at: datetime | None = None
+    ip_address_hash: str | None = None
 
 
 class UserConsentV1(BaseContractModel):
@@ -76,11 +77,11 @@ class BodyProfileV1(BaseContractModel):
     schema_version: str = Field(default="1.0", frozen=True)
     profile_id: str
     user_id: str
-    height_cm: Optional[float] = Field(default=None, gt=0.0, lt=300.0)
-    weight_kg: Optional[float] = Field(default=None, gt=0.0, lt=500.0)
-    body_silhouette: Optional[str] = None
-    skin_tone_hex: Optional[str] = Field(default=None, pattern="^#[0-9A-Fa-f]{6}$")
-    skin_undertone: Optional[str] = None
+    height_cm: float | None = Field(default=None, gt=0.0, lt=300.0)
+    weight_kg: float | None = Field(default=None, gt=0.0, lt=500.0)
+    body_silhouette: str | None = None
+    skin_tone_hex: str | None = Field(default=None, pattern="^#[0-9A-Fa-f]{6}$")
+    skin_undertone: str | None = None
     is_active: bool = True
     created_at: datetime
 
@@ -105,12 +106,12 @@ class FitProfileV1(BaseContractModel):
     user_id: str
     preferred_top_fit: TopFitPreference = TopFitPreference.RELAXED
     preferred_bottom_fit: BottomFitPreference = BottomFitPreference.STRAIGHT
-    known_best_sizes: Dict[str, str] = Field(
+    known_best_sizes: dict[str, str] = Field(
         default_factory=dict,
         description="e.g. {'Zara': 'L', 'Uniqlo': 'M'}",
     )
-    latest_measurements: Dict[str, MeasurementV1] = Field(default_factory=dict)
-    fit_bias_tolerances: Dict[str, float] = Field(
+    latest_measurements: dict[str, MeasurementV1] = Field(default_factory=dict)
+    fit_bias_tolerances: dict[str, float] = Field(
         default_factory=dict,
         description="Calibration offsets: e.g. {'chest_ease_cm': 4.0}",
     )
@@ -120,9 +121,9 @@ class FitProfileV1(BaseContractModel):
 class DerivedProfileV1(BaseContractModel):
     schema_version: str = Field(default="1.0", frozen=True)
     user_id: str
-    silhouette_type: Optional[str] = None
-    skin_undertone: Optional[str] = None
-    style_affinities: List[str] = Field(default_factory=list)
-    preferred_fits: Dict[str, str] = Field(default_factory=dict)
-    standard_sizes: Dict[str, str] = Field(default_factory=dict)
-    color_palette_affinity: List[str] = Field(default_factory=list)
+    silhouette_type: str | None = None
+    skin_undertone: str | None = None
+    style_affinities: list[str] = Field(default_factory=list)
+    preferred_fits: dict[str, str] = Field(default_factory=dict)
+    standard_sizes: dict[str, str] = Field(default_factory=dict)
+    color_palette_affinity: list[str] = Field(default_factory=list)

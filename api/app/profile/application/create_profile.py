@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
+from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 from database.models.identity import User
 from schemas.identity.consent import ConsentUpdate
-
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 @dataclass

@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from database.models.identity import UserPhoto
-from schemas.common.enums import DataType, PhotoStatus, PhotoType
-
 from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
 from api.app.core.ports.storage import InMemoryStorageAdapter, StoragePort
 from api.app.profile.calibration.skin_tone import SkinToneCalibrationResult, SkinToneCalibrator
 from api.app.profile.capture.validator import PhotoQualityValidator
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from database.models.identity import UserPhoto
+from schemas.common.enums import DataType, PhotoStatus, PhotoType
 
 
 @dataclass

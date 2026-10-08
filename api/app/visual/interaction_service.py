@@ -6,7 +6,7 @@ Adheres strictly to Rule I01 (Layer Separation) and Rule I02 (Contract Primacy w
 """
 
 import re
-from typing import Any
+
 from schemas.visual.interaction import (
     AccessibilityAuditRequest,
     AccessibilityAuditResult,
@@ -18,13 +18,11 @@ from schemas.visual.interaction import (
     FormFieldValidationRequest,
     FormFieldValidationResult,
     InteractionState,
-    MotionCategory,
     ScreenLifecycleState,
     ScreenStateContract,
     VisualQASpecContract,
     VisualRegressionClassification,
 )
-
 
 # ---------------------------------------------------------------------------
 # 1. State Precedence Engine (Section 15.3 - 15.5)

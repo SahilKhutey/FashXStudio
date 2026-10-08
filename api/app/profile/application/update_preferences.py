@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from database.models.profile import UserPreference
-
 from api.app.core.errors import EntityNotFoundError
 from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from database.models.profile import UserPreference
 
 
 @dataclass

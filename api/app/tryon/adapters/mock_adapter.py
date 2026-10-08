@@ -1,8 +1,9 @@
 import io
 import time
 
-from api.app.tryon.ports import InferenceInput, InferenceOutput
 from PIL import Image
+
+from api.app.tryon.ports import InferenceInput, InferenceOutput
 
 
 class MockTryOnAdapter:

@@ -8,38 +8,7 @@ Verifies:
 
 import pytest
 from pydantic import ValidationError
-from schemas.visual.detail import (
-    BrandStoryDetailTemplateSpecContract,
-    BreadcrumbItemContract,
-    ComprehensiveProductDetailTemplateSpecContract,
-    DetailScreenId,
-    DetailState,
-    EditorialViewTemplateSpecContract,
-    FashionArticleDetailTemplateSpecContract,
-    FashionCollectionDetailTemplateSpecContract,
-    FashionInspirationDetailTemplateSpecContract,
-    FashionLookDetailTemplateSpecContract,
-    FashionStoryDetailTemplateSpecContract,
-    LookHotspotContract,
-    LookItemLinkContract,
-    MediaItemContract,
-    MediaType,
-    ProductAvailabilityState,
-    ProductAvailabilityTemplateSpecContract,
-    ProductComparisonTemplateSpecContract,
-    ProductDetailViewModelContract,
-    ProductGalleryContract,
-    ProductReviewsContract,
-    ProductReviewsTemplateSpecContract,
-    RelatedItemRelationship,
-    RelatedProductItemContract,
-    ReviewDistributionItemContract,
-    SpecificationItemContract,
-    SpecificationSectionContract,
-    VariantGroupContract,
-    VariantOptionItemContract,
-    VariantOptionState,
-)
+
 from api.app.visual.detail_service import (
     get_brand_story_template,
     get_editorial_view_template,
@@ -54,7 +23,16 @@ from api.app.visual.detail_service import (
     get_product_detail_view_model,
     get_product_reviews_template,
 )
-
+from schemas.visual.detail import (
+    DetailScreenId,
+    LookHotspotContract,
+    MediaItemContract,
+    MediaType,
+    ProductAvailabilityState,
+    RelatedItemRelationship,
+    VariantOptionItemContract,
+    VariantOptionState,
+)
 
 # ---------------------------------------------------------------------------
 # PROD-001 through PROD-020: Product Detail Specifications

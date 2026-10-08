@@ -5,21 +5,16 @@ Validates token primitives, Monk Skin Tone (MST) scale, typography hierarchy,
 and theme resolution under Constitution Rule I02 (Contract Primacy).
 """
 
-import pytest
 from api.app.visual.tokens_service import (
     calculate_adaptive_columns,
     calculate_contrast_ratio,
     get_theme_tokens,
     get_token_registry,
-    hex_to_rgb,
-    relative_luminance,
     validate_tokens,
 )
 from schemas.visual.tokens import (
-    DensityMode,
     DesignTokenRegistry,
     ThemeMode,
-    ThemeTokens,
     TokenValidationReport,
 )
 

@@ -44,7 +44,7 @@ class IntegrationOrchestrator:
             if adapter is None:
                 message = f"{step.feature_id}.{step.action} is unavailable"
                 if step.required:
-                    return WorkflowResult(str(uuid4()), workflow, False, data, tuple((*warnings, message)))
+                    return WorkflowResult(str(uuid4()), workflow, False, data, (*warnings, message))
                 warnings.append(message)
                 continue
             try:
@@ -52,7 +52,7 @@ class IntegrationOrchestrator:
             except (TypeError, ValueError, KeyError) as exc:
                 message = f"{step.feature_id}.{step.action} failed: {exc}"
                 if step.required:
-                    return WorkflowResult(str(uuid4()), workflow, False, data, tuple((*warnings, message)))
+                    return WorkflowResult(str(uuid4()), workflow, False, data, (*warnings, message))
                 warnings.append(message)
         result = WorkflowResult(str(uuid4()), workflow, True, data, tuple(warnings))
         if key:

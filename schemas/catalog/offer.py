@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import Field, HttpUrl
+
 from schemas.base import BaseContractModel
 
 

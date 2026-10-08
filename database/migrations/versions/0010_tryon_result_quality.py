@@ -3,8 +3,8 @@
 Revision ID: 0010_tryon_result_quality
 Revises: 0009_tryon_job_runtime
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "0010_tryon_result_quality"
 down_revision = "0009_tryon_job_runtime"

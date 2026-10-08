@@ -5,10 +5,7 @@ review histograms, content relationship mappers, and screen templates for P02-P1
 """
 
 from typing import Any
-from schemas.visual.fashion import (
-    FashionContentType,
-    VisualContentModel,
-)
+
 from schemas.visual.detail import (
     AttributeComparisonItemContract,
     BrandStoryDetailTemplateSpecContract,
@@ -44,6 +41,10 @@ from schemas.visual.detail import (
     VariantOptionItemContract,
     VariantOptionState,
 )
+from schemas.visual.fashion import (
+    FashionContentType,
+)
+
 from .fashion_service import (
     SAMPLE_BRANDS,
     SAMPLE_COLLECTIONS,
@@ -51,10 +52,8 @@ from .fashion_service import (
     SAMPLE_PRODUCTS,
     SAMPLE_STORIES,
     SAMPLE_STYLES,
-    SAMPLE_TRENDS,
     to_visual_content_model,
 )
-
 
 # ---------------------------------------------------------------------------
 # Product Detail Resolvers (P02, P03, P04, P05, P06, P07, P08, P09, P10)
@@ -442,7 +441,7 @@ def get_fashion_look_template(look_id: str) -> FashionLookDetailTemplateSpecCont
         id=look.id,
         name=look.title,
         style="Contemporary Streetwear",
-        context_description=f"Curated streetwear look set against coastal architectural landscapes.",
+        context_description="Curated streetwear look set against coastal architectural landscapes.",
         hero_image_uri=look.hero_image_uri,
         outfit_items=outfit_items,
         hotspots=hotspots,

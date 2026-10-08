@@ -5,8 +5,10 @@ Virtual Try-On Domain Contracts v1
 import hashlib
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 
 
@@ -46,17 +48,17 @@ class TryOnJobV1(BaseContractModel):
     job_id: str
     user_id: str
     canonical_garment_id: str
-    variant_id: Optional[str] = None
+    variant_id: str | None = None
     user_photo_id: str
     status: TryOnJobStatus = TryOnJobStatus.QUEUED
     cache_key: str
-    result_image_url: Optional[str] = None
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
-    queue_wait_ms: Optional[int] = None
-    inference_duration_ms: Optional[int] = None
+    result_image_url: str | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+    queue_wait_ms: int | None = None
+    inference_duration_ms: int | None = None
     created_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
 
 
 class TryOnStatusResponseV1(BaseContractModel):
@@ -64,8 +66,8 @@ class TryOnStatusResponseV1(BaseContractModel):
     job_id: str
     status: TryOnJobStatus
     cache_hit: bool = False
-    result_image_url: Optional[str] = None
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
-    execution_metrics: Dict[str, Any] = Field(default_factory=dict)
-    completed_at: Optional[datetime] = None
+    result_image_url: str | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+    execution_metrics: dict[str, Any] = Field(default_factory=dict)
+    completed_at: datetime | None = None

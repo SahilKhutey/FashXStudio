@@ -5,9 +5,10 @@ from collections.abc import AsyncIterator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .database import get_db_session
 from api.app.catalog.repositories.catalog import CatalogRepository
 from api.app.profile.repositories.profile import ProfileRepository
+
+from .database import get_db_session
 
 
 async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIterator[AsyncSession]:

@@ -12,8 +12,8 @@ import numpy as np
 from PIL import Image
 
 from api.app.core.settings import get_settings
-from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
 from api.app.profile.integrations.r2_client import R2StorageClient
+from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
 from workers.skin_tone.adapters.profile_api import ProfileIntelligenceApiClient
 from workers.skin_tone.domain.ita import estimate_ita
 

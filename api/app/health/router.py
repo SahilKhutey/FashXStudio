@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 from fastapi import APIRouter
+
 from schemas.common.health import HealthResponse
 
 from ..core.database import check_database

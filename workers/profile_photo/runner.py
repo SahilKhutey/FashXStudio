@@ -7,10 +7,10 @@ from typing import Any
 from uuid import UUID
 
 from api.app.core.settings import get_settings
-from workers.profile_photo.adapters.profile_api import ProfilePhotoApiClient
-from workers.profile_photo.domain.processing import ProfilePhotoProcessor
-from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
 from api.app.profile.integrations.r2_client import R2StorageClient
+from workers.profile_photo.adapters.profile_api import ProfilePhotoApiClient
+from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
+from workers.profile_photo.domain.processing import ProfilePhotoProcessor
 
 logger = logging.getLogger(__name__)
 

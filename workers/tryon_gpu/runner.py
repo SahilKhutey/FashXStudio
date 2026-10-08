@@ -1,10 +1,10 @@
-from __future__ import annotations
-
 """Foundation 14 provider-backed VTO worker path.
 
 The worker is provider-neutral and remains fail-closed when no commercial-approved
 provider is configured.
 """
+
+from __future__ import annotations
 
 import json
 from uuid import UUID
@@ -13,7 +13,12 @@ from api.app.profile.integrations.r2_client import R2StorageClient
 from api.app.tryon.integrations.gpu_client import ConfiguredTryOnProvider
 from api.app.tryon.integrations.media import ResultQualityError, TryOnExecutionGateway
 from schemas.common.enums import TryOnFailureReason, TryOnStatus
-from schemas.tryon.worker import TryOnWorkerComplete, TryOnWorkerFailure, TryOnWorkerProgress, TryOnWorkerResultQuality
+from schemas.tryon.worker import (
+    TryOnWorkerComplete,
+    TryOnWorkerFailure,
+    TryOnWorkerProgress,
+    TryOnWorkerResultQuality,
+)
 from workers.tryon_gpu.api_client import TryOnInternalApiClient
 
 

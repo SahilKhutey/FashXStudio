@@ -6,22 +6,19 @@ Adheres to Rule I01 (Layer Separation) and Rule I02 (Contract Primacy).
 """
 
 from typing import Any
+
 from schemas.visual.components import PriceSpecContract, RatingSpecContract
 from schemas.visual.fashion import (
     BrandItemContract,
     CollectionItemContract,
-    CollectionTemplateSpecContract,
     ContentSourceType,
     ContentState,
-    DetailTemplateSpecContract,
     DiscoveryTemplateSpecContract,
-    EditorialTemplateSpecContract,
     FashionContentType,
     FashionFeedContract,
     FashionStoryContract,
     ListingTemplateSpecContract,
     LookItemContract,
-    ModerationState,
     OutfitItemContract,
     OutfitPieceMappingContract,
     ProductItemContract,
@@ -34,7 +31,6 @@ from schemas.visual.fashion import (
     TrendSignalPointContract,
     VisualContentModel,
 )
-
 
 # ---------------------------------------------------------------------------
 # Canonical Fashion Content Fixtures
