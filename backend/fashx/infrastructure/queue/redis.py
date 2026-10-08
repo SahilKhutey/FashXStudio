@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any, Dict
-from api.app.infrastructure.queue.queue_port import QueuePort
+from fashx.infrastructure.queue.queue_port import QueuePort
 
 
 class RedisQueueAdapter(QueuePort):

@@ -1,7 +1,7 @@
 import uuid
 from dataclasses import dataclass
 from typing import Optional
-from api.app.infrastructure.queue.queue_port import QueuePort
+from fashx.infrastructure.queue.queue_port import QueuePort
 from api.app.tryon.domain.cache_keys import compute_tryon_cache_key
 from api.app.tryon.repositories.tryon_repository import TryOnRepository
 

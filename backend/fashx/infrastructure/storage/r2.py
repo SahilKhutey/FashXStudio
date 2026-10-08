@@ -1,5 +1,5 @@
 from pathlib import Path
-from api.app.infrastructure.storage.storage_port import StoragePort
+from fashx.infrastructure.storage.storage_port import StoragePort
 
 
 class R2StorageAdapter(StoragePort):
