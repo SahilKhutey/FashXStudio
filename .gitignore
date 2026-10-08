@@ -42,3 +42,9 @@ htmlcov/
 # ML artifacts
 ml/results/
 ml/checkpoints/
+
+# archives never belong in git
+*.zip
+*.7z
+*.rar
+*.tar.gz
