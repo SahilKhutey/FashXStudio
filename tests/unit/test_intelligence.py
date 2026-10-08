@@ -1,10 +1,10 @@
-from api.app.features.intelligence.analyzers import RuleBasedFashionAnalyzer
-from api.app.features.intelligence.compatibility import CompatibilityEngine
-from api.app.features.intelligence.context import IntelligenceContextBuilder
-from api.app.features.intelligence.contracts import IntelligenceRequest
-from api.app.features.intelligence.enums import IntelligenceStatus, IntelligenceType
-from api.app.features.intelligence.repository import IntelligenceRepository
-from api.app.features.intelligence.service import FashionIntelligenceService
+from fashx.features.intelligence.analyzers import RuleBasedFashionAnalyzer
+from fashx.features.intelligence.compatibility import CompatibilityEngine
+from fashx.features.intelligence.context import IntelligenceContextBuilder
+from fashx.features.intelligence.contracts import IntelligenceRequest
+from fashx.features.intelligence.enums import IntelligenceStatus, IntelligenceType
+from fashx.features.intelligence.repository import IntelligenceRepository
+from fashx.features.intelligence.service import FashionIntelligenceService
 
 
 def test_rule_analysis_and_compatibility_are_explainable() -> None:

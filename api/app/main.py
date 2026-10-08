@@ -6,7 +6,7 @@ from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
 from .core.logging import configure_logging
 from .core.observability import ContextFilter, configure_sentry
 from .core.settings import get_settings
-from .features.router import router as features_router
+from fashx.features.router import router as features_router
 from .gateway.errors import install_exception_handlers
 from .gateway.middleware import RequestContextMiddleware
 from fashx.health.router import router as health_router

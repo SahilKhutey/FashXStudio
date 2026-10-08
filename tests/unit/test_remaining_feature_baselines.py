@@ -1,15 +1,15 @@
 import pytest
 
-from api.app.features.commerce.models import CartLine
-from api.app.features.commerce.service import CommerceService
-from api.app.features.engagement.models import Engagement
-from api.app.features.engagement.service import EngagementService
-from api.app.features.integration.orchestrator import IntegrationOrchestrator
-from api.app.features.integration.workflows import WorkflowName
-from api.app.features.regional.models import RegionalContext
-from api.app.features.regional.service import RegionalService
-from api.app.features.shopping.models import ComparableProduct
-from api.app.features.shopping.service import ShoppingService
+from fashx.features.commerce.models import CartLine
+from fashx.features.commerce.service import CommerceService
+from fashx.features.engagement.models import Engagement
+from fashx.features.engagement.service import EngagementService
+from fashx.features.integration.orchestrator import IntegrationOrchestrator
+from fashx.features.integration.workflows import WorkflowName
+from fashx.features.regional.models import RegionalContext
+from fashx.features.regional.service import RegionalService
+from fashx.features.shopping.models import ComparableProduct
+from fashx.features.shopping.service import ShoppingService
 
 
 def test_shopping_wishlist_and_comparison() -> None:

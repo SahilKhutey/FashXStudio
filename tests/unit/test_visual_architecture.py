@@ -9,7 +9,7 @@ Responsive Breakpoint Models, and Schema Contract integrity (Rules I01, I02, I03
 import pytest
 from pydantic import ValidationError
 
-from api.app.features.feature_catalog import FEATURE_CATALOG
+from fashx.features.feature_catalog import FEATURE_CATALOG
 from api.app.visual.catalog import (
     BREAKPOINT_CONFIGS,
     CANONICAL_SCREENS,

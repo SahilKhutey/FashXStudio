@@ -1,11 +1,11 @@
 import pytest
 
-from api.app.features.discovery.contracts import DiscoveryRequest
-from api.app.features.discovery.enums import DiscoveryItemType, DiscoveryStatus, DiscoverySurface
-from api.app.features.discovery.models import DiscoveryItem
-from api.app.features.discovery.repository import DiscoveryRepository
-from api.app.features.discovery.service import DiscoveryService
-from api.app.features.discovery.state import DiscoveryState
+from fashx.features.discovery.contracts import DiscoveryRequest
+from fashx.features.discovery.enums import DiscoveryItemType, DiscoveryStatus, DiscoverySurface
+from fashx.features.discovery.models import DiscoveryItem
+from fashx.features.discovery.repository import DiscoveryRepository
+from fashx.features.discovery.service import DiscoveryService
+from fashx.features.discovery.state import DiscoveryState
 
 
 def item(

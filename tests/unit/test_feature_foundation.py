@@ -1,6 +1,6 @@
 import pytest
 
-from api.app.features.foundation import (
+from fashx.features.foundation import (
     DependencyResolver,
     FeatureDefinition,
     FeatureManager,
@@ -8,7 +8,7 @@ from api.app.features.foundation import (
     FeatureRuntime,
     FeatureState,
 )
-from api.app.features.foundation.errors import (
+from fashx.features.foundation.errors import (
     FeatureAlreadyRegisteredError,
     FeatureCircularDependencyError,
     FeatureDependencyError,

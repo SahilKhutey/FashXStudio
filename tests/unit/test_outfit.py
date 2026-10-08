@@ -1,9 +1,9 @@
 import pytest
 
-from api.app.features.outfit.contracts import AddOutfitItemRequest, CreateOutfitRequest
-from api.app.features.outfit.errors import OutfitValidationError
-from api.app.features.outfit.repository import OutfitRepository
-from api.app.features.outfit.service import OutfitService
+from fashx.features.outfit.contracts import AddOutfitItemRequest, CreateOutfitRequest
+from fashx.features.outfit.errors import OutfitValidationError
+from fashx.features.outfit.repository import OutfitRepository
+from fashx.features.outfit.service import OutfitService
 
 
 def test_create_compose_and_validate_everyday_outfit() -> None:

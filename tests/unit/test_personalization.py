@@ -1,8 +1,8 @@
-from api.app.features.personalization.contracts import PersonalizationRequest, RecordSignalRequest
-from api.app.features.personalization.enums import SignalType
-from api.app.features.personalization.profile import PreferenceProfileEngine
-from api.app.features.personalization.repository import PersonalizationRepository
-from api.app.features.personalization.service import PersonalizationService
+from fashx.features.personalization.contracts import PersonalizationRequest, RecordSignalRequest
+from fashx.features.personalization.enums import SignalType
+from fashx.features.personalization.profile import PreferenceProfileEngine
+from fashx.features.personalization.repository import PersonalizationRepository
+from fashx.features.personalization.service import PersonalizationService
 
 
 def test_signals_are_clamped_and_drive_explainable_ranking() -> None:

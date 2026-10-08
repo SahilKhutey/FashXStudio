@@ -1,13 +1,13 @@
 import pytest
 
-from api.app.features.search.contracts import SearchFilters, SearchRequest, SuggestionRequest
-from api.app.features.search.enums import SearchMode, SearchResultType, SearchStatus, SortOption
-from api.app.features.search.matcher import match_score
-from api.app.features.search.models import SearchDocument
-from api.app.features.search.repository import SearchRepository
-from api.app.features.search.service import SearchService
-from api.app.features.search.state import SearchState
-from api.app.features.search.tokenizer import tokenize
+from fashx.features.search.contracts import SearchFilters, SearchRequest, SuggestionRequest
+from fashx.features.search.enums import SearchMode, SearchResultType, SearchStatus, SortOption
+from fashx.features.search.matcher import match_score
+from fashx.features.search.models import SearchDocument
+from fashx.features.search.repository import SearchRepository
+from fashx.features.search.service import SearchService
+from fashx.features.search.state import SearchState
+from fashx.features.search.tokenizer import tokenize
 
 
 def service() -> SearchService:
