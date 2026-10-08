@@ -1,5 +1,6 @@
 target-version = "py312"
 line-length = 100
+src = ["backend", "."]
 extend-exclude = ["apps", "docs"]
 
 [lint]
@@ -18,4 +19,4 @@ ignore = [
 ]
 
 [lint.isort]
-known-first-party = ["api", "schemas", "workers", "ml"]
+known-first-party = ["fashx", "schemas", "workers", "ml"]

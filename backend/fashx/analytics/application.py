@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 from fashx.core.transactions import transaction
-from api.app.events.repository import EventRepository
+from fashx.repositories.events import EventRepository
 from fashx.analytics.repository import AnalyticsRepository
 from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, AnalyticsWindow, ValidationMetrics
 

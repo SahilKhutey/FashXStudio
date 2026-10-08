@@ -22,7 +22,6 @@ jobs:
         image: redis:7
         ports: ["6379:6379"]
     env:
-      PYTHONPATH: ".:api"                       # removed in PR 2B
       DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
     steps:
