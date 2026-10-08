@@ -4,14 +4,14 @@ from uuid import UUID
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.database import get_session_factory
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from api.app.tryon.application.get_job_status import (
+from fashx.tryon.application.get_job_status import (
     GetTryOnJobStatusUseCase,
 )
-from api.app.tryon.application.submit_job import (
+from fashx.tryon.application.submit_job import (
     SubmitTryOnJobCommand,
     SubmitTryOnJobUseCase,
 )
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from fastapi import APIRouter, Depends, Header, status
 from pydantic import BaseModel
 from schemas.common.enums import TryOnFailureReason, TryOnStatus

@@ -24,14 +24,14 @@ from fashx.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from api.app.tryon.application.get_job_status import GetTryOnJobStatusUseCase
-from api.app.tryon.application.process_job import ProcessTryOnJobUseCase
-from api.app.tryon.application.submit_job import (
+from fashx.tryon.application.get_job_status import GetTryOnJobStatusUseCase
+from fashx.tryon.application.process_job import ProcessTryOnJobUseCase
+from fashx.tryon.application.submit_job import (
     SubmitTryOnJobCommand,
     SubmitTryOnJobUseCase,
 )
-from api.app.tryon.ports import InferenceInput, InferenceOutput
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.ports import InferenceInput, InferenceOutput
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.catalog import Merchant
 
 

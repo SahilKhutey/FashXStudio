@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from api.app.core.errors import EntityNotFoundError
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 
 
 @dataclass(frozen=True)

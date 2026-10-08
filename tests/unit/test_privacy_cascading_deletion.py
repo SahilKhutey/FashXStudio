@@ -19,7 +19,7 @@ from fashx.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.tryon import TryOnArtifact, TryOnJob
 
 

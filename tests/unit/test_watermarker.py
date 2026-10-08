@@ -2,7 +2,7 @@ import io
 
 from PIL import Image
 
-from api.app.tryon.watermarker import SyntheticWatermarker
+from fashx.tryon.watermarker import SyntheticWatermarker
 
 
 def test_watermarker_embeds_metadata_and_provenance() -> None:

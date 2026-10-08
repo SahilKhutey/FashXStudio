@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 from app.repositories.models import TryOnJobModel
-from api.app.tryon.repositories.tryon_repository import TryOnRepository
+from fashx.tryon.repositories.tryon_repository import TryOnRepository
 
 
 class GetTryOnStatusUseCase:

@@ -55,13 +55,13 @@ from fashx.recommendation.application.generate_feed import (
     GenerateFeedCommand,
     GenerateFeedUseCase,
 )
-from api.app.tryon.application.get_job_status import GetTryOnJobStatusUseCase
-from api.app.tryon.application.process_job import ProcessTryOnJobUseCase
-from api.app.tryon.application.submit_job import (
+from fashx.tryon.application.get_job_status import GetTryOnJobStatusUseCase
+from fashx.tryon.application.process_job import ProcessTryOnJobUseCase
+from fashx.tryon.application.submit_job import (
     SubmitTryOnJobCommand,
     SubmitTryOnJobUseCase,
 )
-from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from database.models.catalog import Brand, Merchant
 
 

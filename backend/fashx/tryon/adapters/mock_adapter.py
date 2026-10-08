@@ -1,7 +1,7 @@
 import io
 import time
 
-from api.app.tryon.ports import InferenceInput, InferenceOutput
+from fashx.tryon.ports import InferenceInput, InferenceOutput
 from PIL import Image
 
 

@@ -321,7 +321,7 @@ async def revoke_user_consent(
         RevokeConsentCommand,
         RevokeConsentUseCase,
     )
-    from api.app.tryon.repositories.tryon_repository import TryOnUnitOfWork
+    from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 
     tryon_uow = TryOnUnitOfWork(get_session_factory())
     use_case = RevokeConsentUseCase(profile_uow, tryon_uow)
