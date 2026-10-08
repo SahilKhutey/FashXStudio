@@ -3,7 +3,7 @@
 _Last updated: 2026-10-08 · Source of truth for project status. Update in every phase PR._
 _Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1 Log: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md)_
 
-**Measured:** tests [1,271 passed / 0 failed / 0 skipped] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [13, heads=1] · API routes [233]
+**Measured:** tests [1,271 total: 1,027 MVP (not frozen) / 244 frozen] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [13, heads=1] · API routes [206 MVP / 233 with frozen]
 
 Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ frozen
 
@@ -24,11 +24,12 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Fit feedback ledger | 🟡 | Cold-start: needs real outcomes |
 | Authentication + ownership | ⬜ | routes with auth: 0 · routes with {user_id} in path: 20+ |
 | Postgres persistence (MVP domains) | 🟡 | 16 in-memory repos wired at runtime (backend/fashx/repositories/*/memory.py) |
-| Mobile app | ⬜ | Duplicate dirs: mobile/ (Expo 57, 229 files) vs apps/mobile (Expo 51, 9 files) |
-| CI | ✅ | Canonical workflow (.github/workflows/ci.yml) with pgvector+redis active and verified green in PR 2A |
+| Mobile app | 🟡 | Canonical Expo 57 app consolidated in mobile/ (229 files); apps/mobile deleted (PR 2C); mobile typecheck tracked in CI |
+| CI | ✅ | Canonical workflow with required backend (pgvector+redis), non-blocking frozen job, and mobile job (PR 2A/2C) |
 
 ## Frozen (post-MVP; see docs/architecture/FROZEN.md)
 Inventory (C05), promotions (C06), cart (C07), checkout/orders (C08), payments (C09), fulfilment (C10), returns (C11), regional (F12), engagement (F13).
+Router-gated behind FASHX_ENABLE_FROZEN (unmounted by default in production; 27 endpoints excluded). Tests marked pytest.mark.frozen (244 tests).
 
 ## Release gates
 | Gate | Status | Blocker |
@@ -42,5 +43,5 @@ Inventory (C05), promotions (C06), cart (C07), checkout/orders (C08), payments (
 
 ## Known debt
 - Import collision: RESOLVED in PR 2B. Unified into canonical package `backend/fashx/`. Both legacy roots `app/` and `api/app/` eliminated. Zero import collisions. PYTHONPATH hack eliminated.
-- Duplicate mobile dirs (`mobile/` vs `apps/mobile`) - addressed in PR 2C.
+- Duplicate mobile dirs: RESOLVED in PR 2C. Canonical app in `mobile/`, `apps/mobile` removed.
 - Old docs quote different test/migration counts (663 vs 1271 tests; 12 vs 13 migrations); use the measured line above.
