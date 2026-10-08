@@ -9,7 +9,7 @@ provider is configured.
 import json
 from uuid import UUID
 
-from api.app.profile.integrations.r2_client import R2StorageClient
+from fashx.profile.integrations.r2_client import R2StorageClient
 from api.app.tryon.integrations.gpu_client import ConfiguredTryOnProvider
 from api.app.tryon.integrations.media import ResultQualityError, TryOnExecutionGateway
 from schemas.common.enums import TryOnFailureReason, TryOnStatus

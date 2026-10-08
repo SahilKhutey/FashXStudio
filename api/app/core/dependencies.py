@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import get_db_session
 from fashx.catalog.repositories.catalog import CatalogRepository
-from api.app.profile.repositories.profile import ProfileRepository
+from fashx.profile.repositories.profile import ProfileRepository
 
 
 async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIterator[AsyncSession]:

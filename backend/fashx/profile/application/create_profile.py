@@ -4,7 +4,7 @@ from uuid import UUID
 from database.models.identity import User
 from schemas.identity.consent import ConsentUpdate
 
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 @dataclass

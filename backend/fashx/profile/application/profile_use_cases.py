@@ -4,7 +4,7 @@ from uuid import UUID
 
 from api.app.core.errors import NotFoundError
 from api.app.core.transactions import transaction
-from api.app.profile.repositories.profile import ProfileRepository
+from fashx.profile.repositories.profile import ProfileRepository
 
 
 class ProfileApplicationService:

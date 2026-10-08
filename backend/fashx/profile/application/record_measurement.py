@@ -5,7 +5,7 @@ from database.models.profile import UserMeasurement
 from schemas.common.enums import DataType, MeasurementSource
 
 from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 @dataclass

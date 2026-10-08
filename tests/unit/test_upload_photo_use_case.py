@@ -6,15 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from api.app.core.errors import ConsentRequiredError
 from api.app.core.ports.storage import InMemoryStorageAdapter
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.upload_photo import (
+from fashx.profile.application.upload_photo import (
     UploadPhotoCommand,
     UploadUserPhotoUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from schemas.common.enums import DataType, PhotoStatus, PhotoType
 from schemas.identity.consent import ConsentUpdate
 

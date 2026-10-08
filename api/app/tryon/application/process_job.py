@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.errors import EntityNotFoundError
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.tryon.adapters.mock_adapter import MockTryOnAdapter
 from api.app.tryon.ports import InferenceInput, TryOnModelAdapterPort
 from api.app.tryon.quality_validator import PostInferenceQualityValidator

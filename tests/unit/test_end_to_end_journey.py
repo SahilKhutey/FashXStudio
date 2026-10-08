@@ -34,23 +34,23 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.ports.storage import InMemoryStorageAdapter
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.revoke_consent import (
+from fashx.profile.application.revoke_consent import (
     RevokeConsentCommand,
     RevokeConsentUseCase,
 )
-from api.app.profile.application.update_preferences import (
+from fashx.profile.application.update_preferences import (
     UpdatePreferencesCommand,
     UpdatePreferencesUseCase,
 )
-from api.app.profile.application.upload_photo import (
+from fashx.profile.application.upload_photo import (
     UploadPhotoCommand,
     UploadUserPhotoUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.recommendation.application.generate_feed import (
     GenerateFeedCommand,
     GenerateFeedUseCase,

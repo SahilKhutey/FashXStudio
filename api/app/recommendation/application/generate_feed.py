@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.errors import EntityNotFoundError
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.recommendation.compatibility import CompatibilityMatrix
 from api.app.recommendation.filters import (
     CandidateItem,

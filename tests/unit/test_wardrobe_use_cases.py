@@ -20,11 +20,11 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from api.app.core.errors import EntityNotFoundError
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from database.models.catalog import Merchant
 
 

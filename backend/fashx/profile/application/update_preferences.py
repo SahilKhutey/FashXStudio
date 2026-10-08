@@ -4,7 +4,7 @@ from uuid import UUID
 from database.models.profile import UserPreference
 
 from api.app.core.errors import EntityNotFoundError
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 @dataclass

@@ -10,15 +10,15 @@ from fashx.catalog.application.ingest_product import (
     IngestProductCommand,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.update_preferences import (
+from fashx.profile.application.update_preferences import (
     UpdatePreferencesCommand,
     UpdatePreferencesUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.recommendation.application.generate_feed import (
     GenerateFeedCommand,
     GenerateFeedUseCase,

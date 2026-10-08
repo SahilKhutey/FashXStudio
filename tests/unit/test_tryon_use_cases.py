@@ -15,15 +15,15 @@ from fashx.catalog.application.ingest_product import (
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from api.app.core.errors import ConsentRequiredError
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.upload_photo import (
+from fashx.profile.application.upload_photo import (
     UploadPhotoCommand,
     UploadUserPhotoUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from api.app.tryon.application.get_job_status import GetTryOnJobStatusUseCase
 from api.app.tryon.application.process_job import ProcessTryOnJobUseCase
 from api.app.tryon.application.submit_job import (

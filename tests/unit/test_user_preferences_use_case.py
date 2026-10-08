@@ -1,15 +1,15 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.update_preferences import (
+from fashx.profile.application.update_preferences import (
     UpdatePreferencesCommand,
     UpdatePreferencesUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
 @pytest.mark.asyncio

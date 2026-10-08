@@ -9,23 +9,23 @@ from schemas.identity.consent import ConsentUpdate
 
 from api.app.core.database import get_session_factory
 from api.app.core.errors import EntityNotFoundError, ValidationError
-from api.app.profile.application.create_profile import (
+from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
 )
-from api.app.profile.application.record_measurement import (
+from fashx.profile.application.record_measurement import (
     RecordMeasurementCommand,
     RecordMeasurementUseCase,
 )
-from api.app.profile.application.update_preferences import (
+from fashx.profile.application.update_preferences import (
     UpdatePreferencesCommand,
     UpdatePreferencesUseCase,
 )
-from api.app.profile.application.upload_photo import (
+from fashx.profile.application.upload_photo import (
     UploadPhotoCommand,
     UploadUserPhotoUseCase,
 )
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -317,7 +317,7 @@ async def revoke_user_consent(
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> RevokeConsentResponse:
     """Rule I16 & Gate G4: Instantly cascades deletion of photos and tryon renders upon consent revocation."""
-    from api.app.profile.application.revoke_consent import (
+    from fashx.profile.application.revoke_consent import (
         RevokeConsentCommand,
         RevokeConsentUseCase,
     )

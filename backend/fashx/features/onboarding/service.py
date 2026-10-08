@@ -3,7 +3,7 @@
 from uuid import UUID
 
 from api.app.core.errors import EntityNotFoundError
-from api.app.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 from .contracts import BasicProfileInput, ContextInput, PreferenceInput, UserContext
 from .errors import OnboardingStepError
