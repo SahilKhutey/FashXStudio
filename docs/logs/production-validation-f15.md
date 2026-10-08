@@ -1,3 +1,5 @@
+> **Historical record.** Written during development; counts, 'verified' claims and gate results may be outdated. Current truth: [STATUS](../STATUS.md).
+
 # F15 — Production QA & Validation Gate
 
 F15 validates the executable repository baseline. It is not a claim that external
