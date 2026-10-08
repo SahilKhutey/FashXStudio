@@ -7,8 +7,8 @@ from .core.logging import configure_logging
 from .core.observability import ContextFilter, configure_sentry
 from .core.settings import get_settings
 from fashx.features.router import router as features_router
-from .gateway.errors import install_exception_handlers
-from .gateway.middleware import RequestContextMiddleware
+from fashx.gateway.errors import install_exception_handlers
+from fashx.gateway.middleware import RequestContextMiddleware
 from fashx.health.router import router as health_router
 from fashx.profile.router import router as profile_router
 from fashx.recommendation.router import router as recommendation_router
