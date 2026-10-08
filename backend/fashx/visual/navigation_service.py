@@ -238,7 +238,7 @@ def resolve_navigation_state(
     navigation_history: list[str] | None = None,
 ) -> NavigationStateContract:
     """Build a fully resolved NavigationStateContract for a route + viewport."""
-    from api.app.visual.shell_service import resolve_shell_layout_mode
+    from fashx.visual.shell_service import resolve_shell_layout_mode
     from schemas.visual.shell import ShellLayoutMode
 
     active_item, active_parent = _find_active_item(registry, route)

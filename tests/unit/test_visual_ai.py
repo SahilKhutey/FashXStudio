@@ -46,7 +46,7 @@ from schemas.visual.ai import (
     PostAIFeedbackRequestContract,
     PostAIMessageRequestContract,
 )
-from api.app.visual.ai_service import (
+from fashx.visual.ai_service import (
     CURRENT_PREFERENCES,
     DEFAULT_PREFERENCES,
     FEEDBACK_REGISTRY,

@@ -37,7 +37,7 @@ from schemas.visual.styling import (
     StyleRecommendationTemplateSpecContract,
     StylingScreenId,
 )
-from api.app.visual.styling_service import (
+from fashx.visual.styling_service import (
     INITIAL_OUTFIT,
     SAMPLE_OUTFIT_ITEMS,
     add_item_to_outfit,

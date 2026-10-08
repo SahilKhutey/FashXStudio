@@ -10,7 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from fashx.features.feature_catalog import FEATURE_CATALOG
-from api.app.visual.catalog import (
+from fashx.visual.catalog import (
     BREAKPOINT_CONFIGS,
     CANONICAL_SCREENS,
     get_screen_inventory,

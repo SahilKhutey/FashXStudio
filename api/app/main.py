@@ -13,7 +13,7 @@ from fashx.health.router import router as health_router
 from fashx.profile.router import router as profile_router
 from fashx.recommendation.router import router as recommendation_router
 from fashx.tryon.router import router as tryon_router
-from .visual.router import router as visual_router
+from fashx.visual.router import router as visual_router
 
 
 def create_app() -> FastAPI:

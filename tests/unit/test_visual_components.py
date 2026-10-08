@@ -58,7 +58,7 @@ from schemas.visual.components import (
     TypographyRole,
     TypographySpecContract,
 )
-from api.app.visual.components_service import (
+from fashx.visual.components_service import (
     get_component_catalog,
     get_component_definition,
     validate_component_props,

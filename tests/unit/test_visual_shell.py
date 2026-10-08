@@ -24,7 +24,7 @@ from schemas.visual.shell import (
     SidebarMode,
     ToastType,
 )
-from api.app.visual.shell_service import (
+from fashx.visual.shell_service import (
     build_application_shell,
     build_layout_template,
     build_page_header,

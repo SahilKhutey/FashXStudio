@@ -34,7 +34,7 @@ from schemas.visual.fashion import (
     TrendSignalPointContract,
     VisualContentModel,
 )
-from api.app.visual.fashion_service import (
+from fashx.visual.fashion_service import (
     get_discovery_template,
     get_fashion_content,
     get_fashion_feed,

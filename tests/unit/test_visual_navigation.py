@@ -27,7 +27,7 @@ from schemas.visual.navigation import (
     RouteRegistryContract,
     TabMode,
 )
-from api.app.visual.navigation_service import (
+from fashx.visual.navigation_service import (
     _find_active_item,
     _flat_routes,
     build_404_error,

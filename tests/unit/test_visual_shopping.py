@@ -54,7 +54,7 @@ from schemas.visual.shopping import (
     WishlistItemContract,
     WishlistToggleRequestContract,
 )
-from api.app.visual.shopping_service import (
+from fashx.visual.shopping_service import (
     add_item_to_cart,
     compare_products,
     get_cart_template,

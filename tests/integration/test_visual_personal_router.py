@@ -32,9 +32,9 @@ Tests All 19 Personal Space Endpoints & 6 Cross-System Integration Flows:
 import pytest
 from fastapi.testclient import TestClient
 from api.app.main import app
-from api.app.visual.personal_service import reset_personal_fixtures
-from api.app.visual.styling_service import reset_styling_fixtures
-from api.app.visual.ai_service import reset_ai_fixtures
+from fashx.visual.personal_service import reset_personal_fixtures
+from fashx.visual.styling_service import reset_styling_fixtures
+from fashx.visual.ai_service import reset_ai_fixtures
 
 client = TestClient(app)
 

@@ -53,7 +53,7 @@ from schemas.visual.personal import (
     WishlistItemContract,
     WishlistTemplateSpecContract,
 )
-from api.app.visual.personal_service import (
+from fashx.visual.personal_service import (
     ACTIVITY_REGISTRY,
     CURRENT_ACCOUNT_SETTINGS,
     CURRENT_EXPLICIT_PREFERENCES,
