@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 from fashx.domain.commerce.entities import (
     Brand,
     Seller,

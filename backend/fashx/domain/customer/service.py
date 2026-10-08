@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
 )
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 
 from .entities import (
     Customer,

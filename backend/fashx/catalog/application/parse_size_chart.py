@@ -6,7 +6,7 @@ from database.models.catalog import SizeChart, SizeMeasurement
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.catalog.sizing.size_parser import SizeChartParser
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 
 
 @dataclass

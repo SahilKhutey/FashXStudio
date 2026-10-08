@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
-from api.app.core.errors import (
+from fashx.core.errors import (
     ConsentRequiredError,
     DuplicateEntityError,
     EntityNotFoundError,

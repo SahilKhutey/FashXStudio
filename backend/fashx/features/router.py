@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from api.app.core.errors import EntityNotFoundError
-from api.app.core.settings import get_settings
+from fashx.core.errors import EntityNotFoundError
+from fashx.core.settings import get_settings
 from schemas.features.v1 import FeatureAvailability, FeatureRuntimeSnapshot, FeatureSummary
 
 from .application import FeatureAvailabilityService

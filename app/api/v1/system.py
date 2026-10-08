@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.core.health import core_health
-from app.core.version import (
+from fashx.core.health import core_health
+from fashx.core.version import (
     CORE_API_VERSION,
     CORE_VERSION,
     PRODUCT_NAME,

@@ -14,7 +14,7 @@ from fashx.catalog.application.ingest_product import (
     IngestProductCommand,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.errors import ConsentRequiredError
+from fashx.core.errors import ConsentRequiredError
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

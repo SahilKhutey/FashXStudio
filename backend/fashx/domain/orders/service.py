@@ -5,13 +5,13 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
     ValidationError,
 )
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 
 from .entities import (
     CheckoutSession,

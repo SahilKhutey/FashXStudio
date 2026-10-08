@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 from fastapi import APIRouter
 from schemas.common.health import HealthResponse
 
-from api.app.core.database import check_database
-from api.app.core.settings import get_settings
+from fashx.core.database import check_database
+from fashx.core.settings import get_settings
 
 router = APIRouter(prefix="/api/v1/system", tags=["system"])
 

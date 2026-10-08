@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app.core.bootstrap import register_core_services
-from app.core.runtime import get_core_runtime
+from fashx.core.bootstrap import register_core_services
+from fashx.core.runtime import get_core_runtime
 from app.main import app
 
 client = TestClient(app)

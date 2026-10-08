@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 
 

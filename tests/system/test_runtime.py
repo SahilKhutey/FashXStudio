@@ -1,13 +1,13 @@
 import pytest
 
-from app.core.bootstrap import (
+from fashx.core.bootstrap import (
     REQUIRED_COMPONENTS,
     register_core_services,
     validate_required_services,
     validate_runtime,
 )
-from app.core.runtime import CoreRuntime
-from app.core.version import (
+from fashx.core.runtime import CoreRuntime
+from fashx.core.version import (
     BUILD_INFO,
     CORE_API_VERSION,
     CORE_VERSION,

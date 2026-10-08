@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.registry import CoreRegistry
+from fashx.core.registry import CoreRegistry
 
 
 def test_registry_register_and_get():

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.pricing.enums import Currency
 from fashx.domain.pricing.money import money
 

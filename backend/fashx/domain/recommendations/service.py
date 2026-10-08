@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 
 from .entities import (
     RecommendationExplanation,

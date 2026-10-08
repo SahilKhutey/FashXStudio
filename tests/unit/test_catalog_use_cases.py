@@ -8,7 +8,7 @@ from fashx.catalog.application.ingest_product import (
     IngestProductCommand,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.errors import EntityNotFoundError, ValidationError
+from fashx.core.errors import EntityNotFoundError, ValidationError
 from database.models.catalog import Merchant
 
 

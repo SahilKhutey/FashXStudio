@@ -4,7 +4,7 @@ from collections.abc import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from api.app.core.observability import clear_request_context, set_request_context
+from fashx.core.observability import clear_request_context, set_request_context
 
 logger = logging.getLogger(__name__)
 

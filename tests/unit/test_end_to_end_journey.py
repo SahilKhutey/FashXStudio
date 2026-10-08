@@ -33,7 +33,7 @@ from fashx.commerce_wardrobe.application.submit_tryon_feedback import (
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.ports.storage import InMemoryStorageAdapter
+from fashx.core.ports.storage import InMemoryStorageAdapter
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

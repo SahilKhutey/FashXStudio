@@ -1,8 +1,8 @@
 from collections.abc import Callable, Sequence
 from uuid import UUID
 
-from api.app.core.repository import BaseRepository
-from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.commerce_feedback import (
     BuyClick,
     FitFeedback,

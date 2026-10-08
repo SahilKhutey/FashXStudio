@@ -3,9 +3,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ValidationError
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.errors import ValidationError
+from fashx.core.event_bus import EventBus
 from fashx.domain.pricing.enums import Currency
 from fashx.domain.pricing.money import money
 from fashx.domain.promotions.entities import (

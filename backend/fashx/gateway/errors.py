@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from schemas.common.errors import ErrorBody, ErrorResponse
 from starlette import status
 
-from api.app.core.errors import (
+from fashx.core.errors import (
     ConsentRequiredError,
     DomainError,
     DuplicateEntityError,

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from uuid import UUID
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 
 @dataclass(frozen=True, slots=True)

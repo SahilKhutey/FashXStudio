@@ -3,7 +3,7 @@ from uuid import UUID
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 
 
 class RemoveFromWardrobeUseCase:

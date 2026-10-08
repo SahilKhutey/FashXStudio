@@ -1,4 +1,4 @@
-from app.core.context import CoreContext
+from fashx.core.context import CoreContext
 
 
 def test_context_creation():

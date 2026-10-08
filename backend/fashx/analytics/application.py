@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from api.app.core.transactions import transaction
+from fashx.core.transactions import transaction
 from api.app.events.repository import EventRepository
 from fashx.analytics.repository import AnalyticsRepository
 from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, AnalyticsWindow, ValidationMetrics

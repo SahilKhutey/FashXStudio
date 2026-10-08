@@ -19,7 +19,7 @@ from fashx.commerce_wardrobe.application.save_to_wardrobe import (
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

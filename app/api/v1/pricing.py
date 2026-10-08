@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.core.bootstrap import register_core_services
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError, ValidationError
-from app.core.runtime import get_core_runtime
+from fashx.core.bootstrap import register_core_services
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError, ValidationError
+from fashx.core.runtime import get_core_runtime
 from fashx.domain.pricing.entities import (
     Price,
     PricingRule,

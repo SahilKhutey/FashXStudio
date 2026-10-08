@@ -8,7 +8,7 @@ Adheres to Rule I01 (Layer Separation) and Rule I19 (Standardized Error Envelope
 from typing import Any
 from fastapi import APIRouter, HTTPException, Query, status
 
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 from schemas.visual.v1 import (
     BreakpointConfig,
     DeviceBreakpoint,

@@ -6,7 +6,7 @@ from database.models.catalog import GarmentEnrichment
 from fashx.catalog.enrichment.enricher import HeuristicGarmentEnricher
 from fashx.catalog.enrichment.ports import GarmentEnricherPort
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 
 
 @dataclass

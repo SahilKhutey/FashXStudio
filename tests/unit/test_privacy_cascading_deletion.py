@@ -5,7 +5,7 @@ import pytest
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.core.ports.storage import InMemoryStorageAdapter
+from fashx.core.ports.storage import InMemoryStorageAdapter
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

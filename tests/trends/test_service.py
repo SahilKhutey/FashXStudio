@@ -3,9 +3,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import ConflictError, NotFoundError
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.errors import ConflictError, NotFoundError
+from fashx.core.event_bus import EventBus
 from fashx.domain.trends.entities import Trend, TrendObservation
 from fashx.domain.trends.enums import TrendStatus, TrendType
 from fashx.domain.trends.events import (

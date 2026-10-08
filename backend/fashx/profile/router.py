@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field
 from schemas.common.enums import BuildType, MeasurementSource, PhotoType
 from schemas.identity.consent import ConsentUpdate
 
-from api.app.core.database import get_session_factory
-from api.app.core.errors import EntityNotFoundError, ValidationError
+from fashx.core.database import get_session_factory
+from fashx.core.errors import EntityNotFoundError, ValidationError
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

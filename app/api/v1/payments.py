@@ -4,10 +4,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.core.bootstrap import register_core_services
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError
-from app.core.runtime import get_core_runtime
+from fashx.core.bootstrap import register_core_services
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError
+from fashx.core.runtime import get_core_runtime
 from fashx.domain.payments.entities import Payment
 from fashx.domain.payments.service import PaymentService
 

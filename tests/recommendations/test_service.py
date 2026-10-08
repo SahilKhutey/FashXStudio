@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 from fashx.domain.recommendations.entities import (
     RecommendationCandidate,
 )

@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
-from app.core.context import CoreContext
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.event_bus import EventBus
 
 from .aggregation import (
     event_dimensions,

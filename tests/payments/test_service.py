@@ -5,13 +5,13 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
     ValidationError,
 )
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 from fashx.domain.payments.entities import Payment
 from fashx.domain.payments.enums import PaymentStatus
 from fashx.domain.payments.provider import (

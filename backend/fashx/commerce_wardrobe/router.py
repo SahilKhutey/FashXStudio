@@ -27,7 +27,7 @@ from fashx.commerce_wardrobe.application.submit_tryon_feedback import (
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.database import get_session_factory
+from fashx.core.database import get_session_factory
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field

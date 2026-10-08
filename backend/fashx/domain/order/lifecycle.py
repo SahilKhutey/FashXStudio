@@ -1,4 +1,4 @@
-from app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 
 from .enums import OrderStatus
 

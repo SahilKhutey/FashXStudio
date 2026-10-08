@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 from uuid import UUID
 
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError, ValidationError
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError, ValidationError
+from fashx.core.event_bus import EventBus
 
 from .entities import Cart, CartLine
 from .enums import CartLineStatus, CartStatus

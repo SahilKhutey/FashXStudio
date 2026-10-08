@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 
 
 @dataclass(frozen=True, slots=True)

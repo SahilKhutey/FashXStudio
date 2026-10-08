@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 from .enums import (
     FulfillmentStatus,

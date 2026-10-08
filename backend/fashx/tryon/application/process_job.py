@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
 from fashx.tryon.ports import InferenceInput, TryOnModelAdapterPort

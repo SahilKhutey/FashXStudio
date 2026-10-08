@@ -2,8 +2,8 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends
 
-from app.core.context import CoreContext
-from app.core.runtime import get_core_runtime
+from fashx.core.context import CoreContext
+from fashx.core.runtime import get_core_runtime
 from fashx.domain.analytics.entities import (
     AnalyticsEvent,
 )

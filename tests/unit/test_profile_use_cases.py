@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
+from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,

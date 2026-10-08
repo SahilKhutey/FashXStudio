@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from fashx.application.idempotency import IdempotencyService
-from api.app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 from fashx.repositories.idempotency import IdempotencyRepository
 
 

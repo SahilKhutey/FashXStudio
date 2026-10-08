@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.identity import User
 
 

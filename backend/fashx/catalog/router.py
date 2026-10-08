@@ -18,8 +18,8 @@ from fashx.catalog.application.parse_size_chart import (
 )
 from fashx.catalog.quality.quality_gate import CatalogQualityGate
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from api.app.core.database import get_session_factory
-from api.app.core.errors import EntityNotFoundError
+from fashx.core.database import get_session_factory
+from fashx.core.errors import EntityNotFoundError
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
 

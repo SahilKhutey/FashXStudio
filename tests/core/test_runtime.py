@@ -1,4 +1,4 @@
-from app.core.runtime import get_core_runtime, reset_core_runtime
+from fashx.core.runtime import get_core_runtime, reset_core_runtime
 
 
 def test_core_runtime_singleton():

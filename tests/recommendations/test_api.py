@@ -19,8 +19,8 @@ def test_recommendation_route_exists():
 
 
 def test_recommendation_api_post():
-    from app.core.bootstrap import register_core_services
-    from app.core.runtime import get_core_runtime
+    from fashx.core.bootstrap import register_core_services
+    from fashx.core.runtime import get_core_runtime
 
     runtime = get_core_runtime()
     register_core_services(runtime)

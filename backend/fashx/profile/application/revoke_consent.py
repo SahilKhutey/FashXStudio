@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from api.app.core.errors import EntityNotFoundError
-from api.app.core.ports.storage import InMemoryStorageAdapter, StoragePort
+from fashx.core.errors import EntityNotFoundError
+from fashx.core.ports.storage import InMemoryStorageAdapter, StoragePort
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 

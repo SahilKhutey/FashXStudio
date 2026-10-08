@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from app.core.errors import ValidationError
-from app.core.ids import new_id
+from fashx.core.errors import ValidationError
+from fashx.core.ids import new_id
 
 from .enums import (
     AddressStatus,

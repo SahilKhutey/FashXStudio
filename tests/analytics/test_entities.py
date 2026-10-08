@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.analytics.entities import (
     AnalyticsEvent,
 )

@@ -5,8 +5,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from api.app.core.repository import BaseRepository
-from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.identity import ConsentRecord, User, UserPhoto
 from database.models.profile import BodyProfile, OnboardingProfile, UserMeasurement, UserPreference
 

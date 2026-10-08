@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.cart.entities import (
     Cart,
     CartLine,

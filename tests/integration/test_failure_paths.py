@@ -3,7 +3,7 @@ import json
 import pytest
 from starlette.requests import Request
 
-from app.core.errors import (
+from fashx.core.errors import (
     ConflictError,
     DependencyError,
     NotFoundError,

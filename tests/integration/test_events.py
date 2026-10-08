@@ -3,8 +3,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import DependencyError
-from app.core.events import DomainEvent
+from fashx.core.errors import DependencyError
+from fashx.core.events import DomainEvent
 from fashx.integration.contracts import IntegrationHandler, IntegrationMessage
 from fashx.integration.dispatcher import IntegrationDispatcher
 

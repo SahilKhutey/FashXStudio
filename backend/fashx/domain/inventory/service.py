@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.core.context import CoreContext
-from app.core.errors import (
+from fashx.core.context import CoreContext
+from fashx.core.errors import (
     ConflictError,
     NotFoundError,
     ValidationError,
 )
-from app.core.event_bus import EventBus
+from fashx.core.event_bus import EventBus
 
 from .entities import (
     InventoryItem,

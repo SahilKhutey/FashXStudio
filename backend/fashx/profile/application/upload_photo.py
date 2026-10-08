@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 from database.models.identity import UserPhoto
 from schemas.common.enums import DataType, PhotoStatus, PhotoType
 
-from api.app.core.errors import ConsentRequiredError, EntityNotFoundError
-from api.app.core.ports.storage import InMemoryStorageAdapter, StoragePort
+from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
+from fashx.core.ports.storage import InMemoryStorageAdapter, StoragePort
 from fashx.profile.calibration.skin_tone import SkinToneCalibrationResult, SkinToneCalibrator
 from fashx.profile.capture.validator import PhotoQualityValidator
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork

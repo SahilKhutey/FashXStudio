@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.pricing.entities import PricingRule
 from fashx.domain.pricing.enums import DiscountType, RuleScope, RuleStatus
 from fashx.domain.pricing.rules import (

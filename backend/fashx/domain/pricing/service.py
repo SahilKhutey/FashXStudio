@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError
+from fashx.core.event_bus import EventBus
 
 from .entities import Price, PricingRule
 from .events import (

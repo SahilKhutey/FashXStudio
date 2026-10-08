@@ -2,8 +2,8 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from uuid import UUID
 
-from api.app.core.repository import BaseRepository
-from api.app.core.unit_of_work import SqlAlchemyUnitOfWork
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.tryon import TryOnArtifact, TryOnJob
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker

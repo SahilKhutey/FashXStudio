@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from api.app.core.transactions import transaction
+from fashx.core.transactions import transaction
 from fashx.catalog.repositories.catalog import CatalogRepository
 
 

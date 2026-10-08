@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.core.runtime import CoreRuntime, get_core_runtime
+from fashx.core.runtime import CoreRuntime, get_core_runtime
 from fashx.domain.analytics.service import AnalyticsService
 from fashx.domain.cart.service import CartService
 from fashx.domain.checkout.service import CheckoutService

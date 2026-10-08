@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.events import DomainEvent
+from fashx.core.events import DomainEvent
 from fashx.integration.contracts import IntegrationHandler, IntegrationMessage
 from fashx.integration.idempotency import IdempotentHandler, InMemoryIdempotencyStore
 

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from app.core.contracts import Entity
+from fashx.core.contracts import Entity
 
 
 class TestEntity(Entity):

@@ -3,9 +3,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.bootstrap import register_core_services
-from app.core.context import CoreContext
-from app.core.runtime import CoreRuntime
+from fashx.core.bootstrap import register_core_services
+from fashx.core.context import CoreContext
+from fashx.core.runtime import CoreRuntime
 from fashx.domain.analytics.entities import AnalyticsEvent
 from fashx.domain.analytics.enums import AnalyticsEventType
 from fashx.domain.cart.entities import Cart, CartLine

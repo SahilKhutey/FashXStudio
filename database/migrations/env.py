@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from api.app.core.settings import get_settings
+from fashx.core.settings import get_settings
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 

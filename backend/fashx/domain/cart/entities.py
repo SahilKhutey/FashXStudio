@@ -5,9 +5,9 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from app.core.contracts import Entity
-from app.core.errors import ValidationError
-from app.core.ids import new_id
+from fashx.core.contracts import Entity
+from fashx.core.errors import ValidationError
+from fashx.core.ids import new_id
 
 from .enums import (
     CartLineStatus,

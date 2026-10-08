@@ -6,9 +6,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.errors import NotFoundError, ValidationError
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.errors import NotFoundError, ValidationError
+from fashx.core.event_bus import EventBus
 from fashx.domain.cart.entities import Cart, CartLine
 from fashx.domain.cart.enums import CartLineStatus, CartOwnerType, CartStatus
 from fashx.domain.cart.service import CartService

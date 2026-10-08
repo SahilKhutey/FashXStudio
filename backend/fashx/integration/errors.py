@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from app.core.errors import CoreError
+from fashx.core.errors import CoreError
 
 STATUS_MAP: dict[str, int] = {
     "CORE_VALIDATION_ERROR": 422,

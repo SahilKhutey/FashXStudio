@@ -1,7 +1,7 @@
 import pytest
 
-from api.app.core.errors import ConflictError
-from api.app.core.idempotency import request_fingerprint
+from fashx.core.errors import ConflictError
+from fashx.core.idempotency import request_fingerprint
 from fashx.domain.validation import validate_budget, validate_confidence
 from fashx.domain.versioning import next_version
 

@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,

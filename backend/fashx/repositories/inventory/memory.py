@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.core.errors import ConflictError
+from fashx.core.errors import ConflictError
 from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,

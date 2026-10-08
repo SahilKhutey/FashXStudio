@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from app.core.ids import new_id, parse_id
+from fashx.core.ids import new_id, parse_id
 
 
 def test_new_id_returns_uuid():

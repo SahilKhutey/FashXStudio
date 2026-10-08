@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 from .entities import TaxonomyNode
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.core.events import DomainEvent
+from fashx.core.events import DomainEvent
 
 
 @dataclass(frozen=True, slots=True)

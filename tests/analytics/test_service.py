@@ -3,8 +3,8 @@ from decimal import Decimal
 
 import pytest
 
-from app.core.context import CoreContext
-from app.core.event_bus import EventBus
+from fashx.core.context import CoreContext
+from fashx.core.event_bus import EventBus
 from fashx.domain.analytics.entities import AnalyticsEvent
 from fashx.domain.analytics.enums import (
     AggregationPeriod,

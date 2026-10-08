@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 from .enums import Currency
 

@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
 from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
-from .core.logging import configure_logging
-from .core.observability import ContextFilter, configure_sentry
-from .core.settings import get_settings
+from fashx.core.logging import configure_logging
+from fashx.core.observability import ContextFilter, configure_sentry
+from fashx.core.settings import get_settings
 from fashx.features.router import router as features_router
 from fashx.gateway.errors import install_exception_handlers
 from fashx.gateway.middleware import RequestContextMiddleware
@@ -28,7 +28,7 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if not settings.is_production else None,
     )
 
-    from app.core.runtime import get_core_runtime
+    from fashx.core.runtime import get_core_runtime
 
     runtime = get_core_runtime()
     app.state.core_runtime = runtime
@@ -79,8 +79,8 @@ def create_app() -> FastAPI:
     from app.api.v1.returns import router as returns_router
     from app.api.v1.system import router as system_router
     from app.api.v1.trends import router as trends_router
-    from app.core.bootstrap import register_core_services
-    from app.core.errors import CoreError
+    from fashx.core.bootstrap import register_core_services
+    from fashx.core.errors import CoreError
     from fashx.integration.errors import core_error_handler
 
     app.add_exception_handler(CoreError, core_error_handler)

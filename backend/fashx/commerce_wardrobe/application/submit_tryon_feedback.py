@@ -4,7 +4,7 @@ from uuid import UUID
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from database.models.commerce_feedback import TryOnFeedback
 
 

@@ -2,9 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.core.bootstrap import register_core_services
-from app.core.errors import NotFoundError
-from app.core.runtime import get_core_runtime
+from fashx.core.bootstrap import register_core_services
+from fashx.core.errors import NotFoundError
+from fashx.core.runtime import get_core_runtime
 from fashx.domain.order.service import OrderService
 
 from .order_schemas import (

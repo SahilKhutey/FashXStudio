@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.commerce.enums import (
     BrandStatus,
     ListingStatus,

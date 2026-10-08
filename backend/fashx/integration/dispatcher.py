@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from app.core.errors import DependencyError
+from fashx.core.errors import DependencyError
 
 from .contracts import (
     IntegrationHandler,

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.core.events import DomainEvent
+from fashx.core.events import DomainEvent
 
 
 @dataclass(slots=True)

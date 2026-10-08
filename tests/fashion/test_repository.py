@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.ids import new_id
+from fashx.core.ids import new_id
 from fashx.domain.fashion.entities import (
     ProductFashionProfile,
     TaxonomyNode,
@@ -47,7 +47,7 @@ async def test_taxonomy_slug_unique():
 
     await repository.save(first)
 
-    from app.core.errors import ConflictError
+    from fashx.core.errors import ConflictError
 
     with pytest.raises(ConflictError):
         await repository.save(second)

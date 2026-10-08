@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from api.app.core.errors import ConflictError
-from api.app.core.idempotency import request_fingerprint
-from api.app.core.transactions import transaction
+from fashx.core.errors import ConflictError
+from fashx.core.idempotency import request_fingerprint
+from fashx.core.transactions import transaction
 from fashx.repositories.idempotency import IdempotencyRepository
 
 

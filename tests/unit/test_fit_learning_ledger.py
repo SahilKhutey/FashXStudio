@@ -14,7 +14,7 @@ from fashx.commerce_wardrobe.application.submit_tryon_feedback import (
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from api.app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 
 @pytest.mark.asyncio

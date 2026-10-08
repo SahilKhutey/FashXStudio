@@ -1,4 +1,4 @@
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 
 from .enums import (
     CancellationStatus,

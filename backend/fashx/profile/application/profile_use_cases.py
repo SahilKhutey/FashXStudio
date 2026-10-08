@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from api.app.core.errors import NotFoundError
-from api.app.core.transactions import transaction
+from fashx.core.errors import NotFoundError
+from fashx.core.transactions import transaction
 from fashx.profile.repositories.profile import ProfileRepository
 
 

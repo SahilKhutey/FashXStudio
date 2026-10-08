@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.core.errors import ValidationError
+from fashx.core.errors import ValidationError
 from fashx.domain.fulfillment.enums import (
     FulfillmentStatus,
     ShipmentStatus,
