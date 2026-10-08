@@ -1,7 +1,7 @@
 import pytest
 
 from app.core.errors import ConflictError
-from app.domain.commerce.entities import (
+from fashx.domain.commerce.entities import (
     Brand,
     Seller,
 )

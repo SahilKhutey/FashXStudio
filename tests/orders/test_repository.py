@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,

@@ -4,14 +4,14 @@ from uuid import uuid4
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.returns.entities import (
+from fashx.domain.returns.entities import (
     CancellationRequest,
     Refund,
     ReplacementRequest,
     ReturnLine,
     ReturnRequest,
 )
-from app.domain.returns.enums import (
+from fashx.domain.returns.enums import (
     CancellationStatus,
     RefundReason,
     RefundStatus,

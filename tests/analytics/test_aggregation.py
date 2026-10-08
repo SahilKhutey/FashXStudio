@@ -2,12 +2,12 @@ from datetime import UTC, datetime
 
 import pytest
 
-from app.domain.analytics.aggregation import (
+from fashx.domain.analytics.aggregation import (
     event_dimensions,
     truncate_timestamp,
 )
-from app.domain.analytics.entities import AnalyticsEvent
-from app.domain.analytics.enums import (
+from fashx.domain.analytics.entities import AnalyticsEvent
+from fashx.domain.analytics.enums import (
     AggregationPeriod,
     AnalyticsEventType,
 )

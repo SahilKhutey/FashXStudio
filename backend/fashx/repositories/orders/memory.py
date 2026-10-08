@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.domain.orders.entities import (
+from fashx.domain.orders.entities import (
     CheckoutSession,
     Order,
     OrderLine,
 )
-from app.domain.orders.repository import (
+from fashx.domain.orders.repository import (
     CheckoutRepository,
     OrderLineRepository,
     OrderRepository,

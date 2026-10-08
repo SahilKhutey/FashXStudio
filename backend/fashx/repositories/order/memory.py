@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderLine,
 )
-from app.domain.order.repository import (
+from fashx.domain.order.repository import (
     OrderLineRepository,
     OrderRepository,
 )

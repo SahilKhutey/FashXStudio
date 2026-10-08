@@ -7,13 +7,13 @@ from fastapi import APIRouter, Depends, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.commerce.entities import (
+from fashx.domain.commerce.entities import (
     Brand,
     Marketplace,
     MarketplaceListing,
     Seller,
 )
-from app.domain.commerce.service import CommerceService
+from fashx.domain.commerce.service import CommerceService
 
 from .commerce_schemas import (
     BrandCreateRequest,

@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 from app.core.runtime import CoreRuntime, get_core_runtime
-from app.domain.analytics.service import AnalyticsService
-from app.domain.cart.service import CartService
-from app.domain.checkout.service import CheckoutService
-from app.domain.commerce.service import CommerceService
-from app.domain.customer.service import CustomerService
-from app.domain.fashion.service import FashionService
-from app.domain.fulfillment.carrier import TestCarrierProvider
-from app.domain.fulfillment.service import FulfillmentService
-from app.domain.inventory.service import InventoryService
-from app.domain.order.service import OrderService
-from app.domain.payments.provider import TestPaymentProvider
-from app.domain.payments.service import PaymentService
-from app.domain.pricing.service import PricingService
-from app.domain.promotions.service import PromotionService
-from app.domain.recommendations.provider import DefaultPersonalizationProvider
-from app.domain.recommendations.service import RecommendationService
-from app.domain.returns.service import ReturnsService
-from app.domain.trends.service import TrendService
+from fashx.domain.analytics.service import AnalyticsService
+from fashx.domain.cart.service import CartService
+from fashx.domain.checkout.service import CheckoutService
+from fashx.domain.commerce.service import CommerceService
+from fashx.domain.customer.service import CustomerService
+from fashx.domain.fashion.service import FashionService
+from fashx.domain.fulfillment.carrier import TestCarrierProvider
+from fashx.domain.fulfillment.service import FulfillmentService
+from fashx.domain.inventory.service import InventoryService
+from fashx.domain.order.service import OrderService
+from fashx.domain.payments.provider import TestPaymentProvider
+from fashx.domain.payments.service import PaymentService
+from fashx.domain.pricing.service import PricingService
+from fashx.domain.promotions.service import PromotionService
+from fashx.domain.recommendations.provider import DefaultPersonalizationProvider
+from fashx.domain.recommendations.service import RecommendationService
+from fashx.domain.returns.service import ReturnsService
+from fashx.domain.trends.service import TrendService
 from fashx.repositories.analytics.memory import (
     InMemoryAnalyticsEventRepository,
     InMemoryAnalyticsMetricRepository,

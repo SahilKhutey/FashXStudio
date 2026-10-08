@@ -4,15 +4,15 @@ from app.core.context import CoreContext
 from app.core.errors import NotFoundError
 from app.core.event_bus import EventBus
 from app.core.ids import new_id
-from app.domain.fashion.entities import (
+from fashx.domain.fashion.entities import (
     FashionAttribute,
     TaxonomyNode,
 )
-from app.domain.fashion.enums import (
+from fashx.domain.fashion.enums import (
     ClassificationSource,
     TaxonomyType,
 )
-from app.domain.fashion.service import FashionService
+from fashx.domain.fashion.service import FashionService
 from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.domain.fulfillment.carrier import (
+from fashx.domain.fulfillment.carrier import (
     TestCarrierProvider,
 )
 

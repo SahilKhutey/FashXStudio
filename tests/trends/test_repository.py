@@ -3,8 +3,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.trends.entities import Trend, TrendObservation
-from app.domain.trends.enums import TrendStatus, TrendType
+from fashx.domain.trends.entities import Trend, TrendObservation
+from fashx.domain.trends.enums import TrendStatus, TrendType
 from fashx.repositories.trends.memory import (
     InMemoryTrendObservationRepository,
     InMemoryTrendRepository,

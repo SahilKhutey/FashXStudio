@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from app.domain.trends.entities import (
+from fashx.domain.trends.entities import (
     Trend,
     TrendObservation,
 )
-from app.domain.trends.repository import (
+from fashx.domain.trends.repository import (
     TrendObservationRepository,
     TrendRepository,
 )

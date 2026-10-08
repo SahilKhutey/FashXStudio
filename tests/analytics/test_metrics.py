@@ -4,15 +4,15 @@ from decimal import Decimal
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.analytics.entities import (
+from fashx.domain.analytics.entities import (
     AggregationBucket,
     AnalyticsMetric,
 )
-from app.domain.analytics.enums import (
+from fashx.domain.analytics.enums import (
     AggregationPeriod,
     MetricType,
 )
-from app.domain.analytics.metrics import calculate_rate
+from fashx.domain.analytics.metrics import calculate_rate
 
 
 def test_valid_metric():

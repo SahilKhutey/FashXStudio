@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.domain.cart.entities import (
+from fashx.domain.cart.entities import (
     Cart,
     CartLine,
 )
-from app.domain.cart.repository import (
+from fashx.domain.cart.repository import (
     CartLineRepository,
     CartRepository,
 )

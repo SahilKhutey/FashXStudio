@@ -3,9 +3,9 @@ import pytest
 from app.core.context import CoreContext
 from app.core.errors import NotFoundError
 from app.core.event_bus import EventBus
-from app.domain.fashion.entities import TaxonomyNode
-from app.domain.fashion.enums import TaxonomyType
-from app.domain.fashion.service import FashionService
+from fashx.domain.fashion.entities import TaxonomyNode
+from fashx.domain.fashion.enums import TaxonomyType
+from fashx.domain.fashion.service import FashionService
 from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,

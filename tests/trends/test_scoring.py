@@ -1,7 +1,7 @@
 import pytest
 
-from app.domain.trends.enums import TrendDirection
-from app.domain.trends.scoring import (
+from fashx.domain.trends.enums import TrendDirection
+from fashx.domain.trends.scoring import (
     direction_from_momentum,
     momentum_score,
     normalize,

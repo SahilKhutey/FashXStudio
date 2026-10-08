@@ -7,11 +7,11 @@ from fastapi import APIRouter, Depends, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.inventory.entities import (
+from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,
 )
-from app.domain.inventory.service import (
+from fashx.domain.inventory.service import (
     InventoryService,
 )
 

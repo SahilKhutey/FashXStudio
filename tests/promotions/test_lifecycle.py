@@ -1,11 +1,11 @@
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.promotions.enums import (
+from fashx.domain.promotions.enums import (
     OfferStatus,
     PromotionStatus,
 )
-from app.domain.promotions.lifecycle import (
+from fashx.domain.promotions.lifecycle import (
     validate_offer_transition,
     validate_promotion_transition,
 )

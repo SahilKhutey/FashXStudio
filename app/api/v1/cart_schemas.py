@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.domain.cart.enums import (
+from fashx.domain.cart.enums import (
     CartOwnerType,
     CartStatus,
 )

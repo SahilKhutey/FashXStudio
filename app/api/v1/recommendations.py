@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.bootstrap import register_core_services
 from app.core.errors import ValidationError
 from app.core.runtime import get_core_runtime
-from app.domain.recommendations.recommendation_context import (
+from fashx.domain.recommendations.recommendation_context import (
     RecommendationContext,
 )
-from app.domain.recommendations.service import (
+from fashx.domain.recommendations.service import (
     RecommendationService,
 )
 

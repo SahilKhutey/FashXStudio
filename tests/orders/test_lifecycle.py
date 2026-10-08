@@ -1,8 +1,8 @@
 import pytest
 
 from app.core.errors import ConflictError
-from app.domain.order.enums import OrderStatus
-from app.domain.order.lifecycle import (
+from fashx.domain.order.enums import OrderStatus
+from fashx.domain.order.lifecycle import (
     validate_transition,
 )
 

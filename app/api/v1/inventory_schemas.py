@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.domain.inventory.enums import (
+from fashx.domain.inventory.enums import (
     AvailabilityStatus,
     InventoryStatus,
     StockAdjustmentType,

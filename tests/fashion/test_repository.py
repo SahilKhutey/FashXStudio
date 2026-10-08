@@ -1,11 +1,11 @@
 import pytest
 
 from app.core.ids import new_id
-from app.domain.fashion.entities import (
+from fashx.domain.fashion.entities import (
     ProductFashionProfile,
     TaxonomyNode,
 )
-from app.domain.fashion.enums import TaxonomyType
+from fashx.domain.fashion.enums import TaxonomyType
 from fashx.repositories.fashion.memory import (
     InMemoryProductFashionRepository,
     InMemoryTaxonomyRepository,

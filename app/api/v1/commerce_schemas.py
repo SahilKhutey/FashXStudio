@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.domain.commerce.enums import (
+from fashx.domain.commerce.enums import (
     BrandStatus,
     ListingStatus,
     MarketplaceStatus,

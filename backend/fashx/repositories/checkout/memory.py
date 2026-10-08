@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from app.domain.checkout.entities import (
+from fashx.domain.checkout.entities import (
     CheckoutSession,
 )
-from app.domain.checkout.repository import (
+from fashx.domain.checkout.repository import (
     CheckoutRepository,
 )
 

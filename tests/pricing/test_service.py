@@ -6,20 +6,20 @@ import pytest
 from app.core.context import CoreContext
 from app.core.errors import NotFoundError
 from app.core.event_bus import EventBus
-from app.domain.pricing.entities import Price, PricingRule
-from app.domain.pricing.enums import (
+from fashx.domain.pricing.entities import Price, PricingRule
+from fashx.domain.pricing.enums import (
     DiscountType,
     PriceStatus,
     PriceType,
     RuleStatus,
 )
-from app.domain.pricing.events import (
+from fashx.domain.pricing.events import (
     PriceCalculated,
     PriceCreated,
     PricingRuleCreated,
 )
-from app.domain.pricing.rules import PricingContext
-from app.domain.pricing.service import PricingService
+from fashx.domain.pricing.rules import PricingContext
+from fashx.domain.pricing.service import PricingService
 from fashx.repositories.pricing.memory import (
     InMemoryPriceRepository,
     InMemoryPricingRuleRepository,

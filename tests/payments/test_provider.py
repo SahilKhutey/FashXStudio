@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.domain.payments.provider import (
+from fashx.domain.payments.provider import (
     TestPaymentProvider,
 )
 

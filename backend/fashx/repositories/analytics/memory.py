@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from app.domain.analytics.entities import (
+from fashx.domain.analytics.entities import (
     AggregationBucket,
     AnalyticsEvent,
 )
-from app.domain.analytics.repository import (
+from fashx.domain.analytics.repository import (
     AnalyticsEventRepository,
     AnalyticsMetricRepository,
 )

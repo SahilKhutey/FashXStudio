@@ -3,17 +3,17 @@ from fastapi import APIRouter, Depends
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.returns.entities import (
+from fashx.domain.returns.entities import (
     CancellationRequest,
     Refund,
     ReturnLine,
     ReturnRequest,
 )
-from app.domain.returns.enums import (
+from fashx.domain.returns.enums import (
     RefundReason,
     ReturnReason,
 )
-from app.domain.returns.service import (
+from fashx.domain.returns.service import (
     ReturnsService,
 )
 

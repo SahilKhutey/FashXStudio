@@ -3,12 +3,12 @@ from __future__ import annotations
 from uuid import UUID
 
 from app.core.errors import ConflictError
-from app.domain.inventory.entities import (
+from fashx.domain.inventory.entities import (
     InventoryItem,
     StockLocation,
     StockMovement,
 )
-from app.domain.inventory.repository import (
+from fashx.domain.inventory.repository import (
     InventoryRepository,
     StockLocationRepository,
     StockMovementRepository,

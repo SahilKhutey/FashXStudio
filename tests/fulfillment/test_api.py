@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.fulfillment.enums import FulfillmentStatus
+from fashx.domain.fulfillment.enums import FulfillmentStatus
 from app.main import app
 
 client = TestClient(app)

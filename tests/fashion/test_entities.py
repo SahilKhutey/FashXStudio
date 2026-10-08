@@ -1,12 +1,12 @@
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.fashion.entities import (
+from fashx.domain.fashion.entities import (
     FashionAttribute,
     ProductFashionProfile,
     TaxonomyNode,
 )
-from app.domain.fashion.enums import (
+from fashx.domain.fashion.enums import (
     ClassificationSource,
     TaxonomyType,
 )

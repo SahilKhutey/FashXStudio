@@ -4,16 +4,16 @@ from fastapi import APIRouter, Depends
 
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.trends.entities import (
+from fashx.domain.trends.entities import (
     Trend,
     TrendObservation,
 )
-from app.domain.trends.enums import (
+from fashx.domain.trends.enums import (
     SignalType,
     TrendSource,
     TrendType,
 )
-from app.domain.trends.service import TrendService
+from fashx.domain.trends.service import TrendService
 
 from .trend_schemas import (
     TrendCreateRequest,

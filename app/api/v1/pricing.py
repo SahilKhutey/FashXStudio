@@ -4,20 +4,20 @@ from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.errors import NotFoundError, ValidationError
 from app.core.runtime import get_core_runtime
-from app.domain.pricing.entities import (
+from fashx.domain.pricing.entities import (
     Price,
     PricingRule,
 )
-from app.domain.pricing.enums import (
+from fashx.domain.pricing.enums import (
     DiscountType,
     PriceStatus,
     PriceType,
     RuleStatus,
 )
-from app.domain.pricing.rules import (
+from fashx.domain.pricing.rules import (
     PricingContext,
 )
-from app.domain.pricing.service import (
+from fashx.domain.pricing.service import (
     PricingService,
 )
 

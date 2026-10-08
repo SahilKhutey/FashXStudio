@@ -1,12 +1,12 @@
 from decimal import Decimal
 from uuid import uuid4
 
-from app.domain.recommendations.entities import RecommendationCandidate
-from app.domain.recommendations.ranking import calculate_score
-from app.domain.recommendations.recommendation_context import (
+from fashx.domain.recommendations.entities import RecommendationCandidate
+from fashx.domain.recommendations.ranking import calculate_score
+from fashx.domain.recommendations.recommendation_context import (
     RecommendationContext,
 )
-from app.domain.recommendations.scoring import (
+from fashx.domain.recommendations.scoring import (
     context_score,
     match,
     price_match,

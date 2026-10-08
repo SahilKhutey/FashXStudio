@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.core.bootstrap import register_core_services
 from app.core.runtime import get_core_runtime
-from app.domain.orders.entities import Order
+from fashx.domain.orders.entities import Order
 from app.main import app
 
 client = TestClient(app)

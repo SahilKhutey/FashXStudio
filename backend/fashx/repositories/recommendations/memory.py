@@ -1,7 +1,7 @@
-from app.domain.recommendations.entities import (
+from fashx.domain.recommendations.entities import (
     RecommendationCandidate,
 )
-from app.domain.recommendations.repository import (
+from fashx.domain.recommendations.repository import (
     RecommendationCandidateRepository,
 )
 

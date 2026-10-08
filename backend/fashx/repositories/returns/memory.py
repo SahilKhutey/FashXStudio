@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from app.domain.returns.entities import (
+from fashx.domain.returns.entities import (
     CancellationRequest,
     Refund,
     ReplacementRequest,
     ReturnLine,
     ReturnRequest,
 )
-from app.domain.returns.repository import (
+from fashx.domain.returns.repository import (
     CancellationRepository,
     RefundRepository,
     ReplacementRepository,

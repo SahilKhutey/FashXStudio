@@ -6,18 +6,18 @@ import pytest
 from app.core.context import CoreContext
 from app.core.errors import ConflictError, NotFoundError
 from app.core.event_bus import EventBus
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.domain.order.enums import OrderStatus
-from app.domain.order.events import (
+from fashx.domain.order.enums import OrderStatus
+from fashx.domain.order.events import (
     OrderCancelled,
     OrderCreated,
     OrderStatusChanged,
 )
-from app.domain.order.service import (
+from fashx.domain.order.service import (
     OrderService,
 )
 from fashx.repositories.order.memory import (

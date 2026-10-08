@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.payments.enums import PaymentStatus
-from app.domain.payments.lifecycle import validate_payment_transition
+from fashx.domain.payments.enums import PaymentStatus
+from fashx.domain.payments.lifecycle import validate_payment_transition
 
 
 def test_created_to_authorized() -> None:

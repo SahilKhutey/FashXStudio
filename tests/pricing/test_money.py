@@ -3,8 +3,8 @@ from decimal import Decimal
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.pricing.enums import Currency
-from app.domain.pricing.money import money
+from fashx.domain.pricing.enums import Currency
+from fashx.domain.pricing.money import money
 
 
 def test_money_creation_and_quantization():

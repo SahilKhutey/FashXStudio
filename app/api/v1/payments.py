@@ -8,8 +8,8 @@ from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.errors import NotFoundError
 from app.core.runtime import get_core_runtime
-from app.domain.payments.entities import Payment
-from app.domain.payments.service import PaymentService
+from fashx.domain.payments.entities import Payment
+from fashx.domain.payments.service import PaymentService
 
 from .payment_schemas import (
     PaymentAuthorizeRequest,

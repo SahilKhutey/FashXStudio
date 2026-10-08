@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.returns.entities import (
+from fashx.domain.returns.entities import (
     CancellationRequest,
     Refund,
     ReplacementRequest,

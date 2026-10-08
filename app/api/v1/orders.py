@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.bootstrap import register_core_services
 from app.core.errors import NotFoundError
 from app.core.runtime import get_core_runtime
-from app.domain.order.service import OrderService
+from fashx.domain.order.service import OrderService
 
 from .order_schemas import (
     OrderResponse,

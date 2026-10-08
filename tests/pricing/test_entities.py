@@ -5,8 +5,8 @@ from uuid import uuid4
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.pricing.entities import Price
-from app.domain.pricing.enums import PriceStatus, PriceType
+from fashx.domain.pricing.entities import Price
+from fashx.domain.pricing.enums import PriceStatus, PriceType
 
 
 def test_price_requires_target():

@@ -3,11 +3,11 @@ from __future__ import annotations
 from uuid import UUID
 
 from app.core.errors import ConflictError
-from app.domain.promotions.entities import (
+from fashx.domain.promotions.entities import (
     Offer,
     Promotion,
 )
-from app.domain.promotions.repository import (
+from fashx.domain.promotions.repository import (
     OfferRepository,
     PromotionRepository,
 )

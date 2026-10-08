@@ -7,11 +7,11 @@ from fastapi import APIRouter, Depends, Query, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.fashion.entities import (
+from fashx.domain.fashion.entities import (
     FashionAttribute,
     TaxonomyNode,
 )
-from app.domain.fashion.service import FashionService
+from fashx.domain.fashion.service import FashionService
 
 from .fashion_schemas import (
     FashionClassificationResponse,

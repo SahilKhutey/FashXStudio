@@ -6,10 +6,10 @@ from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.core.runtime import get_core_runtime
-from app.domain.checkout.entities import (
+from fashx.domain.checkout.entities import (
     CheckoutSession,
 )
-from app.domain.checkout.service import CheckoutService
+from fashx.domain.checkout.service import CheckoutService
 
 from .checkout_schemas import (
     CheckoutCreateRequest,

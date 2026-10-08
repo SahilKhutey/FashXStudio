@@ -3,11 +3,11 @@ from __future__ import annotations
 from uuid import UUID
 
 from app.core.errors import ConflictError
-from app.domain.fashion.entities import (
+from fashx.domain.fashion.entities import (
     ProductFashionProfile,
     TaxonomyNode,
 )
-from app.domain.fashion.repository import (
+from fashx.domain.fashion.repository import (
     ProductFashionRepository,
     TaxonomyRepository,
 )

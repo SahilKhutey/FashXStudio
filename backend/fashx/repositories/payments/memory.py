@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.domain.payments.entities import (
+from fashx.domain.payments.entities import (
     Payment,
     PaymentTransaction,
 )
-from app.domain.payments.repository import (
+from fashx.domain.payments.repository import (
     PaymentRepository,
     PaymentTransactionRepository,
 )

@@ -3,16 +3,16 @@ import pytest
 from app.core.context import CoreContext
 from app.core.event_bus import EventBus
 from app.core.ids import new_id
-from app.domain.commerce.entities import (
+from fashx.domain.commerce.entities import (
     Brand,
     Marketplace,
     MarketplaceListing,
     Seller,
 )
-from app.domain.commerce.enums import (
+from fashx.domain.commerce.enums import (
     ListingStatus,
 )
-from app.domain.commerce.service import CommerceService
+from fashx.domain.commerce.service import CommerceService
 from fashx.repositories.commerce.memory import (
     InMemoryBrandRepository,
     InMemoryListingRepository,

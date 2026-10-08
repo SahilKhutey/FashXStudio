@@ -1,17 +1,17 @@
 from uuid import UUID
 
-from app.domain.customer.entities import (
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerConsent,
     CustomerPreference,
     CustomerPreferences,
 )
-from app.domain.customer.enums import (
+from fashx.domain.customer.enums import (
     AddressType,
     ConsentType,
 )
-from app.domain.customer.repository import (
+from fashx.domain.customer.repository import (
     CustomerAddressRepository,
     CustomerConsentRepository,
     CustomerPreferencesRepository,

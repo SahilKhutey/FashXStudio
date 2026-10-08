@@ -6,14 +6,14 @@ import pytest
 from app.core.context import CoreContext
 from app.core.errors import NotFoundError, ValidationError
 from app.core.event_bus import EventBus
-from app.domain.returns.entities import (
+from fashx.domain.returns.entities import (
     CancellationRequest,
     Refund,
     ReplacementRequest,
     ReturnLine,
     ReturnRequest,
 )
-from app.domain.returns.enums import (
+from fashx.domain.returns.enums import (
     CancellationStatus,
     RefundReason,
     RefundStatus,
@@ -21,7 +21,7 @@ from app.domain.returns.enums import (
     ReturnReason,
     ReturnStatus,
 )
-from app.domain.returns.events import (
+from fashx.domain.returns.events import (
     CancellationCompleted,
     CancellationRequested,
     RefundCompleted,
@@ -32,7 +32,7 @@ from app.domain.returns.events import (
     ReturnRejected,
     ReturnRequested,
 )
-from app.domain.returns.service import (
+from fashx.domain.returns.service import (
     ReturnsService,
 )
 from fashx.repositories.returns.memory import (

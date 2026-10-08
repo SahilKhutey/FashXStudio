@@ -2,13 +2,13 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.customer.entities import (
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerConsent,
     CustomerPreferences,
 )
-from app.domain.customer.enums import (
+from fashx.domain.customer.enums import (
     AddressType,
     ConsentType,
 )

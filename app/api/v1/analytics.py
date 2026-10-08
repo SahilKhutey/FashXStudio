@@ -4,14 +4,14 @@ from fastapi import APIRouter, Depends
 
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.analytics.entities import (
+from fashx.domain.analytics.entities import (
     AnalyticsEvent,
 )
-from app.domain.analytics.enums import (
+from fashx.domain.analytics.enums import (
     AggregationPeriod,
     AnalyticsEventType,
 )
-from app.domain.analytics.service import (
+from fashx.domain.analytics.service import (
     AnalyticsService,
 )
 

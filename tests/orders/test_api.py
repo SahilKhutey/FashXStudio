@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from app.api.v1.orders import router
 from app.core.bootstrap import register_core_services
 from app.core.runtime import get_core_runtime
-from app.domain.order.entities import (
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,

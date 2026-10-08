@@ -6,7 +6,7 @@ from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.core.runtime import get_core_runtime
-from app.domain.customer.entities import (
+from fashx.domain.customer.entities import (
     Customer,
     CustomerAddress,
     CustomerConsent,
@@ -14,12 +14,12 @@ from app.domain.customer.entities import (
     CustomerPreferences,
     generate_customer_number,
 )
-from app.domain.customer.enums import (
+from fashx.domain.customer.enums import (
     AddressType,
     ConsentType,
     PreferenceScope,
 )
-from app.domain.customer.service import CustomerService
+from fashx.domain.customer.service import CustomerService
 
 from .customer_schemas import (
     AddressCreateRequest,

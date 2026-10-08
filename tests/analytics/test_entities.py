@@ -4,10 +4,10 @@ from uuid import uuid4
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.analytics.entities import (
+from fashx.domain.analytics.entities import (
     AnalyticsEvent,
 )
-from app.domain.analytics.enums import (
+from fashx.domain.analytics.enums import (
     AnalyticsEventType,
     AnalyticsSource,
 )

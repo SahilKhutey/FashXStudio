@@ -7,13 +7,13 @@ from fastapi import APIRouter, Depends, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.pricing.enums import Currency
-from app.domain.pricing.money import money
-from app.domain.promotions.entities import (
+from fashx.domain.pricing.enums import Currency
+from fashx.domain.pricing.money import money
+from fashx.domain.promotions.entities import (
     Offer,
     Promotion,
 )
-from app.domain.promotions.service import (
+from fashx.domain.promotions.service import (
     PromotionService,
 )
 

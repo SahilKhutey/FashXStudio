@@ -7,16 +7,16 @@ from fastapi import APIRouter, Depends, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     AddressSnapshot,
     Fulfillment,
     FulfillmentLine,
     Shipment,
 )
-from app.domain.fulfillment.enums import (
+from fashx.domain.fulfillment.enums import (
     ShippingMethod,
 )
-from app.domain.fulfillment.service import (
+from fashx.domain.fulfillment.service import (
     FulfillmentService,
 )
 

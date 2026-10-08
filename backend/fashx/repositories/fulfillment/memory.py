@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     Fulfillment,
     FulfillmentLine,
     Shipment,
     ShipmentPackage,
 )
-from app.domain.fulfillment.repository import (
+from fashx.domain.fulfillment.repository import (
     FulfillmentLineRepository,
     FulfillmentRepository,
     ShipmentPackageRepository,

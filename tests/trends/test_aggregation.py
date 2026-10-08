@@ -1,8 +1,8 @@
 from decimal import Decimal
 
-from app.domain.trends.aggregation import aggregate_observations
-from app.domain.trends.entities import TrendObservation
-from app.domain.trends.enums import SignalType, TrendSource
+from fashx.domain.trends.aggregation import aggregate_observations
+from fashx.domain.trends.entities import TrendObservation
+from fashx.domain.trends.enums import SignalType, TrendSource
 
 
 def test_aggregate_observations_single_topic():

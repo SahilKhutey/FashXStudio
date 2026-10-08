@@ -5,9 +5,9 @@ from uuid import uuid4
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.pricing.entities import PricingRule
-from app.domain.pricing.enums import DiscountType, RuleScope, RuleStatus
-from app.domain.pricing.rules import (
+from fashx.domain.pricing.entities import PricingRule
+from fashx.domain.pricing.enums import DiscountType, RuleScope, RuleStatus
+from fashx.domain.pricing.rules import (
     PricingContext,
     calculate_discount,
     rule_matches,

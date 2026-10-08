@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from app.domain.pricing.entities import (
+from fashx.domain.pricing.entities import (
     Price,
     PricingRule,
 )
-from app.domain.pricing.repository import (
+from fashx.domain.pricing.repository import (
     PriceRepository,
     PricingRuleRepository,
 )

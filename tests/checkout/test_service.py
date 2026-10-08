@@ -6,19 +6,19 @@ import pytest
 from app.core.context import CoreContext
 from app.core.errors import ConflictError, NotFoundError
 from app.core.event_bus import EventBus
-from app.domain.checkout.entities import CheckoutSession
-from app.domain.checkout.enums import CheckoutStatus
-from app.domain.checkout.events import (
+from fashx.domain.checkout.entities import CheckoutSession
+from fashx.domain.checkout.enums import CheckoutStatus
+from fashx.domain.checkout.events import (
     CheckoutCreated,
     CheckoutValidated,
 )
-from app.domain.checkout.service import CheckoutService
-from app.domain.order.entities import (
+from fashx.domain.checkout.service import CheckoutService
+from fashx.domain.order.entities import (
     Order,
     OrderAddressSnapshot,
     OrderLine,
 )
-from app.domain.order.service import OrderService
+from fashx.domain.order.service import OrderService
 from fashx.repositories.checkout.memory import InMemoryCheckoutRepository
 from fashx.repositories.order.memory import (
     InMemoryOrderLineRepository,

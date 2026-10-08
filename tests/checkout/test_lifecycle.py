@@ -1,8 +1,8 @@
 import pytest
 
 from app.core.errors import ConflictError
-from app.domain.checkout.enums import CheckoutStatus
-from app.domain.checkout.lifecycle import (
+from fashx.domain.checkout.enums import CheckoutStatus
+from fashx.domain.checkout.lifecycle import (
     validate_transition,
 )
 

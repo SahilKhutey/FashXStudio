@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.fulfillment.entities import (
+from fashx.domain.fulfillment.entities import (
     AddressSnapshot,
     Fulfillment,
     FulfillmentLine,

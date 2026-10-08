@@ -7,11 +7,11 @@ from fastapi import APIRouter, Depends, status
 from app.core.bootstrap import register_core_services
 from app.core.context import CoreContext
 from app.core.runtime import get_core_runtime
-from app.domain.cart.entities import (
+from fashx.domain.cart.entities import (
     Cart,
     CartLine,
 )
-from app.domain.cart.service import (
+from fashx.domain.cart.service import (
     CartService,
 )
 

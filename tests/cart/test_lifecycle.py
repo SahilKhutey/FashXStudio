@@ -1,8 +1,8 @@
 import pytest
 
 from app.core.errors import ValidationError
-from app.domain.cart.enums import CartStatus
-from app.domain.cart.lifecycle import (
+from fashx.domain.cart.enums import CartStatus
+from fashx.domain.cart.lifecycle import (
     validate_cart_transition,
 )
 

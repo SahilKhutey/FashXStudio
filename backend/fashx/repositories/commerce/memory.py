@@ -3,14 +3,14 @@ from __future__ import annotations
 from uuid import UUID
 
 from app.core.errors import ConflictError
-from app.domain.commerce.entities import (
+from fashx.domain.commerce.entities import (
     Brand,
     Marketplace,
     MarketplaceListing,
     ProductBrand,
     Seller,
 )
-from app.domain.commerce.repository import (
+from fashx.domain.commerce.repository import (
     BrandRepository,
     ListingRepository,
     MarketplaceRepository,
