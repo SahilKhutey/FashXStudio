@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     auth_jwks_url: str | None = Field(default=None, validation_alias="AUTH_JWKS_URL")
     internal_service_token: str | None = Field(default=None, validation_alias="INTERNAL_SERVICE_TOKEN")
 
+    repo_backend: Literal["memory", "sql"] = Field(default="memory", validation_alias="REPO_BACKEND")
+
     @property
     def is_production(self) -> bool:
         return self.app_env.lower() in ("production", "prod") or self.env == "prod"
@@ -58,6 +60,8 @@ class Settings(BaseSettings):
         if self.auth_mode == "local" and not self.auth_jwt_secret:
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
         if self.env == "prod":
+            if self.repo_backend != "sql":
+                raise ValueError("prod requires REPO_BACKEND=sql")
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if "*" in self.cors_origins:

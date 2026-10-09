@@ -31,6 +31,10 @@ if "not frozen" not in " ".join(sys.argv) and os.getenv("FASHX_ENABLE_FROZEN") i
     os.environ["FASHX_ENABLE_FROZEN"] = "1"
 
 
+def pytest_configure(config):
+    config.addinivalue_line("markers", "db: needs a real Postgres (TEST_DATABASE_URL)")
+
+
 def pytest_collection_modifyitems(items):
     for item in items:
         p = pathlib.Path(str(item.fspath))
@@ -159,3 +163,61 @@ def client_admin(identity_repo):
     token = make_token(sub="user-admin")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:
         yield client
+
+
+@pytest.fixture(scope="session")
+def db_engine():
+    url = os.environ.get("TEST_DATABASE_URL")
+    if not url:
+        pytest.skip("TEST_DATABASE_URL not set")
+    assert url.rsplit("/", 1)[-1].endswith("_test"), "refusing to run against a non-test database"
+    os.environ["DATABASE_URL"] = url
+
+    from alembic import command
+    from alembic.config import Config
+    from sqlalchemy import create_engine, text
+
+    sync_url = url.replace("+asyncpg", "").replace("+aiosqlite", "")
+    engine = create_engine(sync_url, future=True)
+    with engine.begin() as c:
+        c.execute(text("DROP SCHEMA public CASCADE"))
+        c.execute(text("CREATE SCHEMA public"))
+        c.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+    command.upgrade(Config("alembic.ini"), "head")
+    yield engine
+    engine.dispose()
+
+
+@pytest.fixture
+def db(db_engine):
+    """One test = one rolled-back transaction. Repos may commit; that only releases a SAVEPOINT."""
+    from sqlalchemy.orm import Session
+
+    conn = db_engine.connect()
+    trans = conn.begin()
+    session = Session(bind=conn, join_transaction_mode="create_savepoint")
+    yield session
+    session.close()
+    trans.rollback()
+    conn.close()
+
+
+@pytest.fixture
+def committed_db(db_engine):
+    """For concurrency tests that need real commits across connections. Truncates afterwards."""
+    from sqlalchemy import text
+
+    yield db_engine
+    with db_engine.begin() as c:
+        names = [
+            r[0]
+            for r in c.execute(
+                text(
+                    "select tablename from pg_tables where schemaname='public' and tablename <> 'alembic_version'"
+                )
+            )
+        ]
+        if names:
+            c.execute(
+                text("TRUNCATE " + ",".join(f'"{n}"' for n in names) + " RESTART IDENTITY CASCADE")
+            )
