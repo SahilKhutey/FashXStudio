@@ -1,9 +1,9 @@
 # FashXStudio: Honest Status
 
-_Last updated: 2026-10-08 · Source of truth for project status. Update in every phase PR._
+_Last updated: 2026-10-09 · Source of truth for project status. Update in every phase PR._
 _Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1 Log: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md)_
 
-**Measured:** tests [1,271 total: 1,027 MVP (not frozen) / 244 frozen] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [13, heads=1] · API routes [206 MVP / 233 with frozen]
+**Measured:** tests [1,309 total: 1,065 MVP (not frozen) / 244 frozen] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [14, heads=1] · API routes [207 MVP / 234 with frozen]
 
 Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ frozen
 
@@ -22,7 +22,7 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Closet + price snapshot | 🟡 | Verify persistence |
 | Affiliate redirect + sub-IDs | 🟡 | No live affiliate program |
 | Fit feedback ledger | 🟡 | Cold-start: needs real outcomes |
-| Authentication + ownership | ⬜ | routes with auth: 0 · routes with {user_id} in path: 20+ |
+| Authentication + ownership | ✅ | Default-deny mounted; provider-neutral JWT verifiers; owner-scoped queries; {user_id} path segment check; rate limits, EXIF sanitization & OWASP security headers; 38 security tests |
 | Postgres persistence (MVP domains) | 🟡 | 16 in-memory repos wired at runtime (backend/fashx/repositories/*/memory.py) |
 | Mobile app | 🟡 | Canonical Expo 57 app consolidated in mobile/ (229 files); apps/mobile deleted (PR 2C); mobile typecheck tracked in CI |
 | CI | ✅ | Canonical workflow with required backend (pgvector+redis), non-blocking frozen job, and mobile job (PR 2A/2C) |
