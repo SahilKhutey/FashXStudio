@@ -72,6 +72,36 @@ def create_app() -> FastAPI:
     app.include_router(commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
 
+    if settings.env != "prod":
+        import hashlib
+        import hmac
+        import time
+        from pathlib import Path
+        from fastapi import Response
+        from fastapi.responses import JSONResponse
+
+        from typing import Any
+        from fashx.core.dependencies import get_storage
+
+        @app.get("/dev-files/{file_path:path}", include_in_schema=False)
+        async def serve_dev_file(
+            file_path: str,
+            exp: int = 0,
+            sig: str = "",
+            storage: Any = Depends(get_storage),
+        ) -> Response:
+            now = int(time.time())
+            if exp < now:
+                return JSONResponse(status_code=403, content={"detail": "URL expired"})
+            expected_sig = hmac.new(b"dev-secret", f"{file_path}:{exp}".encode(), hashlib.sha256).hexdigest()[:16]
+            if not hmac.compare_digest(sig, expected_sig):
+                return JSONResponse(status_code=403, content={"detail": "Invalid signature"})
+            storage_dir = getattr(storage, "root", Path(settings.local_storage_dir))
+            storage_path = Path(storage_dir) / file_path
+            if not storage_path.is_file():
+                return JSONResponse(status_code=404, content={"detail": "File not found"})
+            return Response(content=storage_path.read_bytes(), media_type="image/jpeg")
+
     from fashx.api.v1.analytics import router as analytics_router
     from fashx.api.v1.cart import router as cart_router
     from fashx.api.v1.checkout import router as checkout_router

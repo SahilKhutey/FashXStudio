@@ -1,11 +1,16 @@
+import hashlib
+import inspect
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID, uuid4
 
 from database.models.identity import UserPhoto
+from database.models.media import MediaObject
 from schemas.common.enums import DataType, PhotoStatus, PhotoType
 
+from fashx.application.ports.storage import media_key
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
-from fashx.core.ports.storage import InMemoryStorageAdapter, StoragePort
+from fashx.core.ports.storage import InMemoryStorageAdapter
 from fashx.profile.calibration.skin_tone import SkinToneCalibrationResult, SkinToneCalibrator
 from fashx.profile.capture.validator import PhotoQualityValidator
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
@@ -35,7 +40,7 @@ class UploadUserPhotoUseCase:
     def __init__(
         self,
         uow: ProfileUnitOfWork,
-        storage: StoragePort | None = None,
+        storage: Any | None = None,
     ) -> None:
         self.uow = uow
         self.storage = storage or InMemoryStorageAdapter()
@@ -64,7 +69,9 @@ class UploadUserPhotoUseCase:
             val_res = PhotoQualityValidator.validate_photo_bytes(cmd.photo_bytes)
 
             if not val_res.passed:
+                reject_id = uuid4()
                 photo = UserPhoto(
+                    id=reject_id,
                     user_id=cmd.user_id,
                     photo_type=photo_type_str,
                     storage_key="",
@@ -77,7 +84,7 @@ class UploadUserPhotoUseCase:
                 await self.uow.commit()
 
                 return UploadPhotoResult(
-                    photo_id=photo.id,
+                    photo_id=reject_id,
                     user_id=cmd.user_id,
                     photo_type=photo_type_str,
                     status=PhotoStatus.REJECTED.value,
@@ -86,24 +93,48 @@ class UploadUserPhotoUseCase:
                     skin_tone=None,
                 )
 
-            # Quality passed: store photo and calibrate skin tone
-            storage_key = f"users/{cmd.user_id}/photos/{uuid4()}.png"
-            await self.storage.put(storage_key, cmd.photo_bytes, content_type="image/png")
+            # Quality passed: store photo in storage first, then persist row
+            photo_id = uuid4()
+            storage_key = media_key(cmd.user_id, "reference_photo", photo_id)
 
-            photo = UserPhoto(
-                user_id=cmd.user_id,
-                photo_type=photo_type_str,
-                storage_key=storage_key,
-                status=PhotoStatus.ACCEPTED.value,
-                reject_reason=None,
-                version=1,
-            )
-            self.uow.photos.add(photo)
+            put_res = self.storage.put(storage_key, cmd.photo_bytes, content_type="image/jpeg")
+            if inspect.isawaitable(put_res):
+                await put_res
 
-            skin_tone_res = SkinToneCalibrator.calibrate_from_image_bytes(cmd.photo_bytes)
+            try:
+                photo = UserPhoto(
+                    id=photo_id,
+                    user_id=cmd.user_id,
+                    photo_type=photo_type_str,
+                    storage_key=storage_key,
+                    status=PhotoStatus.ACCEPTED.value,
+                    reject_reason=None,
+                    version=1,
+                )
+                self.uow.photos.add(photo)
 
-            await self.uow.flush()
-            await self.uow.commit()
+                if hasattr(self.uow, "media"):
+                    media_record = MediaObject(
+                        id=photo_id,
+                        user_id=cmd.user_id,
+                        kind="reference_photo",
+                        object_key=storage_key,
+                        sha256=hashlib.sha256(cmd.photo_bytes).hexdigest(),
+                        size_bytes=len(cmd.photo_bytes),
+                        content_type="image/jpeg",
+                    )
+                    self.uow.media.add(media_record)
+
+                skin_tone_res = SkinToneCalibrator.calibrate_from_image_bytes(cmd.photo_bytes)
+
+                await self.uow.flush()
+                await self.uow.commit()
+            except Exception:
+                # Compensating transaction: remove orphan from storage if DB commit fails
+                del_res = self.storage.delete(storage_key)
+                if inspect.isawaitable(del_res):
+                    await del_res
+                raise
 
             return UploadPhotoResult(
                 photo_id=photo.id,

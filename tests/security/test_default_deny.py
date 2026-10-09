@@ -32,8 +32,8 @@ def test_protected_routes_deny_anonymous(auth_test_context):
 
     tested = 0
     for path, route in routes:
-        # Skip public routes and unit test fixtures
-        if is_public_path(path) or "/test-errors" in path:
+        # Skip public routes, capability endpoints, and unit test fixtures
+        if is_public_path(path) or "/test-errors" in path or path.startswith("/dev-files"):
             continue
 
         method = next(iter(route.methods - {"HEAD", "OPTIONS"}))
@@ -46,6 +46,12 @@ def test_protected_routes_deny_anonymous(auth_test_context):
         tested += 1
 
     assert tested > 10, f"Expected to test numerous protected routes, only tested {tested}"
+
+
+def test_dev_files_denies_unsigned(auth_test_context):
+    anon_client, _, _ = auth_test_context
+    res = anon_client.get("/dev-files/some/secret/photo.jpg")
+    assert res.status_code == 403
 
 
 def test_protected_routes_deny_invalid_token(auth_test_context):

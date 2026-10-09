@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from fashx.core.repository import BaseRepository
 from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.identity import ConsentRecord, User, UserPhoto
+from database.models.media import MediaObject
 from database.models.profile import BodyProfile, OnboardingProfile, UserMeasurement, UserPreference
 
 
@@ -188,6 +189,23 @@ class OnboardingProfileRepository(BaseRepository[OnboardingProfile]):
         return profile
 
 
+class MediaRepository(BaseRepository[MediaObject]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, MediaObject)
+
+    async def get_by_id_and_user(self, media_id: UUID, user_id: UUID) -> MediaObject | None:
+        stmt = select(MediaObject).where(MediaObject.id == media_id, MediaObject.user_id == user_id)
+        result = await self.session.scalars(stmt)
+        return result.first()
+
+    async def list_for_user(self, user_id: UUID, kind: str | None = None) -> Sequence[MediaObject]:
+        stmt = select(MediaObject).where(MediaObject.user_id == user_id)
+        if kind:
+            stmt = stmt.where(MediaObject.kind == kind)
+        result = await self.session.scalars(stmt)
+        return result.all()
+
+
 class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of Work bundling Profile aggregate repositories."""
 
@@ -204,6 +222,7 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._photos: UserPhotoRepository | None = None
         self._preferences: UserPreferenceRepository | None = None
         self._onboarding_profiles: OnboardingProfileRepository | None = None
+        self._media: MediaRepository | None = None
 
     async def __aenter__(self) -> "ProfileUnitOfWork":
         await super().__aenter__()
@@ -214,6 +233,7 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._photos = None
         self._preferences = None
         self._onboarding_profiles = None
+        self._media = None
         return self
 
     @property
@@ -257,3 +277,9 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         if self._onboarding_profiles is None:
             self._onboarding_profiles = OnboardingProfileRepository(self.session)
         return self._onboarding_profiles
+
+    @property
+    def media(self) -> MediaRepository:
+        if self._media is None:
+            self._media = MediaRepository(self.session)
+        return self._media

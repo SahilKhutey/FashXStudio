@@ -29,6 +29,7 @@ from .profile import (
 )
 from .tryon import TryOnArtifact, TryOnJob
 from .operations import IdempotencyRecord, OutboxMessageRecord
+from .media import MediaObject
 
 __all__ = [
     "Base",
@@ -60,4 +61,5 @@ __all__ = [
     "TryOnJob",
     "IdempotencyRecord",
     "OutboxMessageRecord",
+    "MediaObject",
 ]

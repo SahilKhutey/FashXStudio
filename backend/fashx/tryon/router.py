@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
+from fashx.core.dependencies import get_storage
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
 from fashx.tryon.application.get_job_status import (
@@ -115,16 +116,20 @@ async def get_tryon_job_status(
     job_id: UUID,
     principal: Principal = Depends(get_principal),
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
+    storage: Any = Depends(get_storage),
 ) -> TryOnJobStatusResponse:
     """Retrieve asynchronous try-on job status and artifact URL."""
     use_case = GetTryOnJobStatusUseCase(tryon_uow=tryon_uow)
     res = await use_case.execute(job_id, user_id=principal.user_id)
     fail_reason = TryOnFailureReason(res.failure_reason) if res.failure_reason else None
+    result_url = None
+    if res.result_url:
+        result_url = storage.signed_get_url(res.result_url, ttl_s=300)
     return TryOnJobStatusResponse(
         job_id=res.job_id,
         status=TryOnStatus(res.status),
         artifact_key=res.artifact_key,
-        result_url=res.result_url,
+        result_url=result_url,
         failure_reason=fail_reason,
         model_version=res.model_version,
         pipeline_version=res.pipeline_version,
