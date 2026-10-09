@@ -28,6 +28,7 @@ from .profile import (
     UserStyleProfile,
 )
 from .tryon import TryOnArtifact, TryOnJob
+from .operations import IdempotencyRecord, OutboxMessageRecord
 
 __all__ = [
     "Base",
@@ -57,4 +58,6 @@ __all__ = [
     "UserStyleProfile",
     "TryOnArtifact",
     "TryOnJob",
+    "IdempotencyRecord",
+    "OutboxMessageRecord",
 ]

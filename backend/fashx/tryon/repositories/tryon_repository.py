@@ -51,6 +51,30 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
             await self.flush()
         return job
 
+    async def claim_next_job(
+        self, worker_id: str, lease_seconds: int = 180
+    ) -> TryOnJob | None:
+        from datetime import timedelta
+        now = datetime.now(UTC)
+        stmt = (
+            select(TryOnJob)
+            .where(
+                (TryOnJob.status == "queued")
+                | (
+                    (TryOnJob.status == "running")
+                    & (TryOnJob.completed_at.is_(None))
+                )
+            )
+            .order_by(TryOnJob.created_at)
+            .with_for_update(skip_locked=True)
+            .limit(1)
+        )
+        job = await self.session.scalar(stmt)
+        if job:
+            job.status = "running"
+            await self.flush()
+        return job
+
 
 class TryOnArtifactRepository(BaseRepository[TryOnArtifact]):
     def __init__(self, session: AsyncSession) -> None:

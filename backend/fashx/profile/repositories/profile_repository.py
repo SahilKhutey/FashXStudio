@@ -153,6 +153,24 @@ class UserPreferenceRepository(BaseRepository[UserPreference]):
         self.add(pref)
         return pref
 
+    async def upsert(
+        self,
+        user_id: UUID,
+        colors_favored: list[str] | None = None,
+        colors_avoided: list[str] | None = None,
+        categories: list[str] | None = None,
+        budget_min: int | None = None,
+        budget_max: int | None = None,
+    ) -> UserPreference:
+        return await self.upsert_preferences(
+            user_id=user_id,
+            colors_favored=colors_favored or [],
+            colors_avoided=colors_avoided or [],
+            categories=categories or [],
+            budget_min=budget_min,
+            budget_max=budget_max,
+        )
+
 
 class OnboardingProfileRepository(BaseRepository[OnboardingProfile]):
     def __init__(self, session: AsyncSession) -> None:
