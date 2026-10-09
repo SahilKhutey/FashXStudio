@@ -1,6 +1,7 @@
 from functools import lru_cache
+from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +13,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    env: Literal["dev", "test", "prod"] = Field(default="dev", validation_alias="ENV")
     app_env: str = Field(default="development", validation_alias="APP_ENV")
     app_name: str = Field(default="AI Fashion Assistant API", validation_alias="APP_NAME")
     app_version: str = Field(default="0.1.0", validation_alias="APP_VERSION")
@@ -40,11 +42,30 @@ class Settings(BaseSettings):
         description="JSON object of feature-id to enabled-state runtime overrides.",
     )
 
+    auth_mode: Literal["local", "jwks"] = Field(default="local", validation_alias="AUTH_MODE")
+    auth_issuer: str = Field(default="fashx-local", validation_alias="AUTH_ISSUER")
+    auth_audience: str = Field(default="fashx-api", validation_alias="AUTH_AUDIENCE")
+    auth_jwt_secret: SecretStr | None = Field(default=None, validation_alias="AUTH_JWT_SECRET")
+    auth_jwks_url: str | None = Field(default=None, validation_alias="AUTH_JWKS_URL")
+    internal_service_token: str | None = Field(default=None, validation_alias="INTERNAL_SERVICE_TOKEN")
+
     @property
     def is_production(self) -> bool:
-        return self.app_env.lower() == "production"
+        return self.app_env.lower() in ("production", "prod") or self.env == "prod"
+
+    @model_validator(mode="after")
+    def _fail_fast(self) -> "Settings":
+        if self.auth_mode == "local" and not self.auth_jwt_secret:
+            raise ValueError("AUTH_JWT_SECRET required in local auth mode")
+        if self.env == "prod":
+            if self.auth_mode != "jwks" or not self.auth_jwks_url:
+                raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
+            if "*" in self.cors_origins:
+                raise ValueError("wildcard CORS not allowed in prod")
+        return self
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
+

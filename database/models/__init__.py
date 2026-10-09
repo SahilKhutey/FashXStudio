@@ -18,6 +18,7 @@ from .commerce_feedback import (
     TryOnFeedback,
     WardrobeItem,
 )
+from .auth import AuthIdentity
 from .identity import ConsentRecord, User, UserPhoto
 from .profile import (
     BodyProfile,
@@ -46,6 +47,7 @@ __all__ = [
     "TryOnFeedback",
     "WardrobeItem",
     "ConsentRecord",
+    "AuthIdentity",
     "User",
     "UserPhoto",
     "BodyProfile",
