@@ -26,13 +26,16 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         docs_url="/docs" if not settings.is_production else None,
         redoc_url="/redoc" if not settings.is_production else None,
+        openapi_url="/openapi.json" if not settings.is_production else None,
     )
 
     from fashx.core.runtime import get_core_runtime
+    from fashx.security.headers import SecurityHeadersMiddleware
 
     runtime = get_core_runtime()
     app.state.core_runtime = runtime
 
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
