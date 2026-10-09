@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
 
 from fashx.core.database import get_session_factory
+from fashx.core.dependencies import get_storage
 from fashx.core.errors import EntityNotFoundError, ValidationError
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
@@ -183,6 +184,7 @@ async def upload_user_photo(
     req: UploadPhotoRequest,
     principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
+    storage: Any = Depends(get_storage),
 ) -> UploadPhotoResponse:
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
@@ -196,7 +198,7 @@ async def upload_user_photo(
 
     sanitized_bytes = sanitize_photo(raw_bytes)
 
-    use_case = UploadUserPhotoUseCase(uow)
+    use_case = UploadUserPhotoUseCase(uow, storage=storage)
     cmd = UploadPhotoCommand(
         user_id=user_id,
         photo_type=req.photo_type,
@@ -221,6 +223,45 @@ async def upload_user_photo(
         reject_reason=res.reject_reason,
         skin_tone=skin_tone_dict,
     )
+
+
+class PhotoSignedUrlResponse(BaseModel):
+    url: str
+    expires_in: int = 300
+
+
+@router.get(
+    "/{user_id}/photos/{media_id}/url",
+    response_model=PhotoSignedUrlResponse,
+)
+async def get_photo_signed_url(
+    user_id: UUID,
+    media_id: UUID,
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+    storage: Any = Depends(get_storage),
+) -> PhotoSignedUrlResponse:
+    """Retrieve an ephemeral signed capability URL for a user photo (Rule I06)."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
+    async with uow:
+        key: str | None = None
+        if hasattr(uow, "media"):
+            media_rec = await uow.media.get_by_id_and_user(media_id, user_id)
+            if media_rec:
+                key = media_rec.object_key
+
+        if key is None:
+            photo = await uow.photos.get_by_id(media_id)
+            if photo and photo.user_id == user_id and photo.storage_key:
+                key = photo.storage_key
+
+        if key is None:
+            raise EntityNotFoundError("Photo", media_id)
+
+        signed_url = storage.signed_get_url(key, ttl_s=300)
+        return PhotoSignedUrlResponse(url=signed_url, expires_in=300)
 
 
 @router.put("/{user_id}/preferences", response_model=UpdatePreferencesResponse)
@@ -322,39 +363,45 @@ class RevokeConsentRequest(BaseModel):
 
 class RevokeConsentResponse(BaseModel):
     user_id: UUID
-    data_type: str
-    status: str
-    photos_purged: int
-    jobs_purged: int
+    data_type: str = "body_photo"
+    status: str = "queued"
+    photos_purged: int = 0
+    jobs_purged: int = 0
 
 
 @router.post(
     "/{user_id}/consent/revoke",
     response_model=RevokeConsentResponse,
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def revoke_user_consent(
     user_id: UUID,
-    req: RevokeConsentRequest,
+    req: RevokeConsentRequest | None = None,
     principal: Principal = Depends(get_principal),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
+    storage: Any = Depends(get_storage),
 ) -> RevokeConsentResponse:
     """Rule I16 & Gate G4: Instantly cascades deletion of photos and tryon renders upon consent revocation."""
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
+    from fashx.application.erasure import erase_biometrics
     from fashx.profile.application.revoke_consent import (
         RevokeConsentCommand,
         RevokeConsentUseCase,
     )
     from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 
+    data_type = req.data_type if req and req.data_type else "body_photo"
+
     tryon_uow = TryOnUnitOfWork(get_session_factory())
-    use_case = RevokeConsentUseCase(profile_uow, tryon_uow)
-    res = await use_case.execute(RevokeConsentCommand(user_id=user_id, data_type=req.data_type))
+    use_case = RevokeConsentUseCase(profile_uow, tryon_uow, storage=storage)
+    res = await use_case.execute(RevokeConsentCommand(user_id=user_id, data_type=data_type))
+    await erase_biometrics(profile_uow, user_id, storage=storage)
+
     return RevokeConsentResponse(
         user_id=res.user_id,
         data_type=res.data_type,
-        status=res.status,
+        status="queued",
         photos_purged=res.photos_purged,
         jobs_purged=res.jobs_purged,
     )

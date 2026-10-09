@@ -43,6 +43,13 @@ class EntityDeleted(DomainEvent):
 
 
 @dataclass(frozen=True, slots=True)
+class StoragePurgeRequested(DomainEvent):
+    prefix: str = ""
+    user_id: UUID | None = None
+    reason: str = ""
+
+
+@dataclass(frozen=True, slots=True)
 class EventEnvelope:
     event: DomainEvent
     metadata: dict[str, Any] = field(default_factory=dict)

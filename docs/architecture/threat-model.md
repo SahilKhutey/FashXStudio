@@ -13,5 +13,5 @@
 | T6 | Cost abuse of GPU try-on and uploads | Per-user Redis rate limits; stricter on try-on and upload |
 | T7 | Secrets or tokens in logs/repo | Fail-fast settings, no default secrets, log redaction, gitleaks in CI |
 | T8 | Browser/transport weaknesses | Security headers, strict CORS, docs off in prod, HTTPS at the proxy (Phase 9) |
-| T9 | Photos readable via storage URLs | Private bucket + signed URLs (Phase 4) |
-| T10 | Consent revoked but data remains | Cascading erasure test on real storage (Phase 4/9) |
+| T9 | Photos readable via storage URLs | Private bucket + signed URLs with strict TTL (Phase 4: S3Storage/LocalStorage + MediaObject key tracking) |
+| T10 | Consent revoked but data remains | Cascading erasure pipeline, Outbox StoragePurgeRequested, table classification guard (Phase 4: test_erasure.py) |

@@ -29,6 +29,8 @@ Thumbs.db
 # Local data
 *.sqlite3
 *.db
+.local_storage/
+backups/
 coverage.xml
 htmlcov/
 

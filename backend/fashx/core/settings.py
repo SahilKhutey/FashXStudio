@@ -50,6 +50,14 @@ class Settings(BaseSettings):
     internal_service_token: str | None = Field(default=None, validation_alias="INTERNAL_SERVICE_TOKEN")
 
     repo_backend: Literal["memory", "sql"] = Field(default="memory", validation_alias="REPO_BACKEND")
+    storage_backend: Literal["local", "s3"] = Field(default="local", validation_alias="STORAGE_BACKEND")
+    s3_endpoint_url: str | None = Field(default=None, validation_alias="S3_ENDPOINT_URL")
+    s3_region: str = Field(default="auto", validation_alias="S3_REGION")
+    s3_bucket: str | None = Field(default=None, validation_alias="S3_BUCKET")
+    s3_access_key_id: SecretStr | None = Field(default=None, validation_alias="S3_ACCESS_KEY_ID")
+    s3_secret_access_key: SecretStr | None = Field(default=None, validation_alias="S3_SECRET_ACCESS_KEY")
+    signed_url_ttl_s: int = Field(default=300, validation_alias="SIGNED_URL_TTL_S")
+    local_storage_dir: str = Field(default="./.local_storage", validation_alias="LOCAL_STORAGE_DIR")
 
     @property
     def is_production(self) -> bool:
@@ -62,6 +70,12 @@ class Settings(BaseSettings):
         if self.env == "prod":
             if self.repo_backend != "sql":
                 raise ValueError("prod requires REPO_BACKEND=sql")
+            if self.storage_backend != "s3":
+                raise ValueError("prod requires STORAGE_BACKEND=s3")
+            if not self.s3_bucket:
+                raise ValueError("prod requires S3_BUCKET")
+            if not self.s3_access_key_id or not self.s3_secret_access_key:
+                raise ValueError("prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY")
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if "*" in self.cors_origins:
