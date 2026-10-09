@@ -1,7 +1,7 @@
 # FashXStudio: Honest Status
 
 _Last updated: 2026-10-09 · Source of truth for project status. Update in every phase PR._
-_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1 Log: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md)_
+_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md)_
 
 **Measured:** tests [1,334 total: 1,090 MVP (not frozen) / 244 frozen] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [16, heads=1] · API routes [208 MVP / 235 with frozen]
 
