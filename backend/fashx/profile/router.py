@@ -4,8 +4,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
-from schemas.common.enums import BuildType, MeasurementSource, PhotoType
-from schemas.identity.consent import ConsentUpdate
 
 from fashx.core.database import get_session_factory
 from fashx.core.errors import EntityNotFoundError, ValidationError
@@ -26,6 +24,10 @@ from fashx.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.security.deps import Principal, get_principal
+from fashx.security.errors import forbidden
+from schemas.common.enums import BuildType, MeasurementSource, PhotoType
+from schemas.identity.consent import ConsentUpdate
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -146,8 +148,12 @@ async def create_user_profile(
 )
 async def record_measurement(
     req: RecordMeasurementRequest,
+    principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> MeasurementResponse:
+    if str(req.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     use_case = RecordMeasurementUseCase(uow)
     cmd = RecordMeasurementCommand(
         user_id=req.user_id,
@@ -175,8 +181,12 @@ async def record_measurement(
 async def upload_user_photo(
     user_id: UUID,
     req: UploadPhotoRequest,
+    principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> UploadPhotoResponse:
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     try:
         raw_bytes = base64.b64decode(req.photo_b64)
     except Exception:
@@ -213,8 +223,12 @@ async def upload_user_photo(
 async def update_preferences(
     user_id: UUID,
     req: UpdatePreferencesRequest,
+    principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> UpdatePreferencesResponse:
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     use_case = UpdatePreferencesUseCase(uow)
     cmd = UpdatePreferencesCommand(
         user_id=user_id,
@@ -238,8 +252,12 @@ async def update_preferences(
 @router.get("/{user_id}/derived", response_model=DerivedProfileResponse)
 async def get_derived_profile(
     user_id: UUID,
+    principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> DerivedProfileResponse:
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     async with uow:
         user = await uow.users.get_by_id(user_id)
         if user is None:
@@ -314,9 +332,12 @@ class RevokeConsentResponse(BaseModel):
 async def revoke_user_consent(
     user_id: UUID,
     req: RevokeConsentRequest,
+    principal: Principal = Depends(get_principal),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> RevokeConsentResponse:
     """Rule I16 & Gate G4: Instantly cascades deletion of photos and tryon renders upon consent revocation."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
     from fashx.profile.application.revoke_consent import (
         RevokeConsentCommand,
         RevokeConsentUseCase,

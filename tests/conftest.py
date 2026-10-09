@@ -5,6 +5,7 @@ import time
 
 import jwt
 import pytest
+from fastapi.testclient import TestClient
 
 os.environ.setdefault("ENV", "test")
 os.environ.setdefault("AUTH_MODE", "local")
@@ -54,6 +55,45 @@ def make_token(
         "iat": now,
     }
     return jwt.encode(payload, secret, algorithm=alg)
+
+
+_orig_testclient_init = TestClient.__init__
+
+
+def _patched_testclient_init(self, app, *args, **kwargs):
+    headers = kwargs.get("headers")
+    if headers is None:
+        headers = {}
+        kwargs["headers"] = headers
+    if "Authorization" not in headers:
+        import inspect
+
+        frame = inspect.currentframe()
+        in_security_test = False
+        while frame:
+            filename = frame.f_code.co_filename.replace("\\", "/")
+            if "tests/security" in filename:
+                in_security_test = True
+                break
+            frame = frame.f_back
+        if not in_security_test:
+            headers["Authorization"] = f"Bearer {make_token('test-user')}"
+    _orig_testclient_init(self, app, *args, **kwargs)
+
+
+TestClient.__init__ = _patched_testclient_init
+
+
+@pytest.fixture(autouse=True)
+def setup_test_identity_override():
+    from fashx.main import app as main_app
+    from fashx.security.deps import get_identity_repo
+    from fashx.security.identity import InMemoryIdentityRepo
+
+    shared_repo = InMemoryIdentityRepo()
+    main_app.dependency_overrides[get_identity_repo] = lambda: shared_repo
+    yield
+    main_app.dependency_overrides.pop(get_identity_repo, None)
 
 
 @pytest.fixture
@@ -107,6 +147,7 @@ def client_b(identity_repo):
 @pytest.fixture
 def client_admin(identity_repo):
     import asyncio
+
     from fastapi.testclient import TestClient
 
     from fashx.main import create_app

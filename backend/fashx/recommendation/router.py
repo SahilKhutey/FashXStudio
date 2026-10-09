@@ -10,6 +10,8 @@ from fashx.recommendation.application.generate_feed import (
     GenerateFeedCommand,
     GenerateFeedUseCase,
 )
+from fashx.security.deps import Principal, get_principal
+from fashx.security.errors import forbidden
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -57,9 +59,13 @@ async def get_personalized_feed(
     user_id: UUID,
     limit: int = Query(default=20, ge=1, le=100),
     diversity: float = Query(default=0.7, ge=0.0, le=1.0),
+    principal: Principal = Depends(get_principal),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> FeedResponse:
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     use_case = GenerateFeedUseCase(profile_uow, catalog_uow)
     cmd = GenerateFeedCommand(
         user_id=user_id,
@@ -90,7 +96,11 @@ async def get_personalized_feed(
 @router.post("/exclusions", response_model=RecordExclusionResponse)
 async def record_feed_exclusion(
     req: RecordExclusionRequest,
+    principal: Principal = Depends(get_principal),
 ) -> RecordExclusionResponse:
+    if str(req.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     # Acknowledges exclusion registration (Rule I06)
     return RecordExclusionResponse(
         status="recorded",

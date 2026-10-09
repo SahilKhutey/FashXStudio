@@ -1,9 +1,13 @@
 from typing import Any
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, Header, status
+from pydantic import BaseModel
+
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.security.deps import Principal, get_principal
 from fashx.tryon.application.get_job_status import (
     GetTryOnJobStatusUseCase,
 )
@@ -12,8 +16,6 @@ from fashx.tryon.application.submit_job import (
     SubmitTryOnJobUseCase,
 )
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
-from fastapi import APIRouter, Depends, Header, status
-from pydantic import BaseModel
 from schemas.common.enums import TryOnFailureReason, TryOnStatus
 
 router = APIRouter(prefix="/tryon", tags=["try-on"])
@@ -79,8 +81,14 @@ async def submit_tryon_job(
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
+    principal: Principal = Depends(get_principal),
 ) -> TryOnJobSubmissionResponse:
     """Rule I06: Enqueue an asynchronous Try-On job returning 202 Accepted immediately."""
+    if str(request.user_id) != principal.user_id:
+        from fashx.security.errors import forbidden
+
+        raise forbidden("Forbidden: user_id mismatch")
+
     use_case = SubmitTryOnJobUseCase(
         tryon_uow=tryon_uow,
         profile_uow=profile_uow,
@@ -105,11 +113,12 @@ async def submit_tryon_job(
 @router.get("/jobs/{job_id}", response_model=TryOnJobStatusResponse)
 async def get_tryon_job_status(
     job_id: UUID,
+    principal: Principal = Depends(get_principal),
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
 ) -> TryOnJobStatusResponse:
     """Retrieve asynchronous try-on job status and artifact URL."""
     use_case = GetTryOnJobStatusUseCase(tryon_uow=tryon_uow)
-    res = await use_case.execute(job_id)
+    res = await use_case.execute(job_id, user_id=principal.user_id)
     fail_reason = TryOnFailureReason(res.failure_reason) if res.failure_reason else None
     return TryOnJobStatusResponse(
         job_id=res.job_id,
