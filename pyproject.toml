@@ -16,6 +16,7 @@ dependencies = [
   "pillow>=10.4.0",
   "numpy>=1.26.0",
   "aiosqlite>=0.20.0",
+  "pyjwt[crypto]>=2.8.0",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +26,9 @@ dev = [
   "pytest-asyncio==1.2.0",
   "ruff==0.13.0",
   "mypy==1.18.2",
+  "bandit>=1.7.8",
+  "pip-audit>=2.7.3",
+  "cryptography>=42.0.0",
 ]
 
 [dependency-groups]
@@ -34,6 +38,9 @@ dev = [
   "pytest-asyncio==1.2.0",
   "ruff==0.13.0",
   "mypy==1.18.2",
+  "bandit>=1.7.8",
+  "pip-audit>=2.7.3",
+  "cryptography>=42.0.0",
 ]
 
 [tool.pytest.ini_options]

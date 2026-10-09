@@ -54,6 +54,9 @@ def create_app() -> FastAPI:
         handler.addFilter(ContextFilter())
 
     install_exception_handlers(app)
+    from fashx.security.errors import ApiError, api_error_handler
+
+    app.add_exception_handler(ApiError, api_error_handler)
     app.include_router(health_router)
     app.include_router(features_router, prefix="/api/v1")
     app.include_router(profile_router, prefix="/api/v1")
