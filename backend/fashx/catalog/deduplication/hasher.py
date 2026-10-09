@@ -38,7 +38,7 @@ class ImageHasher:
             return f"{diff_bits:016x}"
         except Exception:
             # Fallback for synthetic/non-image bytes in test fixtures
-            return hashlib.md5(data).hexdigest()[:16]
+            return hashlib.md5(data, usedforsecurity=False).hexdigest()[:16]
 
     @staticmethod
     def hamming_distance(hash1: str, hash2: str) -> int:

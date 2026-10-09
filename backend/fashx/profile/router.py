@@ -192,11 +192,15 @@ async def upload_user_photo(
     except Exception:
         raise ValidationError("Invalid base64 encoded photo payload", field="photo_b64") from None
 
+    from fashx.security.uploads import sanitize_photo
+
+    sanitized_bytes = sanitize_photo(raw_bytes)
+
     use_case = UploadUserPhotoUseCase(uow)
     cmd = UploadPhotoCommand(
         user_id=user_id,
         photo_type=req.photo_type,
-        photo_bytes=raw_bytes,
+        photo_bytes=sanitized_bytes,
     )
     res = await use_case.execute(cmd)
     skin_tone_dict = None
