@@ -203,6 +203,10 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         return self._merchant_products
 
     @property
+    def products(self) -> MerchantProductRepository:
+        return self.merchant_products
+
+    @property
     def canonical_garments(self) -> CanonicalGarmentRepository:
         if self._canonical_garments is None:
             self._canonical_garments = CanonicalGarmentRepository(self.session)
