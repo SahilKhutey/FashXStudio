@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
@@ -54,17 +54,20 @@ def create_app() -> FastAPI:
         handler.addFilter(ContextFilter())
 
     install_exception_handlers(app)
+    from fashx.api.v1.me import router as me_router
+    from fashx.security.deps import get_principal, require_role
     from fashx.security.errors import ApiError, api_error_handler
 
     app.add_exception_handler(ApiError, api_error_handler)
     app.include_router(health_router)
-    app.include_router(features_router, prefix="/api/v1")
-    app.include_router(profile_router, prefix="/api/v1")
-    app.include_router(catalog_router, prefix="/api/v1")
-    app.include_router(recommendation_router, prefix="/api/v1")
-    app.include_router(tryon_router, prefix="/api/v1")
-    app.include_router(commerce_wardrobe_router, prefix="/api/v1")
-    app.include_router(visual_router, prefix="/api/v1")
+    app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))])
+    app.include_router(recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(tryon_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
 
     from fashx.api.v1.analytics import router as analytics_router
     from fashx.api.v1.cart import router as cart_router
@@ -88,27 +91,27 @@ def create_app() -> FastAPI:
 
     app.add_exception_handler(CoreError, core_error_handler)
     register_core_services(runtime)
-    app.include_router(fashion_router, prefix="/api/v1")
-    app.include_router(commerce_router, prefix="/api/v1")
-    app.include_router(customer_router, prefix="/api/v1")
-    app.include_router(pricing_router, prefix="/api/v1")
-    app.include_router(recommendations_router, prefix="/api/v1")
-    app.include_router(trends_router, prefix="/api/v1")
-    app.include_router(analytics_router, prefix="/api/v1")
+    app.include_router(fashion_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(commerce_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(customer_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(pricing_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(recommendations_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(trends_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(analytics_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(system_router, prefix="/api/v1")
 
     import os
 
     enable_frozen = settings.enable_frozen or os.getenv("FASHX_ENABLE_FROZEN", "0") == "1"
     if enable_frozen:
-        app.include_router(inventory_router, prefix="/api/v1")
-        app.include_router(promotions_router, prefix="/api/v1")
-        app.include_router(cart_router, prefix="/api/v1")
-        app.include_router(checkout_router, prefix="/api/v1")
-        app.include_router(orders_router, prefix="/api/v1")
-        app.include_router(payments_router, prefix="/api/v1")
-        app.include_router(fulfillment_router, prefix="/api/v1")
-        app.include_router(returns_router, prefix="/api/v1")
+        app.include_router(inventory_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(promotions_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(cart_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(checkout_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(orders_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(payments_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(fulfillment_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(returns_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
 
 
     @app.get("/", tags=["system"])

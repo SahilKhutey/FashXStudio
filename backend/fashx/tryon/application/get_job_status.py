@@ -22,10 +22,10 @@ class GetTryOnJobStatusUseCase:
     def __init__(self, tryon_uow: TryOnUnitOfWork) -> None:
         self.tryon_uow = tryon_uow
 
-    async def execute(self, job_id: UUID) -> GetJobStatusResult:
+    async def execute(self, job_id: UUID, user_id: str | None = None) -> GetJobStatusResult:
         async with self.tryon_uow:
             job = await self.tryon_uow.jobs.get_by_id(job_id)
-            if job is None:
+            if job is None or (user_id is not None and str(job.user_id) != str(user_id)):
                 raise EntityNotFoundError("TryOnJob", job_id)
 
             result_url: str | None = None

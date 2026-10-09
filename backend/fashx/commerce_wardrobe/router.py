@@ -1,5 +1,8 @@
 from uuid import UUID
 
+from fastapi import APIRouter, Depends, Query, status
+from pydantic import BaseModel, Field
+
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.commerce_wardrobe.application.create_buy_click import (
     CreateBuyClickCommand,
@@ -29,8 +32,8 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
 )
 from fashx.core.database import get_session_factory
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from fastapi import APIRouter, Depends, Query, status
-from pydantic import BaseModel, Field
+from fashx.security.deps import Principal, get_principal
+from fashx.security.errors import forbidden
 from schemas.common.enums import FitVerdict, VisualAccuracy
 
 router = APIRouter(tags=["commerce-wardrobe-feedback"])
@@ -138,11 +141,15 @@ class BrandCalibrationResponse(BaseModel):
 )
 async def save_to_wardrobe(
     request: SaveWardrobeRequest,
+    principal: Principal = Depends(get_principal),
     wardrobe_uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> SaveWardrobeResponse:
     """Save a garment to virtual closet with immutable snapshot metadata (Rule I11)."""
+    if str(request.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     uc = SaveToWardrobeUseCase(wardrobe_uow, profile_uow, catalog_uow)
     res = await uc.execute(
         SaveToWardrobeCommand(
@@ -169,9 +176,13 @@ async def list_user_wardrobe(
     user_id: UUID,
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    principal: Principal = Depends(get_principal),
     wardrobe_uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
 ) -> list[WardrobeItemView]:
     """Retrieve items in user's virtual closet."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     uc = ListWardrobeUseCase(wardrobe_uow)
     return await uc.execute(user_id, limit=limit, offset=offset)
 
@@ -179,12 +190,17 @@ async def list_user_wardrobe(
 @router.delete("/wardrobe/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_from_wardrobe(
     item_id: UUID,
-    user_id: UUID = Query(...),
+    user_id: UUID | None = Query(default=None),
+    principal: Principal = Depends(get_principal),
     wardrobe_uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
 ) -> None:
     """Remove item from virtual closet."""
+    caller_user_id = UUID(principal.user_id)
+    if user_id is not None and user_id != caller_user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     uc = RemoveFromWardrobeUseCase(wardrobe_uow)
-    await uc.execute(user_id, item_id)
+    await uc.execute(caller_user_id, item_id)
 
 
 # --- Endpoints: Commerce Outbound ---
@@ -197,11 +213,14 @@ async def remove_from_wardrobe(
 )
 async def create_buy_click(
     request: BuyClickRequest,
+    principal: Principal = Depends(get_principal),
     commerce_uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> BuyClickResponse:
     """Generate affiliate-tracked outbound redirect URL (Rule I12)."""
+    if str(request.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
     uc = CreateBuyClickUseCase(commerce_uow, profile_uow, catalog_uow)
     res = await uc.execute(
         CreateBuyClickCommand(
@@ -227,9 +246,13 @@ async def create_buy_click(
 )
 async def submit_fit_feedback(
     request: FitFeedbackRequest,
+    principal: Principal = Depends(get_principal),
     uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
 ) -> FitFeedbackResponse:
     """Record granular post-purchase fit feedback and update sizing calibration (Rule I13)."""
+    if str(request.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     uc = SubmitFitFeedbackUseCase(uow)
     res = await uc.execute(
         SubmitFitFeedbackCommand(
@@ -285,9 +308,13 @@ async def get_brand_calibration(
 )
 async def submit_tryon_feedback(
     request: TryOnFeedbackRequest,
+    principal: Principal = Depends(get_principal),
     uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
 ) -> TryOnFeedbackResponse:
     """Record user try-on visual realism and purchase confidence (Rule I14)."""
+    if str(request.user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
     uc = SubmitTryOnFeedbackUseCase(uow)
     res = await uc.execute(
         SubmitTryOnFeedbackCommand(

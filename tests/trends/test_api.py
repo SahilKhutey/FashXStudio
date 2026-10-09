@@ -3,8 +3,9 @@ from fastapi.testclient import TestClient
 from fashx.core.bootstrap import register_core_services
 from fashx.core.runtime import get_core_runtime
 from fashx.main import app
+from tests.conftest import make_token
 
-client = TestClient(app)
+client = TestClient(app, headers={"Authorization": f"Bearer {make_token('test-user')}"})
 
 
 def test_trend_routes_registered():
