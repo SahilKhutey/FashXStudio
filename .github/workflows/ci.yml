@@ -23,6 +23,7 @@ jobs:
         ports: ["6379:6379"]
     env:
       DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
+      TEST_DATABASE_URL: postgresql+psycopg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +34,7 @@ jobs:
       - run: mypy .
       - run: python -m alembic heads
       - run: python -m alembic upgrade head
+      - run: python -m alembic check
       - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen"
 
   frozen:
