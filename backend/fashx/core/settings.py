@@ -59,6 +59,20 @@ class Settings(BaseSettings):
     signed_url_ttl_s: int = Field(default=300, validation_alias="SIGNED_URL_TTL_S")
     local_storage_dir: str = Field(default="./.local_storage", validation_alias="LOCAL_STORAGE_DIR")
 
+    tryon_provider: Literal["mock", "fashn_api", "fashn_selfhost"] = Field(
+        default="mock", validation_alias="TRYON_PROVIDER"
+    )
+    fashn_api_key: SecretStr | None = Field(default=None, validation_alias="FASHN_API_KEY")
+    fashn_base_url: str = Field(default="https://api.fashn.ai/v1", validation_alias="FASHN_BASE_URL")
+    fashn_model: str = Field(default="tryon-v1.6", validation_alias="FASHN_MODEL")
+    fashn_mode: str | None = Field(default=None, validation_alias="FASHN_MODE")
+    tryon_timeout_s: int = Field(default=90, validation_alias="TRYON_TIMEOUT_S")
+    tryon_max_attempts: int = Field(default=3, validation_alias="TRYON_MAX_ATTEMPTS")
+    tryon_user_daily_cap: int = Field(default=20, validation_alias="TRYON_USER_DAILY_CAP")
+    tryon_daily_budget_usd: float = Field(default=20.0, validation_alias="TRYON_DAILY_BUDGET_USD")
+    tryon_est_cost_usd: float = Field(default=0.075, validation_alias="TRYON_EST_COST_USD")
+    tryon_worker_concurrency: int = Field(default=3, validation_alias="TRYON_WORKER_CONCURRENCY")
+
     @property
     def is_production(self) -> bool:
         return self.app_env.lower() in ("production", "prod") or self.env == "prod"
@@ -67,6 +81,8 @@ class Settings(BaseSettings):
     def _fail_fast(self) -> "Settings":
         if self.auth_mode == "local" and not self.auth_jwt_secret:
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
+        if self.tryon_provider == "fashn_api" and not self.fashn_api_key:
+            raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
         if self.env == "prod":
             if self.repo_backend != "sql":
                 raise ValueError("prod requires REPO_BACKEND=sql")
@@ -78,6 +94,8 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY")
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
+            if self.tryon_provider == "mock":
+                raise ValueError("prod requires non-mock TRYON_PROVIDER (rule I08)")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
         return self

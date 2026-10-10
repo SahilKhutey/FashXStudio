@@ -27,7 +27,7 @@ from .profile import (
     UserPreference,
     UserStyleProfile,
 )
-from .tryon import TryOnArtifact, TryOnJob
+from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
 from .operations import IdempotencyRecord, OutboxMessageRecord
 from .media import MediaObject
 
@@ -59,6 +59,7 @@ __all__ = [
     "UserStyleProfile",
     "TryOnArtifact",
     "TryOnJob",
+    "TryOnUsage",
     "IdempotencyRecord",
     "OutboxMessageRecord",
     "MediaObject",
