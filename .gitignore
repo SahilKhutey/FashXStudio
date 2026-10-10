@@ -41,9 +41,11 @@ htmlcov/
 # Generated
 *.log
 
-# ML artifacts
+# ML artifacts & eval data (photos never enter git or CI)
 ml/results/
 ml/checkpoints/
+eval_data/
+eval_results/
 
 # archives never belong in git
 *.zip

@@ -72,6 +72,10 @@ class Settings(BaseSettings):
     tryon_daily_budget_usd: float = Field(default=20.0, validation_alias="TRYON_DAILY_BUDGET_USD")
     tryon_est_cost_usd: float = Field(default=0.075, validation_alias="TRYON_EST_COST_USD")
     tryon_worker_concurrency: int = Field(default=3, validation_alias="TRYON_WORKER_CONCURRENCY")
+    tryon_supported_categories: list[str] = Field(
+        default_factory=lambda: ["tops", "bottoms", "one-pieces"],
+        validation_alias="TRYON_SUPPORTED_CATEGORIES",
+    )
 
     @property
     def is_production(self) -> bool:
