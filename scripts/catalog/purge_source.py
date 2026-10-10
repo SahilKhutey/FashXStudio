@@ -23,12 +23,10 @@ from database.models.catalog import (
 )
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
-from fashx.core.settings import get_settings
 
 
 async def purge_source(args: argparse.Namespace) -> None:
     session_factory = get_session_factory()
-    settings = get_settings()
 
     async with session_factory() as session:
         stmt = select(CatalogSource).where(CatalogSource.slug == args.slug)

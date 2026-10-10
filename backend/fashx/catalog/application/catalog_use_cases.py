@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fashx.core.transactions import transaction
 from fashx.catalog.repositories.catalog import CatalogRepository
+from fashx.core.transactions import transaction
 
 
 class CatalogApplicationService:
