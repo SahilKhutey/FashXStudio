@@ -1,0 +1,168 @@
+- id: p01
+  name: Minimal Office Casual
+  gender: female
+  sizes: [S]
+  budget: [1500, 4000]
+  styles: [minimal, smart_casual]
+  occasion: work
+  monk: 3
+  body_type: regular
+  liked_colors: [black, white, beige]
+  avoid_colors: [neon]
+  cold_start: false
+
+- id: p02
+  name: Festive Ethnic
+  gender: female
+  sizes: [M]
+  budget: [3000, 10000]
+  styles: [ethnic, festive]
+  occasion: festival
+  monk: 6
+  body_type: hourglass
+  categories: [one_piece, top]
+  ethnic_pref: true
+  liked_colors: [red, yellow, gold]
+  avoid_colors: [grey]
+  cold_start: false
+
+- id: p03
+  name: Youth Streetwear
+  gender: female
+  sizes: [XS]
+  budget: [1000, 3000]
+  styles: [streetwear, casual]
+  occasion: casual
+  monk: 4
+  body_type: petite
+  categories: [top, bottom]
+  liked_colors: [black, blue]
+  avoid_colors: [pink]
+  cold_start: false
+
+- id: p04
+  name: Smart Casual Professional
+  gender: female
+  sizes: [L]
+  budget: [2000, 6000]
+  styles: [smart_casual, elegant]
+  occasion: work
+  monk: 5
+  body_type: pear
+  categories: [top, bottom, one_piece]
+  liked_colors: [blue, green, white]
+  avoid_colors: [orange]
+  cold_start: false
+
+- id: p05
+  name: Evening & Party Wear
+  gender: female
+  sizes: [XL]
+  budget: [2000, 5000]
+  styles: [glam, party]
+  occasion: party
+  monk: 7
+  body_type: plus_size
+  categories: [one_piece]
+  liked_colors: [black, red, green]
+  avoid_colors: [brown]
+  cold_start: false
+
+- id: p06
+  name: Urban Casual Streetwear
+  gender: male
+  sizes: [M]
+  budget: [1000, 3000]
+  styles: [streetwear, casual]
+  occasion: casual
+  monk: 8
+  body_type: athletic
+  categories: [top, bottom]
+  liked_colors: [black, white, green]
+  avoid_colors: [yellow]
+  cold_start: false
+
+- id: p07
+  name: Formal Corporate
+  gender: male
+  sizes: [L]
+  budget: [3000, 8000]
+  styles: [formal, classic]
+  occasion: work
+  monk: 2
+  body_type: tall
+  categories: [top, bottom, outerwear]
+  liked_colors: [white, blue, black]
+  avoid_colors: [red]
+  cold_start: false
+
+- id: p08
+  name: Traditional Wedding & Royal
+  gender: male
+  sizes: [XL]
+  budget: [5000, 15000]
+  styles: [ethnic, royal]
+  occasion: wedding
+  monk: 9
+  body_type: broad
+  categories: [top, outerwear]
+  ethnic_pref: true
+  liked_colors: [white, yellow, red]
+  avoid_colors: [black]
+  cold_start: false
+
+- id: p09
+  name: Athleisure & Sporty
+  gender: male
+  sizes: [S]
+  budget: [1000, 4000]
+  styles: [athleisure, sporty]
+  occasion: workout
+  monk: 5
+  body_type: slim
+  categories: [top, bottom]
+  liked_colors: [black, blue, white]
+  avoid_colors: [purple]
+  cold_start: false
+
+- id: p10
+  name: Minimalist Everyday
+  gender: unisex
+  sizes: [M]
+  budget: [1000, 4000]
+  styles: [minimal, normcore]
+  occasion: casual
+  monk: 4
+  body_type: regular
+  categories: [top, bottom]
+  liked_colors: [white, black, beige]
+  avoid_colors: [neon]
+  cold_start: false
+
+- id: p11
+  name: Cold Start New User
+  gender: female
+  sizes: [M]
+  budget: [1500, 5000]
+  styles: []
+  occasion: casual
+  monk: 6
+  body_type: regular
+  categories: []
+  liked_colors: []
+  avoid_colors: []
+  cold_start: true
+
+- id: p12
+  name: Comfort Relaxed Fit
+  gender: male
+  sizes: [XXL]
+  budget: [2000, 5000]
+  styles: [comfort, relaxed]
+  occasion: casual
+  monk: 7
+  body_type: plus_size
+  categories: [top, bottom]
+  liked_colors: [blue, green, beige]
+  avoid_colors: [pink]
+  cold_start: false

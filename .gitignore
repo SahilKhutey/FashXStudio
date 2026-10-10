@@ -46,6 +46,7 @@ ml/results/
 ml/checkpoints/
 eval_data/
 eval_results/
+eval/sheets/
 
 # archives never belong in git
 *.zip
