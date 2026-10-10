@@ -27,6 +27,7 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    attempts: Mapped[int] = mapped_column(default=1, nullable=False)
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)
     provider_job_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 

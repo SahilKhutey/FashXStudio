@@ -15,6 +15,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
+    op.add_column("tryon_jobs", sa.Column("attempts", sa.Integer(), nullable=False, server_default="1"))
     op.add_column("tryon_jobs", sa.Column("provider", sa.Text(), nullable=True))
     op.add_column("tryon_jobs", sa.Column("provider_job_id", sa.Text(), nullable=True))
     op.create_table(
@@ -41,3 +42,4 @@ def downgrade() -> None:
     op.drop_table("tryon_usage")
     op.drop_column("tryon_jobs", "provider_job_id")
     op.drop_column("tryon_jobs", "provider")
+    op.drop_column("tryon_jobs", "attempts")

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
+from database.models.tryon import TryOnJob
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError, ValidationError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
@@ -9,7 +10,6 @@ from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
 from fashx.tryon.cache_key import compute_tryon_cache_key
 from fashx.tryon.ports import TryOnModelAdapterPort
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
-from database.models.tryon import TryOnJob
 
 
 @dataclass(frozen=True)
@@ -117,7 +117,27 @@ class SubmitTryOnJobUseCase:
                     result_url=cached_artifact.result_key,
                 )
 
-            # 6. Enqueue New Asynchronous Job (Rule I06)
+            # 6. Budget and Daily User Cap Protection (Rule I08)
+            from fashx.core.settings import get_settings
+            from fashx.ml.breaker import check_daily_budget_exceeded, check_user_daily_cap_exceeded
+            from fashx.security.errors import ApiError
+
+            settings = get_settings()
+            if hasattr(self.tryon_uow, "session") and self.tryon_uow.session:
+                if await check_daily_budget_exceeded(self.tryon_uow.session, settings.tryon_daily_budget_usd):
+                    raise ApiError(
+                        status_code=503,
+                        title="service_unavailable",
+                        detail="Try-on is at capacity today",
+                    )
+                if await check_user_daily_cap_exceeded(self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap):
+                    raise ApiError(
+                        status_code=429,
+                        title="rate_limit_exceeded",
+                        detail="Daily try-on cap exceeded",
+                    )
+
+            # 7. Enqueue New Asynchronous Job (Rule I06)
             job = TryOnJob(
                 user_id=cmd.user_id,
                 garment_id=garment_id,

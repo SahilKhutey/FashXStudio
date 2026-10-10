@@ -1,12 +1,14 @@
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
+from decimal import Decimal
 from uuid import UUID
 
-from fashx.core.repository import BaseRepository
-from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
-from database.models.tryon import TryOnArtifact, TryOnJob
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from database.models.tryon import TryOnArtifact, TryOnJob, TryOnUsage
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
 
 class TryOnJobRepository(BaseRepository[TryOnJob]):
@@ -51,11 +53,59 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
             await self.flush()
         return job
 
+    async def set_provider_job(
+        self,
+        job_id: UUID,
+        provider: str,
+        provider_job_id: str,
+    ) -> TryOnJob | None:
+        job = await self.get_by_id(job_id)
+        if job:
+            job.provider = provider
+            job.provider_job_id = provider_job_id
+            await self.flush()
+        return job
+
+    async def requeue(
+        self,
+        job_id: UUID,
+        delay_s: float = 0.0,
+        clear_provider_job: bool = False,
+    ) -> TryOnJob | None:
+        job = await self.get_by_id(job_id)
+        if job:
+            job.status = "queued"
+            job.attempts += 1
+            if clear_provider_job:
+                job.provider_job_id = None
+            await self.flush()
+        return job
+
+    async def fail(
+        self,
+        job_id: UUID,
+        error_code: str,
+        user_message: str | None = None,
+    ) -> TryOnJob | None:
+        return await self.update_status(job_id, "failed", failure_reason=error_code)
+
+    async def cancel(
+        self,
+        job_id: UUID,
+        reason: str = "cancelled",
+    ) -> TryOnJob | None:
+        return await self.update_status(job_id, "cancelled", failure_reason=reason)
+
+    async def complete(
+        self,
+        job_id: UUID,
+        media_id: UUID | None = None,
+    ) -> TryOnJob | None:
+        return await self.update_status(job_id, "completed")
+
     async def claim_next_job(
         self, worker_id: str, lease_seconds: int = 180
     ) -> TryOnJob | None:
-        from datetime import timedelta
-        now = datetime.now(UTC)
         stmt = (
             select(TryOnJob)
             .where(
@@ -89,6 +139,33 @@ class TryOnArtifactRepository(BaseRepository[TryOnArtifact]):
         return await self.session.scalar(stmt)
 
 
+class TryOnUsageRepository(BaseRepository[TryOnUsage]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnUsage)
+
+    async def record(
+        self,
+        outcome: str,
+        *,
+        provider: str = "fashn_api",
+        model: str = "tryon-v1.6",
+        error_code: str | None = None,
+        latency_ms: int | None = None,
+        cost_usd_est: float | None = None,
+    ) -> TryOnUsage:
+        usage = TryOnUsage(
+            provider=provider,
+            model=model,
+            outcome=outcome,
+            error_code=error_code,
+            latency_ms=latency_ms,
+            cost_usd_est=Decimal(str(cost_usd_est)) if cost_usd_est is not None else None,
+        )
+        self.add(usage)
+        await self.flush()
+        return usage
+
+
 class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of work managing TryOn aggregate persistence."""
 
@@ -101,11 +178,13 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         super().__init__(session_factory)
         self._jobs: TryOnJobRepository | None = None
         self._artifacts: TryOnArtifactRepository | None = None
+        self._usage: TryOnUsageRepository | None = None
 
     async def __aenter__(self) -> "TryOnUnitOfWork":
         await super().__aenter__()
         self._jobs = None
         self._artifacts = None
+        self._usage = None
         return self
 
     @property
@@ -115,7 +194,17 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         return self._jobs
 
     @property
+    def tryon(self) -> TryOnJobRepository:
+        return self.jobs
+
+    @property
     def artifacts(self) -> TryOnArtifactRepository:
         if self._artifacts is None:
             self._artifacts = TryOnArtifactRepository(self.session)
         return self._artifacts
+
+    @property
+    def usage(self) -> TryOnUsageRepository:
+        if self._usage is None:
+            self._usage = TryOnUsageRepository(self.session)
+        return self._usage
