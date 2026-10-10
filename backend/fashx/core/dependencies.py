@@ -38,3 +38,28 @@ def get_storage() -> "ObjectStorage":
             secret=settings.s3_secret_access_key.get_secret_value() if settings.s3_secret_access_key else None,
         )
     return LocalStorage(root_dir=settings.local_storage_dir)
+
+
+def get_tryon_adapter() -> "TryOnAdapter":
+    from fashx.application.ports.tryon import TryOnAdapter
+    from fashx.infrastructure.tryon.fashn_api import FashnApiAdapter
+    from fashx.ml.licenses import assert_production_license
+    from fashx.tryon.adapters.mock_adapter import MockAdapter
+    from .settings import get_settings
+
+    s = get_settings()
+    if s.tryon_provider == "fashn_api":
+        adapter = FashnApiAdapter(
+            api_key=s.fashn_api_key.get_secret_value() if s.fashn_api_key else "",
+            base_url=s.fashn_base_url,
+            model=s.fashn_model,
+            mode=s.fashn_mode,
+            cost_usd_est=s.tryon_est_cost_usd,
+        )
+    else:
+        adapter = MockAdapter()
+
+    if s.env == "prod":
+        assert_production_license(adapter)
+
+    return adapter
