@@ -9,3 +9,5 @@ node_modules
 mobile/node_modules
 *.log
 .env
+eval_data
+eval_results

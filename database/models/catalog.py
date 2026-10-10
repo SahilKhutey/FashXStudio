@@ -58,6 +58,7 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     brand_id: Mapped[UUID | None] = mapped_column(ForeignKey("brands.id", ondelete="SET NULL"))
     category: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     subcategory: Mapped[str | None] = mapped_column(String(64), index=True)
+    tryon_supported: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     version: Mapped[int] = mapped_column(default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

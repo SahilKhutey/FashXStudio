@@ -69,11 +69,30 @@ class SubmitTryOnJobUseCase:
             photo_id = photo.id
             photo_storage_key = photo.storage_key
 
-        # 2. Garment Validation
+        # 2. Garment Validation & Capability Gating (Step 5.20)
         async with self.catalog_uow:
             garment = await self.catalog_uow.canonical_garments.get_by_id(cmd.garment_id)
             if garment is None:
                 raise EntityNotFoundError("CanonicalGarment", cmd.garment_id)
+
+            from fashx.core.settings import get_settings
+            from fashx.security.errors import ApiError
+
+            cfg = get_settings()
+            if getattr(garment, "tryon_supported", True) is False:
+                raise ApiError(
+                    422,
+                    "unsupported_garment",
+                    "Try-on is not supported for this garment type",
+                )
+
+            if cfg.tryon_supported_categories and garment.category not in cfg.tryon_supported_categories:
+                raise ApiError(
+                    422,
+                    "unsupported_garment",
+                    f"Try-on is not supported for category '{garment.category}'",
+                )
+
             garment_id = garment.id
             garment_version = garment.version
 
@@ -120,21 +139,20 @@ class SubmitTryOnJobUseCase:
             # 6. Budget and Daily User Cap Protection (Rule I08)
             from fashx.core.settings import get_settings
             from fashx.ml.breaker import check_daily_budget_exceeded, check_user_daily_cap_exceeded
-            from fashx.security.errors import ApiError
 
             settings = get_settings()
             if hasattr(self.tryon_uow, "session") and self.tryon_uow.session:
                 if await check_daily_budget_exceeded(self.tryon_uow.session, settings.tryon_daily_budget_usd):
                     raise ApiError(
-                        status_code=503,
-                        title="service_unavailable",
-                        detail="Try-on is at capacity today",
+                        503,
+                        "service_unavailable",
+                        "Try-on is at capacity today",
                     )
                 if await check_user_daily_cap_exceeded(self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap):
                     raise ApiError(
-                        status_code=429,
-                        title="rate_limit_exceeded",
-                        detail="Daily try-on cap exceeded",
+                        429,
+                        "rate_limit_exceeded",
+                        "Daily try-on cap exceeded",
                     )
 
             # 7. Enqueue New Asynchronous Job (Rule I06)
