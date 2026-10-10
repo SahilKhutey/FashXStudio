@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, UUIDPrimaryKeyMixin
@@ -26,6 +27,9 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    provider: Mapped[str | None] = mapped_column(Text, nullable=True)
+    provider_job_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     __table_args__ = (
         UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
         UniqueConstraint("artifact_key", name="uq_tryon_artifact_key"),
@@ -45,3 +49,23 @@ class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
     photo_version: Mapped[int] = mapped_column(nullable=False)
     garment_version: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class TryOnUsage(Base, UUIDPrimaryKeyMixin):
+    """Cost and vendor tracking table. Deliberately has NO user_id or job_id for privacy."""
+
+    __tablename__ = "tryon_usage"
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    provider: Mapped[str] = mapped_column(Text, nullable=False)
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    outcome: Mapped[str] = mapped_column(Text, nullable=False)  # completed | failed | retried | cancelled
+    error_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    latency_ms: Mapped[int | None] = mapped_column(nullable=True)
+    cost_usd_est: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
+
+    __table_args__ = (
+        Index("ix_tryon_usage_created", "created_at"),
+    )
