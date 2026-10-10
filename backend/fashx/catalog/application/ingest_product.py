@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from database.models.catalog import CanonicalGarment, MerchantProduct
-
+from database.models.catalog import CanonicalGarment, CatalogSource, MerchantProduct
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError, ValidationError
 
@@ -20,6 +19,10 @@ class IngestProductCommand:
     currency: str = "INR"
     in_stock: bool = True
     brand_id: UUID | None = None
+    source_id: UUID | None = None
+    item_group_id: str | None = None
+    content_hash: str | None = None
+    status: str = "active"
 
 
 @dataclass
@@ -48,6 +51,25 @@ class IngestMerchantProductUseCase:
             if merchant is None:
                 raise EntityNotFoundError("Merchant", cmd.merchant_id)
 
+            # Determine source_id (fallback to merchant default cleared source)
+            source_id = cmd.source_id
+            if source_id is None:
+                default_slug = f"merchant-{cmd.merchant_id}"
+                source = await self.uow.sources.get_by_slug(default_slug)
+                if source is None:
+                    source = CatalogSource(
+                        slug=default_slug,
+                        name=merchant.name,
+                        kind="manual",
+                        status="cleared",
+                        rights_display=True,
+                        rights_tryon=True,
+                        image_policy="mirror",
+                    )
+                    self.uow.sources.add(source)
+                    await self.uow.sources.flush()
+                source_id = source.id
+
             # 1. Upsert MerchantProduct
             product = await self.uow.merchant_products.get_by_source_id(
                 cmd.merchant_id, cmd.source_product_id
@@ -57,11 +79,19 @@ class IngestMerchantProductUseCase:
                 product.description = cmd.description
                 product.source_url = cmd.source_url
                 product.brand_id = cmd.brand_id
+                product.source_id = source_id
+                product.item_group_id = cmd.item_group_id
+                product.content_hash = cmd.content_hash
+                product.status = cmd.status
             else:
                 product = MerchantProduct(
                     merchant_id=cmd.merchant_id,
                     brand_id=cmd.brand_id,
+                    source_id=source_id,
                     source_product_id=cmd.source_product_id,
+                    item_group_id=cmd.item_group_id,
+                    content_hash=cmd.content_hash,
+                    status=cmd.status,
                     title=cmd.title,
                     description=cmd.description,
                     source_url=cmd.source_url,

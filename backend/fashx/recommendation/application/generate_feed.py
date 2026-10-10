@@ -81,9 +81,9 @@ class GenerateFeedUseCase:
             avoided_colors = list(pref.colors_avoided) if pref and pref.colors_avoided else []
             allowed_categories = list(pref.categories) if pref and pref.categories else None
 
-        # 2. Fetch Catalog Candidates
+        # 2. Fetch Catalog Candidates (Gated: cleared sources + active products)
         async with self.catalog_uow:
-            garments = await self.catalog_uow.canonical_garments.list(limit=200)
+            garments = await self.catalog_uow.canonical_garments.list_feed_candidates(limit=200)
             candidates: list[CandidateItem] = []
 
             for g in garments:
