@@ -52,10 +52,11 @@ def main() -> None:
     parser.add_argument("--ranker", default="v1", choices=["baseline", "v1", "v2"], help="Ranker variant to evaluate")
     parser.add_argument("--personas", default="eval/personas.yml", help="Path to personas YAML file")
     parser.add_argument("--limit", type=int, default=25, help="Number of items to retrieve per persona")
-    parser.add_argument("--out", default="eval_results/v1.json", help="Output JSON path")
+    parser.add_argument("--out", default=None, help="Output JSON path")
     args = parser.parse_args()
 
-    run_personas(args.ranker, args.personas, args.out, args.limit)
+    out_file = args.out or f"eval_results/{args.ranker}.json"
+    run_personas(args.ranker, args.personas, out_file, args.limit)
 
 
 if __name__ == "__main__":
