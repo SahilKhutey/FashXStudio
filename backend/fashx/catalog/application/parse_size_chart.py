@@ -3,7 +3,6 @@ from typing import Any
 from uuid import UUID
 
 from database.models.catalog import SizeChart, SizeMeasurement
-
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.catalog.sizing.size_parser import SizeChartParser
 from fashx.core.errors import EntityNotFoundError

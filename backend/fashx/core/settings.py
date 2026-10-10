@@ -76,6 +76,10 @@ class Settings(BaseSettings):
         default_factory=lambda: ["tops", "bottoms", "one-pieces"],
         validation_alias="TRYON_SUPPORTED_CATEGORIES",
     )
+    enrich_daily_budget_usd: float = Field(default=10.0, validation_alias="ENRICH_DAILY_BUDGET_USD")
+    enrich_min_conf_filter: float = Field(default=0.85, validation_alias="ENRICH_MIN_CONF_FILTER")
+    vlm_provider: str = Field(default="mock", validation_alias="VLM_PROVIDER")
+    vlm_model: str = Field(default="claude-3-5-haiku-latest", validation_alias="VLM_MODEL")
 
     @property
     def is_production(self) -> bool:

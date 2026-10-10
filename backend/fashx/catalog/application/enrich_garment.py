@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from database.models.catalog import GarmentEnrichment
-
 from fashx.catalog.enrichment.enricher import HeuristicGarmentEnricher
 from fashx.catalog.enrichment.ports import GarmentEnricherPort
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork

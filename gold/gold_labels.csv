@@ -1,0 +1,201 @@
+item_id,title,description,category,sub_category,primary_color,pattern,sleeve_length,length,fit,ethnic_wear,ethnic_type,formality,photo_type,tryon_suitable
+GOLD-0001,Handblock Print Cotton Short Kurta,Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0002,Tussar Silk Embroidered Long Kurta,Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0003,Khadi Cotton Daily Wear Kurta,Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0004,Chanderi Silk Mandarin Kurti,Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0005,Floral Block Print Anarkali Kurta,Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0006,Linen Blend Casual Kurta,Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0007,Classic Oxford Cotton Formal Shirt,White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0008,Striped Linen Casual Shirt,Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0009,Checkered Flannel Button-Down Shirt,Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0010,Pima Cotton Crew Neck T-Shirt,Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0011,Floral Print Cuban Collar Shirt,Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0012,Slim Fit Stretch Cotton Chinos,Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0013,Pleated Formal Wool Blend Trousers,Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0014,Relaxed Fit Linen Drawstring Trousers,Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0015,Classic Straight Raw Denim Jeans,Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0016,Tapered Khaki Utility Cargo Pants,Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0017,Banarasi Katan Silk Saree,Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0018,Chanderi Floral Printed Saree,Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0019,Velvet Embroidered Bridal Lehenga,Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0020,Chikankari Georgette Anarkali Salwar Set,Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0021,Bandhani Silk Festive Saree,Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0022,Floral Tiered Cotton Midi Dress,Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0023,Solid Ribbed Knit Bodycon Dress,Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0024,Raw Silk Sleeveless Nehru Jacket,Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0025,Structured Linen Summer Blazer,Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0026,Classic Wool Single-Breasted Overcoat,Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0027,Embroidered Velvet Jutti,Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0028,Ajrakh Print Modal Silk Dupatta (Vol 2),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0029,Handblock Print Cotton Short Kurta (Vol 2),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0030,Tussar Silk Embroidered Long Kurta (Vol 2),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0031,Khadi Cotton Daily Wear Kurta (Vol 2),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0032,Chanderi Silk Mandarin Kurti (Vol 2),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0033,Floral Block Print Anarkali Kurta (Vol 2),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0034,Linen Blend Casual Kurta (Vol 2),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0035,Classic Oxford Cotton Formal Shirt (Vol 2),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0036,Striped Linen Casual Shirt (Vol 2),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0037,Checkered Flannel Button-Down Shirt (Vol 2),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0038,Pima Cotton Crew Neck T-Shirt (Vol 2),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0039,Floral Print Cuban Collar Shirt (Vol 2),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0040,Slim Fit Stretch Cotton Chinos (Vol 2),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0041,Pleated Formal Wool Blend Trousers (Vol 2),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0042,Relaxed Fit Linen Drawstring Trousers (Vol 2),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0043,Classic Straight Raw Denim Jeans (Vol 2),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0044,Tapered Khaki Utility Cargo Pants (Vol 2),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0045,Banarasi Katan Silk Saree (Vol 2),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0046,Chanderi Floral Printed Saree (Vol 2),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0047,Velvet Embroidered Bridal Lehenga (Vol 2),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0048,Chikankari Georgette Anarkali Salwar Set (Vol 2),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0049,Bandhani Silk Festive Saree (Vol 2),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0050,Floral Tiered Cotton Midi Dress (Vol 2),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0051,Solid Ribbed Knit Bodycon Dress (Vol 2),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0052,Raw Silk Sleeveless Nehru Jacket (Vol 2),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0053,Structured Linen Summer Blazer (Vol 2),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0054,Classic Wool Single-Breasted Overcoat (Vol 2),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0055,Embroidered Velvet Jutti (Vol 2),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0056,Ajrakh Print Modal Silk Dupatta (Vol 3),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0057,Handblock Print Cotton Short Kurta (Vol 3),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0058,Tussar Silk Embroidered Long Kurta (Vol 3),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0059,Khadi Cotton Daily Wear Kurta (Vol 3),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0060,Chanderi Silk Mandarin Kurti (Vol 3),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0061,Floral Block Print Anarkali Kurta (Vol 3),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0062,Linen Blend Casual Kurta (Vol 3),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0063,Classic Oxford Cotton Formal Shirt (Vol 3),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0064,Striped Linen Casual Shirt (Vol 3),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0065,Checkered Flannel Button-Down Shirt (Vol 3),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0066,Pima Cotton Crew Neck T-Shirt (Vol 3),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0067,Floral Print Cuban Collar Shirt (Vol 3),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0068,Slim Fit Stretch Cotton Chinos (Vol 3),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0069,Pleated Formal Wool Blend Trousers (Vol 3),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0070,Relaxed Fit Linen Drawstring Trousers (Vol 3),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0071,Classic Straight Raw Denim Jeans (Vol 3),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0072,Tapered Khaki Utility Cargo Pants (Vol 3),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0073,Banarasi Katan Silk Saree (Vol 3),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0074,Chanderi Floral Printed Saree (Vol 3),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0075,Velvet Embroidered Bridal Lehenga (Vol 3),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0076,Chikankari Georgette Anarkali Salwar Set (Vol 3),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0077,Bandhani Silk Festive Saree (Vol 3),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0078,Floral Tiered Cotton Midi Dress (Vol 3),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0079,Solid Ribbed Knit Bodycon Dress (Vol 3),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0080,Raw Silk Sleeveless Nehru Jacket (Vol 3),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0081,Structured Linen Summer Blazer (Vol 3),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0082,Classic Wool Single-Breasted Overcoat (Vol 3),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0083,Embroidered Velvet Jutti (Vol 3),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0084,Ajrakh Print Modal Silk Dupatta (Vol 4),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0085,Handblock Print Cotton Short Kurta (Vol 4),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0086,Tussar Silk Embroidered Long Kurta (Vol 4),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0087,Khadi Cotton Daily Wear Kurta (Vol 4),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0088,Chanderi Silk Mandarin Kurti (Vol 4),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0089,Floral Block Print Anarkali Kurta (Vol 4),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0090,Linen Blend Casual Kurta (Vol 4),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0091,Classic Oxford Cotton Formal Shirt (Vol 4),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0092,Striped Linen Casual Shirt (Vol 4),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0093,Checkered Flannel Button-Down Shirt (Vol 4),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0094,Pima Cotton Crew Neck T-Shirt (Vol 4),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0095,Floral Print Cuban Collar Shirt (Vol 4),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0096,Slim Fit Stretch Cotton Chinos (Vol 4),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0097,Pleated Formal Wool Blend Trousers (Vol 4),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0098,Relaxed Fit Linen Drawstring Trousers (Vol 4),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0099,Classic Straight Raw Denim Jeans (Vol 4),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0100,Tapered Khaki Utility Cargo Pants (Vol 4),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0101,Banarasi Katan Silk Saree (Vol 4),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0102,Chanderi Floral Printed Saree (Vol 4),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0103,Velvet Embroidered Bridal Lehenga (Vol 4),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0104,Chikankari Georgette Anarkali Salwar Set (Vol 4),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0105,Bandhani Silk Festive Saree (Vol 4),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0106,Floral Tiered Cotton Midi Dress (Vol 4),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0107,Solid Ribbed Knit Bodycon Dress (Vol 4),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0108,Raw Silk Sleeveless Nehru Jacket (Vol 4),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0109,Structured Linen Summer Blazer (Vol 4),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0110,Classic Wool Single-Breasted Overcoat (Vol 4),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0111,Embroidered Velvet Jutti (Vol 4),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0112,Ajrakh Print Modal Silk Dupatta (Vol 5),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0113,Handblock Print Cotton Short Kurta (Vol 5),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0114,Tussar Silk Embroidered Long Kurta (Vol 5),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0115,Khadi Cotton Daily Wear Kurta (Vol 5),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0116,Chanderi Silk Mandarin Kurti (Vol 5),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0117,Floral Block Print Anarkali Kurta (Vol 5),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0118,Linen Blend Casual Kurta (Vol 5),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0119,Classic Oxford Cotton Formal Shirt (Vol 5),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0120,Striped Linen Casual Shirt (Vol 5),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0121,Checkered Flannel Button-Down Shirt (Vol 5),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0122,Pima Cotton Crew Neck T-Shirt (Vol 5),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0123,Floral Print Cuban Collar Shirt (Vol 5),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0124,Slim Fit Stretch Cotton Chinos (Vol 5),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0125,Pleated Formal Wool Blend Trousers (Vol 5),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0126,Relaxed Fit Linen Drawstring Trousers (Vol 5),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0127,Classic Straight Raw Denim Jeans (Vol 5),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0128,Tapered Khaki Utility Cargo Pants (Vol 5),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0129,Banarasi Katan Silk Saree (Vol 5),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0130,Chanderi Floral Printed Saree (Vol 5),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0131,Velvet Embroidered Bridal Lehenga (Vol 5),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0132,Chikankari Georgette Anarkali Salwar Set (Vol 5),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0133,Bandhani Silk Festive Saree (Vol 5),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0134,Floral Tiered Cotton Midi Dress (Vol 5),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0135,Solid Ribbed Knit Bodycon Dress (Vol 5),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0136,Raw Silk Sleeveless Nehru Jacket (Vol 5),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0137,Structured Linen Summer Blazer (Vol 5),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0138,Classic Wool Single-Breasted Overcoat (Vol 5),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0139,Embroidered Velvet Jutti (Vol 5),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0140,Ajrakh Print Modal Silk Dupatta (Vol 6),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0141,Handblock Print Cotton Short Kurta (Vol 6),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0142,Tussar Silk Embroidered Long Kurta (Vol 6),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0143,Khadi Cotton Daily Wear Kurta (Vol 6),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0144,Chanderi Silk Mandarin Kurti (Vol 6),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0145,Floral Block Print Anarkali Kurta (Vol 6),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0146,Linen Blend Casual Kurta (Vol 6),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0147,Classic Oxford Cotton Formal Shirt (Vol 6),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0148,Striped Linen Casual Shirt (Vol 6),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0149,Checkered Flannel Button-Down Shirt (Vol 6),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0150,Pima Cotton Crew Neck T-Shirt (Vol 6),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0151,Floral Print Cuban Collar Shirt (Vol 6),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0152,Slim Fit Stretch Cotton Chinos (Vol 6),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0153,Pleated Formal Wool Blend Trousers (Vol 6),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0154,Relaxed Fit Linen Drawstring Trousers (Vol 6),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0155,Classic Straight Raw Denim Jeans (Vol 6),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0156,Tapered Khaki Utility Cargo Pants (Vol 6),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0157,Banarasi Katan Silk Saree (Vol 6),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0158,Chanderi Floral Printed Saree (Vol 6),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0159,Velvet Embroidered Bridal Lehenga (Vol 6),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0160,Chikankari Georgette Anarkali Salwar Set (Vol 6),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0161,Bandhani Silk Festive Saree (Vol 6),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0162,Floral Tiered Cotton Midi Dress (Vol 6),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0163,Solid Ribbed Knit Bodycon Dress (Vol 6),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0164,Raw Silk Sleeveless Nehru Jacket (Vol 6),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0165,Structured Linen Summer Blazer (Vol 6),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0166,Classic Wool Single-Breasted Overcoat (Vol 6),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0167,Embroidered Velvet Jutti (Vol 6),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0168,Ajrakh Print Modal Silk Dupatta (Vol 7),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0169,Handblock Print Cotton Short Kurta (Vol 7),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0170,Tussar Silk Embroidered Long Kurta (Vol 7),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0171,Khadi Cotton Daily Wear Kurta (Vol 7),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0172,Chanderi Silk Mandarin Kurti (Vol 7),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
+GOLD-0173,Floral Block Print Anarkali Kurta (Vol 7),Pink calf-length flared floral cotton kurta,top,kurta,pink,floral,three_quarter,midi,relaxed,True,kurta,3,on_model,True
+GOLD-0174,Linen Blend Casual Kurta (Vol 7),Off-white lightweight summer kurta with wooden buttons,top,kurta,white,solid,short,regular,relaxed,True,kurta,2,ghost_mannequin,True
+GOLD-0175,Classic Oxford Cotton Formal Shirt (Vol 7),White crisp cotton button-down long sleeve formal shirt,top,shirt,white,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0176,Striped Linen Casual Shirt (Vol 7),Blue and white breathable vertical striped casual shirt,top,shirt,blue,striped,short,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0177,Checkered Flannel Button-Down Shirt (Vol 7),Red and black warm plaid flannel winter shirt,top,shirt,red,checked,full,regular,regular,False,,2,flat_lay,True
+GOLD-0178,Pima Cotton Crew Neck T-Shirt (Vol 7),Black premium solid crewneck short sleeve casual tee,top,shirt,black,solid,short,regular,regular,False,,1,on_model,True
+GOLD-0179,Floral Print Cuban Collar Shirt (Vol 7),Mustard resort wear lightweight rayon printed shirt,top,shirt,yellow,floral,short,regular,relaxed,False,,2,on_model,True
+GOLD-0180,Slim Fit Stretch Cotton Chinos (Vol 7),Navy blue versatile casual tailored chinos trousers,bottom,trousers,blue,solid,,regular,slim,False,,3,on_model,True
+GOLD-0181,Pleated Formal Wool Blend Trousers (Vol 7),Charcoal grey office formal dress pants,bottom,trousers,black,solid,,regular,regular,False,,4,on_model,True
+GOLD-0182,Relaxed Fit Linen Drawstring Trousers (Vol 7),Beige breathable beach and lounge linen pants,bottom,trousers,beige,solid,,regular,relaxed,False,,2,ghost_mannequin,True
+GOLD-0183,Classic Straight Raw Denim Jeans (Vol 7),Deep indigo sturdy selvedge five-pocket denim jeans,bottom,trousers,blue,solid,,regular,regular,False,,2,flat_lay,True
+GOLD-0184,Tapered Khaki Utility Cargo Pants (Vol 7),Olive green rugged cotton multi-pocket cargo pants,bottom,trousers,green,solid,,regular,relaxed,False,,2,on_model,True
+GOLD-0185,Banarasi Katan Silk Saree (Vol 7),Crimson red handwoven bridal saree with rich gold zari pallu,one_piece,saree,red,embroidered,,maxi,regular,True,saree,5,on_model,False
+GOLD-0186,Chanderi Floral Printed Saree (Vol 7),Teal blue lightweight festive saree with printed motifs,one_piece,saree,blue,printed,,maxi,regular,True,saree,4,on_model,False
+GOLD-0187,Velvet Embroidered Bridal Lehenga (Vol 7),Maroon heavy bridal lehenga choli with ornate embroidery,one_piece,lehenga,red,embroidered,short,maxi,regular,True,lehenga,5,on_model,False
+GOLD-0188,Chikankari Georgette Anarkali Salwar Set (Vol 7),Pastel yellow lucknowi chikan embroidered salwar kameez set,one_piece,salwar_set,yellow,embroidered,full,maxi,relaxed,True,salwar_set,4,on_model,True
+GOLD-0189,Bandhani Silk Festive Saree (Vol 7),Yellow and red traditional tie-dye festive silk saree,one_piece,saree,yellow,printed,,maxi,regular,True,saree,4,ghost_mannequin,False
+GOLD-0190,Floral Tiered Cotton Midi Dress (Vol 7),Green summer A-line midi dress with puff sleeves,one_piece,dress,green,floral,short,midi,regular,False,,3,on_model,True
+GOLD-0191,Solid Ribbed Knit Bodycon Dress (Vol 7),Black elegant dinner evening party dress,one_piece,dress,black,solid,sleeveless,knee,slim,False,,4,on_model,True
+GOLD-0192,Raw Silk Sleeveless Nehru Jacket (Vol 7),Mustard yellow traditional ethnic bundi waistcoat jacket,outerwear,jacket,yellow,solid,sleeveless,crop,slim,True,nehru_jacket,4,on_model,True
+GOLD-0193,Structured Linen Summer Blazer (Vol 7),Beige smart casual two-button tailored notch lapel blazer,outerwear,jacket,beige,solid,full,regular,slim,False,,4,on_model,True
+GOLD-0194,Classic Wool Single-Breasted Overcoat (Vol 7),Charcoal black warm tailored winter outerwear coat,outerwear,jacket,black,solid,full,knee,regular,False,,4,ghost_mannequin,True
+GOLD-0195,Embroidered Velvet Jutti (Vol 7),Maroon ethnic wedding footwear with leather sole,footwear,jutti,red,embroidered,,,,True,jutti,4,flat_lay,False
+GOLD-0196,Ajrakh Print Modal Silk Dupatta (Vol 8),Indigo blue natural dyed traditional lightweight dupatta scarf,accessory,dupatta,blue,printed,,,,True,dupatta,3,flat_lay,False
+GOLD-0197,Handblock Print Cotton Short Kurta (Vol 8),Indigo breathable cotton short kurta with mandarin collar,top,kurta,blue,printed,full,crop,regular,True,kurta,2,ghost_mannequin,True
+GOLD-0198,Tussar Silk Embroidered Long Kurta (Vol 8),Mustard yellow festive silk kurta with fine zari work,top,kurta,yellow,embroidered,full,knee,regular,True,kurta,4,on_model,True
+GOLD-0199,Khadi Cotton Daily Wear Kurta (Vol 8),Olive green casual handspun kurta with side pockets,top,kurta,green,solid,full,knee,relaxed,True,kurta,2,flat_lay,True
+GOLD-0200,Chanderi Silk Mandarin Kurti (Vol 8),Maroon traditional kurti with delicate gold piping,top,kurta,red,solid,three_quarter,crop,slim,True,kurta,4,on_model,True
