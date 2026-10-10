@@ -11,6 +11,7 @@ from fashx.gateway.errors import install_exception_handlers
 from fashx.gateway.middleware import RequestContextMiddleware
 from fashx.health.router import router as health_router
 from fashx.profile.router import router as profile_router
+from fashx.recommendation.feed_router import feed_router
 from fashx.recommendation.router import router as recommendation_router
 from fashx.tryon.router import router as tryon_router
 from fashx.visual.router import router as visual_router
@@ -68,6 +69,7 @@ def create_app() -> FastAPI:
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))])
     app.include_router(recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(feed_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(tryon_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])

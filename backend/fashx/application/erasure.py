@@ -26,6 +26,8 @@ ACCOUNT_TABLES: list[str] = [
     "fit_feedback",
     "tryon_feedback",
     "feed_exclusions",
+    "feed_impressions",
+    "feed_signals",
     "user_preferences",
     "onboarding_profiles",
     "consent_records",

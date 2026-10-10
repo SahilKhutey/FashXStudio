@@ -30,6 +30,7 @@ from .profile import (
 from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
 from .operations import IdempotencyRecord, OutboxMessageRecord
 from .media import MediaObject
+from .feed import FeedImpression, FeedSignal
 
 __all__ = [
     "Base",
@@ -63,4 +64,6 @@ __all__ = [
     "IdempotencyRecord",
     "OutboxMessageRecord",
     "MediaObject",
+    "FeedImpression",
+    "FeedSignal",
 ]

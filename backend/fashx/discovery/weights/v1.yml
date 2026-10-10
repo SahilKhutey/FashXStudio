@@ -1,0 +1,18 @@
+version: v1
+description: Initial baseline ranking weights (ADR-0006)
+weights:
+  taste: 1.0
+  style: 0.5
+  occasion: 0.4
+  formality: 0.3
+  color: 0.3
+  skin_harmony: 0.10
+  size_fit: 0.4
+  price: 0.3
+  freshness: 0.15
+  popularity: 0.10
+  tryon: 0.0
+mmr:
+  lambda: 0.7
+  max_per_brand: 3
+  max_source_share: 0.6

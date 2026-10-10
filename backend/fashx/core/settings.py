@@ -80,6 +80,7 @@ class Settings(BaseSettings):
     enrich_min_conf_filter: float = Field(default=0.85, validation_alias="ENRICH_MIN_CONF_FILTER")
     vlm_provider: str = Field(default="mock", validation_alias="VLM_PROVIDER")
     vlm_model: str = Field(default="claude-3-5-haiku-latest", validation_alias="VLM_MODEL")
+    ranker_version: str = Field(default="v1", validation_alias="RANKER_VERSION")
 
     @property
     def is_production(self) -> bool:
