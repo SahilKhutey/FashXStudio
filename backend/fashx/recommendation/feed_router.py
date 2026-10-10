@@ -3,13 +3,15 @@
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic import BaseModel
 from sqlalchemy import select
 
 from database.models.feed import FeedSignal
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
+from fashx.discovery.session_cache import invalidate_user_cache
+from fashx.observability.stages import format_server_timing, stage, start_stage_recording
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.recommendation.application.generate_feed import (
     GenerateFeedCommand,
@@ -73,6 +75,9 @@ async def record_feed_signal(
         # Graceful fallback if database unavailable during offline/mock execution
         pass
 
+    # Positive and negative signals invalidate active feed caches for fresh recommendations
+    invalidate_user_cache(user_id)
+
     return FeedSignalResponse(
         status="recorded",
         user_id=user_id,
@@ -83,6 +88,7 @@ async def record_feed_signal(
 
 @feed_router.get("", response_model=FeedResponse)
 async def get_feed(
+    response: Response,
     limit: int = Query(default=20, ge=1, le=100),
     diversity: float = Query(default=0.7, ge=0.0, le=1.0),
     principal: Principal = Depends(get_principal),
@@ -90,14 +96,21 @@ async def get_feed(
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> FeedResponse:
     """Get personalized feed for the authenticated principal."""
+    start_stage_recording()
     user_id = UUID(principal.user_id)
-    use_case = GenerateFeedUseCase(profile_uow, catalog_uow)
-    cmd = GenerateFeedCommand(
-        user_id=user_id,
-        limit=limit,
-        diversity_lambda=diversity,
-    )
-    result = await use_case.execute(cmd)
+    with stage("retrieval"):
+        use_case = GenerateFeedUseCase(profile_uow, catalog_uow)
+        cmd = GenerateFeedCommand(
+            user_id=user_id,
+            limit=limit,
+            diversity_lambda=diversity,
+        )
+    with stage("scoring"):
+        result = await use_case.execute(cmd)
+
+    # Attach Server-Timing metrics header
+    response.headers["Server-Timing"] = format_server_timing()
+
     return FeedResponse(
         user_id=result.user_id,
         items=[

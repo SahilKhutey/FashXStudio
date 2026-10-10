@@ -1,5 +1,6 @@
 """Discovery ranking pipeline with deterministic filtering, weighted scoring, constrained MMR, and truthful explanations."""
 
+import functools
 import math
 import pathlib
 from collections import Counter
@@ -12,6 +13,7 @@ import yaml
 
 from eval.persona_to_context import PersonaContext
 from fashx.discovery.catalog_data import CatalogGarmentItem, get_catalog_items
+from fashx.observability.stages import stage
 
 TEMPLATES = {
     "taste": "Close to the styles you picked",
@@ -22,6 +24,16 @@ TEMPLATES = {
     "color": "In colours you tend to like",
     "skin_harmony": "A shade that tends to complement your undertone",
     "freshness": "New this week",
+}
+
+SISTER_SIZES: dict[str, list[str]] = {
+    "XXS": ["XS"],
+    "XS": ["XXS", "S"],
+    "S": ["XS", "M"],
+    "M": ["S", "L"],
+    "L": ["M", "XL"],
+    "XL": ["L", "XXL"],
+    "XXL": ["XL"],
 }
 
 DEFAULT_WEIGHTS = {
@@ -59,9 +71,11 @@ class RankedItem:
     score: float = 0.0
     reasons: list[tuple[str, str]] = field(default_factory=list)
     relaxed: dict[str, bool] = field(default_factory=dict)
+    relaxation_tier: int = 0
     embedding: np.ndarray | None = None
 
 
+@functools.lru_cache
 def load_weights_config(ranker_version: str = "v1") -> tuple[dict[str, float], dict[str, Any]]:
     """Load ranking weights and MMR parameters from versioned YAML config."""
     config_path = pathlib.Path(f"backend/fashx/discovery/weights/{ranker_version}.yml")
@@ -240,173 +254,192 @@ def rank(
     ranker: str = "v1",
 ) -> list[RankedItem]:
     """Retrieve, filter by hard constraints, score, diversify, and paginate feed results."""
-    # 1. Candidate Pool
-    pool = get_catalog_items()
+    with stage("retrieval"):
+        # 1. Candidate Pool
+        pool = get_catalog_items()
 
-    # 2. Hard Invariant Filters (Step 7.7)
-    # Rules that MUST NEVER RELAX: source_status, status, in_stock, price_age, kids, gender, exclusions, size
-    hard_candidates: list[CatalogGarmentItem] = []
-    for it in pool:
-        if it.source_status != "cleared":
-            continue
-        if not (it.status == "active" and it.in_stock):
-            continue
-        if it.price_age_hours > 72.0:
-            continue
-        if it.age_group == "kids":
-            continue
-        if it.gender not in ctx.genders:
-            continue
-        if it.id in ctx.hidden_ids or it.id in ctx.saved_ids:
-            continue
-        # Hard size check: must share at least one size in stock with persona sizes
-        if not (set(it.sizes_in_stock) & set(ctx.sizes)):
-            continue
-        hard_candidates.append(it)
-
-    if not hard_candidates:
-        return []
-
-    # 3. Soft Constraints & Relaxation Ladder (Step 7.15)
-    relaxed_flags: dict[str, bool] = {}
-    current_b_max = float(ctx.budget_max)
-    allowed_categories = set(ctx.categories) if ctx.categories else None
-    check_occasion = True
-
-    # Filter by initial constraints
-    def filter_soft(candidates: list[CatalogGarmentItem]) -> list[CatalogGarmentItem]:
-        filtered = []
-        for it in candidates:
-            if not (ctx.budget_min <= it.price <= current_b_max):
+        # 2. Hard Invariant Filters (Step 7.7)
+        # Rules that MUST NEVER RELAX: source_status, status, in_stock, price_age, kids, gender, exclusions, size
+        hard_candidates: list[CatalogGarmentItem] = []
+        for it in pool:
+            if it.source_status != "cleared":
                 continue
-            if allowed_categories and it.category not in allowed_categories:
+            if not (it.status == "active" and it.in_stock):
                 continue
-            if check_occasion and ctx.occasion and it.occasion != ctx.occasion and (it.formality < 3 if ctx.occasion in ("work", "wedding") else False):
+            if it.price_age_hours > 72.0:
                 continue
-            filtered.append(it)
-        return filtered
+            if it.age_group == "kids":
+                continue
+            if it.gender not in ctx.genders:
+                continue
+            if it.id in ctx.hidden_ids or it.id in ctx.saved_ids:
+                continue
+            if not (set(it.sizes_in_stock) & set(ctx.sizes)):
+                continue
+            hard_candidates.append(it)
 
-    surviving = filter_soft(hard_candidates)
+        if not hard_candidates:
+            return []
 
-    # Relaxation Ladder if fewer than limit items survive
-    if len(surviving) < limit:
-        # Step 1: Widen budget by 25% above max
-        current_b_max = ctx.budget_max * 1.25
-        relaxed_flags["budget"] = True
-        surviving = filter_soft(hard_candidates)
+        # 3. Soft Constraints & 4-Tier Relaxation Ladder (Step 7.14)
+        min_target = 40
+        tier = 0
+        relaxed_flags: dict[str, bool] = {}
 
-    if len(surviving) < limit and allowed_categories:
-        # Step 2: Add related categories (e.g. top + outerwear)
-        allowed_categories.update(["top", "outerwear"])
-        relaxed_flags["category"] = True
-        surviving = filter_soft(hard_candidates)
+        def filter_candidates(candidates: list[CatalogGarmentItem], b_max: float, req_occasion: bool) -> list[CatalogGarmentItem]:
+            filtered = []
+            for it in candidates:
+                if not (ctx.budget_min <= it.price <= b_max):
+                    continue
+                if req_occasion and ctx.occasion and it.occasion != ctx.occasion and (it.formality < 3 if ctx.occasion in ("work", "wedding") else False):
+                    continue
+                filtered.append(it)
+            return filtered
 
-    if len(surviving) < limit:
-        # Step 3: Drop occasion constraint
-        check_occasion = False
-        relaxed_flags["occasion"] = True
-        surviving = filter_soft(hard_candidates)
+        # Tier 0 (strict): exact size, budget cap, occasion match, gender
+        surviving = filter_candidates(hard_candidates, float(ctx.budget_max), True)
 
-    if not surviving:
-        # If still empty after relaxations, return hard-pass candidates within size/gender
-        surviving = hard_candidates
+        # Tier 1: drop occasion filter
+        if len(surviving) < min_target:
+            tier = 1
+            relaxed_flags["occasion"] = True
+            surviving = filter_candidates(hard_candidates, float(ctx.budget_max), False)
+
+        # Tier 2: expand budget by +50%
+        if len(surviving) < min_target:
+            tier = 2
+            relaxed_flags["budget"] = True
+            surviving = filter_candidates(hard_candidates, float(ctx.budget_max) * 1.5, False)
+
+        # Tier 3: sister size (if configured / available)
+        if len(surviving) < min_target:
+            sister_sizes = set()
+            for s in ctx.sizes:
+                sister_sizes.update(SISTER_SIZES.get(s, []))
+            all_sizes = set(ctx.sizes) | sister_sizes
+            tier_3_hard = [
+                it for it in pool
+                if it.source_status == "cleared"
+                and it.status == "active"
+                and it.in_stock
+                and it.price_age_hours <= 72.0
+                and it.age_group != "kids"
+                and it.gender in ctx.genders
+                and it.id not in ctx.hidden_ids
+                and it.id not in ctx.saved_ids
+                and (set(it.sizes_in_stock) & all_sizes)
+            ]
+            t3 = filter_candidates(tier_3_hard, float(ctx.budget_max) * 1.5, False)
+            if len(t3) > len(surviving):
+                tier = 3
+                relaxed_flags["sister_size"] = True
+                surviving = t3
+
+        if not surviving:
+            surviving = hard_candidates
 
     # 4. Scoring
     scored: list[RankedItem] = []
 
     if ranker == "baseline":
         # Pure Taste-Only Baseline (Step 7.6): retrieve with hard filters, rank strictly by cosine similarity
-        for it in surviving:
-            cos_sim = float(np.dot(ctx.taste_vector, it.embedding))
-            scored.append(
-                RankedItem(
-                    id=it.id,
-                    title=it.title,
-                    brand=it.brand,
-                    source_id=it.source_id,
-                    source_status=it.source_status,
-                    status=it.status,
-                    in_stock=it.in_stock,
-                    price=it.price,
-                    price_age_hours=it.price_age_hours,
-                    sizes_in_stock=it.sizes_in_stock,
-                    gender=it.gender,
-                    age_group=it.age_group,
-                    category=it.category,
-                    sub_category=it.sub_category,
-                    image_url=it.image_url,
-                    score=cos_sim,
-                    reasons=[("taste", TEMPLATES["taste"])],
-                    relaxed=relaxed_flags.copy(),
-                    embedding=it.embedding,
+        with stage("scoring"):
+            for it in surviving:
+                cos_sim = float(np.dot(ctx.taste_vector, it.embedding))
+                scored.append(
+                    RankedItem(
+                        id=it.id,
+                        title=it.title,
+                        brand=it.brand,
+                        source_id=it.source_id,
+                        source_status=it.source_status,
+                        status=it.status,
+                        in_stock=it.in_stock,
+                        price=it.price,
+                        price_age_hours=it.price_age_hours,
+                        sizes_in_stock=it.sizes_in_stock,
+                        gender=it.gender,
+                        age_group=it.age_group,
+                        category=it.category,
+                        sub_category=it.sub_category,
+                        image_url=it.image_url,
+                        score=cos_sim,
+                        reasons=[("taste", TEMPLATES["taste"])],
+                        relaxed=relaxed_flags.copy(),
+                        relaxation_tier=tier,
+                        embedding=it.embedding,
+                    )
                 )
-            )
-        scored.sort(key=lambda x: x.score, reverse=True)
+            scored.sort(key=lambda x: x.score, reverse=True)
     else:
         # Multi-feature scoring + MMR diversification (v1/v2)
-        weights, mmr_cfg = load_weights_config(ranker)
-        emb_matrix = np.array([it.embedding for it in surviving])
-        rel_scores = []
-        contribs_list = []
-        feats_list = []
+        with stage("scoring"):
+            weights, mmr_cfg = load_weights_config(ranker)
+            emb_matrix = np.array([it.embedding for it in surviving])
+            rel_scores = []
+            contribs_list = []
+            feats_list = []
 
-        for it in surviving:
-            f = compute_features(it, ctx)
-            feats_list.append(f)
-            contrib = {k: weights.get(k, 0.0) * f[k] for k in f}
-            contribs_list.append(contrib)
-            rel = sum(contrib.values())
-            rel_scores.append(rel)
+            for it in surviving:
+                f = compute_features(it, ctx)
+                feats_list.append(f)
+                contrib = {k: weights.get(k, 0.0) * f[k] for k in f}
+                contribs_list.append(contrib)
+                rel = sum(contrib.values())
+                rel_scores.append(rel)
 
-        rel_arr = np.array(rel_scores, dtype=np.float32)
-        brands = [it.brand for it in surviving]
-        sources = [str(it.source_id) for it in surviving]
+            rel_arr = np.array(rel_scores, dtype=np.float32)
+            brands = [it.brand for it in surviving]
+            sources = [str(it.source_id) for it in surviving]
 
-        # Cold-start uses higher diversity (lower lambda, Step 7.14)
-        lam = 0.5 if ctx.cold_start else mmr_cfg.get("lambda", 0.7)
+            # Cold-start uses higher diversity (lower lambda, Step 7.14)
+            lam = 0.5 if ctx.cold_start else mmr_cfg.get("lambda", 0.7)
+            sub_cats = [it.sub_category for it in surviving]
 
-        sub_cats = [it.sub_category for it in surviving]
-        selected_indices = mmr_select(
-            emb=emb_matrix,
-            rel=rel_arr,
-            brand=brands,
-            source=sources,
-            sub_categories=sub_cats,
-            k=min(len(surviving), limit),
-            lam=lam,
-            max_per_brand=mmr_cfg.get("max_per_brand", 3),
-            max_source_share=mmr_cfg.get("max_source_share", 0.6),
-            max_per_subcat=3,
-        )
-
-        for idx in selected_indices:
-            it = surviving[idx]
-            c = contribs_list[idx]
-            f = feats_list[idx]
-            reasons = explain(c, f, ctx)
-            scored.append(
-                RankedItem(
-                    id=it.id,
-                    title=it.title,
-                    brand=it.brand,
-                    source_id=it.source_id,
-                    source_status=it.source_status,
-                    status=it.status,
-                    in_stock=it.in_stock,
-                    price=it.price,
-                    price_age_hours=it.price_age_hours,
-                    sizes_in_stock=it.sizes_in_stock,
-                    gender=it.gender,
-                    age_group=it.age_group,
-                    category=it.category,
-                    sub_category=it.sub_category,
-                    image_url=it.image_url,
-                    score=float(rel_arr[idx]),
-                    reasons=reasons,
-                    relaxed=relaxed_flags.copy(),
-                    embedding=it.embedding,
-                )
+        with stage("mmr"):
+            selected_indices = mmr_select(
+                emb=emb_matrix,
+                rel=rel_arr,
+                brand=brands,
+                source=sources,
+                sub_categories=sub_cats,
+                k=min(len(surviving), limit),
+                lam=lam,
+                max_per_brand=mmr_cfg.get("max_per_brand", 3),
+                max_source_share=mmr_cfg.get("max_source_share", 0.6),
+                max_per_subcat=3,
             )
+
+        with stage("explanation"):
+            for idx in selected_indices:
+                it = surviving[idx]
+                c = contribs_list[idx]
+                f = feats_list[idx]
+                reasons = explain(c, f, ctx)
+                scored.append(
+                    RankedItem(
+                        id=it.id,
+                        title=it.title,
+                        brand=it.brand,
+                        source_id=it.source_id,
+                        source_status=it.source_status,
+                        status=it.status,
+                        in_stock=it.in_stock,
+                        price=it.price,
+                        price_age_hours=it.price_age_hours,
+                        sizes_in_stock=it.sizes_in_stock,
+                        gender=it.gender,
+                        age_group=it.age_group,
+                        category=it.category,
+                        sub_category=it.sub_category,
+                        image_url=it.image_url,
+                        score=float(rel_arr[idx]),
+                        reasons=reasons,
+                        relaxed=relaxed_flags.copy(),
+                        relaxation_tier=tier,
+                        embedding=it.embedding,
+                    )
+                )
 
     # 5. Pagination
     start = page * limit
