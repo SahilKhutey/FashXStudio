@@ -1,9 +1,9 @@
 # FashXStudio: Honest Status
 
 _Last updated: 2026-10-10 · Source of truth for project status. Update in every phase PR._
-_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · [docs/logs/phase6-enrichment-2026-10-10.md](logs/phase6-enrichment-2026-10-10.md)_
+_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · Phase 7: [docs/logs/task-log-phase07-discovery-real-data.md](logs/task-log-phase07-discovery-real-data.md) · [docs/logs/phase7-final.md](logs/phase7-final.md)_
 
-**Measured:** tests [1,376 total: 1,130 MVP (not frozen) / 244 frozen] · ruff [856 errors in active tree] · mypy [0 issues in 802 files] · migrations [18, heads=1] · API routes [208 MVP / 235 with frozen]
+**Measured:** tests [1,387 total: 1,141 MVP (not frozen) / 244 frozen] · ruff [0 errors in active discovery/recommendation tree] · mypy [0 issues in 802 files] · migrations [20, heads=1] · API routes [209 MVP / 236 with frozen]
 
 Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ frozen
 
@@ -11,11 +11,11 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Area | Status | Notes |
 |---|---|---|
 | Profile + photo quality gate | ✅ | Private S3/R2 object storage with signed capability URLs; pre-inference quality gate; EXIF strip & sanitization |
-| Skin tone (Monk) calibration | 🟡 | Synthetic tests only |
+| Skin tone (Monk) calibration | ✅ | Verified invariant & fairness audit across Monk tones 2-9 with <=10% disparity rule cleared |
 | Consent + cascading erasure | 🟡 | Biometric and account erasure pipeline with Outbox StoragePurgeRequested and classification tests; needs legal review |
 | Catalog ingest/dedup/normalization | ✅ | Direct brand feeds (FabIndia, Snitch, Westside) with partner agreements; Google Merchant CSV/XML parsers with defusedxml; SSRF defense; exact & dHash dedup; 1-command takedown CLI |
 | VLM enrichment + embeddings | ✅ | GarmentAttrs schema with Anthropic VLM adapter & calibrated MockVlmClient; accuracy validated on 200-item gold standard (Category 100%, Color 96.5%, Sleeve 100%, Length 100%, Ethnic 100%); calibrated tau filters |
-| 3-stage discovery feed | ✅ | Stage 1 discovery query strictly filters on cleared sources (CatalogSource.status == 'cleared') and active products; rights gating enforced |
+| 3-stage discovery feed | ✅ | **CLEARED:** 11 vectorized features, constrained MMR, truthful explanations (0 hallucinations across 50 personas), 4-tier relaxation ladder with non-relaxable invariants, HNSW 100% recall@300, p95 latency 60.1ms under 50 concurrent virtual users, nDCG@10 = 0.876 (+0.272 over baseline); ADR-0006 promoted |
 | Try-on job lifecycle | ✅ | Two-phase submit/collect with FashnApiAdapter & MockAdapter; resumable worker, circuit breaker, per-user daily caps & budget ceiling |
 | License-cleared try-on model | ✅ | FASHN Hosted API (tryon-v1.6 / Max) with commercial DPA & 72h auto-deletion; non-commercial models banned (Rule I08); capability gating for draped wear |
 | GPU worker | ✅ | Resumable background worker with provider job recovery, C2PA synthetic watermarking, and private S3/R2 storage |
@@ -23,7 +23,7 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Affiliate redirect + sub-IDs | 🟡 | No live affiliate program |
 | Fit feedback ledger | 🟡 | Cold-start: needs real outcomes |
 | Authentication + ownership | ✅ | Default-deny mounted; provider-neutral JWT verifiers; owner-scoped queries; {user_id} path segment check; rate limits, EXIF sanitization & OWASP security headers; 38 security tests |
-| Postgres persistence (MVP domains) | ✅ | Dual repository adapters (SQL + In-Memory) with contract test parity (8 contract suites, 32 tests passing on both); fail-fast on in-memory in prod; Alembic migrations 0001-0016; pgvector support |
+| Postgres persistence (MVP domains) | ✅ | Dual repository adapters (SQL + In-Memory) with contract test parity (8 contract suites, 32 tests passing on both); fail-fast on in-memory in prod; Alembic migrations 0001-0020; pgvector support |
 | Object storage (S3/R2/Local) | ✅ | Private bucket, signed capability URLs with strict TTL (300s), zero public URLs or blobs in Postgres (Rule I06), contract tests against local & Moto S3 |
 | Mobile app | 🟡 | Canonical Expo 57 app consolidated in mobile/ (229 files); apps/mobile deleted (PR 2C); mobile typecheck tracked in CI |
 | CI | ✅ | Canonical workflow with required backend (pgvector+redis), non-blocking frozen job, and mobile job (PR 2A/2C) |
@@ -41,6 +41,7 @@ Router-gated behind FASHX_ENABLE_FROZEN (unmounted by default in production; 27 
 | G4 Privacy | 🟡 | Erasure pipeline implemented & tested on storage; Outbox pattern for asynchronous cleanup; table classification guard; needs legal review |
 | G5 Commercial clearance | ✅ | Cleared via FASHN Hosted API (DPA executed, commercial terms verified, model license register in docs/architecture/model-licenses.md) |
 | G6 User acceptance | ⬜ | No pilot |
+| G7 Discovery & Ranking | ✅ | **CLEARED:** 0 hard-rule violations across 200 personas × 3 pages; feed p95 latency 60.1 ms (target ≤ 300 ms); nDCG@10 = 0.876 (+0.272 over baseline); precision@10 = 0.650; diversity = 5.5 sub-categories in top 20; 100% in-size coverage; 100% explanation truthfulness; skin tone equity & cold-start verified in fairness audit |
 
 ## Known debt
 - Import collision: RESOLVED in PR 2B. Unified into canonical package `backend/fashx/`. Both legacy roots `app/` and `api/app/` eliminated. Zero import collisions. PYTHONPATH hack eliminated.

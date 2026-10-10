@@ -72,6 +72,7 @@ class RankedItem:
     reasons: list[tuple[str, str]] = field(default_factory=list)
     relaxed: dict[str, bool] = field(default_factory=dict)
     relaxation_tier: int = 0
+    features: dict[str, float] = field(default_factory=dict)
     embedding: np.ndarray | None = None
 
 
@@ -214,8 +215,15 @@ def compute_features(item: CatalogGarmentItem, ctx: PersonaContext) -> dict[str,
     else:
         skin_harmony = 0.5
 
-    # 7. Size fit: 1.0 because candidate already has size in stock
-    size_fit = 1.0
+    # 7. Size fit: 1.0 if primary size in stock, 0.7 if sister size, 0.0 otherwise
+    if ctx.primary_size and ctx.primary_size in item.sizes_in_stock:
+        size_fit = 1.0
+    elif any(s in item.sizes_in_stock for s in SISTER_SIZES.get(ctx.primary_size, [])):
+        size_fit = 0.7
+    elif any(s in item.sizes_in_stock for s in ctx.sizes):
+        size_fit = 0.9
+    else:
+        size_fit = 0.0
 
     # 8. Price affinity: Closeness to budget midpoint
     budget_mid = (ctx.budget_min + ctx.budget_max) / 2.0
@@ -437,6 +445,7 @@ def rank(
                         reasons=reasons,
                         relaxed=relaxed_flags.copy(),
                         relaxation_tier=tier,
+                        features=f.copy(),
                         embedding=it.embedding,
                     )
                 )
