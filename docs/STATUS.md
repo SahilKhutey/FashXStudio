@@ -1,9 +1,9 @@
 # FashXStudio: Honest Status
 
-_Last updated: 2026-10-10 · Source of truth for project status. Update in every phase PR._
-_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · Phase 7: [docs/logs/task-log-phase07-discovery-real-data.md](logs/task-log-phase07-discovery-real-data.md) · [docs/logs/phase7-final.md](logs/phase7-final.md)_
+_Last updated: 2026-10-11 · Source of truth for project status. Update in every phase PR._
+_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · Phase 7: [docs/logs/task-log-phase07-discovery-real-data.md](logs/task-log-phase07-discovery-real-data.md) · Phase 8A: [docs/logs/task-log-phase08a-mobile-foundation.md](logs/task-log-phase08a-mobile-foundation.md)_
 
-**Measured:** tests [1,387 total: 1,141 MVP (not frozen) / 244 frozen] · ruff [0 errors in active discovery/recommendation tree] · mypy [0 issues in 802 files] · migrations [20, heads=1] · API routes [209 MVP / 236 with frozen]
+**Measured:** tests [1,394 total: 1,143 backend MVP (not frozen) + 7 mobile jest / 244 frozen] · ruff [0 errors] · mypy [0 issues in 802 files] · migrations [20, heads=1] · API routes [210 MVP / 237 with frozen]
 
 Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ frozen
 
@@ -25,7 +25,7 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Authentication + ownership | ✅ | Default-deny mounted; provider-neutral JWT verifiers; owner-scoped queries; {user_id} path segment check; rate limits, EXIF sanitization & OWASP security headers; 38 security tests |
 | Postgres persistence (MVP domains) | ✅ | Dual repository adapters (SQL + In-Memory) with contract test parity (8 contract suites, 32 tests passing on both); fail-fast on in-memory in prod; Alembic migrations 0001-0020; pgvector support |
 | Object storage (S3/R2/Local) | ✅ | Private bucket, signed capability URLs with strict TTL (300s), zero public URLs or blobs in Postgres (Rule I06), contract tests against local & Moto S3 |
-| Mobile app | 🟡 | Canonical Expo 57 app consolidated in mobile/ (229 files); apps/mobile deleted (PR 2C); mobile typecheck tracked in CI |
+| Mobile app | 🟡 | Expo SDK 57 (RN 0.86) foundation complete; Supabase email OTP, LargeSecureStore encrypted sessions, RFC-7807 API client, /config version/maintenance gate, 7/7 jest tests passing, Android 3.5MB bundle verified; onboarding & feed in PR 8B |
 | CI | ✅ | Canonical workflow with required backend (pgvector+redis), non-blocking frozen job, and mobile job (PR 2A/2C) |
 
 ## Frozen (post-MVP; see docs/architecture/FROZEN.md)
