@@ -10,3 +10,4 @@ class HealthResponse(BaseModel):
     version: str
     timestamp: datetime
     database: Literal["not_checked", "ok", "error"]
+    dependencies: dict[str, str] | None = None

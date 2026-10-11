@@ -32,6 +32,7 @@ from .operations import IdempotencyRecord, OutboxMessageRecord
 from .media import MediaObject
 from .feed import FeedImpression, FeedSignal
 from .erasure import ErasureTombstone
+from .feature_flags import FeatureFlag
 
 __all__ = [
     "Base",
@@ -68,4 +69,5 @@ __all__ = [
     "FeedImpression",
     "FeedSignal",
     "ErasureTombstone",
+    "FeatureFlag",
 ]

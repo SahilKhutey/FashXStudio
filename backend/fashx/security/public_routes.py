@@ -7,6 +7,8 @@ PUBLIC_EXACT_ROUTES: frozenset[str] = frozenset({
     "/openapi.json",
     "/api/v1/system/health/live",
     "/api/v1/system/health/ready",
+    "/healthz/live",
+    "/healthz/ready",
     "/api/v1/system/health",
     "/api/v1/system/ready",
     "/api/v1/config",
@@ -16,6 +18,7 @@ PUBLIC_PREFIXES: tuple[str, ...] = (
     "/docs",
     "/redoc",
     "/openapi.json",
+    "/healthz",
 )
 
 

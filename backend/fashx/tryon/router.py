@@ -84,7 +84,16 @@ async def submit_tryon_job(
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
     principal: Principal = Depends(get_principal),
 ) -> TryOnJobSubmissionResponse:
-    """Rule I06: Enqueue an asynchronous Try-On job returning 202 Accepted immediately."""
+    from fashx.core.flags import TRYON_ENABLED, is_flag_enabled
+
+    if not await is_flag_enabled(TRYON_ENABLED):
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Virtual try-on processing is temporarily disabled for maintenance",
+        )
+
     if str(request.user_id) != principal.user_id:
         from fashx.security.errors import forbidden
 
