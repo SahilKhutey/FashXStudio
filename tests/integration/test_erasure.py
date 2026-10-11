@@ -8,6 +8,7 @@ from fashx.application.erasure import (
     ACCOUNT_TABLES,
     ANONYMIZE_TABLES,
     BIOMETRIC_TABLES,
+    RETAINED_MINIMAL,
     erase_account,
     erase_biometrics,
 )
@@ -28,6 +29,7 @@ def test_every_model_table_is_classified():
         - set(BIOMETRIC_TABLES)
         - set(ACCOUNT_TABLES)
         - set(ANONYMIZE_TABLES)
+        - set(RETAINED_MINIMAL)
         - {"auth_identities"}
     )
     assert not unknown, f"Classify these tables for erasure: {unknown}"
@@ -52,6 +54,7 @@ def test_every_user_table_is_classified(db_engine):
         - set(BIOMETRIC_TABLES)
         - set(ACCOUNT_TABLES)
         - set(ANONYMIZE_TABLES)
+        - set(RETAINED_MINIMAL)
         - {"auth_identities"}
     )
     assert not unknown, f"Classify these tables for erasure: {unknown}"

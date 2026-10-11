@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     s3_bucket: str | None = Field(default=None, validation_alias="S3_BUCKET")
     s3_access_key_id: SecretStr | None = Field(default=None, validation_alias="S3_ACCESS_KEY_ID")
     s3_secret_access_key: SecretStr | None = Field(default=None, validation_alias="S3_SECRET_ACCESS_KEY")
+    s3_use_iam_role: bool = Field(default=False, validation_alias="S3_USE_IAM_ROLE")
     signed_url_ttl_s: int = Field(default=300, validation_alias="SIGNED_URL_TTL_S")
     local_storage_dir: str = Field(default="./.local_storage", validation_alias="LOCAL_STORAGE_DIR")
 
@@ -104,8 +105,8 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires STORAGE_BACKEND=s3")
             if not self.s3_bucket:
                 raise ValueError("prod requires S3_BUCKET")
-            if not self.s3_access_key_id or not self.s3_secret_access_key:
-                raise ValueError("prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY")
+            if not self.s3_use_iam_role and (not self.s3_access_key_id or not self.s3_secret_access_key):
+                raise ValueError("prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)")
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if self.tryon_provider == "mock":

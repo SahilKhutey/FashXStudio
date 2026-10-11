@@ -40,6 +40,11 @@ ANONYMIZE_TABLES: list[str] = [
     "analytics_events",
 ]
 
+# Minimal pseudonymous tombstones to prevent resurrection on backup restore (Rule 9.8)
+RETAINED_MINIMAL: list[str] = [
+    "erasure_tombstones",
+]
+
 
 async def erase_biometrics(
     uow: Any,
@@ -214,6 +219,19 @@ async def erase_account(
 
     if storage is not None and hasattr(storage, "delete_prefix"):
         storage.delete_prefix(prefix)
+
+    # 6. Record minimal pseudonymous tombstone to prevent resurrection on backup restore (Rule 9.8)
+    if session is not None:
+        try:
+            await session.execute(
+                text(
+                    'INSERT INTO "erasure_tombstones" (user_id, erased_at) '
+                    'VALUES (:uid, now()) ON CONFLICT (user_id) DO NOTHING'
+                ),
+                {"uid": user_id},
+            )
+        except Exception:
+            pass
 
     return {
         "user_id": str(user_id),

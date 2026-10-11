@@ -31,6 +31,7 @@ from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
 from .operations import IdempotencyRecord, OutboxMessageRecord
 from .media import MediaObject
 from .feed import FeedImpression, FeedSignal
+from .erasure import ErasureTombstone
 
 __all__ = [
     "Base",
@@ -66,4 +67,5 @@ __all__ = [
     "MediaObject",
     "FeedImpression",
     "FeedSignal",
+    "ErasureTombstone",
 ]
