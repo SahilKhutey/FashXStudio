@@ -21,9 +21,16 @@ def auth_test_context():
 
 def test_public_routes_allowlist(auth_test_context):
     anon_client, _, _ = auth_test_context
-    for path in ["/", "/api/v1/system/health/live", "/api/v1/system/health/ready", "/api/v1/system/health", "/api/v1/system/ready"]:
+    for path in ["/", "/api/v1/system/health/live", "/api/v1/system/health/ready", "/api/v1/system/health", "/api/v1/system/ready", "/api/v1/config"]:
         res = anon_client.get(path)
         assert res.status_code == 200, f"Expected 200 for public route {path}, got {res.status_code}"
+    
+    config_res = anon_client.get("/api/v1/config")
+    cfg = config_res.json()
+    assert "min_app_version" in cfg
+    assert "maintenance" in cfg
+    assert "tryon_supported_categories" in cfg
+    assert "flags" in cfg
 
 
 def test_protected_routes_deny_anonymous(auth_test_context):

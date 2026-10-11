@@ -67,9 +67,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: mobile/package-lock.json }
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx eslint . --max-warnings 0 || true
+      - run: npx jest --ci
+      - run: npx expo-doctor
+      - run: npx expo export --platform android # proves the JS bundle builds
+
+  api-types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: npm install
-      - run: npx tsc --noEmit || true # mobile type backlog tracked for Phase 8
+      - run: pip install -e ".[dev]" || pip install -e .
+      - run: |
+          python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
+          npx openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
+          diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts
 
   security:
     runs-on: ubuntu-latest

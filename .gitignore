@@ -17,6 +17,7 @@ node_modules/
 .expo/
 dist/
 web-build/
+.jest-cache/
 
 # IDE
 .vscode/

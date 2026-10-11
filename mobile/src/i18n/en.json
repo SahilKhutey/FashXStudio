@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "title": "Welcome to FashX",
+    "subtitle": "Your AI-powered virtual styling assistant",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "name@example.com",
+    "sendCode": "Send 6-digit code",
+    "sending": "Sending...",
+    "inviteOnly": "FashX is currently an invite-only pilot. If you've been invited, please check that you entered the right email.",
+    "verifyTitle": "Enter verification code",
+    "verifySubtitle": "We sent a 6-digit code to {{email}}",
+    "codeLabel": "Verification code",
+    "codePlaceholder": "123456",
+    "verifyButton": "Verify code",
+    "verifying": "Verifying...",
+    "resendCode": "Resend code",
+    "resendCooldown": "Resend code in {{seconds}}s",
+    "invalidCode": "Invalid or expired code. Please check and try again.",
+    "signOut": "Sign out"
+  },
+  "config": {
+    "updateRequired": "App update required",
+    "updateMessage": "A new version of FashX is available. Please update to continue using the app.",
+    "updateButton": "Update now",
+    "maintenanceTitle": "Maintenance in progress",
+    "maintenanceMessage": "FashX is currently undergoing scheduled maintenance. Please check back shortly."
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Try again",
+    "error": "Something went wrong",
+    "networkError": "Could not connect to the server. Please check your internet connection."
+  }
+}

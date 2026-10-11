@@ -9,6 +9,7 @@ PUBLIC_EXACT_ROUTES: frozenset[str] = frozenset({
     "/api/v1/system/health/ready",
     "/api/v1/system/health",
     "/api/v1/system/ready",
+    "/api/v1/config",
 })
 
 PUBLIC_PREFIXES: tuple[str, ...] = (

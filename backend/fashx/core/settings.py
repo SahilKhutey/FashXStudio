@@ -81,6 +81,11 @@ class Settings(BaseSettings):
     vlm_provider: str = Field(default="mock", validation_alias="VLM_PROVIDER")
     vlm_model: str = Field(default="claude-3-5-haiku-latest", validation_alias="VLM_MODEL")
     ranker_version: str = Field(default="v1", validation_alias="RANKER_VERSION")
+    min_app_version: str = Field(default="0.1.0", validation_alias="MIN_APP_VERSION")
+    maintenance_mode: bool = Field(default=False, validation_alias="MAINTENANCE_MODE")
+    tryon_enabled: bool = Field(default=True, validation_alias="TRYON_ENABLED")
+    supabase_url: str | None = Field(default=None, validation_alias="SUPABASE_URL")
+    supabase_secret_key: SecretStr | None = Field(default=None, validation_alias="SUPABASE_SECRET_KEY")
 
     @property
     def is_production(self) -> bool:

@@ -225,3 +225,71 @@ def test_require_role_and_self():
     with pytest.raises(ApiError) as exc:
         require_self("different-user", p_user)
     assert exc.value.status == 403
+
+
+def test_supabase_token_unmatched_signing_key_rejected():
+    """Token signed with a key from a different project/key is rejected (401)."""
+    # Key from foreign project
+    foreign_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    # Target project's expected public key
+    target_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+    verifier = JWKSVerifier(
+        jwks_url="https://ref.supabase.co/auth/v1/.well-known/jwks.json",
+        issuer="https://ref.supabase.co/auth/v1",
+        audience="authenticated",
+    )
+    mock_signing_key = MagicMock()
+    mock_signing_key.key = target_key.public_key()
+    verifier._client.get_signing_key_from_jwt = MagicMock(return_value=mock_signing_key)
+
+    now = int(time.time())
+    foreign_token = jwt.encode(
+        {"sub": "attacker-user", "iss": "https://ref.supabase.co/auth/v1", "aud": "authenticated", "exp": now + 3600},
+        foreign_key,
+        algorithm="RS256",
+    )
+
+    with pytest.raises(ApiError) as exc:
+        verifier.verify(foreign_token)
+    assert exc.value.status == 401
+
+
+def test_supabase_token_non_authenticated_audience_rejected():
+    """Token with aud other than authenticated is rejected (401)."""
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    verifier = JWKSVerifier(
+        jwks_url="https://ref.supabase.co/auth/v1/.well-known/jwks.json",
+        issuer="https://ref.supabase.co/auth/v1",
+        audience="authenticated",
+    )
+    mock_signing_key = MagicMock()
+    mock_signing_key.key = key.public_key()
+    verifier._client.get_signing_key_from_jwt = MagicMock(return_value=mock_signing_key)
+
+    now = int(time.time())
+    token = jwt.encode(
+        {"sub": "supabase-user", "iss": "https://ref.supabase.co/auth/v1", "aud": "other-audience", "exp": now + 3600},
+        key,
+        algorithm="RS256",
+    )
+
+    with pytest.raises(ApiError) as exc:
+        verifier.verify(token)
+    assert exc.value.status == 401
+
+
+@pytest.mark.asyncio
+async def test_identity_mapping_concurrency_creates_single_identity():
+    """Multiple concurrent logins for the same Supabase user map to exactly one user_id."""
+    import asyncio
+    repo = InMemoryIdentityRepo()
+    issuer = "https://ref.supabase.co/auth/v1"
+    sub = "sb-user-999"
+
+    # Concurrently resolve 10 times
+    results = await asyncio.gather(*(repo.resolve(issuer, sub) for _ in range(10)))
+    user_ids = {r.user_id for r in results}
+    assert len(user_ids) == 1
+    assert len(repo._identities) == 1
+

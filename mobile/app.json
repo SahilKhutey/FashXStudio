@@ -6,7 +6,13 @@
     "orientation": "portrait",
     "scheme": "aifashionassistant",
     "userInterfaceStyle": "automatic",
-    "plugins": ["expo-router", "expo-image"],
+    "plugins": [
+      "expo-router",
+      "expo-image",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-localization"
+    ],
     "experiments": {
       "typedRoutes": true
     }

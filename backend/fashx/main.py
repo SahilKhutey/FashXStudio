@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
 from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
+from fashx.config.router import router as config_router
 from fashx.core.logging import configure_logging
 from fashx.core.observability import ContextFilter, configure_sentry
 from fashx.core.settings import get_settings
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
 
     app.add_exception_handler(ApiError, api_error_handler)
     app.include_router(health_router)
+    app.include_router(config_router, prefix="/api/v1")
     app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
