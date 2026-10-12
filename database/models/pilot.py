@@ -5,6 +5,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    JSON,
     String,
     Text,
     UniqueConstraint,
@@ -56,7 +57,9 @@ class PilotSurveyResponse(Base, UUIDPrimaryKeyMixin):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     survey_key: Mapped[str] = mapped_column(Text, nullable=False)
-    answers: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    answers: Mapped[dict] = mapped_column(
+        JSONB().with_variant(JSON, "sqlite"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -70,7 +73,7 @@ class PilotFeedback(Base, UUIDPrimaryKeyMixin):
             name="ck_feedback_kind",
         ),
         CheckConstraint(
-            "char_length(message) <= 2000",
+            "length(message) <= 2000",
             name="ck_feedback_len",
         ),
     )
@@ -80,7 +83,9 @@ class PilotFeedback(Base, UUIDPrimaryKeyMixin):
     )
     kind: Mapped[str] = mapped_column(Text, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
-    context: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
+    context: Mapped[dict] = mapped_column(
+        JSONB().with_variant(JSON, "sqlite"), nullable=False, server_default="{}"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
