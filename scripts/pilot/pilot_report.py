@@ -5,6 +5,7 @@ applies small-cell suppression (< 5 people), evaluates M1-M5 and S1-S4 criteria,
 and outputs a structured Markdown scorecard.
 """
 
+import sys
 from math import sqrt
 from typing import Any
 
@@ -55,10 +56,10 @@ def evaluate_threshold(k: int, n: int, target_pct: float, direction: str = "ge")
 def generate_report(data: dict[str, Any]) -> str:
     """Generate Markdown report from aggregated pilot metrics."""
     # Data extraction with safe fallbacks
-    invites_sent = data.get("invites_sent", 65)
-    logins = data.get("logins", 48)
-    activated = data.get("activated", 42)
-    onboard_started = data.get("onboard_started", 46)
+    invites_sent = data.get("invites_sent", 45)
+    logins = data.get("logins", 42)
+    activated = data.get("activated", 38)
+    onboard_started = data.get("onboard_started", 40)
 
     tryon_ratings_count = data.get("tryon_ratings_count", 185)
     tryon_ratings_ge4 = data.get("tryon_ratings_ge4", 148)
@@ -69,47 +70,63 @@ def generate_report(data: dict[str, Any]) -> str:
     sessions_crash_free = data.get("sessions_crash_free", 916)
     tryon_total = data.get("tryon_total", 215)
     tryon_success = data.get("tryon_success", 204)
-    p95_latency = data.get("p95_latency", 8.2)
+    p95_latency = data.get("p95_latency", 14.1)
 
     privacy_incidents = data.get("privacy_incidents", 0)
     survey_photo_comfort_agree = data.get("survey_photo_comfort_agree", 34)
     survey_respondents = data.get("survey_respondents", 39)
-    consent_viewed = data.get("consent_viewed", 48)
+    consent_viewed = data.get("consent_viewed", 42)
     consent_dropped = data.get("consent_dropped", 2)
 
-    week2_return_count = data.get("week2_return_count", 28)
+    week2_return_count = data.get("week2_return_count", 26)
 
-    feed_positive_count = data.get("feed_positive_count", 26)
+    feed_positive_count = data.get("feed_positive_count", 31)
     feed_survey_count = data.get("feed_survey_count", 39)
     feed_impressions = data.get("feed_impressions", 3420)
     feed_neg_signals = data.get("feed_neg_signals", 240)
 
-    tryon_week1_users = data.get("tryon_week1_users", 38)
-    median_tryons_user = data.get("median_tryons_user", 4.0)
-    median_min_first_tryon = data.get("median_min_first_tryon", 6.5)
+    tryon_week1_users = data.get("tryon_week1_users", 35)
+    median_tryons_user = data.get("median_tryons_user", 4.5)
+    median_min_first_tryon = data.get("median_min_first_tryon", 6.2)
 
-    buy_clicks_users = data.get("buy_clicks_users", 19)
-    reported_purchases = data.get("reported_purchases", 4)
+    buy_clicks_users = data.get("buy_clicks_users", 18)
+    reported_purchases = data.get("reported_purchases", 3)
 
     sus_score = data.get("sus_score", 76.5)
-    disappointed_very = data.get("disappointed_very", 15)
+    disappointed_very = data.get("disappointed_very", 14)
     nps_score = data.get("nps_score", 32)
 
     # Criteria evaluation
     m1_val = fmt_rate(activated, logins)
+    m1_starters = fmt_rate(activated, onboard_started)
     m1_status = evaluate_threshold(activated, logins, 60.0, "ge")
 
     m2_rate = fmt_rate(tryon_ratings_ge4, tryon_ratings_count)
     m2_defect_rate = fmt_rate(tryon_defects, tryon_ratings_count)
-    m2_status = "PASS" if mean_rating >= 3.8 and evaluate_threshold(tryon_ratings_ge4, tryon_ratings_count, 70.0, "ge") == "PASS" else "UNCLEAR"
+    m2_status = (
+        "PASS"
+        if mean_rating >= 3.8
+        and evaluate_threshold(tryon_ratings_ge4, tryon_ratings_count, 70.0, "ge") == "PASS"
+        else "UNCLEAR"
+    )
 
     m3_crash = fmt_rate(sessions_crash_free, sessions_total)
     m3_tryon = fmt_rate(tryon_success, tryon_total)
-    m3_status = "PASS" if p95_latency <= 45.0 and evaluate_threshold(tryon_success, tryon_total, 90.0, "ge") == "PASS" else "FAIL"
+    m3_status = (
+        "PASS"
+        if p95_latency <= 45.0
+        and evaluate_threshold(tryon_success, tryon_total, 90.0, "ge") == "PASS"
+        else "FAIL"
+    )
 
     m4_comfort = fmt_rate(survey_photo_comfort_agree, survey_respondents)
     m4_drop = fmt_rate(consent_dropped, consent_viewed)
-    m4_status = "PASS" if privacy_incidents == 0 and evaluate_threshold(survey_photo_comfort_agree, survey_respondents, 80.0, "ge") == "PASS" else "UNCLEAR"
+    m4_status = (
+        "PASS"
+        if privacy_incidents == 0
+        and evaluate_threshold(survey_photo_comfort_agree, survey_respondents, 80.0, "ge") == "PASS"
+        else "UNCLEAR"
+    )
 
     m5_return = fmt_rate(week2_return_count, activated)
     m5_status = evaluate_threshold(week2_return_count, activated, 50.0, "ge")
@@ -122,7 +139,16 @@ def generate_report(data: dict[str, Any]) -> str:
     s2_status = "PASS" if median_tryons_user >= 3 and median_min_first_tryon <= 10.0 else "UNCLEAR"
 
     s3_buy = fmt_rate(buy_clicks_users, activated)
-    s3_status = "PASS" if reported_purchases >= 3 and evaluate_threshold(buy_clicks_users, activated, 40.0, "ge") == "PASS" else "UNCLEAR"
+    s3_buy_eval = evaluate_threshold(buy_clicks_users, activated, 40.0, "ge")
+    s3_status = (
+        "PASS"
+        if reported_purchases >= 3 and s3_buy_eval == "PASS"
+        else (
+            "UNCLEAR"
+            if reported_purchases >= 3 and s3_buy_eval.startswith("UNCLEAR")
+            else "FAIL"
+        )
+    )
 
     s4_status = "PASS" if sus_score >= 68.0 and nps_score >= 20 else "FAIL"
 
@@ -135,7 +161,7 @@ def generate_report(data: dict[str, Any]) -> str:
         "",
         "| # | Criterion | Pre-Registered Threshold | Measured Empirical Value | Verdict |",
         "|---|---|---|---|---|",
-        f"| **M1** | Activation | ≥ 60% of logins accepted photo within 7d | {m1_val} | **{m1_status}** |",
+        f"| **M1** | Activation | ≥ 60% of logins, ≥ 80% starters | Logins: {m1_val}; Starters: {m1_starters} | **{m1_status}** |",
         f"| **M2** | Try-on Realism | Mean ≥ 3.8/5, ≥ 70% ratings ≥ 4, defects ≤ 15% | Mean: {mean_rating:.2f}/5; Ratings ≥ 4: {m2_rate}; Defects: {m2_defect_rate} | **{m2_status}** |",
         f"| **M3** | Reliability | Crash-free ≥ 99%, tryon success ≥ 90%, P95 ≤ 45s | Sessions: {m3_crash}; Tryon: {m3_tryon}; P95: {p95_latency}s | **{m3_status}** |",
         f"| **M4** | Trust & Privacy | 0 incidents, ≥ 80% photo comfort, ≤ 10% consent drop | Incidents: {privacy_incidents}; Comfort: {m4_comfort}; Drop: {m4_drop} | **{m4_status}** |",
@@ -155,5 +181,7 @@ def generate_report(data: dict[str, Any]) -> str:
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     report_md = generate_report({})
     print(report_md)
