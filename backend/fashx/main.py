@@ -84,6 +84,13 @@ def create_app() -> FastAPI:
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(pilot_router, dependencies=[Depends(get_principal)])
 
+    from fashx.b2b.widget import router as b2b_widget_router
+    from fashx.b2b.dashboard import router as b2b_merchant_router
+
+    app.include_router(b2b_widget_router)
+    app.include_router(b2b_merchant_router)
+    app.include_router(b2b_merchant_router, prefix="/api/v1")
+
     if settings.env != "prod":
         import hashlib
         import hmac

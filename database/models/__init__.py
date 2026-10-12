@@ -40,6 +40,15 @@ from .pilot import (
     PilotSurveyResponse,
 )
 from .experiment import ExperimentExposure
+from .tenant import (
+    Tenant,
+    TenantDomain,
+    TenantKey,
+    TenantMember,
+    TenantProduct,
+    TenantUsage,
+    WidgetSession,
+)
 
 __all__ = [
     "Base",
@@ -82,4 +91,11 @@ __all__ = [
     "PilotParticipant",
     "PilotSurveyResponse",
     "ExperimentExposure",
+    "Tenant",
+    "TenantDomain",
+    "TenantKey",
+    "TenantProduct",
+    "TenantMember",
+    "WidgetSession",
+    "TenantUsage",
 ]

@@ -36,6 +36,7 @@ ACCOUNT_TABLES: list[str] = [
     "pilot_survey_responses",
     "pilot_feedback",
     "experiment_exposures",
+    "tenant_members",
     "users",
 ]
 
