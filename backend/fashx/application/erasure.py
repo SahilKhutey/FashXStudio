@@ -32,12 +32,16 @@ ACCOUNT_TABLES: list[str] = [
     "onboarding_profiles",
     "consent_records",
     "idempotency_records",
+    "pilot_participants",
+    "pilot_survey_responses",
+    "pilot_feedback",
     "users",
 ]
 
 ANONYMIZE_TABLES: list[str] = [
     "domain_events",
     "analytics_events",
+    "pilot_invites",
 ]
 
 # Minimal pseudonymous tombstones to prevent resurrection on backup restore (Rule 9.8)

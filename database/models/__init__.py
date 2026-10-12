@@ -33,6 +33,12 @@ from .media import MediaObject
 from .feed import FeedImpression, FeedSignal
 from .erasure import ErasureTombstone
 from .feature_flags import FeatureFlag
+from .pilot import (
+    PilotFeedback,
+    PilotInvite,
+    PilotParticipant,
+    PilotSurveyResponse,
+)
 
 __all__ = [
     "Base",
@@ -70,4 +76,8 @@ __all__ = [
     "FeedSignal",
     "ErasureTombstone",
     "FeatureFlag",
+    "PilotFeedback",
+    "PilotInvite",
+    "PilotParticipant",
+    "PilotSurveyResponse",
 ]

@@ -17,12 +17,14 @@ TRYON_ENABLED = "tryon_enabled"
 MAINTENANCE_MODE = "maintenance_mode"
 INGEST_ENABLED = "ingest_enabled"
 SIGNUPS_OPEN = "signups_open"
+END_SURVEY_OPEN = "end_survey_open"
 
 _DEFAULTS = {
     TRYON_ENABLED: True,
     MAINTENANCE_MODE: False,
     INGEST_ENABLED: True,
     SIGNUPS_OPEN: True,
+    END_SURVEY_OPEN: False,
 }
 
 
