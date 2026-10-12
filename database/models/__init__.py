@@ -39,6 +39,7 @@ from .pilot import (
     PilotParticipant,
     PilotSurveyResponse,
 )
+from .experiment import ExperimentExposure
 
 __all__ = [
     "Base",
@@ -80,4 +81,5 @@ __all__ = [
     "PilotInvite",
     "PilotParticipant",
     "PilotSurveyResponse",
+    "ExperimentExposure",
 ]
