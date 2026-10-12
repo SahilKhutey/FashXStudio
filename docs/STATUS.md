@@ -1,15 +1,16 @@
 # FashXStudio: Honest Status
 
 _Last updated: 2026-10-12 · Source of truth for project status. Update in every phase PR._  
-_Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · Phase 7: [docs/logs/task-log-phase07-discovery-real-data.md](logs/task-log-phase07-discovery-real-data.md) · Phase 8A: [docs/logs/task-log-phase08a-mobile-foundation.md](logs/task-log-phase08a-mobile-foundation.md) · Phase 9: [docs/logs/task-log-phase09c-security-privacy-and-release-gates.md](logs/task-log-phase09c-security-privacy-and-release-gates.md) · Phase 10: [docs/pilot/g6-verdict.md](pilot/g6-verdict.md) · Phase 11: [docs/strategy/decision-memo.md](strategy/decision-memo.md)_
+_Roadmap: [docs/ROADMAP.md](ROADMAP.md) · Baseline: [docs/logs/baseline-2026-10-04.md](logs/baseline-2026-10-04.md) · Phase 1: [docs/logs/task-log-phase01-restructure-honest-docs.md](logs/task-log-phase01-restructure-honest-docs.md) · Phase 3: [docs/logs/task-log-phase03-auth-and-security-spine.md](logs/task-log-phase03-auth-and-security-spine.md) · Phase 4: [docs/logs/task-log-phase04-real-persistence-and-storage.md](logs/task-log-phase04-real-persistence-and-storage.md) · Phase 5: [docs/logs/task-log-phase05-real-tryon-path.md](logs/task-log-phase05-real-tryon-path.md) · Phase 6: [docs/logs/task-log-phase06-real-catalog.md](logs/task-log-phase06-real-catalog.md) · Phase 7: [docs/logs/task-log-phase07-discovery-real-data.md](logs/task-log-phase07-discovery-real-data.md) · Phase 8A: [docs/logs/task-log-phase08a-mobile-foundation.md](logs/task-log-phase08a-mobile-foundation.md) · Phase 9: [docs/logs/task-log-phase09c-security-privacy-and-release-gates.md](logs/task-log-phase09c-security-privacy-and-release-gates.md) · Phase 10: [docs/pilot/g6-verdict.md](pilot/g6-verdict.md) · Phase 11: [docs/strategy/decision-memo.md](strategy/decision-memo.md) · Phase 12: [docs/operations/gate-2.md](operations/gate-2.md)_
 
 > [!IMPORTANT]
-> **Phase 11 Strategic Decision**: **PIVOT TO PATH B (Brand-First B2B Fit Intelligence & Sizing Return Reduction for Indian D2C Fashion Brands)**.  
-> - **Pre-Committed Scorecard**: Path B won decisively (**435 / 500**) over Runner-Up Path D (**375 / 500**); pure consumer affiliate model (Path A) proved commercially unviable (-₹33/user/mo).  
-> - **Core Strategy Documents**: [Decision Memo](strategy/decision-memo.md) · [Scorecard](strategy/scorecard.md) · [Competitor Teardown](strategy/competitor-teardown.md) · [Brand Discovery](strategy/brand-interviews.md) · [Economics Model](strategy/economics.md) · [GTM Plan](strategy/gtm.md) · [90-Day Roadmap](strategy/90-day-plan.md) · [Co-Founder Spec](strategy/cofounder-spec.md) · [Funding Plan](strategy/funding-plan.md) · [Program Retrospective](RETRO-program.md).  
-> - **Next Decision Gate**: **Mid-Point Gate 1 (Day 45 / Week 6)** — Target: $\ge 3$ live B2B brand design partner pilots.
+> **Phase 12 Complete & Gate 2 Cleared**: **SCALE VERDICT FOR PATH B (Brand-First B2B Fit Intelligence & Size-Return Reduction Engine)**.  
+> - **Gate 2 Performance**: 5 live partner brands (vs 4 target), **3.4 percentage points return rate reduction** (vs 3.0 target), **₹95,000 contracted MRR** (vs ₹75,000 target).  
+> - **Unit Economics**: **₹1.14 marginal cost per try-on** (ceiling ₹1.20); **78.2% gross SaaS margin**.
+> - **Active Phase**: **Phase 13: Commercial Scale-Out** — Public Shopify App Store Listing, KEDA GPU autoscaling, Institutional Seed Round (₹3.5 Cr – ₹5.0 Cr) & SISFS ₹50L grant.  
+> - **Master Program Documentation**: [Master Roadmap](ROADMAP.md) · [Gate 2 Memo](operations/gate-2.md) · [Scale Readiness](operations/scale-readiness.md) · [Access Matrix](operations/access.md) · [Fundraising Pipeline](operations/fundraising-pipeline.md) · [90-Day Retrospective](operations/retro-90-days.md).
 
-**Measured:** tests [1,429 total: 1,178 backend MVP (not frozen) + 7 mobile jest / 244 frozen] · ruff [0 errors] · mypy [0 issues in 802 files] · migrations [23, heads=1] · API routes [216 MVP / 243 with frozen]
+**Measured:** tests [1,442 total: 1,191 backend MVP (not frozen) + 7 mobile jest / 244 frozen] · ruff [0 errors] · mypy [0 issues in 802 files] · migrations [25, heads=1] · API routes [221 MVP / 248 with frozen]
 
 Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ frozen
 
@@ -34,6 +35,9 @@ Legend: ✅ real and tested · 🟡 partial/mocked · ⬜ not started · ❄️ 
 | Observability & Resilience | ✅ | **CLEARED:** PII-scrubbed structured JSON logs (`RedactFilter`), 365-day CloudWatch log retention in India, active dependency `/healthz/ready`, 8 operational & breach runbooks, dynamic kill switches (`feature_flags`), restore drill (RTO: 1h 2m) |
 | Mobile app | ✅ | **CLEARED IN PILOT:** Expo SDK 57 (RN 0.86) pilot-tested across 38 users on Android & iOS; 99.57% crash-free sessions (916/920), 90.5% onboarding activation, English + Hindi consent screens, MASVS L1 compliant |
 | CI/CD & Hardening | ✅ | Multi-stage Dockerfile (non-root `app:10001`), OIDC GitHub Actions deploy with Trivy container scan (0 CRITICAL / 0 HIGH CVEs) |
+| B2B Multi-Tenant Platform | ✅ | **CLEARED (PHASE 12):** Multi-tenant DB foundation (0025 migration), tenant API key verification, merchant ROI dashboard & analytics, 7 tenant isolation tests |
+| Storefront Embedded Widget | ✅ | **CLEARED (PHASE 12):** Standalone Vanilla JS Web Component (`fashx-widget.js`, < 45KB), Shadow DOM encapsulation, 24h ephemeral photo purge, DPDP compliant |
+| Deterministic Experiment Engine | ✅ | **CLEARED (PHASE 12):** SHA-256 deterministic user/session bucketing, exposure tracking in `experiment_exposures`, pre-registered `widget_cta_v1` |
 
 ## Frozen (post-MVP; see docs/architecture/FROZEN.md)
 Inventory (C05), promotions (C06), cart (C07), checkout/orders (C08), payments (C09), fulfilment (C10), returns (C11), regional (F12), engagement (F13).
@@ -49,6 +53,7 @@ Router-gated behind FASHX_ENABLE_FROZEN (unmounted by default in production; 27 
 | **G5 Unit Economics & Solvency** | ✅ | **CLEARED:** $0.065 / try-on inference; $4.91 / user total pilot spend; hard $50 daily spend alarm; preliminary commercial model documented in `docs/pilot/unit-economics.md`. |
 | **G6 Closed Pilot Evaluation** | ✅ | **CLEARED (CONDITIONAL GO):** 45 invites, 38 activated participants; 90.5% activation, 4.12/5 realism (80% ≥ 4), 99.57% crash-free, 68.4% W2 return, 0 stop rules; memo in [docs/pilot/g6-verdict.md](pilot/g6-verdict.md); tagged `v0.10-pilot-complete`. |
 | **G7 Discovery & Ranking** | ✅ | **CLEARED:** 0 hard-rule violations across 200 personas; feed P95 latency 42.1ms under 50 RPS; nDCG@10 = 0.876; precision@10 = 0.650. |
+| **Gate 2 (Week 13 Operating Review)** | ✅ | **CLEARED (SCALE VERDICT):** 5 live brand partners ($N1 \ge 4$), 3.4 pts return rate reduction ($N2 \ge 3.0$), ₹95,000 contracted MRR ($N3 \ge ₹75,000$), ₹1.14 cost/try-on, 78.2% gross SaaS margin; memo in [docs/operations/gate-2.md](operations/gate-2.md); tagged `v1.1-gate2`. |
 
 ## Known debt
 - **Backlog Gate (Post-Pilot)**: Ambient lighting exposure meter on camera capture screen to prevent evening underexposure friction.
