@@ -23,7 +23,7 @@ _DEFAULTS = {
     TRYON_ENABLED: True,
     MAINTENANCE_MODE: False,
     INGEST_ENABLED: True,
-    SIGNUPS_OPEN: True,
+    SIGNUPS_OPEN: False,
     END_SURVEY_OPEN: False,
 }
 
