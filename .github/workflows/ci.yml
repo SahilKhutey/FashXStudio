@@ -53,6 +53,7 @@ jobs:
         ports: ["6379:6379"]
     env:
       DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
+      TEST_DATABASE_URL: postgresql+psycopg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
       AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
       FASHX_ENABLE_FROZEN: "1"
@@ -61,6 +62,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
       - run: pip install -e ".[dev]" || pip install -e .
+      - run: python -m alembic upgrade head
       - run: python -m pytest tests -q -p no:cacheprovider -m "frozen"
 
   mobile:

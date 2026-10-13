@@ -47,10 +47,11 @@ def make_token(
     iss: str = "fashx-test",
     aud: str = "fashx-api",
     exp_delta_seconds: int = 3600,
-    secret: str = "test-secret-key-at-least-32-chars-long",
+    secret: str | None = None,
     alg: str = "HS256",
 ) -> str:
     now = int(time.time())
+    signing_secret = secret or os.environ.get("AUTH_JWT_SECRET", "test-secret-key-at-least-32-chars-long")
     payload = {
         "sub": sub,
         "iss": iss,
@@ -58,7 +59,7 @@ def make_token(
         "exp": now + exp_delta_seconds,
         "iat": now,
     }
-    return jwt.encode(payload, secret, algorithm=alg)
+    return jwt.encode(payload, signing_secret, algorithm=alg)
 
 
 _orig_testclient_init = TestClient.__init__
