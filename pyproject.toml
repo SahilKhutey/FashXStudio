@@ -32,6 +32,7 @@ dev = [
   "pip-audit>=2.7.3",
   "cryptography>=42.0.0",
   "moto[s3]>=5.0.0",
+  "psycopg[binary]>=3.1.18",
 ]
 
 [dependency-groups]
@@ -46,6 +47,7 @@ dev = [
   "pip-audit>=2.7.3",
   "cryptography>=42.0.0",
   "moto[s3]>=5.0.0",
+  "psycopg[binary]>=3.1.18",
 ]
 
 [tool.pytest.ini_options]
