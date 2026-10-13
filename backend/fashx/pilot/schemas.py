@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated, Any, Literal
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Likert = Annotated[int, Field(ge=1, le=5)]

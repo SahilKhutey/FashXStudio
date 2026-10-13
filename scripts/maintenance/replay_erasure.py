@@ -6,7 +6,6 @@ Ensures no erased accounts or biometric objects are resurrected from restored ba
 import asyncio
 import logging
 import sys
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -37,7 +36,7 @@ class SimpleUnitOfWork:
 async def replay_erasure_tombstones() -> int:
     settings = get_settings()
     engine = create_async_engine(settings.database_url, echo=False)
-    storage = get_storage(settings)
+    storage = get_storage()
 
     replayed = 0
     errors = 0

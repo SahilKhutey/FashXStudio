@@ -1,6 +1,6 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
 from fastapi import status
 from fastapi.testclient import TestClient
 

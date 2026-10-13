@@ -1,4 +1,9 @@
-from .validation import AnalyticsEventCreate, AnalyticsEventResponse, AnalyticsWindow, ValidationMetrics
+from .validation import (
+    AnalyticsEventCreate,
+    AnalyticsEventResponse,
+    AnalyticsWindow,
+    ValidationMetrics,
+)
 
 __all__ = [
     "AnalyticsEventCreate",

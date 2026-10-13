@@ -24,6 +24,7 @@ Tests All 18 Styling Endpoints & 5 Core User Journeys:
 
 import pytest
 from fastapi.testclient import TestClient
+
 from fashx.main import app
 from fashx.visual.styling_service import INITIAL_OUTFIT, reset_styling_fixtures
 

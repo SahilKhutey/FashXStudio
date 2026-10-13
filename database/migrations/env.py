@@ -1,12 +1,12 @@
 from logging.config import fileConfig
 
 from alembic import context
-from fashx.core.settings import get_settings
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 import database.models  # noqa: F401
 from database.models import Base  # noqa: F401
+from fashx.core.settings import get_settings
 
 config = context.config
 if config.config_file_name is not None:

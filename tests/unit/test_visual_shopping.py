@@ -11,53 +11,10 @@ Covers SHOP-001 through SHOP-053 as defined in Section 7.75:
 """
 
 import pytest
-from schemas.visual.components import PriceSpecContract, RatingSpecContract
-from schemas.visual.shopping import (
-    ActiveFilterContract,
-    AddToCartRequestContract,
-    CartContract,
-    CartItemContract,
-    CartSummaryContract,
-    CategoryTemplateSpecContract,
-    CheckoutStateContract,
-    CheckoutStep,
-    ComparisonAttributeContract,
-    CompleteTheLookSlotContract,
-    DeliveryAddressContract,
-    DeliveryInfoContract,
-    DeliveryMethodContract,
-    FilterGroupContract,
-    FilterOptionContract,
-    FilterStateContract,
-    FilterType,
-    OrderContract,
-    OrderItemContract,
-    OrderStatus,
-    OrdersTemplateSpecContract,
-    PaymentMethodContract,
-    ProductAvailabilityState,
-    ProductComparisonContract,
-    ProductDetailTemplateSpecContract,
-    ProductVariantGroupContract,
-    ProductVariantOptionContract,
-    SearchResultsTemplateSpecContract,
-    ShoppingHomeTemplateSpecContract,
-    ShoppingProductDetailContract,
-    ShoppingScreenId,
-    ShoppingState,
-    SortOption,
-    SpecificationAttributeContract,
-    UpdateCartQuantityRequestContract,
-    VariantState,
-    VariantType,
-    WishlistContract,
-    WishlistItemContract,
-    WishlistToggleRequestContract,
-)
+
 from fashx.visual.shopping_service import (
     add_item_to_cart,
     compare_products,
-    get_cart_template,
     get_category_template,
     get_checkout_template,
     get_confirmation_template,
@@ -68,13 +25,22 @@ from fashx.visual.shopping_service import (
     get_product_detail_template,
     get_shopping_home_template,
     get_user_cart,
-    get_wishlist_template,
     search_catalog_products,
     toggle_user_wishlist,
     update_cart_item_quantity,
     validate_cart_state,
 )
-
+from schemas.visual.shopping import (
+    AddToCartRequestContract,
+    FilterOptionContract,
+    OrderStatus,
+    ShoppingScreenId,
+    SortOption,
+    UpdateCartQuantityRequestContract,
+    VariantState,
+    VariantType,
+    WishlistToggleRequestContract,
+)
 
 # ---------------------------------------------------------------------------
 # SHOP-001 - SHOP-005: Catalog & Categories

@@ -1,27 +1,16 @@
-import pytest
-from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from fastapi import status
-from fastapi.testclient import TestClient
+
+import pytest
 from pydantic import ValidationError
 
-from database.models.pilot import (
-    PilotFeedback,
-    PilotInvite,
-    PilotParticipant,
-    PilotSurveyResponse,
-)
 from fashx.application.erasure import erase_account
-from fashx.main import app
 from fashx.pilot.router import hash_invite_code
 from fashx.pilot.schemas import (
     EndOfPilot,
-    FeedDay5,
     PilotFeedbackRequest,
     TryonFirst,
 )
-from fashx.security.deps import Principal, get_principal
 
 
 def test_invite_code_hashing_consistency():

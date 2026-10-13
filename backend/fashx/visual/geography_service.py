@@ -4,10 +4,8 @@ Provides geographic hierarchy, map view models, marker clustering, regional tren
 local product aggregation, and cross-system discovery bridges (Sections 11.1 - 11.105).
 """
 
-from typing import Any
 from schemas.visual.fashion import (
     FashionContentType,
-    VisualContentModel,
 )
 from schemas.visual.geography import (
     CityTemplateSpecContract,
@@ -22,9 +20,6 @@ from schemas.visual.geography import (
     MapViewModelContract,
     MapViewportContract,
     MarkerCategory,
-    RegionBreadcrumbContract,
-    RegionContract,
-    RegionType,
     RegionalCollectionsTemplateSpecContract,
     RegionalComparisonContract,
     RegionalComparisonMetricContract,
@@ -33,8 +28,12 @@ from schemas.visual.geography import (
     RegionalScreenId,
     RegionalTrendContract,
     RegionalTrendsTemplateSpecContract,
+    RegionBreadcrumbContract,
+    RegionContract,
+    RegionType,
     StateTemplateSpecContract,
 )
+
 from .fashion_service import (
     SAMPLE_COLLECTIONS,
     SAMPLE_LOOKS,
@@ -42,7 +41,6 @@ from .fashion_service import (
     SAMPLE_STYLES,
     to_visual_content_model,
 )
-
 
 # ---------------------------------------------------------------------------
 # Canonical Geographic Hierarchy Fixtures (Sections 11.3 - 11.5)

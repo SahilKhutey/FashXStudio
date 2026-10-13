@@ -1,9 +1,10 @@
 from collections.abc import Sequence
 from typing import Any
 
-from database.models.base import Base
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from database.models.base import Base
 
 
 class BaseRepository[T: Base]:

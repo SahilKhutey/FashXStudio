@@ -11,7 +11,6 @@ Verifies:
   - Flow 6: Responsive Preferences -> Personal Settings (VD-13 PR08)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 from fashx.main import app

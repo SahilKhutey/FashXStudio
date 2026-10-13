@@ -33,7 +33,7 @@ def test_public_routes_allowlist(auth_test_context):
     ]:
         res = anon_client.get(path)
         assert res.status_code == 200, f"Expected 200 for public route {path}, got {res.status_code}"
-    
+
     config_res = anon_client.get("/api/v1/config")
     cfg = config_res.json()
     assert "min_app_version" in cfg

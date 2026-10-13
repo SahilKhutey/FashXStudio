@@ -5,6 +5,7 @@ import json
 import pathlib
 import sys
 import time
+from typing import Any
 
 from fashx.application.ports.tryon import TryOnError, TryOnRequest
 from fashx.core.settings import get_settings
@@ -22,7 +23,7 @@ def main() -> None:
         sys.exit(0)
 
     s = get_settings()
-    providers = {}
+    providers: dict[str, Any] = {}
 
     if s.fashn_api_key:
         providers["fashn_v16"] = FashnApiAdapter(

@@ -1,4 +1,7 @@
-import hashlib, pathlib, subprocess, sys
+import hashlib
+import pathlib
+import subprocess
+import sys
 
 apply = "--apply" in sys.argv
 only = sys.argv[sys.argv.index("--only") + 1]

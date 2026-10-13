@@ -18,6 +18,7 @@ Tests Detail Endpoints & Journeys:
 """
 
 from fastapi.testclient import TestClient
+
 from fashx.main import app
 
 client = TestClient(app)

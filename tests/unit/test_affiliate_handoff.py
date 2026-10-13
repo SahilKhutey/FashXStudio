@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from database.models.catalog import Merchant
 from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
@@ -22,7 +23,6 @@ from fashx.profile.application.create_profile import (
     CreateProfileUseCase,
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from database.models.catalog import Merchant
 
 
 @pytest.mark.asyncio

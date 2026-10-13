@@ -12,8 +12,8 @@ import numpy as np
 from PIL import Image
 
 from fashx.core.settings import get_settings
-from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
 from fashx.profile.integrations.r2_client import R2StorageClient
+from workers.profile_photo.adapters.storage import ObjectStorageDownloadPort
 from workers.skin_tone.adapters.profile_api import ProfileIntelligenceApiClient
 from workers.skin_tone.domain.ita import estimate_ita
 

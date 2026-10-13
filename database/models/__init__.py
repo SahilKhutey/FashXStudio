@@ -1,3 +1,4 @@
+from .auth import AuthIdentity
 from .base import Base
 from .catalog import (
     Brand,
@@ -18,8 +19,19 @@ from .commerce_feedback import (
     TryOnFeedback,
     WardrobeItem,
 )
-from .auth import AuthIdentity
+from .erasure import ErasureTombstone
+from .experiment import ExperimentExposure
+from .feature_flags import FeatureFlag
+from .feed import FeedImpression, FeedSignal
 from .identity import ConsentRecord, User, UserPhoto
+from .media import MediaObject
+from .operations import IdempotencyRecord, OutboxMessageRecord
+from .pilot import (
+    PilotFeedback,
+    PilotInvite,
+    PilotParticipant,
+    PilotSurveyResponse,
+)
 from .profile import (
     BodyProfile,
     OnboardingProfile,
@@ -27,19 +39,6 @@ from .profile import (
     UserPreference,
     UserStyleProfile,
 )
-from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
-from .operations import IdempotencyRecord, OutboxMessageRecord
-from .media import MediaObject
-from .feed import FeedImpression, FeedSignal
-from .erasure import ErasureTombstone
-from .feature_flags import FeatureFlag
-from .pilot import (
-    PilotFeedback,
-    PilotInvite,
-    PilotParticipant,
-    PilotSurveyResponse,
-)
-from .experiment import ExperimentExposure
 from .tenant import (
     Tenant,
     TenantDomain,
@@ -49,6 +48,7 @@ from .tenant import (
     TenantUsage,
     WidgetSession,
 )
+from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
 
 __all__ = [
     "Base",

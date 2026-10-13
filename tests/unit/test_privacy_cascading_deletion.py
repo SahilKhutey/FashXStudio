@@ -5,6 +5,7 @@ import pytest
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from database.models.tryon import TryOnArtifact, TryOnJob
 from fashx.core.ports.storage import InMemoryStorageAdapter
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
@@ -20,7 +21,6 @@ from fashx.profile.application.upload_photo import (
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
-from database.models.tryon import TryOnArtifact, TryOnJob
 
 
 def _create_portrait_image() -> bytes:

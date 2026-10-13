@@ -1,7 +1,7 @@
-import pytest
-from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
+
+import pytest
 
 from fashx.application.retention import (
     anonymize_analytics,

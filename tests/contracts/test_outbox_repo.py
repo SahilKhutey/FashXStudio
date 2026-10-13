@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import StaticPool
 
 from database.models import Base
-from fashx.core.events import DomainEvent, EntityCreated
+from fashx.core.events import EntityCreated
 from fashx.integration.outbox import (
     InMemoryOutboxRepository,
     OutboxMessage,

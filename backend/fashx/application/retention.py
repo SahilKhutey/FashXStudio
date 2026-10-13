@@ -4,7 +4,7 @@ import logging
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import delete, select, text, update
+from sqlalchemy import text
 
 logger = logging.getLogger("fashx.application.retention")
 
@@ -16,7 +16,7 @@ async def cleanup_unsaved_tryons(
     batch_size: int = 500,
 ) -> dict[str, int]:
     """Prune unsaved tryon jobs and artifacts older than cutoff_days (Rule 9.7).
-    
+
     If an artifact was saved to wardrobe (referenced in wardrobe_items), it is preserved.
     """
     cutoff = datetime.now(UTC) - timedelta(days=cutoff_days)

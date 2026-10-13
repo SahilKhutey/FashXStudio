@@ -8,9 +8,10 @@ recommendation tuning, regional context, and account controls (Sections 13.1 - 1
 
 from enum import StrEnum
 from typing import Any
-from pydantic import Field
-from schemas.base import BaseContractModel
 
+from pydantic import Field
+
+from schemas.base import BaseContractModel
 
 # ---------------------------------------------------------------------------
 # Enums & Taxonomies (Sections 13.2, 13.4, 13.17, 13.24, 13.40, 13.65)

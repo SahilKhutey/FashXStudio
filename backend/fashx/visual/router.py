@@ -6,17 +6,18 @@ Adheres to Rule I01 (Layer Separation) and Rule I19 (Standardized Error Envelope
 """
 
 from typing import Any
+
 from fastapi import APIRouter, HTTPException, Query, status
 
 from fashx.core.errors import EntityNotFoundError
-from schemas.visual.v1 import (
-    BreakpointConfig,
-    DeviceBreakpoint,
-    ImplementationDependencyGroup,
-    PageTemplateType,
-    ScreenDefinition,
-    ScreenDomain,
-    ScreenInventoryRegistry,
+from schemas.visual.shell import (
+    ApplicationShellContract,
+    BreadcrumbItemContract,
+    LayoutTemplate,
+    LayoutTemplateContract,
+    NavigationConfigContract,
+    PageHeaderContract,
+    PageHeaderVariant,
 )
 from schemas.visual.tokens import (
     DesignTokenRegistry,
@@ -25,41 +26,30 @@ from schemas.visual.tokens import (
     ThemeTokens,
     TokenValidationReport,
 )
+from schemas.visual.v1 import (
+    BreakpointConfig,
+    ImplementationDependencyGroup,
+    PageTemplateType,
+    ScreenDefinition,
+    ScreenDomain,
+    ScreenInventoryRegistry,
+)
+
 from .catalog import BREAKPOINT_CONFIGS, get_screen_inventory
+from .shell_service import (
+    build_application_shell,
+    build_layout_template,
+    build_page_header,
+    get_navigation_config,
+    resolve_breadcrumbs,
+    resolve_shell_layout_mode,
+    resolve_sidebar_mode,
+)
 from .tokens_service import (
     calculate_adaptive_columns,
     get_theme_tokens,
     get_token_registry,
     validate_tokens,
-)
-from schemas.visual.shell import (
-    ApplicationShellContract,
-    BreadcrumbItemContract,
-    LayoutTemplate,
-    LayoutTemplateContract,
-    NavigationConfigContract,
-    OverlayContract,
-    OverlayRegistryContract,
-    OverlayType,
-    PageHeaderContract,
-    PageHeaderVariant,
-    ToastContract,
-    ToastType,
-)
-from .shell_service import (
-    build_application_shell,
-    build_layout_template,
-    build_page_header,
-    create_overlay,
-    create_toast,
-    dismiss_toast,
-    get_navigation_config,
-    pop_overlay,
-    push_overlay,
-    push_toast,
-    resolve_breadcrumbs,
-    resolve_shell_layout_mode,
-    resolve_sidebar_mode,
 )
 
 router = APIRouter(prefix="/visual", tags=["Visual Architecture"])
@@ -349,28 +339,22 @@ def get_layout_template(
 from schemas.visual.navigation import (
     BreadcrumbChainContract,
     ContextNavigationContract,
-    FeatureFlagNavContract,
-    NavigationAnalyticsEventContract,
     NavigationErrorContract,
-    NavigationEventType,
     NavigationGuardResultContract,
     NavigationResolverResultContract,
     RouteRegistryContract,
     TabGroupContract,
 )
+
 from .navigation_service import (
     build_404_error,
     build_breadcrumb_chain,
     build_data_failure_error,
-    build_forbidden_error,
-    build_nav_event,
     evaluate_navigation_guards,
     get_context_navigation,
     get_product_tabs,
     get_route_registry,
     resolve_navigation,
-    resolve_feature_flag_nav,
-    PROFILE_CONTEXT_NAV,
 )
 
 
@@ -500,6 +484,7 @@ from schemas.visual.components import (
     ComponentDefinitionContract,
     ComponentValidationReportContract,
 )
+
 from .components_service import (
     get_component_catalog,
     get_component_definition,
@@ -557,14 +542,13 @@ from schemas.visual.fashion import (
     ListingTemplateSpecContract,
     SaveToggleRequestContract,
     SaveToggleResultContract,
-    VisualContentModel,
 )
+
 from .fashion_service import (
     get_discovery_template,
     get_fashion_content,
     get_fashion_feed,
     get_listing_template,
-    to_visual_content_model,
     toggle_content_save,
 )
 
@@ -646,12 +630,9 @@ from schemas.visual.shopping import (
     CartTemplateSpecContract,
     CartValidationResultContract,
     CategoryTemplateSpecContract,
-    CheckoutStateContract,
-    CheckoutSubmitRequestContract,
     CheckoutTemplateSpecContract,
     ConfirmationTemplateSpecContract,
     OrderDetailTemplateSpecContract,
-    OrderContract,
     OrderReviewTemplateSpecContract,
     OrdersTemplateSpecContract,
     ProductComparisonContract,
@@ -661,11 +642,11 @@ from schemas.visual.shopping import (
     ShoppingProductDetailContract,
     SortOption,
     UpdateCartQuantityRequestContract,
-    WishlistContract,
     WishlistTemplateSpecContract,
     WishlistToggleRequestContract,
     WishlistToggleResultContract,
 )
+
 from .shopping_service import (
     add_item_to_cart,
     compare_products,
@@ -903,11 +884,14 @@ from schemas.visual.discovery import (
     ExploreTemplateSpecContract,
     ExploreType,
     PersonalizedDiscoveryTemplateSpecContract,
-    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
-    SearchResultType,
     SearchHomeTemplateSpecContract,
+    SearchResultType,
     SearchSuggestionContract,
 )
+from schemas.visual.discovery import (
+    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
+)
+
 from .discovery_service import (
     execute_advanced_search,
     get_discovery_hero,
@@ -1021,6 +1005,7 @@ from schemas.visual.detail import (
     ProductComparisonTemplateSpecContract,
     ProductReviewsTemplateSpecContract,
 )
+
 from .detail_service import (
     get_brand_story_template,
     get_editorial_view_template,
@@ -1031,8 +1016,10 @@ from .detail_service import (
     get_fashion_story_template,
     get_product_availability_template,
     get_product_comparison_template,
-    get_product_detail_template as get_comprehensive_product_detail_template,
     get_product_reviews_template,
+)
+from .detail_service import (
+    get_product_detail_template as get_comprehensive_product_detail_template,
 )
 
 
@@ -1168,6 +1155,7 @@ from schemas.visual.styling import (
     StylePreferencesTemplateSpecContract,
     StyleRecommendationTemplateSpecContract,
 )
+
 from .styling_service import (
     add_item_to_outfit,
     delete_saved_look,
@@ -1385,20 +1373,19 @@ from schemas.visual.geography import (
     CityTemplateSpecContract,
     CountryTemplateSpecContract,
     FashionMapTemplateSpecContract,
-    GeographyLayerType,
     LocalProductsTemplateSpecContract,
     LocationDetailTemplateSpecContract,
-    RegionBreadcrumbContract,
-    RegionContract,
-    RegionType,
     RegionalCollectionsTemplateSpecContract,
     RegionalComparisonContract,
     RegionalExplorerTemplateSpecContract,
     RegionalHomeTemplateSpecContract,
-    RegionalTrendContract,
     RegionalTrendsTemplateSpecContract,
+    RegionBreadcrumbContract,
+    RegionContract,
+    RegionType,
     StateTemplateSpecContract,
 )
+
 from .geography_service import (
     compare_regions,
     get_city_template,
@@ -1573,6 +1560,7 @@ from schemas.visual.ai import (
     PostAIFeedbackRequestContract,
     PostAIMessageRequestContract,
 )
+
 from .ai_service import (
     ai_search,
     create_ai_session,
@@ -1768,6 +1756,7 @@ from schemas.visual.personal import (
     UpdateRegionalPreferencesRequestContract,
     WishlistTemplateSpecContract,
 )
+
 from .personal_service import (
     clear_recently_viewed_history,
     get_account_settings_template,
@@ -2026,14 +2015,13 @@ from schemas.visual.responsive import (
     ViewportEvaluationRequest,
     ViewportEvaluationResult,
 )
+
 from .responsive_service import (
     CONTAINER_CONFIGS,
     calculate_fluid_grid,
     evaluate_viewport,
     get_cross_system_screen_qa,
     prune_card_content,
-    resolve_breakpoint,
-    resolve_container_config,
 )
 
 
@@ -2119,6 +2107,7 @@ from schemas.visual.interaction import (
     ScreenStateContract,
     VisualQASpecContract,
 )
+
 from .interaction_service import (
     dispatch_feedback_event,
     evaluate_component_state,
@@ -2214,6 +2203,7 @@ from schemas.visual.release import (
     VisualReleaseGateAuditRequest,
     VisualTrackStatusContract,
 )
+
 from .release_service import (
     get_e2e_journeys,
     get_golden_artifacts,

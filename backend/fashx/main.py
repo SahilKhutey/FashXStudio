@@ -10,7 +10,8 @@ from fashx.core.settings import get_settings
 from fashx.features.router import router as features_router
 from fashx.gateway.errors import install_exception_handlers
 from fashx.gateway.middleware import RequestContextMiddleware
-from fashx.health.router import healthz_router, router as health_router
+from fashx.health.router import healthz_router
+from fashx.health.router import router as health_router
 from fashx.profile.router import router as profile_router
 from fashx.recommendation.feed_router import feed_router
 from fashx.recommendation.router import router as recommendation_router
@@ -84,8 +85,8 @@ def create_app() -> FastAPI:
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(pilot_router, dependencies=[Depends(get_principal)])
 
-    from fashx.b2b.widget import router as b2b_widget_router
     from fashx.b2b.dashboard import router as b2b_merchant_router
+    from fashx.b2b.widget import router as b2b_widget_router
 
     app.include_router(b2b_widget_router)
     app.include_router(b2b_merchant_router)
@@ -96,10 +97,11 @@ def create_app() -> FastAPI:
         import hmac
         import time
         from pathlib import Path
+        from typing import Any
+
         from fastapi import Response
         from fastapi.responses import JSONResponse
 
-        from typing import Any
         from fashx.core.dependencies import get_storage
 
         @app.get("/dev-files/{file_path:path}", include_in_schema=False)

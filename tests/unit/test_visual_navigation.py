@@ -12,21 +12,6 @@ Covers: NAV-001→NAV-027 (Section 4.39)
 - Analytics: event builder structure
 """
 
-import pytest
-from schemas.visual.navigation import (
-    BreadcrumbChainContract,
-    FeatureFlagNavContract,
-    NavigationErrorCode,
-    NavigationEventType,
-    NavigationGuardResultContract,
-    NavigationItemGroup,
-    NavigationPresentation,
-    NavigationRouteContract,
-    NavigationStateContract,
-    NavigationVisibility,
-    RouteRegistryContract,
-    TabMode,
-)
 from fashx.visual.navigation_service import (
     _find_active_item,
     _flat_routes,
@@ -40,11 +25,19 @@ from fashx.visual.navigation_service import (
     get_context_navigation,
     get_product_tabs,
     get_route_registry,
-    resolve_feature_flag_nav,
     resolve_navigation,
     resolve_navigation_state,
 )
-
+from schemas.visual.navigation import (
+    NavigationErrorCode,
+    NavigationEventType,
+    NavigationItemGroup,
+    NavigationPresentation,
+    NavigationRouteContract,
+    NavigationVisibility,
+    RouteRegistryContract,
+    TabMode,
+)
 
 # ---------------------------------------------------------------------------
 # NAV-001: Registry loads

@@ -1,11 +1,10 @@
+
 import pytest
-from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from fashx.ingest.safe_http import Reject, assert_public_https
 from fashx.main import app
 from fashx.security.deps import get_principal
-from fashx.security.tokens import Claims
 
 
 def test_ssrf_rejects_non_https():

@@ -7,28 +7,7 @@ Covers DISC-001 through DISC-010 and SEARCH-001 through SEARCH-015 (Section 8.66
 """
 
 import pytest
-from schemas.visual.discovery import (
-    AdvancedSearchCriteriaContract,
-    AdvancedSearchTemplateSpecContract,
-    DiscoveryHeroContract,
-    DiscoveryHomeTemplateSpecContract,
-    DiscoveryModuleActionContract,
-    DiscoveryModuleContract,
-    DiscoveryModuleType,
-    DiscoveryResultsTemplateSpecContract,
-    DiscoveryScreenId,
-    DiscoveryState,
-    ExploreTemplateSpecContract,
-    ExploreType,
-    PersonalizedDiscoveryTemplateSpecContract,
-    RecentSearchContract,
-    SearchResultCountsContract,
-    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
-    SearchResultType,
-    SearchHomeTemplateSpecContract,
-    SearchSuggestionContract,
-    SuggestionType,
-)
+
 from fashx.visual.discovery_service import (
     execute_advanced_search,
     get_discovery_hero,
@@ -39,7 +18,15 @@ from fashx.visual.discovery_service import (
     get_search_suggestions,
     search_unified_catalog,
 )
-
+from schemas.visual.discovery import (
+    AdvancedSearchCriteriaContract,
+    DiscoveryHeroContract,
+    DiscoveryModuleType,
+    DiscoveryScreenId,
+    ExploreType,
+    SearchResultType,
+    SuggestionType,
+)
 
 # ---------------------------------------------------------------------------
 # DISC-001 - DISC-010: Discovery Architecture & Exploration

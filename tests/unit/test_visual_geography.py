@@ -13,35 +13,7 @@ Verifies:
 import pytest
 from pydantic import ValidationError
 
-from schemas.visual.geography import (
-    CityTemplateSpecContract,
-    CountryTemplateSpecContract,
-    FashionMapTemplateSpecContract,
-    GeographyLayerType,
-    GeographyState,
-    LocalProductsTemplateSpecContract,
-    LocationDetailTemplateSpecContract,
-    MapClusterContract,
-    MapMarkerContract,
-    MapViewModelContract,
-    MapViewportContract,
-    MarkerCategory,
-    RegionBreadcrumbContract,
-    RegionContract,
-    RegionType,
-    RegionalCollectionsTemplateSpecContract,
-    RegionalComparisonContract,
-    RegionalComparisonMetricContract,
-    RegionalExplorerTemplateSpecContract,
-    RegionalHomeTemplateSpecContract,
-    RegionalScreenId,
-    RegionalTrendContract,
-    RegionalTrendsTemplateSpecContract,
-    StateTemplateSpecContract,
-)
 from fashx.visual.geography_service import (
-    CANONICAL_REGIONS,
-    REGIONAL_TRENDS_FIXTURES,
     REGIONS_REGISTRY,
     build_map_clusters,
     build_map_markers,
@@ -61,6 +33,22 @@ from fashx.visual.geography_service import (
     get_state_template,
     reset_geography_fixtures,
     search_regions,
+)
+from schemas.visual.geography import (
+    GeographyLayerType,
+    GeographyState,
+    MapClusterContract,
+    MapMarkerContract,
+    MapViewModelContract,
+    MapViewportContract,
+    MarkerCategory,
+    RegionalComparisonContract,
+    RegionalScreenId,
+    RegionalTrendContract,
+    RegionalTrendsTemplateSpecContract,
+    RegionBreadcrumbContract,
+    RegionContract,
+    RegionType,
 )
 
 

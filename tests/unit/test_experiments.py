@@ -1,6 +1,6 @@
 import uuid
+
 from fashx.core.experiments import (
-    ACTIVE_EXPERIMENTS,
     assign,
     bucket,
     get_user_experiments,

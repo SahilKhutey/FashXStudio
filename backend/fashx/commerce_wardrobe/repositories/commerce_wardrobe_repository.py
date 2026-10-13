@@ -1,16 +1,17 @@
 from collections.abc import Callable, Sequence
 from uuid import UUID
 
-from fashx.core.repository import BaseRepository
-from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
+from sqlalchemy import desc, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from database.models.commerce_feedback import (
     BuyClick,
     FitFeedback,
     TryOnFeedback,
     WardrobeItem,
 )
-from sqlalchemy import desc, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
 
 class WardrobeRepository(BaseRepository[WardrobeItem]):

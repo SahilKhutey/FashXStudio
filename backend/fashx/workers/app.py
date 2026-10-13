@@ -1,6 +1,7 @@
 import logging
-from uuid import UUID
+
 from celery import Celery
+
 from fashx.core.settings import get_settings
 
 logger = logging.getLogger(__name__)

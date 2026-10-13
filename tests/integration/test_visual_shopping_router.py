@@ -9,6 +9,7 @@ Tests Shopping Flows A, B, C, D (Section 7.76) and REST endpoints:
 """
 
 from fastapi.testclient import TestClient
+
 from fashx.main import app
 
 client = TestClient(app)

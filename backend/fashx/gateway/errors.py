@@ -3,7 +3,6 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from schemas.common.errors import ErrorBody, ErrorResponse
 from starlette import status
 
 from fashx.core.errors import (
@@ -14,6 +13,7 @@ from fashx.core.errors import (
     IdempotencyConflictError,
     ValidationError,
 )
+from schemas.common.errors import ErrorBody, ErrorResponse
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
-from typing import Dict, List
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 
 

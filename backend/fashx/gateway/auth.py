@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import secrets
-from typing import Optional
 from uuid import UUID
 
-from fastapi import Header, HTTPException, Security, status
+from fastapi import Header, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from fashx.core.errors import AuthorizationError
 from fashx.core.settings import get_settings
+from fashx.security.errors import unauthorized
 
 security = HTTPBearer(auto_error=False)
 
@@ -20,7 +20,7 @@ class AuthUser:
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Security(security),
+    credentials: HTTPAuthorizationCredentials | None = Security(security),
 ) -> AuthUser:
     # In production, verify JWT signature and claims
     # Default fallback to deterministic dev user for local development
@@ -30,11 +30,11 @@ async def get_current_user(
 
 async def current_user_id(x_user_id: str | None = Header(default=None, alias="X-User-ID")) -> UUID:
     if not x_user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+        raise unauthorized("Authentication required")
     try:
         return UUID(x_user_id)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user identity") from exc
+        raise unauthorized("Invalid user identity") from exc
 
 
 async def require_internal_service(

@@ -5,6 +5,7 @@ import pytest
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from database.models.catalog import Merchant
 from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -32,7 +33,6 @@ from fashx.tryon.application.submit_job import (
 )
 from fashx.tryon.ports import InferenceInput, InferenceOutput
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
-from database.models.catalog import Merchant
 
 
 def _create_valid_portrait_bytes() -> bytes:

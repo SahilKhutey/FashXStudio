@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 from database.models.profile import UserPreference
-
 from fashx.core.errors import EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 

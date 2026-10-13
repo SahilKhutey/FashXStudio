@@ -5,6 +5,7 @@ pre-bound component tokens, automated token validation, and adaptive grid calcul
 """
 
 from fastapi.testclient import TestClient
+
 from fashx.main import app
 
 client = TestClient(app)

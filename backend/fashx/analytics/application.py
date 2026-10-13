@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
+from fashx.analytics.repository import AnalyticsRepository
 from fashx.core.transactions import transaction
 from fashx.repositories.events import EventRepository
-from fashx.analytics.repository import AnalyticsRepository
-from schemas.analytics.validation import AnalyticsEventCreate, AnalyticsEventResponse, AnalyticsWindow, ValidationMetrics
+from schemas.analytics.validation import (
+    AnalyticsEventCreate,
+    AnalyticsEventResponse,
+    AnalyticsWindow,
+    ValidationMetrics,
+)
 
 
 class AnalyticsService:
@@ -30,7 +35,7 @@ class AnalyticsService:
                 object_type="session",
                 object_id=None,
                 trace_id=trace_id,
-                occurred_at=datetime.now(timezone.utc),
+                occurred_at=datetime.now(UTC),
                 payload={"session_id": request.session_id, "screen_context": request.screen_context},
             )
         return AnalyticsEventResponse()
@@ -40,7 +45,6 @@ class AnalyticsService:
             raise ValueError("Analytics window timestamps must include timezone")
         counts = await self.repository.event_counts(start_at, end_at)
         users_created = await self.repository.count_users_created(start_at, end_at)
-        feedback = await self.repository.count_feedback(start_at, end_at)
         saves = await self.repository.count_saves(start_at, end_at)
         buy_clicks = await self.repository.count_buy_clicks(start_at, end_at)
         unique_tryon_users = await self.repository.distinct_event_users("tryon_started", start_at, end_at)

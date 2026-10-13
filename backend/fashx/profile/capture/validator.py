@@ -2,6 +2,7 @@ import io
 from dataclasses import dataclass, field
 
 from PIL import Image, ImageStat
+
 from schemas.common.enums import PhotoStatus
 
 

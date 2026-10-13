@@ -3,6 +3,7 @@
 import argparse
 import pathlib
 import sys
+from typing import Any
 
 import numpy as np
 
@@ -20,7 +21,7 @@ def run_fairness_audit(
     personas = load_personas(personas_path)
     judgments = load_judgments(judgments_path)
 
-    persona_metrics = {}
+    persona_metrics: dict[str, dict[str, Any]] = {}
 
     for p in personas:
         top_items = rank(p, page=0, limit=20, ranker=ranker)
@@ -53,25 +54,25 @@ def run_fairness_audit(
         }
 
     # 1. Skin tone breakdown (Monk 2-3, 4-6, 7-9)
-    skin_groups = {"light (2-3)": [], "medium (4-6)": [], "deep (7-9)": []}
+    skin_groups: dict[str, list[dict[str, Any]]] = {"light (2-3)": [], "medium (4-6)": [], "deep (7-9)": []}
     for m in persona_metrics.values():
-        p = m["persona"]
-        if p.monk <= 3:
+        p_obj: Any = m["persona"]
+        if p_obj.monk <= 3:
             skin_groups["light (2-3)"].append(m)
-        elif p.monk <= 6:
+        elif p_obj.monk <= 6:
             skin_groups["medium (4-6)"].append(m)
         else:
             skin_groups["deep (7-9)"].append(m)
 
     skin_summary = {}
-    all_ndcgs = [m["ndcg"] for m in persona_metrics.values()]
+    all_ndcgs = [float(m["ndcg"]) for m in persona_metrics.values()]
     mean_ndcg = float(np.mean(all_ndcgs))
 
     for grp_name, group_items in skin_groups.items():
         if not group_items:
             continue
-        grp_ndcg = float(np.mean([x["ndcg"] for x in group_items]))
-        grp_cov = float(np.mean([x["in_size_cov"] for x in group_items]))
+        grp_ndcg = float(np.mean([float(x["ndcg"]) for x in group_items]))
+        grp_cov = float(np.mean([float(x["in_size_cov"]) for x in group_items]))
         diff_pct = (grp_ndcg - mean_ndcg) / mean_ndcg * 100.0 if mean_ndcg > 0 else 0.0
         skin_summary[grp_name] = {
             "count": len(group_items),
@@ -82,15 +83,16 @@ def run_fairness_audit(
         }
 
     # 2. Body type breakdown
-    body_groups = {}
+    body_groups: dict[str, list[dict[str, Any]]] = {}
     for m in persona_metrics.values():
-        bt = m["persona"].body_type
+        p_obj = m["persona"]
+        bt = str(p_obj.body_type)
         body_groups.setdefault(bt, []).append(m)
 
     body_summary = {}
     for bt, items in body_groups.items():
-        cov = float(np.mean([x["in_size_cov"] for x in items]))
-        subcats_avg = float(np.mean([x["subcat_count"] for x in items]))
+        cov = float(np.mean([float(x["in_size_cov"]) for x in items]))
+        subcats_avg = float(np.mean([float(x["subcat_count"]) for x in items]))
         body_summary[bt] = {
             "count": len(items),
             "mean_cov": cov,
@@ -100,10 +102,11 @@ def run_fairness_audit(
 
     # 3. Cultural Style breakdown (Indian ethnic/festive vs Western)
     indian_styles = {"ethnic", "festive"}
-    style_groups = {"Indian/Ethnic": [], "Western/Contemporary": []}
+    style_groups: dict[str, list[dict[str, Any]]] = {"Indian/Ethnic": [], "Western/Contemporary": []}
     for m in persona_metrics.values():
-        p_styles = set(m["persona"].styles)
-        if p_styles & indian_styles or m["persona"].ethnic_pref:
+        p_obj = m["persona"]
+        p_styles = set(p_obj.styles)
+        if p_styles & indian_styles or p_obj.ethnic_pref:
             style_groups["Indian/Ethnic"].append(m)
         else:
             style_groups["Western/Contemporary"].append(m)
@@ -112,8 +115,8 @@ def run_fairness_audit(
     for st_name, items in style_groups.items():
         if not items:
             continue
-        st_ndcg = float(np.mean([x["ndcg"] for x in items]))
-        st_brands = float(np.mean([x["brand_count"] for x in items]))
+        st_ndcg = float(np.mean([float(x["ndcg"]) for x in items]))
+        st_brands = float(np.mean([float(x["brand_count"]) for x in items]))
         style_summary[st_name] = {
             "count": len(items),
             "mean_ndcg": st_ndcg,
@@ -125,8 +128,8 @@ def run_fairness_audit(
     p11_m = persona_metrics.get("p11")
     cold_start_passed = (
         p11_m is not None
-        and p11_m["subcat_count"] >= 5
-        and p11_m["max_subcat_share"] <= 0.40
+        and int(p11_m["subcat_count"]) >= 5
+        and float(p11_m["max_subcat_share"]) <= 0.40
     )
 
     all_passed = (

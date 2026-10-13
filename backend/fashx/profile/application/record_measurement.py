@@ -2,10 +2,9 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from database.models.profile import UserMeasurement
-from schemas.common.enums import DataType, MeasurementSource
-
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from schemas.common.enums import DataType, MeasurementSource
 
 
 @dataclass

@@ -1,8 +1,9 @@
 """add structured capture quality and pose metadata"""
 
 from collections.abc import Sequence
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0006_capture_quality"
 down_revision: str | Sequence[str] | None = "0005_profile_photo_validation"

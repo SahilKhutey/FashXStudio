@@ -8,18 +8,17 @@ Validates the complete 5-layer Component Architecture (Sections 5.1-5.72):
 """
 
 import pytest
+
+from fashx.visual.components_service import (
+    get_component_catalog,
+    validate_component_props,
+)
 from schemas.visual.components import (
-    ActionBarSpecContract,
     AlertSpecContract,
     AlertVariant,
-    AvatarSpecContract,
-    BadgeSpecContract,
-    BadgeVariant,
     BoxSpecContract,
     ButtonSpecContract,
     ButtonVariant,
-    CardSpecContract,
-    CardVariant,
     ChipSpecContract,
     CollectionCardSpecContract,
     ComponentCatalogContract,
@@ -44,26 +43,12 @@ from schemas.visual.components import (
     PaginationSpecContract,
     PriceSpecContract,
     ProductCardSpecContract,
-    ProgressSpecContract,
-    ProgressVariant,
     QuantityControlSpecContract,
     RatingSpecContract,
     RecommendationCardSpecContract,
     SearchBarSpecContract,
-    SegmentedControlOptionContract,
-    SegmentedControlSpecContract,
-    SkeletonShape,
-    SkeletonSpecContract,
     StackSpecContract,
-    TypographyRole,
-    TypographySpecContract,
 )
-from fashx.visual.components_service import (
-    get_component_catalog,
-    get_component_definition,
-    validate_component_props,
-)
-
 
 # ---------------------------------------------------------------------------
 # 1. Catalog Completeness & Taxonomy Across 3 Layers

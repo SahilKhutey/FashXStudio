@@ -1,4 +1,8 @@
-import collections, hashlib, pathlib, subprocess
+import collections
+import hashlib
+import pathlib
+import subprocess
+
 
 def tracked(root):
     out = subprocess.run(["git", "ls-files", root], capture_output=True, text=True).stdout.split("\n")

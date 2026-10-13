@@ -1,5 +1,6 @@
 """Remote config endpoint for client apps."""
 from fastapi import APIRouter
+
 from fashx.core.settings import get_settings
 
 router = APIRouter(tags=["Config"])

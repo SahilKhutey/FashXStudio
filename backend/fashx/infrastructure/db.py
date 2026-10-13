@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from typing import Any
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 

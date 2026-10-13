@@ -2,7 +2,7 @@
 
 import math
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any
 
 
@@ -11,7 +11,7 @@ def dcg(rels: list[int | float]) -> float:
     return sum((2.0**r - 1.0) / math.log2(i + 2) for i, r in enumerate(rels))
 
 
-def ndcg_at_k(ranked: list[str], judgments: dict[str, int | float], k: int = 10) -> float:
+def ndcg_at_k(ranked: list[str], judgments: Mapping[str, int | float], k: int = 10) -> float:
     """Normalized Discounted Cumulative Gain at rank k."""
     rels = [judgments.get(g, 0.0) for g in ranked[:k]]
     # Ideal ranking is the highest judged scores sorted descending
@@ -22,7 +22,7 @@ def ndcg_at_k(ranked: list[str], judgments: dict[str, int | float], k: int = 10)
     return dcg(rels) / d
 
 
-def precision_at_k(ranked: list[str], judgments: dict[str, int | float], k: int = 10, rel_min: int | float = 2) -> float:
+def precision_at_k(ranked: list[str], judgments: Mapping[str, int | float], k: int = 10, rel_min: int | float = 2) -> float:
     """Fraction of top-k items with relevance score >= rel_min."""
     top = ranked[:k]
     if not top:

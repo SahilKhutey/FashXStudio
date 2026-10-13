@@ -21,11 +21,20 @@ Verifies:
 import pytest
 from pydantic import ValidationError
 
+from fashx.visual.responsive_service import (
+    CONTAINER_CONFIGS,
+    calculate_fluid_grid,
+    evaluate_viewport,
+    get_cross_system_screen_qa,
+    prune_card_content,
+    resolve_breakpoint,
+    resolve_container_config,
+    resolve_layout_mode,
+)
 from schemas.visual.responsive import (
     CardContentPruningRequest,
     CardContentPruningResult,
     CheckoutLayoutType,
-    ContentPriorityLevel,
     CrossSystemScreenResponsiveContract,
     DeviceOrientation,
     FilterAdaptationType,
@@ -42,19 +51,7 @@ from schemas.visual.responsive import (
     SafeAreaInsetsContract,
     TypographyScaleToken,
     ViewportEvaluationRequest,
-    ViewportEvaluationResult,
 )
-from fashx.visual.responsive_service import (
-    CONTAINER_CONFIGS,
-    calculate_fluid_grid,
-    evaluate_viewport,
-    get_cross_system_screen_qa,
-    prune_card_content,
-    resolve_breakpoint,
-    resolve_container_config,
-    resolve_layout_mode,
-)
-
 
 # ---------------------------------------------------------------------------
 # RESP-001: Breakpoint Resolution

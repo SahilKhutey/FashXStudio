@@ -6,14 +6,13 @@ from uuid import UUID, uuid4
 
 from database.models.identity import UserPhoto
 from database.models.media import MediaObject
-from schemas.common.enums import DataType, PhotoStatus, PhotoType
-
 from fashx.application.ports.storage import media_key
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError
 from fashx.core.ports.storage import InMemoryStorageAdapter
 from fashx.profile.calibration.skin_tone import SkinToneCalibrationResult, SkinToneCalibrator
 from fashx.profile.capture.validator import PhotoQualityValidator
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from schemas.common.enums import DataType, PhotoStatus, PhotoType
 
 
 @dataclass

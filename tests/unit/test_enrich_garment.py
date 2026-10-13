@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from database.models.catalog import Merchant
 from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -14,7 +15,6 @@ from fashx.catalog.application.parse_size_chart import (
     ParseSizeChartUseCase,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from database.models.catalog import Merchant
 
 
 @pytest.mark.asyncio

@@ -1,12 +1,11 @@
 import hashlib
 import logging
 from datetime import UTC, datetime, timedelta
-from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
-from sqlalchemy import func, select, update
+from sqlalchemy import select
 
 from database.models.pilot import (
     PilotFeedback,

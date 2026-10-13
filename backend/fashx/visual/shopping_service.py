@@ -4,7 +4,6 @@ Provides domain models, in-memory fixtures, state machine transitions, and
 template builders for the complete FashXStudio shopping experience.
 """
 
-from typing import Any
 from schemas.visual.components import PriceSpecContract, RatingSpecContract
 from schemas.visual.shopping import (
     ActiveFilterContract,
@@ -17,7 +16,6 @@ from schemas.visual.shopping import (
     CategoryTemplateSpecContract,
     CheckoutStateContract,
     CheckoutStep,
-    CheckoutSubmitRequestContract,
     CheckoutTemplateSpecContract,
     ComparisonAttributeContract,
     CompleteTheLookSlotContract,
@@ -29,8 +27,8 @@ from schemas.visual.shopping import (
     FilterOptionContract,
     FilterStateContract,
     FilterType,
-    OrderDetailTemplateSpecContract,
     OrderContract,
+    OrderDetailTemplateSpecContract,
     OrderItemContract,
     OrderReviewTemplateSpecContract,
     OrderStatus,
@@ -57,7 +55,6 @@ from schemas.visual.shopping import (
     WishlistToggleRequestContract,
     WishlistToggleResultContract,
 )
-
 
 # ---------------------------------------------------------------------------
 # In-Memory Domain Fixtures (Sections 7.6 - 7.30)

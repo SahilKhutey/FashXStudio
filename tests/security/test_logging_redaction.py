@@ -1,7 +1,6 @@
+import io
 import json
 import logging
-import io
-import pytest
 
 from fashx.core.logging import (
     JsonFormatter,

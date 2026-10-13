@@ -1,9 +1,11 @@
 """B2B Merchant Portal and Analytics endpoints (/merchant)."""
 
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, Header, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from fashx.security.errors import unauthorized
 
 router = APIRouter(prefix="/merchant", tags=["B2B Merchant Portal"])
 
@@ -14,20 +16,17 @@ class MerchantProductPayload(BaseModel):
     handle: str
     category: str
     image_url: str
-    size_chart: Optional[dict[str, Any]] = None
+    size_chart: dict[str, Any] | None = None
 
 
 @router.get("/dashboard")
 async def get_merchant_dashboard(
-    x_fashx_key: Optional[str] = Header(None, alias="X-FashX-Key"),
+    x_fashx_key: str | None = Header(None, alias="X-FashX-Key"),
 ) -> dict[str, Any]:
     """Retrieve operational dashboard summary and return-reduction ROI for merchant."""
     # Validate merchant authentication
     if not x_fashx_key:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing X-FashX-Key merchant authentication header.",
-        )
+        raise unauthorized("Missing X-FashX-Key merchant authentication header.")
 
     return {
         "tenant_name": "House of Indya",
@@ -60,14 +59,11 @@ async def get_merchant_dashboard(
 
 @router.get("/analytics")
 async def get_merchant_analytics(
-    x_fashx_key: Optional[str] = Header(None, alias="X-FashX-Key"),
+    x_fashx_key: str | None = Header(None, alias="X-FashX-Key"),
 ) -> dict[str, Any]:
     """Retrieve detailed shopper conversion funnel and size selection metrics."""
     if not x_fashx_key:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing X-FashX-Key header.",
-        )
+        raise unauthorized("Missing X-FashX-Key header.")
 
     return {
         "funnel": {
@@ -94,14 +90,16 @@ async def get_merchant_analytics(
 
 @router.post("/products")
 async def sync_merchant_product(
-    payload: MerchantProductPayload,
-    x_fashx_key: Optional[str] = Header(None, alias="X-FashX-Key"),
+    payload: MerchantProductPayload | None = None,
+    x_fashx_key: str | None = Header(None, alias="X-FashX-Key"),
 ) -> dict[str, Any]:
     """Sync or register a product from merchant catalog for fit processing."""
     if not x_fashx_key:
+        raise unauthorized("Missing X-FashX-Key header.")
+    if payload is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing X-FashX-Key header.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing product payload.",
         )
 
     return {

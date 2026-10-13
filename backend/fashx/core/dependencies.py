@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .database import get_db_session
 from fashx.catalog.repositories.catalog import CatalogRepository
 from fashx.profile.repositories.profile import ProfileRepository
+
+from .database import get_db_session
+
+if TYPE_CHECKING:
+    from fashx.application.ports.storage import ObjectStorage
+    from fashx.application.ports.tryon import TryOnAdapter
 
 
 async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIterator[AsyncSession]:
@@ -22,10 +28,10 @@ def catalog_repository(session: AsyncSession = Depends(get_db_session)) -> Catal
     return CatalogRepository(session)
 
 
-def get_storage() -> "ObjectStorage":
-    from fashx.application.ports.storage import ObjectStorage
+def get_storage() -> ObjectStorage:
     from fashx.infrastructure.storage.local import LocalStorage
     from fashx.infrastructure.storage.s3 import S3Storage
+
     from .settings import get_settings
 
     settings = get_settings()
@@ -40,11 +46,11 @@ def get_storage() -> "ObjectStorage":
     return LocalStorage(root_dir=settings.local_storage_dir)
 
 
-def get_tryon_adapter() -> "TryOnAdapter":
-    from fashx.application.ports.tryon import TryOnAdapter
+def get_tryon_adapter() -> TryOnAdapter:
     from fashx.infrastructure.tryon.fashn_api import FashnApiAdapter
     from fashx.ml.licenses import assert_production_license
     from fashx.tryon.adapters.mock_adapter import MockAdapter
+
     from .settings import get_settings
 
     s = get_settings()

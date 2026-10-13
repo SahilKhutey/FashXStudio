@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from database.models.commerce_feedback import WardrobeItem
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from fashx.core.errors import EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from database.models.commerce_feedback import WardrobeItem
 
 
 @dataclass(frozen=True)

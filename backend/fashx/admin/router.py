@@ -1,13 +1,13 @@
 from typing import Any
-from fastapi import APIRouter, Depends, HTTPException
+
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from database.models.feature_flags import FeatureFlag
 from fashx.core.database import get_db_session
-from fashx.core.flags import is_flag_enabled, set_flag
+from fashx.core.flags import set_flag
 from fashx.security.deps import require_role
-from fashx.security.tokens import Claims
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

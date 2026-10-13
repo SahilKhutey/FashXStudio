@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 
 class QueuePort(ABC):
     @abstractmethod
-    async def enqueue(self, queue_name: str, payload: Dict[str, Any], job_id: str) -> bool:
+    async def enqueue(self, queue_name: str, payload: dict[str, Any], job_id: str) -> bool:
         pass
 
     @abstractmethod
@@ -12,5 +12,5 @@ class QueuePort(ABC):
         pass
 
     @abstractmethod
-    async def complete_job(self, job_id: str, result: Dict[str, Any]) -> bool:
+    async def complete_job(self, job_id: str, result: dict[str, Any]) -> bool:
         pass

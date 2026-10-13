@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0007_profile_intelligence"
 down_revision: str | Sequence[str] | None = "0006_capture_quality"

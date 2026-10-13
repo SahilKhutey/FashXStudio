@@ -2,11 +2,13 @@
 
 import hashlib
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from pydantic import BaseModel, Field
+
+from fashx.security.errors import unauthorized
 
 router = APIRouter(prefix="/widget/v1", tags=["B2B Widget"])
 
@@ -24,7 +26,7 @@ _ACTIVE_KEYS: dict[str, dict[str, Any]] = {
 
 class CreateSessionRequest(BaseModel):
     external_product_id: str = Field(..., description="External Shopify/store product ID")
-    category: Optional[str] = Field("kurta", description="Garment category")
+    category: str | None = Field("kurta", description="Garment category")
 
 
 class CreateSessionResponse(BaseModel):
@@ -54,7 +56,7 @@ def _hash_key(key: str) -> str:
     return hashlib.sha256(key.strip().encode()).hexdigest()
 
 
-def _resolve_tenant(api_key: Optional[str], origin: Optional[str]) -> dict[str, Any]:
+def _resolve_tenant(api_key: str | None, origin: str | None) -> dict[str, Any]:
     if api_key:
         if api_key in _ACTIVE_KEYS:
             return _ACTIVE_KEYS[api_key]
@@ -73,23 +75,23 @@ def _resolve_tenant(api_key: Optional[str], origin: Optional[str]) -> dict[str, 
                 return item
 
     # If neither matched, raise 401
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or missing X-FashX-Key header, or unauthorized origin domain.",
-    )
+    raise unauthorized("Invalid or missing X-FashX-Key header, or unauthorized origin domain.")
 
 
 @router.post("/session", response_model=CreateSessionResponse)
 async def create_widget_session(
-    payload: CreateSessionRequest,
     request: Request,
-    x_fashx_key: Optional[str] = Header(None, alias="X-FashX-Key"),
-    origin: Optional[str] = Header(None),
+    payload: CreateSessionRequest | None = None,
+    x_fashx_key: str | None = Header(None, alias="X-FashX-Key"),
+    origin: str | None = Header(None),
 ) -> CreateSessionResponse:
     """Create an ephemeral 24-hour shopper session for the embedded storefront widget."""
     tenant = _resolve_tenant(x_fashx_key, origin)
+    if payload is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing session payload.")
+
     session_token = f"sess_{uuid.uuid4().hex}"
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+    expires_at = datetime.now(UTC) + timedelta(hours=24)
 
     client_ip = request.client.host if request.client else "127.0.0.1"
     ip_hash = hashlib.sha256(client_ip.encode()).hexdigest()[:16]
@@ -101,7 +103,7 @@ async def create_widget_session(
         "category": payload.category,
         "ip_hash": ip_hash,
         "tryon_count": 0,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
         "expires_at": expires_at,
         "status": "active",
     }
@@ -116,9 +118,12 @@ async def create_widget_session(
 
 @router.post("/tryon", response_model=SubmitTryOnResponse)
 async def submit_widget_tryon(
-    payload: SubmitTryOnRequest,
+    payload: SubmitTryOnRequest | None = None,
 ) -> SubmitTryOnResponse:
     """Generate virtual try-on and fit recommendation for the active session."""
+    if payload is None or not payload.session_token:
+        raise unauthorized("Missing or unauthenticated session token.")
+
     session = _ACTIVE_SESSIONS.get(payload.session_token)
     if not session:
         raise HTTPException(
@@ -126,7 +131,7 @@ async def submit_widget_tryon(
             detail="Widget session not found or expired.",
         )
 
-    if datetime.now(timezone.utc) > session["expires_at"]:
+    if datetime.now(UTC) > session["expires_at"]:
         session["status"] = "expired"
         raise HTTPException(
             status_code=status.HTTP_410_GONE,
@@ -171,9 +176,9 @@ async def get_widget_session(session_token: str) -> dict[str, Any]:
     """Retrieve the status and remaining time for a widget session."""
     session = _ACTIVE_SESSIONS.get(session_token)
     if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
+        raise unauthorized("Session not found or invalid.")
 
-    is_expired = datetime.now(timezone.utc) > session["expires_at"]
+    is_expired = datetime.now(UTC) > session["expires_at"]
     return {
         "session_token": session_token,
         "tenant_id": session["tenant_id"],

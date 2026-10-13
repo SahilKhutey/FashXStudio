@@ -5,11 +5,11 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from fashx.core.repository import BaseRepository
-from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.identity import ConsentRecord, User, UserPhoto
 from database.models.media import MediaObject
 from database.models.profile import BodyProfile, OnboardingProfile, UserMeasurement, UserPreference
+from fashx.core.repository import BaseRepository
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
 
 class UserRepository(BaseRepository[User]):

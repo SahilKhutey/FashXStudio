@@ -1,4 +1,7 @@
-import pathlib, re, subprocess, sys
+import pathlib
+import re
+import subprocess
+import sys
 
 apply = "--apply" in sys.argv
 name = sys.argv[1]

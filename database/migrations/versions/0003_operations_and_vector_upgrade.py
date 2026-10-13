@@ -6,8 +6,8 @@ Revises: 0002_domain_foundation
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0003_operations_and_vector_upgrade"
 down_revision: str | Sequence[str] | None = "0002_domain_foundation"
@@ -35,13 +35,13 @@ def upgrade() -> None:
         DO $$
         BEGIN
             IF EXISTS (
-                SELECT 1 FROM information_schema.columns 
+                SELECT 1 FROM information_schema.columns
                 WHERE table_name = 'user_style_profiles' AND column_name = 'embedding' AND data_type = 'text'
             ) THEN
                 ALTER TABLE user_style_profiles ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector;
             END IF;
             IF EXISTS (
-                SELECT 1 FROM information_schema.columns 
+                SELECT 1 FROM information_schema.columns
                 WHERE table_name = 'garment_enrichments' AND column_name = 'embedding' AND data_type = 'text'
             ) THEN
                 ALTER TABLE garment_enrichments ALTER COLUMN embedding TYPE VECTOR(512) USING NULLIF(embedding, '')::vector;

@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 from database.models.identity import User
+from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
 
 @pytest.mark.asyncio

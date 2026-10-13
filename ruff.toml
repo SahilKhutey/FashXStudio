@@ -16,7 +16,16 @@ select = [
 ignore = [
     "E501", # line length handled by black/ruff format
     "B008", # do not perform function calls in argument defaults (FastAPI Depends/Query pattern)
+    "E741", # ambiguous single letter variable name (e.g. l for look in comprehension)
+    "E402", # module level import not at top of file (used for conditional and lazy route loading)
+    "B904", # raise without from
+    "UP042", # class inherits from (str, Enum)
+    "UP046", # Generic class uses Generic subclass
 ]
 
 [lint.isort]
 known-first-party = ["fashx", "schemas", "workers", "ml"]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "F811"]
+"tests/*" = ["B017", "B007", "F841"]

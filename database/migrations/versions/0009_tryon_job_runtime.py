@@ -5,8 +5,8 @@ Revises: 0008_catalog_runtime
 """
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0009_tryon_job_runtime"
 down_revision: str | None = "0008_catalog_runtime"

@@ -13,10 +13,11 @@ All schemas enforce extra="forbid" via BaseContractModel (Constitution Rule I02)
 
 from enum import StrEnum
 from typing import Any
+
 from pydantic import Field
+
 from schemas.base import BaseContractModel
 from schemas.visual.fashion import VisualContentModel
-
 
 # ---------------------------------------------------------------------------
 # Enums (Sections 9.2, 9.6, 9.11, 9.13, 9.26, 9.47)

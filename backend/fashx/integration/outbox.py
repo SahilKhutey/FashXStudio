@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from fashx.core.events import DomainEvent
@@ -114,6 +115,7 @@ class SqlOutboxRepository(OutboxRepository):
 
     async def pending(self, limit: int = 100) -> list[OutboxMessage]:
         from sqlalchemy import select
+
         from database.models.operations import OutboxMessageRecord
 
         stmt = (
@@ -126,11 +128,11 @@ class SqlOutboxRepository(OutboxRepository):
         return [self._to_message(r) for r in records]
 
     async def mark_published(self, message_id: UUID) -> None:
-        from datetime import timezone
         from sqlalchemy import update
+
         from database.models.operations import OutboxMessageRecord
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         stmt = (
             update(OutboxMessageRecord)
             .where(OutboxMessageRecord.id == message_id)
@@ -144,11 +146,13 @@ class SqlOutboxRepository(OutboxRepository):
         limit: int = 10,
         lease_seconds: int = 30,
     ) -> list[OutboxMessage]:
-        from datetime import timedelta, timezone
+        from datetime import timedelta
+
         from sqlalchemy import select
+
         from database.models.operations import OutboxMessageRecord
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         stmt = (
             select(OutboxMessageRecord)
             .where(

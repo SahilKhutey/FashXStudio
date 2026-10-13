@@ -6,19 +6,13 @@ Adheres strictly to Constitution Rule I01 (Layer Separation) and Rule I02 (Contr
 """
 
 import uuid
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
-from schemas.visual.fashion import (
-    FashionContentType,
-    VisualContentModel,
-)
 from schemas.visual.ai import (
     AIActionContract,
     AIAssistantTemplateSpecContract,
     AICitationContract,
     AIConfidenceLevel,
-    AIContentType,
     AIContextItemContract,
     AIExplanationContract,
     AIFeedbackContract,
@@ -43,6 +37,10 @@ from schemas.visual.ai import (
     AISessionContract,
     AIStyleAssistantTemplateSpecContract,
 )
+from schemas.visual.fashion import (
+    FashionContentType,
+)
+
 from .fashion_service import (
     SAMPLE_LOOKS,
     SAMPLE_PRODUCTS,
@@ -53,7 +51,7 @@ from .fashion_service import (
 
 def _get_current_iso_timestamp() -> str:
     """Return current UTC timestamp in ISO 8601 format."""
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 # ---------------------------------------------------------------------------

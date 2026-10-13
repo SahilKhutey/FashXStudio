@@ -1,18 +1,17 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
 from fashx.core.flags import (
     MAINTENANCE_MODE,
-    TRYON_ENABLED,
     clear_flag_cache,
     is_flag_enabled,
     set_flag,
 )
 from fashx.main import app
 from fashx.security.deps import get_principal
-from fashx.security.tokens import Claims
 
 
 @pytest.fixture(autouse=True)
@@ -73,6 +72,7 @@ def test_admin_feature_flags_endpoint_requires_admin_role():
 
 def test_admin_feature_flags_endpoint_success_with_admin(monkeypatch):
     from unittest.mock import AsyncMock
+
     import fashx.admin.router as admin_mod
     from fashx.security.deps import Principal
 
@@ -109,8 +109,9 @@ def test_admin_feature_flags_endpoint_success_with_admin(monkeypatch):
 
 
 def test_maintenance_mode_middleware():
-    from fashx.core.flags import _FLAG_CACHE
     import time
+
+    from fashx.core.flags import _FLAG_CACHE
 
     # Simulate maintenance_mode active in cache
     _FLAG_CACHE[MAINTENANCE_MODE] = (True, time.monotonic())

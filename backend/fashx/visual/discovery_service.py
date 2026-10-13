@@ -4,16 +4,6 @@ Provides domain models, multi-type search engine, autocomplete suggestions,
 module resolvers, and template specifications for FashXStudio discovery (Sections 8.1-8.82).
 """
 
-from typing import Any
-from schemas.visual.fashion import (
-    FashionContentType,
-    VisualContentModel,
-)
-from schemas.visual.shopping import (
-    ActiveFilterContract,
-    FilterStateContract,
-    SortOption,
-)
 from schemas.visual.discovery import (
     AdvancedSearchCriteriaContract,
     AdvancedSearchTemplateSpecContract,
@@ -22,35 +12,41 @@ from schemas.visual.discovery import (
     DiscoveryModuleActionContract,
     DiscoveryModuleContract,
     DiscoveryModuleType,
-    DiscoveryResultsTemplateSpecContract,
     DiscoveryScreenId,
     DiscoveryState,
-    DiscoveryViewModelContract,
     ExploreTemplateSpecContract,
     ExploreType,
     PersonalizedDiscoveryTemplateSpecContract,
     RecentSearchContract,
-    SearchResultCountsContract,
-    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
-    SearchResultType,
     SearchHomeTemplateSpecContract,
+    SearchResultCountsContract,
+    SearchResultType,
     SearchSuggestionContract,
-    SearchViewModelContract,
     SuggestionType,
 )
+from schemas.visual.discovery import (
+    SearchResultsTemplateSpecContract as UnifiedSearchResultsTemplateSpecContract,
+)
+from schemas.visual.fashion import (
+    FashionContentType,
+    VisualContentModel,
+)
+from schemas.visual.shopping import (
+    FilterStateContract,
+    SortOption,
+)
+
 from .fashion_service import (
     SAMPLE_BRANDS,
     SAMPLE_COLLECTIONS,
     SAMPLE_LOOKS,
     SAMPLE_PRODUCTS,
-    SAMPLE_RECOMMENDATIONS,
     SAMPLE_STORIES,
     SAMPLE_STYLES,
     SAMPLE_TRENDS,
     to_visual_content_model,
 )
 from .shopping_service import SAMPLE_FILTER_GROUPS
-
 
 # ---------------------------------------------------------------------------
 # In-Memory Search History & Autocomplete Fixtures (Sections 8.16, 8.18, 8.20)

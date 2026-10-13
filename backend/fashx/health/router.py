@@ -3,10 +3,10 @@ from typing import Any
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from schemas.common.health import HealthResponse
 
 from fashx.core.database import check_database
 from fashx.core.settings import get_settings
+from schemas.common.health import HealthResponse
 
 router = APIRouter(prefix="/api/v1/system", tags=["system"])
 healthz_router = APIRouter(tags=["system"])

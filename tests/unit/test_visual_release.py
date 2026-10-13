@@ -8,24 +8,6 @@ and strict Constitution Rule I02 (Contract Primacy) enforcement with extra="forb
 import pytest
 from pydantic import ValidationError
 
-from schemas.visual.release import (
-    EndToEndJourneySpecContract,
-    GoldenArtifactContract,
-    GoldenArtifactType,
-    NavigationRegistryEntryContract,
-    ProductionLayer,
-    ProductionReleaseReportContract,
-    QualityCategory,
-    ReleaseEnvironment,
-    ReleaseGateResultContract,
-    ReleaseGateStatus,
-    ScreenRegistryEntryContract,
-    TokenValidationReportContract,
-    TokenValidationRequestContract,
-    VisualChecklistItemContract,
-    VisualReleaseGateAuditRequest,
-    VisualTrackStatusContract,
-)
 from fashx.visual.release_service import (
     get_e2e_journeys,
     get_golden_artifacts,
@@ -36,7 +18,21 @@ from fashx.visual.release_service import (
     run_production_release_gate,
     validate_token_reference,
 )
-
+from schemas.visual.release import (
+    EndToEndJourneySpecContract,
+    GoldenArtifactType,
+    NavigationRegistryEntryContract,
+    ProductionLayer,
+    QualityCategory,
+    ReleaseEnvironment,
+    ReleaseGateResultContract,
+    ReleaseGateStatus,
+    ScreenRegistryEntryContract,
+    TokenValidationReportContract,
+    TokenValidationRequestContract,
+    VisualChecklistItemContract,
+    VisualReleaseGateAuditRequest,
+)
 
 # ---------------------------------------------------------------------------
 # Domain Unit Tests

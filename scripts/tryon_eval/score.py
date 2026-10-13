@@ -3,6 +3,7 @@
 import csv
 import pathlib
 from collections import defaultdict
+from typing import Any
 
 ROOT = pathlib.Path("eval_data")
 OUT = pathlib.Path("eval_results")
@@ -38,7 +39,7 @@ def main() -> None:
                 manifest[r["pair_id"]] = r
 
     # Aggregate ratings per (provider, pair_id)
-    ratings_by_prov = defaultdict(list)
+    ratings_by_prov: dict[str, list[dict[str, Any]]] = defaultdict(list)
     with open(rating_sheet_file, encoding="utf-8") as f:
         for r in csv.DictReader(f):
             code = r.get("code", "")
@@ -46,7 +47,7 @@ def main() -> None:
                 continue
             prov, pid = codes[code]
             try:
-                rec = {
+                rec: dict[str, Any] = {
                     "pair_id": pid,
                     "overall": float(r["overall"]),
                     "identity": float(r.get("identity") or 3.0),
@@ -62,11 +63,11 @@ def main() -> None:
         if not items:
             continue
         total = len(items)
-        acceptable_ge4 = sum(1 for x in items if x["overall"] >= 4.0)
-        unacceptable_le2 = sum(1 for x in items if x["unacceptable"] == 1 or x["overall"] <= 2.0)
-        identity_ge4 = sum(1 for x in items if x["identity"] >= 4.0)
+        acceptable_ge4 = sum(1 for x in items if float(x["overall"]) >= 4.0)
+        unacceptable_le2 = sum(1 for x in items if int(x["unacceptable"]) == 1 or float(x["overall"]) <= 2.0)
+        identity_ge4 = sum(1 for x in items if float(x["identity"]) >= 4.0)
 
-        mean_overall = sum(x["overall"] for x in items) / total
+        mean_overall = sum(float(x["overall"]) for x in items) / total
         pct_ge4 = (acceptable_ge4 / total) * 100.0
         pct_le2 = (unacceptable_le2 / total) * 100.0
         pct_ident = (identity_ge4 / total) * 100.0

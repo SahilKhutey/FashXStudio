@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from typing import Optional
+
 from fashx.infrastructure.queue.queue_port import QueuePort
 from fashx.tryon.domain.cache_keys import compute_tryon_cache_key
 from fashx.tryon.repositories.tryon_repository import TryOnRepository
@@ -23,7 +23,7 @@ class StartTryOnResult:
     job_id: uuid.UUID
     status: str
     cache_hit: bool
-    result_image_url: Optional[str] = None
+    result_image_url: str | None = None
 
 
 class StartTryOnUseCase:

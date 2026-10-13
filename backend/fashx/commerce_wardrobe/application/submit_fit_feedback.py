@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from database.models.commerce_feedback import FitFeedback
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
 from fashx.core.errors import ValidationError
-from database.models.commerce_feedback import FitFeedback
 
 
 @dataclass(frozen=True)

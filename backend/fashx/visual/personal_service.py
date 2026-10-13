@@ -16,7 +16,6 @@ Implements the personal space domain logic:
 """
 
 from typing import Any
-from copy import deepcopy
 
 from schemas.visual.personal import (
     AccountSettingsContract,
@@ -55,7 +54,6 @@ from schemas.visual.personal import (
     WishlistItemContract,
     WishlistTemplateSpecContract,
 )
-
 
 # ---------------------------------------------------------------------------
 # Initial Fixtures & Registries (Sections 13.5 - 13.55)
