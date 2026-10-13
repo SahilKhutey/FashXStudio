@@ -38,6 +38,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/healthz/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Liveness */
+        get: operations["liveness_healthz_live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/healthz/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Readiness */
+        get: operations["readiness_healthz_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/config": {
         parameters: {
             query?: never;
@@ -249,6 +283,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/feature-flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Feature Flags
+         * @description List all dynamic kill switches and feature flags.
+         */
+        get: operations["list_feature_flags_api_v1_admin_feature_flags_get"];
+        put?: never;
+        /**
+         * Update Feature Flag
+         * @description Toggle a feature flag / kill switch with audit attribution (Rule 9.10).
+         */
+        post: operations["update_feature_flag_api_v1_admin_feature_flags_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/catalog/products": {
         parameters: {
             query?: never;
@@ -419,10 +477,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Submit Tryon Job
-         * @description Rule I06: Enqueue an asynchronous Try-On job returning 202 Accepted immediately.
-         */
+        /** Submit Tryon Job */
         post: operations["submit_tryon_job_api_v1_tryon_jobs_post"];
         delete?: never;
         options?: never;
@@ -3550,6 +3605,346 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pilot/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Join Pilot
+         * @description Redeem a single-use invite code to join a pilot cohort (Rule 10.4).
+         */
+        post: operations["join_pilot_api_v1_pilot_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pilot/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Feedback
+         * @description Submit qualitative feedback during the pilot (Rule 10.4).
+         */
+        post: operations["submit_feedback_api_v1_pilot_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pilot/surveys/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pending Survey
+         * @description Determine the next appropriate pending survey for the participant (Rule 10.4).
+         */
+        get: operations["get_pending_survey_api_v1_pilot_surveys_pending_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pilot/survey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Survey
+         * @description Validate and record a completed survey submission (Rule 10.4).
+         */
+        post: operations["submit_survey_api_v1_pilot_survey_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pilot/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Join Pilot
+         * @description Redeem a single-use invite code to join a pilot cohort (Rule 10.4).
+         */
+        post: operations["join_pilot_pilot_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pilot/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Feedback
+         * @description Submit qualitative feedback during the pilot (Rule 10.4).
+         */
+        post: operations["submit_feedback_pilot_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pilot/surveys/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pending Survey
+         * @description Determine the next appropriate pending survey for the participant (Rule 10.4).
+         */
+        get: operations["get_pending_survey_pilot_surveys_pending_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pilot/survey": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Survey
+         * @description Validate and record a completed survey submission (Rule 10.4).
+         */
+        post: operations["submit_survey_pilot_survey_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/widget/v1/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Widget Session
+         * @description Create an ephemeral 24-hour shopper session for the embedded storefront widget.
+         */
+        post: operations["create_widget_session_widget_v1_session_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/widget/v1/tryon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Widget Tryon
+         * @description Generate virtual try-on and fit recommendation for the active session.
+         */
+        post: operations["submit_widget_tryon_widget_v1_tryon_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/widget/v1/session/{session_token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Widget Session
+         * @description Retrieve the status and remaining time for a widget session.
+         */
+        get: operations["get_widget_session_widget_v1_session__session_token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/merchant/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merchant Dashboard
+         * @description Retrieve operational dashboard summary and return-reduction ROI for merchant.
+         */
+        get: operations["get_merchant_dashboard_merchant_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/merchant/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merchant Analytics
+         * @description Retrieve detailed shopper conversion funnel and size selection metrics.
+         */
+        get: operations["get_merchant_analytics_merchant_analytics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/merchant/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Merchant Product
+         * @description Sync or register a product from merchant catalog for fit processing.
+         */
+        post: operations["sync_merchant_product_merchant_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merchant Dashboard
+         * @description Retrieve operational dashboard summary and return-reduction ROI for merchant.
+         */
+        get: operations["get_merchant_dashboard_api_v1_merchant_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merchant Analytics
+         * @description Retrieve detailed shopper conversion funnel and size selection metrics.
+         */
+        get: operations["get_merchant_analytics_api_v1_merchant_analytics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sync Merchant Product
+         * @description Sync or register a product from merchant catalog for fit processing.
+         */
+        post: operations["sync_merchant_product_api_v1_merchant_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/fashion/taxonomy": {
         parameters: {
             query?: never;
@@ -6076,6 +6471,38 @@ export interface components {
                 [key: string]: boolean;
             };
         };
+        /** CreateSessionRequest */
+        CreateSessionRequest: {
+            /**
+             * External Product Id
+             * @description External Shopify/store product ID
+             */
+            external_product_id: string;
+            /**
+             * Category
+             * @description Garment category
+             * @default kurta
+             */
+            category: string | null;
+        };
+        /** CreateSessionResponse */
+        CreateSessionResponse: {
+            /** Session Token */
+            session_token: string;
+            /** Tenant Name */
+            tenant_name: string;
+            /** Expires At */
+            expires_at: string;
+            /**
+             * Ephemeral Guarantee
+             * @default Shopper data is purged automatically within 24h. DPDP Compliant.
+             */
+            ephemeral_guarantee: string;
+            /** Theme */
+            theme?: {
+                [key: string]: unknown;
+            };
+        };
         /** CreateTryOnJobRequest */
         CreateTryOnJobRequest: {
             /**
@@ -7039,6 +7466,39 @@ export interface components {
          * @enum {string}
          */
         FeatureEventType: "feature.registered" | "feature.initialized" | "feature.initializing" | "feature.loaded" | "feature.ready" | "feature.started" | "feature.action" | "feature.updated" | "feature.failed" | "feature.recovering" | "feature.disabled" | "feature.completed";
+        /** FeatureFlagResponse */
+        FeatureFlagResponse: {
+            /** Name */
+            name: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Description */
+            description?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Updated By */
+            updated_by?: string | null;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** FeatureFlagUpdateRequest */
+        FeatureFlagUpdateRequest: {
+            /**
+             * Name
+             * @description Feature flag identifier
+             */
+            name: string;
+            /**
+             * Enabled
+             * @description Target state
+             */
+            enabled: boolean;
+            /**
+             * Reason
+             * @description Mandatory audit justification
+             */
+            reason: string;
+        };
         /**
          * FeatureLifecycle
          * @enum {string}
@@ -7560,6 +8020,10 @@ export interface components {
              * @enum {string}
              */
             database: "not_checked" | "ok" | "error";
+            /** Dependencies */
+            dependencies?: {
+                [key: string]: string;
+            } | null;
         };
         /**
          * ImplementationDependencyGroup
@@ -7656,6 +8120,30 @@ export interface components {
          * @enum {string}
          */
         InteractionState: "rest" | "hover" | "focus" | "active" | "selected" | "disabled" | "loading" | "success" | "error" | "unavailable";
+        /** JoinPilotRequest */
+        JoinPilotRequest: {
+            /**
+             * Code
+             * @description 10-character pilot invite code
+             */
+            code: string;
+            /** Os */
+            os?: string | null;
+            /** App Version */
+            app_version?: string | null;
+        };
+        /** JoinPilotResponse */
+        JoinPilotResponse: {
+            /** Cohort */
+            cohort: string;
+            /** Channel */
+            channel: string;
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+        };
         /**
          * LayoutMode
          * @description Semantic layout modes driving component adaptation (Section 14.4 & 14.116).
@@ -8122,6 +8610,23 @@ export interface components {
          * @enum {string}
          */
         MediaType: "image" | "thumbnail" | "detail" | "lifestyle" | "model" | "video" | "view_360";
+        /** MerchantProductPayload */
+        MerchantProductPayload: {
+            /** External Product Id */
+            external_product_id: string;
+            /** Title */
+            title: string;
+            /** Handle */
+            handle: string;
+            /** Category */
+            category: string;
+            /** Image Url */
+            image_url: string;
+            /** Size Chart */
+            size_chart?: {
+                [key: string]: unknown;
+            } | null;
+        };
         /**
          * MixMatchContract
          * @description Mix & Match experiment matrix (Section 10.16, 10.17).
@@ -9137,6 +9642,13 @@ export interface components {
              */
             is_selected: boolean;
         };
+        /** PendingSurveyResponse */
+        PendingSurveyResponse: {
+            /** Survey Key */
+            survey_key: ("tryon_first" | "feed_day5" | "end_of_pilot") | null;
+            /** Description */
+            description?: string | null;
+        };
         /**
          * PersonalCollectionContract
          * @description User-created grouping for organizing saved looks and fashion (Section 13.66, 13.67).
@@ -9241,6 +9753,20 @@ export interface components {
          * @enum {string}
          */
         PhotoType: "skin_tone" | "tryon_reference";
+        /** PilotFeedbackRequest */
+        PilotFeedbackRequest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "bug" | "idea" | "praise" | "privacy";
+            /** Message */
+            message: string;
+            /** Context */
+            context?: {
+                [key: string]: unknown;
+            };
+        };
         /**
          * PostAIFeedbackRequestContract
          * @description Payload to submit user evaluation of an AI output.
@@ -11995,6 +12521,51 @@ export interface components {
          * @enum {string}
          */
         StylingScreenId: "ST01" | "ST02" | "ST03" | "ST04" | "ST05" | "ST06" | "ST07" | "ST08" | "ST09";
+        /** SubmitSurveyRequest */
+        SubmitSurveyRequest: {
+            /**
+             * Survey Key
+             * @enum {string}
+             */
+            survey_key: "tryon_first" | "feed_day5" | "end_of_pilot";
+            /** Answers */
+            answers: {
+                [key: string]: unknown;
+            };
+        };
+        /** SubmitTryOnRequest */
+        SubmitTryOnRequest: {
+            /** Session Token */
+            session_token: string;
+            /** External Product Id */
+            external_product_id: string;
+            /**
+             * Size
+             * @description Selected garment size
+             * @default M
+             */
+            size: string;
+            /**
+             * Photo Base64
+             * @description Shopper body photo base64
+             */
+            photo_base64: string;
+        };
+        /** SubmitTryOnResponse */
+        SubmitTryOnResponse: {
+            /** Tryon Id */
+            tryon_id: string;
+            /** Status */
+            status: string;
+            /** Result Image Url */
+            result_image_url: string;
+            /** Fit Recommendation */
+            fit_recommendation: {
+                [key: string]: unknown;
+            };
+            /** Expires At */
+            expires_at: string;
+        };
         /**
          * SuggestionType
          * @description Categorized search autocomplete suggestions (Section 8.18).
@@ -13448,7 +14019,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    liveness_healthz_live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    readiness_healthz_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
@@ -13807,6 +14418,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RevokeConsentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_feature_flags_api_v1_admin_feature_flags_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureFlagResponse"][];
+                };
+            };
+        };
+    };
+    update_feature_flag_api_v1_admin_feature_flags_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeatureFlagUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -19035,6 +19701,560 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VisualTrackStatusContract"];
+                };
+            };
+        };
+    };
+    join_pilot_api_v1_pilot_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinPilotRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinPilotResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_feedback_api_v1_pilot_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PilotFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_pending_survey_api_v1_pilot_surveys_pending_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingSurveyResponse"];
+                };
+            };
+        };
+    };
+    submit_survey_api_v1_pilot_survey_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitSurveyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    join_pilot_pilot_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinPilotRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JoinPilotResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_feedback_pilot_feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PilotFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_pending_survey_pilot_surveys_pending_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingSurveyResponse"];
+                };
+            };
+        };
+    };
+    submit_survey_pilot_survey_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitSurveyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_widget_session_widget_v1_session_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+                origin?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CreateSessionRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_widget_tryon_widget_v1_tryon_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SubmitTryOnRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitTryOnResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_widget_session_widget_v1_session__session_token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_dashboard_merchant_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_analytics_merchant_analytics_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_merchant_product_merchant_products_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MerchantProductPayload"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_dashboard_api_v1_merchant_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_analytics_api_v1_merchant_analytics_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_merchant_product_api_v1_merchant_products_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-FashX-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MerchantProductPayload"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

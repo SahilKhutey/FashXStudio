@@ -17,7 +17,7 @@ jobs:
         env: { POSTGRES_USER: fashx, POSTGRES_PASSWORD: fashx, POSTGRES_DB: fashx_test }
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U fashx" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U fashx -d fashx_test" --health-interval 5s --health-timeout 5s --health-retries 10
       redis:
         image: redis:7
         ports: ["6379:6379"]
@@ -25,6 +25,7 @@ jobs:
       DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
       TEST_DATABASE_URL: postgresql+psycopg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
+      AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -46,13 +47,14 @@ jobs:
         env: { POSTGRES_USER: fashx, POSTGRES_PASSWORD: fashx, POSTGRES_DB: fashx_test }
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U fashx" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U fashx -d fashx_test" --health-interval 5s --health-timeout 5s --health-retries 10
       redis:
         image: redis:7
         ports: ["6379:6379"]
     env:
       DATABASE_URL: postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
+      AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
       FASHX_ENABLE_FROZEN: "1"
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm, cache-dependency-path: mobile/package-lock.json }
+        with: { node-version: 22, cache: npm, cache-dependency-path: mobile/package-lock.json }
       - run: npm ci
       - run: npx tsc --noEmit
       - run: npx eslint . --max-warnings 0 || true
@@ -77,16 +79,18 @@ jobs:
 
   api-types:
     runs-on: ubuntu-latest
+    env:
+      AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22 }
       - run: pip install -e ".[dev]" || pip install -e .
       - run: |
           python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
-          npx openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
+          npx -y openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
           diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts
 
   security:
