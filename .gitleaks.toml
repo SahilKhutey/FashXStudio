@@ -1,0 +1,11 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test fixtures and documentation examples (no live credentials)"
+paths = [
+  '''tests/conftest\.py''',
+  '''tests/security/.*''',
+  '''scripts/release/seed_staging_users\.py''',
+  '''docs/architecture/auth\.md''',
+]

@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 11 — Strategy, Decision Memo & Next Stage Roadmap
 
 **Phase**: Phase 11 (Decide & Plan the Next Stage)  

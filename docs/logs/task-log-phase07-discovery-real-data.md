@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 7 - Discovery on Real Data
 
 **Date:** 2026-10-10  

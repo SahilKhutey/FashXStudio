@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 9C — Security, Privacy Package, Legal Pack & Release Gates
 
 **Date**: 2026-10-11  

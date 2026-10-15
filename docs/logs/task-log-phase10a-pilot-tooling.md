@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 10A — Pilot Tooling, Alpha & Launch Readiness
 
 **Date**: 2026-10-12  

@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 9B — Observability, Retention, Runbooks & Resilience
 
 **Date**: 2026-10-11  

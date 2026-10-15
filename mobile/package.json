@@ -53,7 +53,9 @@
       "exclude": [
         "expo",
         "expo-router",
-        "jest-expo"
+        "jest-expo",
+        "expo-constants",
+        "expo-linking"
       ]
     }
   }

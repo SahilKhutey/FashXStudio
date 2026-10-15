@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 4 Task Log: Real Persistence and Storage
 
 **Date:** 2026-10-09  

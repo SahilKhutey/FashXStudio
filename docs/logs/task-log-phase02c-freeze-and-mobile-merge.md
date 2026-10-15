@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 2C Task Log: Frozen Scope Gating & Mobile Consolidation
 
 **Date:** 2026-10-08  

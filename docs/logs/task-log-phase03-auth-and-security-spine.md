@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 3 Task Log: Auth and Security Spine
 
 **Date:** 2026-10-09  

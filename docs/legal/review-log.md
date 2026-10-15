@@ -1,33 +1,52 @@
 # Legal Counsel Review Log
 
 **Organization**: FashXStudio  
-**Counsel**: Tech & Privacy Legal Advisors (Bengaluru, India)  
-**Lead Reviewer**: Senior Partner (Data Protection & E-Commerce Practice)  
-**Status**: APPROVED FOR PILOT RELEASE  
+**Status**: PENDING REVIEW — NOT YET ENGAGED  
+**Date**: 2026-10-15  
+
+> [!WARNING]
+> No outside legal counsel has reviewed or signed off on this project yet. The questions below represent the briefing pack to be submitted to counsel. All opinions are **unanswered**.
 
 ---
 
-## 1. Review History & Opinions
+## Questions for Counsel
 
-### Review Session 1: Pre-Pilot Regulatory Review
-- **Date**: October 10, 2026
-- **Documents Reviewed**: `data-inventory.md`, `processors.md`, `privacy-policy.md`, `terms.md`, `pilot-terms.md`, `consent-text.md`.
-- **Counsel Opinion & Advice**:
-  1. **Photo Upload Consent Scope**:  
-     *Finding*: Account-level consent collected during onboarding is legally compliant under DPDP Section 6, provided that: (a) the notice clearly states that photos will be uploaded periodically for virtual try-on, and (b) an easily accessible deletion toggle remains available in the user profile settings at all times.
-  2. **E-Commerce Rules Application**:  
-     *Finding*: Because FashXStudio does not accept payments, take title to goods, or execute order fulfillment, it operates as an advertising / discovery intermediary rather than a marketplace e-commerce entity. However, counsel recommends prominent display of the "Buy on Merchant Store" disclaimer to clearly delineate liability.
-  3. **Significant Data Fiduciary (SDF)**:  
-     *Finding*: Confirmed that at pilot scale (100 users), FashXStudio does not meet the volume or risk thresholds prescribed for SDF designation.
-  4. **Children's Data (Rule I17)**:  
-     *Finding*: The strict 18+ requirement completely eliminates liability under Section 9 (parental consent mandates and ban on tracking minors). Maintain this restriction through pilot.
+1. **Photo Upload Consent Scope (DPDP Section 6)**:  
+   *Question*: Does DPDP Section 6 require a separate modal consent prompt before *each* subsequent photo upload, or is an account-level consent renewed upon major terms revisions sufficient, provided users have persistent 1-click deletion access in Settings?  
+   *Status*: **Unanswered** (Pending counsel review).
 
----
+2. **Consumer Protection (E-Commerce) Rules 2020**:  
+   *Question*: Given that FashXStudio acts solely as an affiliate discovery link-out engine (we do not process consumer payments, maintain inventory, or act as the contracting merchant of record), does FashXStudio fall outside the definition of an "e-commerce entity" under the Consumer Protection (E-Commerce) Rules?  
+   *Status*: **Unanswered** (Pending counsel review).
 
-## 2. Regulatory Clearance Sign-Off
+3. **Significant Data Fiduciary (SDF) Classification**:  
+   *Question*: Based on our pilot volume (100 invited users, 5k-10k catalog items), can counsel confirm that FashXStudio does not meet the criteria for designation as a Significant Data Fiduciary under Section 10?  
+   *Status*: **Unanswered** (Pending counsel review).
 
-- **Counsel Sign-Off**: Yes, cleared for closed pilot distribution.
-- **Conditions Attached**:
-  - Maintain S3 media storage physically within India (`ap-south-1`).
-  - Execute DPA with try-on processing vendor guaranteeing zero retention for foundation model training.
-  - Publish contact details of the Data Protection Officer (`dpo@fashx.studio`) in the mobile app and website footer.
+4. **Children's Data Processing (DPDP Section 9)**:  
+   *Question*: Does self-declaration of age (18+) at onboarding satisfy statutory obligations to avoid processing children's data, or are additional age verification measures advised?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+5. **Cross-Border Transfer & Try-On Vendor DPA**:  
+   *Question*: Does sending cropped user garment/body images to an overseas vendor API (e.g. FASHN in US/EU) require explicit user notification under DPDP rules on cross-border processing, and what specific clauses must the DPA contain?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+6. **Right to Erasure & Backup Invariants (DPDP Section 12)**:  
+   *Question*: How should disaster recovery database backups be handled when a user exercises their right to erasure? Is tombstone suppression during backup restoration legally sufficient?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+7. **CERT-In Directions (180-Day Log Retention)**:  
+   *Question*: How to reconcile CERT-In's requirement to retain ICT security logs for 180 days with a user's erasure request under DPDP?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+8. **Affiliate Disclosure & Intermediary Guidelines (IT Rules 2021)**:  
+   *Question*: What specific disclosures and grievance officer notices are required on mobile and web storefront interfaces under IT Intermediary Guidelines?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+9. **Catalog Ingestion & IP/Copyright**:  
+   *Question*: Does displaying public brand catalog images and redirecting users via affiliate links create copyright or trademark exposure without direct merchant contracts?  
+   *Status*: **Unanswered** (Pending counsel review).
+
+10. **B2B Merchant Embed Liability (Widget)**:  
+    *Question*: When operating the embeddable B2B storefront widget, is FashXStudio a Data Fiduciary or a Data Processor for the merchant's end users?  
+    *Status*: **Unanswered** (Pending counsel review).
