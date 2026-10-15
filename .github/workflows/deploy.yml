@@ -23,15 +23,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate AWS Deploy Role
+        run: |
+          if [ -z "${{ vars.AWS_DEPLOY_ROLE }}" ]; then
+            echo "ERROR: vars.AWS_DEPLOY_ROLE is not set. Real cloud deployment requires a configured IAM role."
+            exit 1
+          fi
+
       - name: Configure AWS Credentials (OIDC)
-        if: ${{ vars.AWS_DEPLOY_ROLE != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: "${{ vars.AWS_DEPLOY_ROLE }}"
           aws-region: ap-south-1
 
       - name: Log in to Amazon ECR
-        if: ${{ vars.AWS_DEPLOY_ROLE != '' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
@@ -40,18 +45,13 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          if [ -n "$ECR_REGISTRY" ]; then
-            docker build -t $ECR_REGISTRY/fashx:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/fashx:$IMAGE_TAG
-          else
-            echo "AWS_DEPLOY_ROLE not configured; building local image fashx:$IMAGE_TAG..."
-            docker build -t fashx:$IMAGE_TAG .
-          fi
+          docker build -t $ECR_REGISTRY/fashx:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/fashx:$IMAGE_TAG
 
       - name: Vulnerability Scan (Trivy)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ steps.login-ecr.outputs.registry && format('{0}/fashx:{1}', steps.login-ecr.outputs.registry, github.sha) || format('fashx:{0}', github.sha) }}
+          image-ref: ${{ format('{0}/fashx:{1}', steps.login-ecr.outputs.registry, github.sha) }}
           format: "table"
           exit-code: "0"
           ignore-unfixed: true
@@ -65,7 +65,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials (OIDC)
-        if: ${{ vars.AWS_DEPLOY_ROLE != '' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: "${{ vars.AWS_DEPLOY_ROLE }}"
@@ -92,5 +91,6 @@ jobs:
           if [ -n "${{ vars.API_BASE }}" ]; then
             python scripts/release/smoke.py --base "${{ vars.API_BASE }}" --token "${{ secrets.SMOKE_TEST_TOKEN }}"
           else
-            echo "Skipping live smoke test: API_BASE variable not set"
+            echo "ERROR: vars.API_BASE must be set for smoke verification."
+            exit 1
           fi

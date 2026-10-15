@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 5 Task Log: Real Try-On Path and Adapter
 
 **Date:** 2026-10-10  

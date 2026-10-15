@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 8A - Mobile Foundation & Authentication Spine
 
 **Date:** 2026-10-11  

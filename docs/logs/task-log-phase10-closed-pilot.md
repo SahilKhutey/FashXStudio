@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task Log: Phase 10 — Closed Pilot Execution & Gate G6 Evaluation
 
 **Phase**: Phase 10 (Closed Pilot)  

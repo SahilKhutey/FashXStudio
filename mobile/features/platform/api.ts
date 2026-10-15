@@ -1,4 +1,4 @@
-import { apiClient } from "../../api/client";
+import { apiClient } from "../../src/api/client";
 
 import type { FeatureAvailability, FeatureRuntimeSnapshot, FeatureSummary } from "./types";
 

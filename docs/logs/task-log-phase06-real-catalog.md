@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 6 Task Log: Real Catalog
 
 **Date:** 2026-10-10  

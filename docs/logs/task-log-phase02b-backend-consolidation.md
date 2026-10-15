@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Phase 2B Task Log: Backend Consolidation
 
 **Date:** 2026-10-08  

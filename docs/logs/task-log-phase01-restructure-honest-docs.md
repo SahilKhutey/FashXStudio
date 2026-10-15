@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 # Task & Dev Log — Phase 01: Restructure and Honest Docs
 
 **Phase:** Phase 01 of 12 (Execution & Foundation Restructure)  

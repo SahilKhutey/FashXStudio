@@ -2,7 +2,7 @@
 
 **AI personal stylist with virtual try-on.** Build a profile once, get a personalized fashion feed from multiple merchants, see outfits on your own body, save to a closet, and buy through the merchant.
 
-> **Status: pre-pilot.** See [docs/STATUS.md](docs/STATUS.md) for what is real, mocked, and frozen.
+> **Status: pre-pilot (code-complete MVP foundation; unverified rehearsal results quarantined).** No real users, partners, vendors or cloud accounts exist yet. See [docs/STATUS.md](docs/STATUS.md) and [docs/provenance.md](docs/provenance.md).
 
 ## MVP scope
 1. **Profile:** photo quality gate, skin tone/undertone, body measurements, style preferences, consent.

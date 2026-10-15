@@ -1,3 +1,5 @@
+> **Development log. Contains no real-world measurements.**
+
 > **Historical record.** Written during development; counts, 'verified' claims and gate results may be outdated. Current truth: [STATUS](../STATUS.md).
 
 # FashXStudio Visual Design Track Master Task & Dev Log — VD-00–VD-16
