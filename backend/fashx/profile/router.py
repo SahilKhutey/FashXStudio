@@ -408,11 +408,16 @@ async def revoke_user_consent(
     )
 
 
+CURRENT_CONSENT_VERSION = "2026.1"
+
+
 class ConsentGrantIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    policy_version: str = "2026.1"
+    consent_version: str
     is_18_or_older: bool
+    accepts_terms: bool
+    accepts_body_photo: bool
 
 
 SubmitConsentRequest = ConsentGrantIn
@@ -420,8 +425,10 @@ SubmitConsentRequest = ConsentGrantIn
 
 class SubmitConsentResponse(BaseModel):
     user_id: UUID
-    policy_version: str
+    consent_version: str
     is_18_or_older: bool
+    accepts_terms: bool
+    accepts_body_photo: bool
     consented_at: datetime
     status: str = "granted"
 
@@ -441,6 +448,13 @@ async def submit_user_consent(
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
+    if req.consent_version != CURRENT_CONSENT_VERSION:
+        raise ApiError(
+            409,
+            "consent_version_outdated",
+            f"Consent version '{req.consent_version}' is outdated. Version '{CURRENT_CONSENT_VERSION}' is required.",
+        )
+
     if not req.is_18_or_older:
         raise ApiError(
             403,
@@ -448,19 +462,37 @@ async def submit_user_consent(
             "You must be 18 or older to use try-on.",
         )
 
+    if not req.accepts_terms:
+        raise ApiError(
+            400,
+            "terms_required",
+            "Terms and privacy policy acceptance is required.",
+        )
+
+    if not req.accepts_body_photo:
+        raise ApiError(
+            400,
+            "body_photo_consent_required",
+            "Body photo processing consent is required for try-on.",
+        )
+
     async with profile_uow:
-        record = await profile_uow.consents.record_mobile_consent(
+        terms_rec, photo_rec = await profile_uow.consents.record_mobile_consent(
             user_id=user_id,
-            policy_version=req.policy_version,
+            consent_version=req.consent_version,
             is_18_or_older=req.is_18_or_older,
+            accepts_terms=req.accepts_terms,
+            accepts_body_photo=req.accepts_body_photo,
         )
         await profile_uow.commit()
 
     return SubmitConsentResponse(
-        user_id=record.user_id,
-        policy_version=record.policy_version or req.policy_version,
-        is_18_or_older=record.is_18_or_older,
-        consented_at=record.consented_at or record.updated_at,
+        user_id=terms_rec.user_id,
+        consent_version=terms_rec.consent_version,
+        is_18_or_older=bool(terms_rec.is_18_or_older),
+        accepts_terms=terms_rec.granted,
+        accepts_body_photo=photo_rec.granted,
+        consented_at=photo_rec.consented_at or terms_rec.consented_at,
         status="granted",
     )
 

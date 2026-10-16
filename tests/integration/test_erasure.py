@@ -186,7 +186,7 @@ def test_garments_sizes_in_stock_gin_index_exists(db_engine):
 
 @pytest.mark.db
 def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
-    """End-to-end erasure test on real Postgres: seed user data across tables, erase, assert zero rows."""
+    """End-to-end erasure test on real Postgres: seed user data, erase, assert zero rows, tombstone, outbox, and idempotency."""
     import asyncio
     user_id = uuid4()
     storage = LocalStorage(tmp_path)
@@ -196,8 +196,8 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     # Seed user and user-keyed rows
     db.execute(text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'), {"u": user_id})
     db.execute(
-        text('INSERT INTO "consent_records" (user_id, data_type, granted, policy_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :pv, true, now())'),
-        {"u": user_id, "dt": "terms_and_privacy", "pv": "2026.1"},
+        text('INSERT INTO "consent_records" (user_id, data_type, granted, consent_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :cv, true, now())'),
+        {"u": user_id, "dt": "terms_and_privacy", "cv": "2026.1"},
     )
     db.execute(
         text('INSERT INTO "user_preferences" (user_id, categories, colors_favored, colors_avoided, updated_at) VALUES (:u, :cats, :fav, :av, now())'),
@@ -205,11 +205,21 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     )
     db.flush()
 
+    class OutboxCollector:
+        def __init__(self):
+            self.messages = []
+
+        async def add(self, msg):
+            self.messages.append(msg)
+
     class DirectUoW:
         def __init__(self, session):
             self.session = session
+            self.outbox = OutboxCollector()
 
-    asyncio.run(erase_account(DirectUoW(db), user_id, storage=storage))
+    uow = DirectUoW(db)
+    # First erasure run
+    asyncio.run(erase_account(uow, user_id, storage=storage))
     db.flush()
 
     assert storage.list_prefix(f"u/{user_id}/") == []
@@ -224,3 +234,18 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     # Canonical user row deleted
     user_cnt = db.execute(text('select count(*) from "users" where id = :u'), {"u": user_id}).scalar()
     assert user_cnt == 0, "Expected user row to be deleted"
+
+    # Minimal pseudonymous tombstone recorded in erasure_tombstones
+    tomb_cnt = db.execute(text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}).scalar()
+    assert tomb_cnt == 1, "Expected exactly 1 erasure tombstone recorded"
+
+    # Outbox storage purge task enqueued
+    assert len(uow.outbox.messages) >= 1
+    assert any(getattr(m.event, "prefix", "") == f"u/{user_id}/" for m in uow.outbox.messages)
+
+    # Second erasure run must be safe and idempotent
+    res2 = asyncio.run(erase_account(uow, user_id, storage=storage))
+    db.flush()
+    assert res2["status"] == "account_erased"
+    tomb_cnt2 = db.execute(text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}).scalar()
+    assert tomb_cnt2 == 1, "Tombstone must still be present after idempotent second run"

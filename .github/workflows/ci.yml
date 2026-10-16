@@ -50,6 +50,7 @@ jobs:
       - run: python -m alembic heads
       - run: python -m alembic upgrade head
       - run: python -m alembic check
+      - run: python -m pytest tests -m db -q -rs | tee db.log; ! grep -q SKIPPED db.log
       - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen"
 
   frozen:

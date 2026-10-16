@@ -56,41 +56,37 @@ async def get_me(
     consented_version: str | None = None
     consent_version_required = "2026.1"
 
-    try:
-        async with profile_uow:
-            # 1. Check consent
-            consents = await profile_uow.consents.list_for_user(user_uuid)
-            active_consent = next(
-                (c for c in consents if c.granted and c.policy_version == consent_version_required),
-                None,
-            )
-            if active_consent:
-                consented_version = active_consent.policy_version
-            else:
-                missing.append("consent")
+    async with profile_uow:
+        # 1. Check consent
+        consents = await profile_uow.consents.list_for_user(user_uuid)
+        active_consent = next(
+            (c for c in consents if c.granted and c.consent_version == consent_version_required),
+            None,
+        )
+        if active_consent:
+            consented_version = active_consent.consent_version
+        else:
+            missing.append("consent")
 
-            # 2. Check profile
-            onboarding_prof = await profile_uow.session.get(OnboardingProfile, user_uuid)
-            body_prof = await profile_uow.body_profiles.get_by_user_id(user_uuid)
-            if not (onboarding_prof and onboarding_prof.status == "completed") and not body_prof:
-                missing.append("profile")
+        # 2. Check profile
+        onboarding_prof = await profile_uow.session.get(OnboardingProfile, user_uuid)
+        body_prof = await profile_uow.body_profiles.get_by_user_id(user_uuid)
+        if not (onboarding_prof and onboarding_prof.status == "completed") and not body_prof:
+            missing.append("profile")
 
-            # 3. Check style_quiz
-            quiz_count_stmt = select(func.count(StyleQuizPick.id)).where(StyleQuizPick.user_id == user_uuid)
-            quiz_count = (await profile_uow.session.scalar(quiz_count_stmt)) or 0
-            if quiz_count < 1:
-                missing.append("style_quiz")
+        # 3. Check style_quiz
+        quiz_count_stmt = select(func.count(StyleQuizPick.id)).where(StyleQuizPick.user_id == user_uuid)
+        quiz_count = (await profile_uow.session.scalar(quiz_count_stmt)) or 0
+        if quiz_count < 1:
+            missing.append("style_quiz")
 
-            # 4. Check photo
-            photo_count_stmt = select(func.count(UserPhoto.id)).where(
-                UserPhoto.user_id == user_uuid, UserPhoto.status == "accepted"
-            )
-            photo_count = (await profile_uow.session.scalar(photo_count_stmt)) or 0
-            if photo_count < 1:
-                missing.append("photo")
-    except Exception:
-        # Fallback when database is unavailable in pure unit test fixtures
-        missing = ["consent", "profile", "style_quiz", "photo"]
+        # 4. Check photo
+        photo_count_stmt = select(func.count(UserPhoto.id)).where(
+            UserPhoto.user_id == user_uuid, UserPhoto.status == "accepted"
+        )
+        photo_count = (await profile_uow.session.scalar(photo_count_stmt)) or 0
+        if photo_count < 1:
+            missing.append("photo")
 
     return MeResponse(
         user_id=principal.user_id,
@@ -111,14 +107,19 @@ async def delete_me(
     storage: Any = Depends(get_storage),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> EraseAccountResponse:
+    from fashx.application.erasure import ErasureIncomplete
+    from fashx.security.errors import ApiError
+
     try:
         user_uuid = UUID(principal.user_id)
     except ValueError:
         user_uuid = UUID(int=0)
 
-    async with uow:
-        await erase_account(uow, user_uuid, storage=storage)
-        await uow.commit()
+    try:
+        async with uow:
+            await erase_account(uow, user_uuid, storage=storage)
+    except ErasureIncomplete as e:
+        raise ApiError(status=503, code="erasure_incomplete", detail=str(e))
 
     return EraseAccountResponse(
         user_id=principal.user_id,

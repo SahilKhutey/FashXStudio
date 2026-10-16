@@ -91,14 +91,34 @@ TestClient.__init__ = _patched_testclient_init
 
 @pytest.fixture(autouse=True)
 def setup_test_identity_override():
+    import asyncio
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import StaticPool
+
+    from database.models import Base
+    from fashx.api.v1.me import get_profile_uow
     from fashx.main import app as main_app
+    from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
     from fashx.security.deps import get_identity_repo
     from fashx.security.identity import InMemoryIdentityRepo
 
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool)
+
+    async def _init_db():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    asyncio.run(_init_db())
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
     shared_repo = InMemoryIdentityRepo()
     main_app.dependency_overrides[get_identity_repo] = lambda: shared_repo
+    main_app.dependency_overrides[get_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
     yield
     main_app.dependency_overrides.pop(get_identity_repo, None)
+    main_app.dependency_overrides.pop(get_profile_uow, None)
+    asyncio.run(engine.dispose())
 
 
 @pytest.fixture

@@ -47,50 +47,52 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
     async def record_mobile_consent(
         self,
         user_id: UUID,
-        policy_version: str,
+        consent_version: str,
         is_18_or_older: bool = True,
-    ) -> ConsentRecord:
-        now = datetime.now(UTC)
-        record = await self.get_by_user_and_type(user_id, "terms_and_privacy")
-        if record is not None:
-            record.granted = True
-            record.policy_version = policy_version
-            record.is_18_or_older = is_18_or_older
-            record.consented_at = now
-            record.updated_at = now
+        accepts_terms: bool = True,
+        accepts_body_photo: bool = True,
+    ) -> tuple[ConsentRecord, ConsentRecord]:
+        now_terms = datetime.now(UTC)
+        terms_rec = await self.get_by_user_and_type(user_id, "terms_and_privacy")
+        if terms_rec is not None:
+            terms_rec.granted = accepts_terms
+            terms_rec.consent_version = consent_version
+            terms_rec.is_18_or_older = is_18_or_older
+            terms_rec.consented_at = now_terms
+            terms_rec.updated_at = now_terms
         else:
-            record = ConsentRecord(
+            terms_rec = ConsentRecord(
                 user_id=user_id,
                 data_type="terms_and_privacy",
-                granted=True,
-                policy_version=policy_version,
+                granted=accepts_terms,
+                consent_version=consent_version,
                 is_18_or_older=is_18_or_older,
-                consented_at=now,
-                updated_at=now,
+                consented_at=now_terms,
+                updated_at=now_terms,
             )
-            self.add(record)
+            self.add(terms_rec)
 
-        # Grant body_photo consent for try-on photo capture (Rule I07 / GDPR)
+        now_photo = datetime.now(UTC)
         body_photo_rec = await self.get_by_user_and_type(user_id, "body_photo")
         if body_photo_rec is not None:
-            body_photo_rec.granted = True
-            body_photo_rec.policy_version = policy_version
+            body_photo_rec.granted = accepts_body_photo
+            body_photo_rec.consent_version = consent_version
             body_photo_rec.is_18_or_older = is_18_or_older
-            body_photo_rec.consented_at = now
-            body_photo_rec.updated_at = now
+            body_photo_rec.consented_at = now_photo
+            body_photo_rec.updated_at = now_photo
         else:
             body_photo_rec = ConsentRecord(
                 user_id=user_id,
                 data_type="body_photo",
-                granted=True,
-                policy_version=policy_version,
+                granted=accepts_body_photo,
+                consent_version=consent_version,
                 is_18_or_older=is_18_or_older,
-                consented_at=now,
-                updated_at=now,
+                consented_at=now_photo,
+                updated_at=now_photo,
             )
             self.add(body_photo_rec)
 
-        return record
+        return terms_rec, body_photo_rec
 
 
 

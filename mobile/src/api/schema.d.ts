@@ -6363,13 +6363,14 @@ export interface components {
         };
         /** ConsentGrantIn */
         ConsentGrantIn: {
-            /**
-             * Policy Version
-             * @default 2026.1
-             */
-            policy_version: string;
+            /** Consent Version */
+            consent_version: string;
             /** Is 18 Or Older */
             is_18_or_older: boolean;
+            /** Accepts Terms */
+            accepts_terms: boolean;
+            /** Accepts Body Photo */
+            accepts_body_photo: boolean;
         };
         /** ConsentResponse */
         ConsentResponse: {
@@ -12729,10 +12730,14 @@ export interface components {
              * Format: uuid
              */
             user_id: string;
-            /** Policy Version */
-            policy_version: string;
+            /** Consent Version */
+            consent_version: string;
             /** Is 18 Or Older */
             is_18_or_older: boolean;
+            /** Accepts Terms */
+            accepts_terms: boolean;
+            /** Accepts Body Photo */
+            accepts_body_photo: boolean;
             /**
              * Consented At
              * Format: date-time

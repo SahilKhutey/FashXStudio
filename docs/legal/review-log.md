@@ -50,3 +50,7 @@
 10. **B2B Merchant Embed Liability (Widget)**:  
     *Question*: When operating the embeddable B2B storefront widget, is FashXStudio a Data Fiduciary or a Data Processor for the merchant's end users?  
     *Status*: **Unanswered** (Pending counsel review).
+
+11. **Separate Consent for Body Photo Processing & Try-On Vendor**:  
+    *Question*: Under DPDP Act 2023 Section 6 and Section 9, is separate, explicit consent required for processing the user's body photo versus transferring/processing it with an external cloud try-on model vendor (Data Processor), or does a granular unbundled affirmation covering both during onboarding satisfy statutory requirements?  
+    *Status*: **Unanswered** (Pending counsel review).

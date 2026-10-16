@@ -16,13 +16,18 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    # 1. Update consent_records with mobile consent columns (adults only, no minor data stored)
-    op.add_column("consent_records", sa.Column("policy_version", sa.String(length=16), nullable=False, server_default="2026.1"))
-    op.add_column("consent_records", sa.Column("is_18_or_older", sa.Boolean(), nullable=False, server_default=sa.true()))
-    op.add_column("consent_records", sa.Column("consented_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()))
-    op.create_index("ix_consent_records_user_policy", "consent_records", ["user_id", "policy_version"])
+    # 1. Update consent_records with mobile consent columns (fail-closed, adults only, check constraint)
+    with op.batch_alter_table("consent_records") as b:
+        b.add_column(sa.Column("consent_version", sa.String(length=16), nullable=False, server_default="2026.1"))
+        b.add_column(sa.Column("is_18_or_older", sa.Boolean(), nullable=True))
+        b.add_column(sa.Column("consented_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()))
+        b.create_check_constraint(
+            "ck_consent_granted_requires_adult",
+            "granted IS NOT TRUE OR is_18_or_older IS TRUE",
+        )
+        b.create_index("ix_consent_records_user_policy", ["user_id", "consent_version"])
 
-    # 2. Create style_quiz_picks table
+    # 2. Create style_quiz_picks table with indexes on user_id and garment_id
     op.create_table(
         "style_quiz_picks",
         sa.Column("id", sa.UUID(), primary_key=True),
@@ -33,19 +38,23 @@ def upgrade() -> None:
         sa.UniqueConstraint("user_id", "garment_id", name="uq_style_quiz_picks_user_garment"),
     )
     op.create_index("ix_style_quiz_picks_user_id", "style_quiz_picks", ["user_id"])
+    op.create_index("ix_style_quiz_picks_garment_id", "style_quiz_picks", ["garment_id"])
 
-    # 3. Canonical garments: add tryon_supported
+    # 3. Canonical garments: add tryon_supported failing closed (default false)
     op.add_column(
         "canonical_garments",
-        sa.Column("tryon_supported", sa.Boolean(), nullable=False, server_default=sa.true()),
+        sa.Column("tryon_supported", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
 
 
 def downgrade() -> None:
     op.drop_column("canonical_garments", "tryon_supported")
+    op.drop_index("ix_style_quiz_picks_garment_id", table_name="style_quiz_picks")
     op.drop_index("ix_style_quiz_picks_user_id", table_name="style_quiz_picks")
     op.drop_table("style_quiz_picks")
-    op.drop_index("ix_consent_records_user_policy", table_name="consent_records")
-    op.drop_column("consent_records", "consented_at")
-    op.drop_column("consent_records", "is_18_or_older")
-    op.drop_column("consent_records", "policy_version")
+    with op.batch_alter_table("consent_records") as b:
+        b.drop_constraint("ck_consent_granted_requires_adult", type_="check")
+        b.drop_index("ix_consent_records_user_policy")
+        b.drop_column("consented_at")
+        b.drop_column("is_18_or_older")
+        b.drop_column("consent_version")

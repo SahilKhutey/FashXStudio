@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -120,6 +121,7 @@ class StyleQuizPick(Base, UUIDPrimaryKeyMixin):
 
     __table_args__ = (
         UniqueConstraint("user_id", "garment_id", name="uq_style_quiz_picks_user_garment"),
+        Index("ix_style_quiz_picks_garment_id", "garment_id"),
     )
 
 
@@ -138,7 +140,9 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     sizes_in_stock: Mapped[list[str]] = mapped_column(
         ARRAY(String(32)).with_variant(JSON, "sqlite"), default=list, nullable=False
     )
-    tryon_supported: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    tryon_supported: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     version: Mapped[int] = mapped_column(default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

@@ -1,7 +1,19 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, UUIDPrimaryKeyMixin
@@ -32,11 +44,19 @@ class ConsentRecord(Base):
     data_type: Mapped[str] = mapped_column(String(64), primary_key=True)
     granted: Mapped[bool] = mapped_column(Boolean, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    policy_version: Mapped[str] = mapped_column(String(16), default="2026.1", nullable=False)
-    is_18_or_older: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    consent_version: Mapped[str] = mapped_column(String(16), default="2026.1", nullable=False)
+    is_18_or_older: Mapped[bool | None] = mapped_column(Boolean, default=None, nullable=True)
     consented_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped[User] = relationship(back_populates="consents")
+
+    __table_args__ = (
+        CheckConstraint(
+            "granted IS NOT TRUE OR is_18_or_older IS TRUE",
+            name="ck_consent_granted_requires_adult",
+        ),
+        Index("ix_consent_records_user_policy", "user_id", "consent_version"),
+    )
 
 
 class UserPhoto(Base, UUIDPrimaryKeyMixin):

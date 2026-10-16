@@ -53,3 +53,5 @@ The following finalized legal and compliance artifacts are prepared for counsel'
    *Question*: Given that FashXStudio acts solely as an affiliate discovery link-out engine (we do not process consumer payments, maintain inventory, or act as the contracting merchant of record), does FashXStudio fall outside the definition of an "e-commerce entity" under the Consumer Protection (E-Commerce) Rules?
 3. **Significant Data Fiduciary (SDF) Classification**:  
    *Question*: Based on our pilot volume (100 invited users, 5k-10k catalog items), can counsel confirm that FashXStudio does not meet the criteria for designation as a Significant Data Fiduciary under Section 10?
+4. **Separate Photo & Try-On Vendor Consent**:  
+   *Question*: Under DPDP Act 2023 Section 6 and Section 9, is separate, explicit consent required for processing the user's body photo versus transferring/processing it with an external cloud try-on model vendor (Data Processor), or does a granular unbundled affirmation covering both during onboarding satisfy statutory requirements?

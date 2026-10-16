@@ -30,6 +30,11 @@ class ErrorCode(str, Enum):
     NAV_FORBIDDEN = "forbidden"
     NAV_DATA_FAILURE = "data_failure"
     NAV_FEATURE_DISABLED = "feature_disabled"
+    CONSENT_VERSION_OUTDATED = "consent_version_outdated"
+    AGE_REQUIREMENT = "age_requirement"
+    TERMS_REQUIRED = "terms_required"
+    BODY_PHOTO_CONSENT_REQUIRED = "body_photo_consent_required"
+    ERASURE_INCOMPLETE = "erasure_incomplete"
 
 
 class _ConflictCode(str):
