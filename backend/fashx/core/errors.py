@@ -1,6 +1,35 @@
-from __future__ import annotations
-
+from enum import Enum
 from typing import Any
+
+
+class ErrorCode(str, Enum):
+    VALIDATION_ERROR = "validation_error"
+    CORE_VALIDATION_ERROR = "CORE_VALIDATION_ERROR"
+    ENTITY_NOT_FOUND = "entity_not_found"
+    DUPLICATE_ENTITY = "duplicate_entity"
+    IDEMPOTENCY_CONFLICT = "idempotency_conflict"
+    CONSENT_REQUIRED = "consent_required"
+    CONFLICT = "conflict"
+    CORE_CONFLICT = "CORE_CONFLICT"
+    NOT_FOUND = "CORE_NOT_FOUND"
+    DEPENDENCY_ERROR = "CORE_DEPENDENCY_ERROR"
+    PERMISSION_DENIED = "permission_denied"
+    UNAUTHORIZED = "unauthorized"
+    INTERNAL_ERROR = "internal_error"
+    FORBIDDEN = "forbidden"
+    PHOTO_INVALID = "photo_invalid"
+    PHOTO_POOR_QUALITY = "photo_poor_quality"
+    TRYON_FAILED = "tryon_failed"
+    TRYON_CANCELLED = "tryon_cancelled"
+    TRYON_TIMEOUT = "tryon_timeout"
+    PROVIDER_UNAVAILABLE = "provider_unavailable"
+    GARMENT_NOT_FOUND = "garment_not_found"
+    OUT_OF_STOCK = "out_of_stock"
+    MERCHANT_UNAVAILABLE = "merchant_unavailable"
+    NAV_NOT_FOUND = "not_found"
+    NAV_FORBIDDEN = "forbidden"
+    NAV_DATA_FAILURE = "data_failure"
+    NAV_FEATURE_DISABLED = "feature_disabled"
 
 
 class _ConflictCode(str):

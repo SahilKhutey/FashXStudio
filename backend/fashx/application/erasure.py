@@ -5,7 +5,8 @@ import hmac
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import text
+from sqlalchemy import UUID as SqlUUID
+from sqlalchemy import bindparam, text
 
 # Single source of truth for table classification (Rule I16, Gate G4)
 BIOMETRIC_TABLES: list[str] = [
@@ -31,6 +32,7 @@ ACCOUNT_TABLES: list[str] = [
     "user_preferences",
     "onboarding_profiles",
     "consent_records",
+    "style_quiz_picks",
     "idempotency_records",
     "pilot_participants",
     "pilot_survey_responses",
@@ -56,6 +58,7 @@ async def erase_biometrics(
     uow: Any,
     user_id: UUID,
     storage: Any | None = None,
+    record_revocation: bool = True,
 ) -> dict[str, Any]:
     """Rule I16 & Gate G4: Instantly cascades deletion of biometric rows and enqueues object purging."""
     # 1. Collect storage keys for user
@@ -74,12 +77,13 @@ async def erase_biometrics(
     except Exception:
         pass
 
-    # 2. Mark consent revoked in consent_records
-    try:
-        if hasattr(uow, "consents"):
-            await uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=False)
-    except Exception:
-        pass
+    # 2. Mark consent revoked in consent_records if requested
+    if record_revocation:
+        try:
+            if hasattr(uow, "consents"):
+                await uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=False)
+        except Exception:
+            pass
 
     # 3. Delete from biometric tables
     session = getattr(uow, "session", None)
@@ -87,8 +91,9 @@ async def erase_biometrics(
         for tbl in BIOMETRIC_TABLES:
             try:
                 await session.execute(
-                    text(f'DELETE FROM "{tbl}" WHERE user_id = :uid'),
-                    {"uid": user_id},
+                    text(f'DELETE FROM "{tbl}" WHERE user_id = :uid').bindparams(
+                        bindparam("uid", user_id, type_=SqlUUID)
+                    )
                 )
             except Exception:
                 pass
@@ -155,8 +160,8 @@ async def erase_account(
     storage: Any | None = None,
 ) -> dict[str, Any]:
     """Right to Erasure (DPDP/GDPR): hard-deletes all user data, anonymizes logs, and purges bucket."""
-    # 1. Erase biometrics first
-    await erase_biometrics(uow, user_id, storage=storage)
+    # 1. Erase biometrics first (skip revocation logging for whole-account erasure)
+    await erase_biometrics(uow, user_id, storage=storage, record_revocation=False)
 
     session = getattr(uow, "session", None)
     if session is not None:
@@ -164,8 +169,9 @@ async def erase_account(
         for tbl in ANONYMIZE_TABLES:
             try:
                 await session.execute(
-                    text(f'UPDATE "{tbl}" SET user_id = NULL WHERE user_id = :uid'),
-                    {"uid": user_id},
+                    text(f'UPDATE "{tbl}" SET user_id = NULL WHERE user_id = :uid').bindparams(
+                        bindparam("uid", user_id, type_=SqlUUID)
+                    )
                 )
             except Exception:
                 pass
@@ -176,8 +182,9 @@ async def erase_account(
                 continue
             try:
                 await session.execute(
-                    text(f'DELETE FROM "{tbl}" WHERE user_id = :uid'),
-                    {"uid": user_id},
+                    text(f'DELETE FROM "{tbl}" WHERE user_id = :uid').bindparams(
+                        bindparam("uid", user_id, type_=SqlUUID)
+                    )
                 )
             except Exception:
                 pass
@@ -185,19 +192,23 @@ async def erase_account(
         # 4. Delete auth identities & canonical user
         try:
             await session.execute(
-                text('DELETE FROM "auth_identities" WHERE user_id = :uid'),
-                {"uid": user_id},
+                text('DELETE FROM "auth_identities" WHERE user_id = :uid').bindparams(
+                    bindparam("uid", user_id, type_=SqlUUID)
+                )
             )
         except Exception:
             pass
 
         try:
             await session.execute(
-                text('DELETE FROM "users" WHERE id = :uid'),
-                {"uid": user_id},
+                text('DELETE FROM "users" WHERE id = :uid').bindparams(
+                    bindparam("uid", user_id, type_=SqlUUID)
+                )
             )
         except Exception:
             pass
+
+        session.expunge_all()
 
     # 5. Enqueue full storage deletion task
     prefix = f"u/{user_id}/"

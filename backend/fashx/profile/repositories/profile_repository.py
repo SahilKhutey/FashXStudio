@@ -44,6 +44,41 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
         self.add(record)
         return record
 
+    async def record_mobile_consent(
+        self,
+        user_id: UUID,
+        policy_version: str,
+        age_confirmed: bool,
+        parental_consent: bool,
+        guardian_email: str | None = None,
+    ) -> ConsentRecord:
+        record = await self.get_by_user_and_type(user_id, "terms_and_privacy")
+        now = datetime.now(UTC)
+        if record is not None:
+            record.granted = True
+            record.policy_version = policy_version
+            record.age_confirmed = age_confirmed
+            record.parental_consent = parental_consent
+            record.guardian_email = guardian_email
+            record.consented_at = now
+            record.updated_at = now
+            return record
+
+        record = ConsentRecord(
+            user_id=user_id,
+            data_type="terms_and_privacy",
+            granted=True,
+            policy_version=policy_version,
+            age_confirmed=age_confirmed,
+            parental_consent=parental_consent,
+            guardian_email=guardian_email,
+            consented_at=now,
+            updated_at=now,
+        )
+        self.add(record)
+        return record
+
+
 
 class BodyProfileRepository(BaseRepository[BodyProfile]):
     def __init__(self, session: AsyncSession) -> None:

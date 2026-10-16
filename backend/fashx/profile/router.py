@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -405,3 +406,74 @@ async def revoke_user_consent(
         photos_purged=res.photos_purged,
         jobs_purged=res.jobs_purged,
     )
+
+
+class SubmitConsentRequest(BaseModel):
+    policy_version: str = "2026.1"
+    age_confirmed: bool
+    age: int | None = None
+    parental_consent: bool = False
+    guardian_email: str | None = None
+
+
+class SubmitConsentResponse(BaseModel):
+    user_id: UUID
+    policy_version: str
+    age_confirmed: bool
+    parental_consent: bool
+    guardian_email: str | None = None
+    consented_at: datetime
+    status: str = "granted"
+
+
+@router.post(
+    "/{user_id}/consent",
+    response_model=SubmitConsentResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_user_consent(
+    user_id: UUID,
+    req: SubmitConsentRequest,
+    principal: Principal = Depends(get_principal),
+    profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> SubmitConsentResponse:
+    """Record mobile onboarding consent with explicit age verification (Rule I07 / DPDP)."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
+    if not req.age_confirmed:
+        raise ValidationError("Age confirmation is required", field="age_confirmed")
+
+    # Minor protection check: block under-18 without parent flag + guardian email
+    if req.age is not None and req.age < 18:
+        if not req.parental_consent:
+            raise ValidationError(
+                "Parental consent is required for users under 18",
+                field="parental_consent",
+            )
+        if not req.guardian_email or "@" not in req.guardian_email:
+            raise ValidationError(
+                "A valid guardian email is required for users under 18",
+                field="guardian_email",
+            )
+
+    async with profile_uow:
+        record = await profile_uow.consents.record_mobile_consent(
+            user_id=user_id,
+            policy_version=req.policy_version,
+            age_confirmed=req.age_confirmed,
+            parental_consent=req.parental_consent,
+            guardian_email=req.guardian_email,
+        )
+        await profile_uow.commit()
+
+    return SubmitConsentResponse(
+        user_id=record.user_id,
+        policy_version=record.policy_version or req.policy_version,
+        age_confirmed=record.age_confirmed if record.age_confirmed is not None else True,
+        parental_consent=record.parental_consent,
+        guardian_email=record.guardian_email,
+        consented_at=record.consented_at or record.updated_at,
+        status="granted",
+    )
+

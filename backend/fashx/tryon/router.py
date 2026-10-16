@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -56,6 +57,20 @@ class TryOnJobStatusResponse(BaseModel):
     failure_reason: TryOnFailureReason | None = None
     model_version: str
     pipeline_version: str
+
+
+class TryOnJobListItem(BaseModel):
+    job_id: UUID
+    garment_id: UUID
+    status: TryOnStatus
+    artifact_key: str
+    result_url: str | None = None
+    failure_reason: TryOnFailureReason | None = None
+    model_version: str
+    pipeline_version: str
+    created_at: datetime
+    expires_at: datetime | None = None
+
 
 
 class TryOnArtifactResponse(BaseModel):
@@ -118,6 +133,48 @@ async def submit_tryon_job(
         is_cached=result.is_cached,
         result_url=result.result_url,
     )
+
+
+@router.get("/jobs", response_model=list[TryOnJobListItem])
+async def list_tryon_jobs(
+    limit: int = 50,
+    principal: Principal = Depends(get_principal),
+    tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
+    storage: Any = Depends(get_storage),
+) -> list[TryOnJobListItem]:
+    """List recent try-on jobs for current user with signed URLs and expires_at."""
+    try:
+        user_uuid = UUID(principal.user_id)
+    except ValueError:
+        return []
+
+    items: list[TryOnJobListItem] = []
+    async with tryon_uow:
+        jobs = await tryon_uow.jobs.list_by_user(user_uuid, limit=limit)
+        for j in jobs:
+            result_url = None
+            expires_at = None
+            if j.status == "completed":
+                artifact = await tryon_uow.artifacts.get_by_artifact_key(j.artifact_key)
+                if artifact:
+                    result_url = storage.signed_get_url(artifact.result_key, ttl_s=3600)
+                    expires_at = datetime.now(UTC) + timedelta(seconds=3600)
+            fail_reason = TryOnFailureReason(j.failure_reason) if j.failure_reason else None
+            items.append(
+                TryOnJobListItem(
+                    job_id=j.id,
+                    garment_id=j.garment_id,
+                    status=TryOnStatus(j.status),
+                    artifact_key=j.artifact_key,
+                    result_url=result_url,
+                    failure_reason=fail_reason,
+                    model_version=j.model_version,
+                    pipeline_version=j.pipeline_version,
+                    created_at=j.created_at,
+                    expires_at=expires_at,
+                )
+            )
+    return items
 
 
 @router.get("/jobs/{job_id}", response_model=TryOnJobStatusResponse)

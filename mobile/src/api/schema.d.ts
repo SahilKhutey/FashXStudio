@@ -107,6 +107,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/onboarding/style-quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Style Quiz
+         * @description Fetch 6-12 seed garments for the cold-start onboarding style quiz.
+         */
+        get: operations["get_style_quiz_api_v1_onboarding_style_quiz_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/style-quiz/picks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Style Quiz Picks
+         * @description Record customer style preference picks from the onboarding quiz.
+         */
+        post: operations["submit_style_quiz_picks_api_v1_onboarding_style_quiz_picks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/features": {
         parameters: {
             query?: never;
@@ -283,6 +323,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/{user_id}/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit User Consent
+         * @description Record mobile onboarding consent with explicit age verification (Rule I07 / DPDP).
+         */
+        post: operations["submit_user_consent_api_v1_profile__user_id__consent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/feature-flags": {
         parameters: {
             query?: never;
@@ -301,6 +361,43 @@ export interface paths {
          * @description Toggle a feature flag / kill switch with audit attribution (Rule 9.10).
          */
         post: operations["update_feature_flag_api_v1_admin_feature_flags_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/garments/{garment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Garment Detail
+         * @description Customer-facing garment detail route (accessible without admin role).
+         */
+        get: operations["get_garment_detail_api_v1_garments__garment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/garments/{garment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Canonical Garment */
+        get: operations["get_canonical_garment_api_v1_catalog_garments__garment_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -352,23 +449,6 @@ export interface paths {
         put?: never;
         /** Parse Size Chart */
         post: operations["parse_size_chart_api_v1_catalog_garments__garment_id__size_charts_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/catalog/garments/{garment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Canonical Garment */
-        get: operations["get_canonical_garment_api_v1_catalog_garments__garment_id__get"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -475,7 +555,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Tryon Jobs
+         * @description List recent try-on jobs for current user with signed URLs and expires_at.
+         */
+        get: operations["list_tryon_jobs_api_v1_tryon_jobs_get"];
         put?: never;
         /** Submit Tryon Job */
         post: operations["submit_tryon_job_api_v1_tryon_jobs_post"];
@@ -6602,6 +6686,59 @@ export interface components {
             /** External Identity Id */
             external_identity_id?: string | null;
         };
+        /** CustomerGarmentDetailResponse */
+        CustomerGarmentDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Brand Id */
+            brand_id?: string | null;
+            /** Brand Name */
+            brand_name?: string | null;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Subcategory */
+            subcategory?: string | null;
+            /**
+             * Gender
+             * @default unisex
+             */
+            gender: string;
+            /**
+             * Price Minor
+             * @default 0
+             */
+            price_minor: number;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /**
+             * Sizes In Stock
+             * @default []
+             */
+            sizes_in_stock: string[];
+            /**
+             * Tryon Supported
+             * @default true
+             */
+            tryon_supported: boolean;
+            /**
+             * Images
+             * @default []
+             */
+            images: string[];
+            /**
+             * Offers
+             * @default []
+             */
+            offers: components["schemas"]["OfferDetail"][];
+        };
         /** CustomerResponse */
         CustomerResponse: {
             /**
@@ -8546,6 +8683,7 @@ export interface components {
             user_id: string;
             /** Roles */
             roles: string[];
+            onboarding: components["schemas"]["OnboardingStatus"];
         };
         /** MeasurementResponse */
         MeasurementResponse: {
@@ -9231,6 +9369,23 @@ export interface components {
             currency: string;
             /** In Stock */
             in_stock: boolean;
+        };
+        /** OnboardingStatus */
+        OnboardingStatus: {
+            /** Complete */
+            complete: boolean;
+            /**
+             * Missing
+             * @default []
+             */
+            missing: string[];
+            /**
+             * Consent Version Required
+             * @default 2026.1
+             */
+            consent_version_required: string;
+            /** Consented Version */
+            consented_version?: string | null;
         };
         /**
          * OpacityTokens
@@ -12499,6 +12654,42 @@ export interface components {
             /** Available Materials */
             available_materials?: string[];
         };
+        /** StyleQuizItem */
+        StyleQuizItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Subcategory */
+            subcategory?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+        };
+        /** StyleQuizPickInput */
+        StyleQuizPickInput: {
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
+            /** Liked */
+            liked: boolean;
+        };
+        /** StyleQuizResponse */
+        StyleQuizResponse: {
+            /** Garments */
+            garments: components["schemas"]["StyleQuizItem"][];
+        };
         /**
          * StyleRecommendationTemplateSpecContract
          * @description ST05: Explainable style recommendations with trust boundary (Section 10.20 - 10.22).
@@ -12521,6 +12712,68 @@ export interface components {
          * @enum {string}
          */
         StylingScreenId: "ST01" | "ST02" | "ST03" | "ST04" | "ST05" | "ST06" | "ST07" | "ST08" | "ST09";
+        /** SubmitConsentRequest */
+        SubmitConsentRequest: {
+            /**
+             * Policy Version
+             * @default 2026.1
+             */
+            policy_version: string;
+            /** Age Confirmed */
+            age_confirmed: boolean;
+            /** Age */
+            age?: number | null;
+            /**
+             * Parental Consent
+             * @default false
+             */
+            parental_consent: boolean;
+            /** Guardian Email */
+            guardian_email?: string | null;
+        };
+        /** SubmitConsentResponse */
+        SubmitConsentResponse: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Policy Version */
+            policy_version: string;
+            /** Age Confirmed */
+            age_confirmed: boolean;
+            /** Parental Consent */
+            parental_consent: boolean;
+            /** Guardian Email */
+            guardian_email?: string | null;
+            /**
+             * Consented At
+             * Format: date-time
+             */
+            consented_at: string;
+            /**
+             * Status
+             * @default granted
+             */
+            status: string;
+        };
+        /** SubmitStyleQuizPicksRequest */
+        SubmitStyleQuizPicksRequest: {
+            /** Picks */
+            picks: components["schemas"]["StyleQuizPickInput"][];
+        };
+        /** SubmitStyleQuizPicksResponse */
+        SubmitStyleQuizPicksResponse: {
+            /** User Id */
+            user_id: string;
+            /** Saved Count */
+            saved_count: number;
+            /**
+             * Status
+             * @default recorded
+             */
+            status: string;
+        };
         /** SubmitSurveyRequest */
         SubmitSurveyRequest: {
             /**
@@ -12965,6 +13218,36 @@ export interface components {
             visual_accuracy: string;
             /** Purchase Confidence */
             purchase_confidence: number | null;
+        };
+        /** TryOnJobListItem */
+        TryOnJobListItem: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
+            status: components["schemas"]["TryOnStatus"];
+            /** Artifact Key */
+            artifact_key: string;
+            /** Result Url */
+            result_url?: string | null;
+            failure_reason?: components["schemas"]["TryOnFailureReason"] | null;
+            /** Model Version */
+            model_version: string;
+            /** Pipeline Version */
+            pipeline_version: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expires At */
+            expires_at?: string | null;
         };
         /** TryOnJobStatusResponse */
         TryOnJobStatusResponse: {
@@ -14126,6 +14409,59 @@ export interface operations {
             };
         };
     };
+    get_style_quiz_api_v1_onboarding_style_quiz_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StyleQuizResponse"];
+                };
+            };
+        };
+    };
+    submit_style_quiz_picks_api_v1_onboarding_style_quiz_picks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitStyleQuizPicksRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitStyleQuizPicksResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_features_api_v1_features_get: {
         parameters: {
             query?: never;
@@ -14431,6 +14767,41 @@ export interface operations {
             };
         };
     };
+    submit_user_consent_api_v1_profile__user_id__consent_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitConsentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_feature_flags_api_v1_admin_feature_flags_get: {
         parameters: {
             query?: never;
@@ -14473,6 +14844,68 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_garment_detail_api_v1_garments__garment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                garment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerGarmentDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_canonical_garment_api_v1_catalog_garments__garment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                garment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalGarmentResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14572,37 +15005,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParseSizeChartResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_canonical_garment_api_v1_catalog_garments__garment_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                garment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CanonicalGarmentResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14755,6 +15157,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tryon_jobs_api_v1_tryon_jobs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TryOnJobListItem"][];
                 };
             };
             /** @description Validation Error */

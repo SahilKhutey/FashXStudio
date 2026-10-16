@@ -104,10 +104,29 @@ class MerchantProduct(Base, UUIDPrimaryKeyMixin):
     )
 
 
+from sqlalchemy.dialects.postgresql import ARRAY
+
+
+class StyleQuizPick(Base, UUIDPrimaryKeyMixin):
+    __tablename__ = "style_quiz_picks"
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    garment_id: Mapped[UUID] = mapped_column(
+        ForeignKey("canonical_garments.id", ondelete="CASCADE")
+    )
+    liked: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "garment_id", name="uq_style_quiz_picks_user_garment"),
+    )
+
+
 class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "canonical_garments"
 
     brand_id: Mapped[UUID | None] = mapped_column(ForeignKey("brands.id", ondelete="SET NULL"))
+    display_name: Mapped[str | None] = mapped_column(Text)
     category: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     subcategory: Mapped[str | None] = mapped_column(String(64), index=True)
     gender: Mapped[str] = mapped_column(String(32), default="unisex", nullable=False)
@@ -115,7 +134,9 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     in_stock: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     price_minor: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     price_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    sizes_in_stock: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    sizes_in_stock: Mapped[list[str]] = mapped_column(
+        ARRAY(String(32)).with_variant(JSON, "sqlite"), default=list, nullable=False
+    )
     tryon_supported: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     version: Mapped[int] = mapped_column(default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

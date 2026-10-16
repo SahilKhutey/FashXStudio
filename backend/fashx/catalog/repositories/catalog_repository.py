@@ -17,9 +17,47 @@ from database.models.catalog import (
     MerchantProduct,
     SizeChart,
     SizeMeasurement,
+    StyleQuizPick,
 )
 from fashx.core.repository import BaseRepository
 from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
+
+
+class StyleQuizPickRepository(BaseRepository[StyleQuizPick]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, StyleQuizPick)
+
+    async def list_for_user(self, user_id: UUID) -> Sequence[StyleQuizPick]:
+        stmt = select(StyleQuizPick).where(StyleQuizPick.user_id == user_id)
+        result = await self.session.scalars(stmt)
+        return result.all()
+
+    async def count_for_user(self, user_id: UUID) -> int:
+        from sqlalchemy import func
+
+        stmt = select(func.count(StyleQuizPick.id)).where(StyleQuizPick.user_id == user_id)
+        return (await self.session.scalar(stmt)) or 0
+
+    async def upsert_pick(self, user_id: UUID, garment_id: UUID, liked: bool) -> StyleQuizPick:
+        from uuid import uuid4
+
+        stmt = select(StyleQuizPick).where(
+            StyleQuizPick.user_id == user_id,
+            StyleQuizPick.garment_id == garment_id,
+        )
+        existing = (await self.session.scalars(stmt)).first()
+        if existing:
+            existing.liked = liked
+            return existing
+        pick = StyleQuizPick(
+            id=uuid4(),
+            user_id=user_id,
+            garment_id=garment_id,
+            liked=liked,
+        )
+        self.session.add(pick)
+        return pick
+
 
 
 class MerchantRepository(BaseRepository[Merchant]):
@@ -247,6 +285,7 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         self._sources: CatalogSourceRepository | None = None
         self._category_maps: CategoryMapRepository | None = None
         self._ingest_runs: IngestRunRepository | None = None
+        self._style_quiz_picks: StyleQuizPickRepository | None = None
 
     async def __aenter__(self) -> "CatalogUnitOfWork":
         await super().__aenter__()
@@ -261,6 +300,7 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         self._sources = None
         self._category_maps = None
         self._ingest_runs = None
+        self._style_quiz_picks = None
         return self
 
     @property
@@ -332,3 +372,10 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         if self._ingest_runs is None:
             self._ingest_runs = IngestRunRepository(self.session)
         return self._ingest_runs
+
+    @property
+    def style_quiz_picks(self) -> StyleQuizPickRepository:
+        if self._style_quiz_picks is None:
+            self._style_quiz_picks = StyleQuizPickRepository(self.session)
+        return self._style_quiz_picks
+

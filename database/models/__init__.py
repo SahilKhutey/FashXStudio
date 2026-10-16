@@ -10,6 +10,7 @@ from .catalog import (
     MerchantProduct,
     SizeChart,
     SizeMeasurement,
+    StyleQuizPick,
 )
 from .commerce_feedback import (
     BuyClick,
@@ -35,6 +36,9 @@ from .pilot import (
 from .profile import (
     BodyProfile,
     OnboardingProfile,
+    ProfileArtifact,
+    ProfilePhotoJob,
+    SkinToneResult,
     UserMeasurement,
     UserPreference,
     UserStyleProfile,
@@ -61,6 +65,7 @@ __all__ = [
     "MerchantProduct",
     "SizeChart",
     "SizeMeasurement",
+    "StyleQuizPick",
     "BuyClick",
     "DomainEvent",
     "FeedExclusion",
@@ -73,6 +78,9 @@ __all__ = [
     "UserPhoto",
     "BodyProfile",
     "OnboardingProfile",
+    "ProfilePhotoJob",
+    "SkinToneResult",
+    "ProfileArtifact",
     "UserMeasurement",
     "UserPreference",
     "UserStyleProfile",

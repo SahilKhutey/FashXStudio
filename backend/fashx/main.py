@@ -61,6 +61,8 @@ def create_app() -> FastAPI:
 
     install_exception_handlers(app)
     from fashx.api.v1.me import router as me_router
+    from fashx.api.v1.onboarding import router as onboarding_router
+    from fashx.catalog.customer_router import customer_garment_router
     from fashx.security.deps import get_principal, require_role
     from fashx.security.errors import ApiError, api_error_handler
 
@@ -69,11 +71,13 @@ def create_app() -> FastAPI:
     app.include_router(healthz_router)
     app.include_router(config_router, prefix="/api/v1")
     app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     from fashx.admin.router import router as admin_router
 
     app.include_router(admin_router, prefix="/api/v1")
+    app.include_router(customer_garment_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))])
     app.include_router(recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(feed_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
