@@ -7,6 +7,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -142,6 +143,11 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (
+        Index("ix_garments_sizes_in_stock_gin", "sizes_in_stock", postgresql_using="gin"),
+        Index("ix_garments_feed", "category", "gender", "active", "in_stock"),
     )
 
 

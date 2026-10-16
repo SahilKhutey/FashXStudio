@@ -334,7 +334,7 @@ export interface paths {
         put?: never;
         /**
          * Submit User Consent
-         * @description Record mobile onboarding consent with explicit age verification (Rule I07 / DPDP).
+         * @description Record mobile onboarding consent with strict adult verification (Rule I07 / DPDP).
          */
         post: operations["submit_user_consent_api_v1_profile__user_id__consent_post"];
         delete?: never;
@@ -379,23 +379,6 @@ export interface paths {
          * @description Customer-facing garment detail route (accessible without admin role).
          */
         get: operations["get_garment_detail_api_v1_garments__garment_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/catalog/garments/{garment_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Canonical Garment */
-        get: operations["get_canonical_garment_api_v1_catalog_garments__garment_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -449,6 +432,23 @@ export interface paths {
         put?: never;
         /** Parse Size Chart */
         post: operations["parse_size_chart_api_v1_catalog_garments__garment_id__size_charts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/catalog/garments/{garment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Canonical Garment */
+        get: operations["get_canonical_garment_api_v1_catalog_garments__garment_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6360,6 +6360,16 @@ export interface components {
              * @default 1.0
              */
             version: string;
+        };
+        /** ConsentGrantIn */
+        ConsentGrantIn: {
+            /**
+             * Policy Version
+             * @default 2026.1
+             */
+            policy_version: string;
+            /** Is 18 Or Older */
+            is_18_or_older: boolean;
         };
         /** ConsentResponse */
         ConsentResponse: {
@@ -12712,25 +12722,6 @@ export interface components {
          * @enum {string}
          */
         StylingScreenId: "ST01" | "ST02" | "ST03" | "ST04" | "ST05" | "ST06" | "ST07" | "ST08" | "ST09";
-        /** SubmitConsentRequest */
-        SubmitConsentRequest: {
-            /**
-             * Policy Version
-             * @default 2026.1
-             */
-            policy_version: string;
-            /** Age Confirmed */
-            age_confirmed: boolean;
-            /** Age */
-            age?: number | null;
-            /**
-             * Parental Consent
-             * @default false
-             */
-            parental_consent: boolean;
-            /** Guardian Email */
-            guardian_email?: string | null;
-        };
         /** SubmitConsentResponse */
         SubmitConsentResponse: {
             /**
@@ -12740,12 +12731,8 @@ export interface components {
             user_id: string;
             /** Policy Version */
             policy_version: string;
-            /** Age Confirmed */
-            age_confirmed: boolean;
-            /** Parental Consent */
-            parental_consent: boolean;
-            /** Guardian Email */
-            guardian_email?: string | null;
+            /** Is 18 Or Older */
+            is_18_or_older: boolean;
             /**
              * Consented At
              * Format: date-time
@@ -14778,7 +14765,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SubmitConsentRequest"];
+                "application/json": components["schemas"]["ConsentGrantIn"];
             };
         };
         responses: {
@@ -14888,37 +14875,6 @@ export interface operations {
             };
         };
     };
-    get_canonical_garment_api_v1_catalog_garments__garment_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                garment_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CanonicalGarmentResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     ingest_product_api_v1_catalog_products_post: {
         parameters: {
             query?: never;
@@ -15005,6 +14961,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParseSizeChartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_canonical_garment_api_v1_catalog_garments__garment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                garment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalGarmentResponse"];
                 };
             };
             /** @description Validation Error */

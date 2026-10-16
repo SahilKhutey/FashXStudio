@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 
 from database.models.catalog import StyleQuizPick
+from database.models.identity import UserPhoto
 from database.models.profile import OnboardingProfile
 from fashx.application.erasure import erase_account
 from fashx.core.database import get_session_factory
@@ -59,12 +60,12 @@ async def get_me(
         # 1. Check consent
         consents = await profile_uow.consents.list_for_user(user_uuid)
         active_consent = next(
-            (c for c in consents if c.granted and (c.policy_version == consent_version_required or c.policy_version)),
+            (c for c in consents if c.granted and c.policy_version == consent_version_required),
             None,
         )
         if active_consent:
             consented_version = active_consent.policy_version
-        if not active_consent or active_consent.policy_version != consent_version_required:
+        else:
             missing.append("consent")
 
         # 2. Check profile
@@ -73,11 +74,19 @@ async def get_me(
         if not (onboarding_prof and onboarding_prof.status == "completed") and not body_prof:
             missing.append("profile")
 
-        # 3. Check quiz
+        # 3. Check style_quiz
         quiz_count_stmt = select(func.count(StyleQuizPick.id)).where(StyleQuizPick.user_id == user_uuid)
         quiz_count = (await profile_uow.session.scalar(quiz_count_stmt)) or 0
         if quiz_count < 1:
-            missing.append("quiz")
+            missing.append("style_quiz")
+
+        # 4. Check photo
+        photo_count_stmt = select(func.count(UserPhoto.id)).where(
+            UserPhoto.user_id == user_uuid, UserPhoto.status == "accepted"
+        )
+        photo_count = (await profile_uow.session.scalar(photo_count_stmt)) or 0
+        if photo_count < 1:
+            missing.append("photo")
 
     return MeResponse(
         user_id=principal.user_id,

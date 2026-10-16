@@ -3,7 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from database.models.catalog import Brand
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
@@ -15,6 +15,8 @@ customer_garment_router = APIRouter(tags=["customer-garments"])
 
 
 class CustomerGarmentDetailResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: UUID
     brand_id: UUID | None = None
     brand_name: str | None = None
@@ -36,7 +38,7 @@ async def _resolve_garment_detail(
 ) -> CustomerGarmentDetailResponse:
     async with uow:
         garment = await uow.canonical_garments.get_by_id(garment_id)
-        if garment is None:
+        if garment is None or not garment.active:
             raise EntityNotFoundError("CanonicalGarment", garment_id)
 
         brand_name: str | None = None
@@ -92,17 +94,4 @@ async def get_garment_detail(
     uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> CustomerGarmentDetailResponse:
     """Customer-facing garment detail route (accessible without admin role)."""
-    return await _resolve_garment_detail(garment_id, uow)
-
-
-@customer_garment_router.get(
-    "/catalog/garments/{garment_id}",
-    response_model=CustomerGarmentDetailResponse,
-)
-async def get_catalog_garment_detail(
-    garment_id: UUID,
-    principal: Principal = Depends(get_principal),
-    uow: CatalogUnitOfWork = Depends(get_catalog_uow),
-) -> CustomerGarmentDetailResponse:
-    """Customer-facing alias under /catalog prefix (accessible without admin role)."""
     return await _resolve_garment_detail(garment_id, uow)

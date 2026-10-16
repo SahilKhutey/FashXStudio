@@ -171,3 +171,56 @@ def test_revoke_leaves_zero_biometric_residue(db, tmp_path):
     for t in BIOMETRIC_TABLES:
         cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
         assert cnt == 0
+
+
+@pytest.mark.db
+def test_garments_sizes_in_stock_gin_index_exists(db_engine):
+    """Assert that canonical_garments has the GIN index on sizes_in_stock in PostgreSQL."""
+    with db_engine.connect() as conn:
+        res = conn.execute(text(
+            "SELECT indexname, indexdef FROM pg_indexes "
+            "WHERE tablename = 'canonical_garments' AND indexdef LIKE '%gin%'"
+        )).fetchall()
+        assert any("sizes_in_stock" in r[1] for r in res), "Expected GIN index on sizes_in_stock"
+
+
+@pytest.mark.db
+def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
+    """End-to-end erasure test on real Postgres: seed user data across tables, erase, assert zero rows."""
+    import asyncio
+    user_id = uuid4()
+    storage = LocalStorage(tmp_path)
+    p_key = f"u/{user_id}/photos/portrait.jpg"
+    storage.put(p_key, b"portrait_data", "image/jpeg")
+
+    # Seed user and user-keyed rows
+    db.execute(text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'), {"u": user_id})
+    db.execute(
+        text('INSERT INTO "consent_records" (user_id, data_type, granted, policy_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :pv, true, now())'),
+        {"u": user_id, "dt": "terms_and_privacy", "pv": "2026.1"},
+    )
+    db.execute(
+        text('INSERT INTO "user_preferences" (user_id, categories, colors_favored, colors_avoided, updated_at) VALUES (:u, :cats, :fav, :av, now())'),
+        {"u": user_id, "cats": "[]", "fav": "[]", "av": "[]"},
+    )
+    db.flush()
+
+    class DirectUoW:
+        def __init__(self, session):
+            self.session = session
+
+    asyncio.run(erase_account(DirectUoW(db), user_id, storage=storage))
+    db.flush()
+
+    assert storage.list_prefix(f"u/{user_id}/") == []
+    for t in BIOMETRIC_TABLES:
+        cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
+        assert cnt == 0, f"Expected 0 rows in biometric table {t}"
+    for t in ACCOUNT_TABLES:
+        if t == "users":
+            continue
+        cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
+        assert cnt == 0, f"Expected 0 rows in account table {t}"
+    # Canonical user row deleted
+    user_cnt = db.execute(text('select count(*) from "users" where id = :u'), {"u": user_id}).scalar()
+    assert user_cnt == 0, "Expected user row to be deleted"

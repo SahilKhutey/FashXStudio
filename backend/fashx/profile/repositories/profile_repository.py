@@ -48,34 +48,48 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
         self,
         user_id: UUID,
         policy_version: str,
-        age_confirmed: bool,
-        parental_consent: bool,
-        guardian_email: str | None = None,
+        is_18_or_older: bool = True,
     ) -> ConsentRecord:
-        record = await self.get_by_user_and_type(user_id, "terms_and_privacy")
         now = datetime.now(UTC)
+        record = await self.get_by_user_and_type(user_id, "terms_and_privacy")
         if record is not None:
             record.granted = True
             record.policy_version = policy_version
-            record.age_confirmed = age_confirmed
-            record.parental_consent = parental_consent
-            record.guardian_email = guardian_email
+            record.is_18_or_older = is_18_or_older
             record.consented_at = now
             record.updated_at = now
-            return record
+        else:
+            record = ConsentRecord(
+                user_id=user_id,
+                data_type="terms_and_privacy",
+                granted=True,
+                policy_version=policy_version,
+                is_18_or_older=is_18_or_older,
+                consented_at=now,
+                updated_at=now,
+            )
+            self.add(record)
 
-        record = ConsentRecord(
-            user_id=user_id,
-            data_type="terms_and_privacy",
-            granted=True,
-            policy_version=policy_version,
-            age_confirmed=age_confirmed,
-            parental_consent=parental_consent,
-            guardian_email=guardian_email,
-            consented_at=now,
-            updated_at=now,
-        )
-        self.add(record)
+        # Grant body_photo consent for try-on photo capture (Rule I07 / GDPR)
+        body_photo_rec = await self.get_by_user_and_type(user_id, "body_photo")
+        if body_photo_rec is not None:
+            body_photo_rec.granted = True
+            body_photo_rec.policy_version = policy_version
+            body_photo_rec.is_18_or_older = is_18_or_older
+            body_photo_rec.consented_at = now
+            body_photo_rec.updated_at = now
+        else:
+            body_photo_rec = ConsentRecord(
+                user_id=user_id,
+                data_type="body_photo",
+                granted=True,
+                policy_version=policy_version,
+                is_18_or_older=is_18_or_older,
+                consented_at=now,
+                updated_at=now,
+            )
+            self.add(body_photo_rec)
+
         return record
 
 
