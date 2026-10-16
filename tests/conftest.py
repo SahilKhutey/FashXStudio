@@ -51,7 +51,9 @@ def make_token(
     alg: str = "HS256",
 ) -> str:
     now = int(time.time())
-    signing_secret = secret or os.environ.get("AUTH_JWT_SECRET", "test-secret-key-at-least-32-chars-long")
+    signing_secret = secret or os.environ.get(
+        "AUTH_JWT_SECRET", "test-secret-key-at-least-32-chars-long"
+    )
     payload = {
         "sub": sub,
         "iss": iss,
@@ -132,10 +134,12 @@ def identity_repo():
 def anon_client(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     with TestClient(app) as client:
         yield client
@@ -145,10 +149,12 @@ def anon_client(identity_repo):
 def client_a(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-a")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:
@@ -159,10 +165,12 @@ def client_a(identity_repo):
 def client_b(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-b")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:
@@ -175,11 +183,13 @@ def client_admin(identity_repo):
 
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     asyncio.run(identity_repo.set_role("fashx-test", "user-admin", "admin"))
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-admin")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:

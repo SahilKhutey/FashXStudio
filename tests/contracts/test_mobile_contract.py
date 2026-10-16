@@ -75,7 +75,9 @@ async def test_consent_records_contract_and_boundaries(session_factory) -> None:
 
     async with uow:
         stored_consents = await uow.consents.list_for_user(user_id)
-        assert len(stored_consents) == 0, "No consent records must be stored when age verification fails"
+        assert len(stored_consents) == 0, (
+            "No consent records must be stored when age verification fails"
+        )
 
     # 2. Outdated consent_version is rejected with 409 (consent_version_outdated)
     with pytest.raises(ApiError) as ver_err:
@@ -223,7 +225,9 @@ async def test_photo_upload_refuses_without_active_consent(session_factory) -> N
     try:
         await use_case.execute(cmd)
     except ConsentRequiredError:
-        pytest.fail("UploadUserPhotoUseCase should not raise ConsentRequiredError after consent is granted")
+        pytest.fail(
+            "UploadUserPhotoUseCase should not raise ConsentRequiredError after consent is granted"
+        )
     except Exception:
         pass
 
@@ -252,7 +256,9 @@ async def test_onboarding_missing_order_table_driven(session_factory) -> None:
     for has_c, has_p, has_q, has_ph, expected_missing, expected_complete in test_cases:
         uow = ProfileUnitOfWork(session_factory)
         user_id = uuid4()
-        principal = Principal(user_id=str(user_id), subject=str(user_id), roles=frozenset({"customer"}))
+        principal = Principal(
+            user_id=str(user_id), subject=str(user_id), roles=frozenset({"customer"})
+        )
 
         async with uow:
             uow.users.add(User(id=user_id))
@@ -266,18 +272,28 @@ async def test_onboarding_missing_order_table_driven(session_factory) -> None:
                         is_18_or_older=True,
                     )
                 )
+                uow.consents.add(
+                    ConsentRecord(
+                        user_id=user_id,
+                        data_type="body_photo",
+                        granted=True,
+                        consent_version="2026.1",
+                        is_18_or_older=True,
+                    )
+                )
             if has_p:
-                uow.onboarding_profiles.add(
-                    OnboardingProfile(user_id=user_id, status="completed")
-                )
+                uow.onboarding_profiles.add(OnboardingProfile(user_id=user_id, status="completed"))
             if has_q:
-                garment_id = uuid4()
-                uow.session.add(
-                    CanonicalGarment(id=garment_id, category="tops", gender="unisex")
-                )
-                uow.session.add(
-                    StyleQuizPick(id=uuid4(), user_id=user_id, garment_id=garment_id, liked=True)
-                )
+                for _ in range(3):
+                    garment_id = uuid4()
+                    uow.session.add(
+                        CanonicalGarment(id=garment_id, category="tops", gender="unisex")
+                    )
+                    uow.session.add(
+                        StyleQuizPick(
+                            id=uuid4(), user_id=user_id, garment_id=garment_id, liked=True
+                        )
+                    )
             if has_ph:
                 uow.photos.add(
                     UserPhoto(
@@ -587,7 +603,9 @@ def test_consent_endpoint_http_level(session_factory) -> None:
     }
 
     # 1. Unauthenticated request returns 401
-    resp_no_auth = client.post(f"/api/v1/profile/{user_a}/consent", json=payload, headers={"Authorization": ""})
+    resp_no_auth = client.post(
+        f"/api/v1/profile/{user_a}/consent", json=payload, headers={"Authorization": ""}
+    )
     assert resp_no_auth.status_code == 401
 
     # 2. Authenticated request for a different user returns 403
@@ -681,3 +699,74 @@ async def test_erasure_injected_failure_rolls_back(session_factory) -> None:
         consent_row = await session.get(ConsentRecord, (user_id, "terms_and_privacy"))
         assert consent_row is not None, "Consent record must not be deleted when erasure fails"
 
+
+def test_consent_version_consistent_across_router_me_and_config(client_a) -> None:
+    """Settings.consent_version, GET /config, and GET /me must return the exact same consent version."""
+    from fashx.core.settings import get_settings
+
+    expected_version = get_settings().consent_version
+    assert expected_version, "consent_version must not be empty"
+
+    # 1. Check /config
+    config_resp = client_a.get("/api/v1/config")
+    assert config_resp.status_code == 200
+    assert config_resp.json()["consent_version"] == expected_version
+
+    # 2. Check /me
+    me_resp = client_a.get("/api/v1/me")
+    assert me_resp.status_code == 200
+    assert me_resp.json()["onboarding"]["consent_version_required"] == expected_version
+
+
+@pytest.mark.asyncio
+async def test_me_requires_both_consents_and_three_quiz_picks(session_factory) -> None:
+    """Verifies /me marks consent missing if only 1 consent type exists, and quiz missing if < 3 picks."""
+    uow = ProfileUnitOfWork(session_factory)
+    user_id = uuid4()
+    principal = Principal(user_id=str(user_id), subject=str(user_id), roles=frozenset({"customer"}))
+
+    async with uow:
+        uow.users.add(User(id=user_id))
+        # Only terms_and_privacy granted, body_photo missing
+        uow.consents.add(
+            ConsentRecord(
+                user_id=user_id,
+                data_type="terms_and_privacy",
+                granted=True,
+                consent_version="2026.1",
+                is_18_or_older=True,
+            )
+        )
+        # Only 2 picks (< MIN_QUIZ_PICKS = 3)
+        for _ in range(2):
+            g_id = uuid4()
+            uow.session.add(CanonicalGarment(id=g_id, category="tops", gender="unisex"))
+            uow.session.add(StyleQuizPick(id=uuid4(), user_id=user_id, garment_id=g_id, liked=True))
+        await uow.commit()
+
+    me_resp = await get_me(principal=principal, profile_uow=uow)
+    assert "consent" in me_resp.onboarding.missing, (
+        "Consent must be missing when only 1 consent type is granted"
+    )
+    assert "style_quiz" in me_resp.onboarding.missing, "Quiz must be missing when picks count < 3"
+    assert me_resp.onboarding.complete is False
+
+    # Now grant the second consent and add 1 more pick (reaching 3)
+    async with uow:
+        uow.consents.add(
+            ConsentRecord(
+                user_id=user_id,
+                data_type="body_photo",
+                granted=True,
+                consent_version="2026.1",
+                is_18_or_older=True,
+            )
+        )
+        g_id3 = uuid4()
+        uow.session.add(CanonicalGarment(id=g_id3, category="tops", gender="unisex"))
+        uow.session.add(StyleQuizPick(id=uuid4(), user_id=user_id, garment_id=g_id3, liked=True))
+        await uow.commit()
+
+    me_resp2 = await get_me(principal=principal, profile_uow=uow)
+    assert "consent" not in me_resp2.onboarding.missing, "Consent satisfied when both types granted"
+    assert "style_quiz" not in me_resp2.onboarding.missing, "Quiz satisfied when 3 picks recorded"

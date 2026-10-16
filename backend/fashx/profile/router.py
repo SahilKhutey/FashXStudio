@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
 from fashx.core.errors import EntityNotFoundError, ValidationError
+from fashx.core.settings import get_settings
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
@@ -408,7 +409,11 @@ async def revoke_user_consent(
     )
 
 
-CURRENT_CONSENT_VERSION = "2026.1"
+def get_current_consent_version() -> str:
+    return get_settings().consent_version
+
+
+CURRENT_CONSENT_VERSION = get_current_consent_version()
 
 
 class ConsentGrantIn(BaseModel):
@@ -448,11 +453,12 @@ async def submit_user_consent(
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
-    if req.consent_version != CURRENT_CONSENT_VERSION:
+    current_version = get_settings().consent_version
+    if req.consent_version != current_version:
         raise ApiError(
             409,
             "consent_version_outdated",
-            f"Consent version '{req.consent_version}' is outdated. Version '{CURRENT_CONSENT_VERSION}' is required.",
+            f"Consent version '{req.consent_version}' is outdated. Version '{current_version}' is required.",
         )
 
     if not req.is_18_or_older:
@@ -495,4 +501,3 @@ async def submit_user_consent(
         consented_at=photo_rec.consented_at or terms_rec.consented_at,
         status="granted",
     )
-

@@ -9,7 +9,6 @@ from uuid import UUID, uuid4
 from sqlalchemy import UUID as SqlUUID
 from sqlalchemy import bindparam, text
 
-from database.models.base import Base
 from fashx.core.events import StoragePurgeRequested
 from fashx.integration.outbox import OutboxMessage
 
@@ -72,14 +71,15 @@ async def _exec(
     counts: dict[str, int],
 ) -> None:
     res = await session.execute(text(sql).bindparams(bindparam("uid", uid, type_=SqlUUID)))
-    counts[label] = res.rowcount if res.rowcount is not None and res.rowcount >= 0 else 0
+    rc = getattr(res, "rowcount", None)
+    counts[label] = rc if isinstance(rc, int) and rc >= 0 else 0
 
 
 async def _write_tombstone(session: Any, user_id: UUID) -> None:
     await session.execute(
         text(
             'INSERT INTO "erasure_tombstones" (user_id, erased_at) '
-            'VALUES (:uid, :erased_at) ON CONFLICT (user_id) DO NOTHING'
+            "VALUES (:uid, :erased_at) ON CONFLICT (user_id) DO NOTHING"
         ).bindparams(
             bindparam("uid", user_id, type_=SqlUUID),
             bindparam("erased_at", datetime.now(UTC)),
@@ -114,14 +114,13 @@ async def erase_biometrics(
     session = getattr(uow, "session", None)
     if session is not None:
         for tbl in BIOMETRIC_TABLES:
-            if tbl in Base.metadata.tables:
-                await _exec(
-                    session,
-                    f'DELETE FROM "{tbl}" WHERE user_id = :uid',
-                    user_id,
-                    tbl,
-                    counts,
-                )
+            await _exec(
+                session,
+                f'DELETE FROM "{tbl}" WHERE user_id = :uid',
+                user_id,
+                tbl,
+                counts,
+            )
     else:
         # Fallback for in-memory / unit-of-work mocks
         if getattr(uow, "photos", None) is not None:
@@ -182,49 +181,44 @@ async def erase_account(
 
             # 2. Anonymize event logs
             for tbl in ANONYMIZE_TABLES:
-                if tbl in Base.metadata.tables:
-                    await _exec(
-                        session,
-                        f'UPDATE "{tbl}" SET user_id = NULL WHERE user_id = :uid',
-                        user_id,
-                        tbl,
-                        counts,
-                    )
+                await _exec(
+                    session,
+                    f'UPDATE "{tbl}" SET user_id = NULL WHERE user_id = :uid',
+                    user_id,
+                    tbl,
+                    counts,
+                )
 
             # 3. Hard-delete user account tables
             for tbl in ACCOUNT_TABLES:
                 if tbl == "users":
                     continue
-                if tbl in Base.metadata.tables:
-                    await _exec(
-                        session,
-                        f'DELETE FROM "{tbl}" WHERE user_id = :uid',
-                        user_id,
-                        tbl,
-                        counts,
-                    )
+                await _exec(
+                    session,
+                    f'DELETE FROM "{tbl}" WHERE user_id = :uid',
+                    user_id,
+                    tbl,
+                    counts,
+                )
 
             # 4. Delete auth identities & canonical user
-            if "auth_identities" in Base.metadata.tables:
-                await _exec(
-                    session,
-                    'DELETE FROM "auth_identities" WHERE user_id = :uid',
-                    user_id,
-                    "auth_identities",
-                    counts,
-                )
-            if "users" in Base.metadata.tables:
-                await _exec(
-                    session,
-                    'DELETE FROM "users" WHERE id = :uid',
-                    user_id,
-                    "users",
-                    counts,
-                )
+            await _exec(
+                session,
+                'DELETE FROM "auth_identities" WHERE user_id = :uid',
+                user_id,
+                "auth_identities",
+                counts,
+            )
+            await _exec(
+                session,
+                'DELETE FROM "users" WHERE id = :uid',
+                user_id,
+                "users",
+                counts,
+            )
 
             # 5. Record minimal pseudonymous tombstone
-            if "erasure_tombstones" in Base.metadata.tables:
-                await _write_tombstone(session, user_id)
+            await _write_tombstone(session, user_id)
 
             # 6. Enqueue full storage deletion task in outbox in the same transaction
             if getattr(uow, "outbox", None) is not None:
@@ -240,12 +234,33 @@ async def erase_account(
                 await uow.outbox.add(msg)
 
             # 7. Commit whole transaction
-            await session.commit()
+            if hasattr(uow, "commit"):
+                await uow.commit()
+            else:
+                await session.commit()
         except Exception as e:
-            await session.rollback()
+            if hasattr(uow, "rollback"):
+                await uow.rollback()
+            else:
+                await session.rollback()
             raise ErasureIncomplete([f"{type(e).__name__}: {e}"]) from e
 
         session.expunge_all()
+    else:
+        # Fallback for mock unit-of-work
+        bio_res = await erase_biometrics(uow, user_id, storage=storage, record_revocation=False)
+        counts.update(bio_res.get("counts", {}))
+        if getattr(uow, "outbox", None) is not None:
+            msg = OutboxMessage(
+                id=uuid4(),
+                event=StoragePurgeRequested(
+                    prefix=prefix,
+                    user_id=user_id,
+                    reason="account_erased",
+                ),
+                created_at=datetime.now(UTC),
+            )
+            await uow.outbox.add(msg)
 
     if storage is not None and hasattr(storage, "delete_prefix"):
         storage.delete_prefix(prefix)

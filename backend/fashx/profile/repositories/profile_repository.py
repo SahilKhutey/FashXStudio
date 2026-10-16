@@ -33,14 +33,28 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
         record = await self.get_by_user_and_type(user_id, data_type)
         return bool(record and record.granted)
 
-    async def upsert(self, user_id: UUID, data_type: str, granted: bool) -> ConsentRecord:
+    async def upsert(
+        self,
+        user_id: UUID,
+        data_type: str,
+        granted: bool,
+        is_18_or_older: bool | None = None,
+    ) -> ConsentRecord:
+        effective_age = is_18_or_older if is_18_or_older is not None else (True if granted else None)
         record = await self.get_by_user_and_type(user_id, data_type)
         if record is not None:
             record.granted = granted
             record.updated_at = datetime.now(UTC)
+            if effective_age is not None:
+                record.is_18_or_older = effective_age
             return record
 
-        record = ConsentRecord(user_id=user_id, data_type=data_type, granted=granted)
+        record = ConsentRecord(
+            user_id=user_id,
+            data_type=data_type,
+            granted=granted,
+            is_18_or_older=effective_age,
+        )
         self.add(record)
         return record
 

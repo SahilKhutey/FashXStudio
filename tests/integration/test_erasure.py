@@ -169,7 +169,9 @@ def test_revoke_leaves_zero_biometric_residue(db, tmp_path):
     # All storage keys for user wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
     for t in BIOMETRIC_TABLES:
-        cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
+        cnt = db.execute(
+            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+        ).scalar()
         assert cnt == 0
 
 
@@ -177,10 +179,12 @@ def test_revoke_leaves_zero_biometric_residue(db, tmp_path):
 def test_garments_sizes_in_stock_gin_index_exists(db_engine):
     """Assert that canonical_garments has the GIN index on sizes_in_stock in PostgreSQL."""
     with db_engine.connect() as conn:
-        res = conn.execute(text(
-            "SELECT indexname, indexdef FROM pg_indexes "
-            "WHERE tablename = 'canonical_garments' AND indexdef LIKE '%gin%'"
-        )).fetchall()
+        res = conn.execute(
+            text(
+                "SELECT indexname, indexdef FROM pg_indexes "
+                "WHERE tablename = 'canonical_garments' AND indexdef LIKE '%gin%'"
+            )
+        ).fetchall()
         assert any("sizes_in_stock" in r[1] for r in res), "Expected GIN index on sizes_in_stock"
 
 
@@ -188,19 +192,27 @@ def test_garments_sizes_in_stock_gin_index_exists(db_engine):
 def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     """End-to-end erasure test on real Postgres: seed user data, erase, assert zero rows, tombstone, outbox, and idempotency."""
     import asyncio
+
     user_id = uuid4()
     storage = LocalStorage(tmp_path)
     p_key = f"u/{user_id}/photos/portrait.jpg"
     storage.put(p_key, b"portrait_data", "image/jpeg")
 
     # Seed user and user-keyed rows
-    db.execute(text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'), {"u": user_id})
     db.execute(
-        text('INSERT INTO "consent_records" (user_id, data_type, granted, consent_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :cv, true, now())'),
+        text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'),
+        {"u": user_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "consent_records" (user_id, data_type, granted, consent_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :cv, true, now())'
+        ),
         {"u": user_id, "dt": "terms_and_privacy", "cv": "2026.1"},
     )
     db.execute(
-        text('INSERT INTO "user_preferences" (user_id, categories, colors_favored, colors_avoided, updated_at) VALUES (:u, :cats, :fav, :av, now())'),
+        text(
+            'INSERT INTO "user_preferences" (user_id, categories, colors_favored, colors_avoided, updated_at) VALUES (:u, :cats, :fav, :av, now())'
+        ),
         {"u": user_id, "cats": "[]", "fav": "[]", "av": "[]"},
     )
     db.flush()
@@ -224,19 +236,27 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
 
     assert storage.list_prefix(f"u/{user_id}/") == []
     for t in BIOMETRIC_TABLES:
-        cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
+        cnt = db.execute(
+            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+        ).scalar()
         assert cnt == 0, f"Expected 0 rows in biometric table {t}"
     for t in ACCOUNT_TABLES:
         if t == "users":
             continue
-        cnt = db.execute(text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}).scalar()
+        cnt = db.execute(
+            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+        ).scalar()
         assert cnt == 0, f"Expected 0 rows in account table {t}"
     # Canonical user row deleted
-    user_cnt = db.execute(text('select count(*) from "users" where id = :u'), {"u": user_id}).scalar()
+    user_cnt = db.execute(
+        text('select count(*) from "users" where id = :u'), {"u": user_id}
+    ).scalar()
     assert user_cnt == 0, "Expected user row to be deleted"
 
     # Minimal pseudonymous tombstone recorded in erasure_tombstones
-    tomb_cnt = db.execute(text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}).scalar()
+    tomb_cnt = db.execute(
+        text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}
+    ).scalar()
     assert tomb_cnt == 1, "Expected exactly 1 erasure tombstone recorded"
 
     # Outbox storage purge task enqueued
@@ -247,5 +267,112 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     res2 = asyncio.run(erase_account(uow, user_id, storage=storage))
     db.flush()
     assert res2["status"] == "account_erased"
-    tomb_cnt2 = db.execute(text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}).scalar()
+    tomb_cnt2 = db.execute(
+        text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}
+    ).scalar()
     assert tomb_cnt2 == 1, "Tombstone must still be present after idempotent second run"
+
+
+@pytest.mark.db
+def test_erasure_classification_matches_database(db_engine):
+    from fashx.application.erasure import (
+        ACCOUNT_TABLES,
+        ANONYMIZE_TABLES,
+        BIOMETRIC_TABLES,
+        RETAINED_MINIMAL,
+    )
+
+    listed = (
+        set(BIOMETRIC_TABLES)
+        | set(ACCOUNT_TABLES)
+        | set(ANONYMIZE_TABLES)
+        | set(RETAINED_MINIMAL)
+        | {"auth_identities", "users"}
+    )
+    with db_engine.connect() as c:
+        all_tables = {
+            r[0]
+            for r in c.execute(text("select tablename from pg_tables where schemaname='public'"))
+        }
+        by_column = {
+            r[0]
+            for r in c.execute(
+                text(
+                    "select table_name from information_schema.columns where table_schema='public' and column_name='user_id'"
+                )
+            )
+        }
+        by_fk = {
+            r[0]
+            for r in c.execute(
+                text(
+                    "select distinct tc.table_name from information_schema.table_constraints tc "
+                    "join information_schema.constraint_column_usage ccu on ccu.constraint_name = tc.constraint_name "
+                    "where tc.constraint_type='FOREIGN KEY' and tc.table_schema='public' and ccu.table_name in ('users','auth_identities')"
+                )
+            )
+        }
+    assert (by_column | by_fk) - listed == set(), "classify these user-linked tables for erasure"
+    assert listed - all_tables == set(), "classified tables that do not exist (typo or renamed?)"
+
+
+@pytest.mark.db
+def test_erase_account_rolls_back_on_postgres_failure(db, tmp_path, monkeypatch):
+    """When a statement fails during Postgres erasure, the entire transaction rolls back and no rows are erased."""
+    import asyncio
+
+    from fashx.application.erasure import ErasureIncomplete
+
+    user_id = uuid4()
+    storage = LocalStorage(tmp_path)
+
+    # Seed user and user_photos row
+    db.execute(
+        text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'),
+        {"u": user_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "user_photos" (id, user_id, photo_type, storage_key, status, version, created_at) '
+            "VALUES (:id, :u, :pt, :sk, :st, 1, now())"
+        ),
+        {
+            "id": uuid4(),
+            "u": user_id,
+            "pt": "body",
+            "sk": f"u/{user_id}/photos/1.jpg",
+            "st": "accepted",
+        },
+    )
+    db.flush()
+
+    class DirectUoW:
+        def __init__(self, session):
+            self.session = session
+            self.outbox = None
+
+    uow = DirectUoW(db)
+
+    orig_exec = db.execute
+
+    def failing_execute(statement, *args, **kwargs):
+        if 'DELETE FROM "user_preferences"' in str(statement):
+            raise RuntimeError("Injected database failure during account erasure")
+        return orig_exec(statement, *args, **kwargs)
+
+    monkeypatch.setattr(db, "execute", failing_execute)
+
+    with pytest.raises(ErasureIncomplete):
+        asyncio.run(erase_account(uow, user_id, storage=storage))
+
+    # Rollback must restore all rows; user_photos must still exist
+    cnt = db.execute(
+        text('select count(*) from "user_photos" where user_id = :u'), {"u": user_id}
+    ).scalar()
+    assert cnt > 0, "Expected user_photos to still exist after transaction rollback"
+
+
+@pytest.mark.xfail(reason="Supabase provider deletion pending auth project setup", strict=True)
+def test_delete_me_deletes_supabase_auth_user():
+    """Account deletion must invoke provider-side user deletion once Supabase auth project exists."""
+    raise NotImplementedError("Supabase admin auth user deletion not yet wired")

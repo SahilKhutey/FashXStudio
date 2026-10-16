@@ -54,3 +54,7 @@
 11. **Separate Consent for Body Photo Processing & Try-On Vendor**:  
     *Question*: Under DPDP Act 2023 Section 6 and Section 9, is separate, explicit consent required for processing the user's body photo versus transferring/processing it with an external cloud try-on model vendor (Data Processor), or does a granular unbundled affirmation covering both during onboarding satisfy statutory requirements?  
     *Status*: **Unanswered** (Pending counsel review).
+
+12. **Post-Erasure Retention of Minimal Consent Audit Trail**:  
+    *Question*: Under DPDP Act 2023 Section 12 (Right to Erasure) read with Section 8(7) (Data Retention Limitation), when a data principal exercises their right to complete account erasure, is FashXStudio permitted (or legally required for evidentiary defense under Section 7/statute of limitations) to retain an immutable, pseudonymous or hashed log of the historical consent granted and the timestamp of erasure, or must all records in `consent_records` be completely hard-deleted alongside the personal data?  
+    *Status*: **Unanswered** (Pending counsel review).

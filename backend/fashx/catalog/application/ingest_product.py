@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from database.models.catalog import CanonicalGarment, CatalogSource, MerchantProduct
+from fashx.catalog.eligibility import compute_tryon_eligibility
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError, ValidationError
 
@@ -106,11 +107,21 @@ class IngestMerchantProductUseCase:
             if existing_offer is not None:
                 garment_id = existing_offer.garment_id
             else:
+                if source_id is not None and "source" not in locals():
+                    source = await self.uow.sources.get_by_id(source_id)
+                rights_tryon = source.rights_tryon if source else False
+                image_policy = source.image_policy if source else "hotlink"
+                is_eligible = compute_tryon_eligibility(
+                    source_rights_tryon=rights_tryon,
+                    source_image_policy=image_policy,
+                    category=cmd.category,
+                )
                 garment = CanonicalGarment(
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
                     version=1,
+                    tryon_supported=is_eligible,
                 )
                 self.uow.canonical_garments.add(garment)
                 await self.uow.canonical_garments.flush()

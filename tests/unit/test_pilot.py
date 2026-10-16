@@ -98,9 +98,12 @@ def test_pilot_feedback_context_sanitization():
 @pytest.mark.asyncio
 async def test_erase_account_cascades_pilot_tables():
     user_id = uuid4()
-    mock_uow = MagicMock()
+    mock_uow = MagicMock(spec=["session", "commit", "rollback"])
     mock_session = AsyncMock()
+    mock_session.expunge_all = MagicMock()
     mock_uow.session = mock_session
+    mock_uow.commit = AsyncMock()
+    mock_uow.rollback = AsyncMock()
 
     res = await erase_account(mock_uow, user_id=user_id)
     assert res["status"] == "account_erased"

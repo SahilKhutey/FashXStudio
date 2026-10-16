@@ -1,4 +1,5 @@
 """Remote config endpoint for client apps."""
+
 from fastapi import APIRouter
 
 from fashx.core.settings import get_settings
@@ -13,7 +14,7 @@ def config() -> dict:
         "min_app_version": s.min_app_version,
         "maintenance": s.maintenance_mode,
         "tryon_supported_categories": s.tryon_supported_categories,
-        "consent_version": "2026.1",
+        "consent_version": s.consent_version,
         "flags": {
             "tryon": s.tryon_enabled,
         },

@@ -49,8 +49,15 @@ jobs:
       - run: mypy .
       - run: python -m alembic heads
       - run: python -m alembic upgrade head
+      - run: python -m alembic downgrade -1
+      - run: python -m alembic upgrade head
       - run: python -m alembic check
-      - run: python -m pytest tests -m db -q -rs | tee db.log; ! grep -q SKIPPED db.log
+      - name: DB tests must run (no skips)
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests -m db -q -rs | tee db.log
+          if grep -q "SKIPPED" db.log; then echo "::error::db tests were skipped"; exit 1; fi
       - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen"
 
   frozen:

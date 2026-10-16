@@ -29,13 +29,19 @@ class StyleQuizResponse(BaseModel):
     garments: list[StyleQuizItem]
 
 
+MIN_QUIZ_PICKS = 3
+MAX_QUIZ_PICKS = 10
+
+
 class StyleQuizPickInput(BaseModel):
     garment_id: UUID
     liked: bool
 
 
 class SubmitStyleQuizPicksRequest(BaseModel):
-    picks: list[StyleQuizPickInput] = Field(..., min_length=1)
+    picks: list[StyleQuizPickInput] = Field(
+        ..., min_length=MIN_QUIZ_PICKS, max_length=MAX_QUIZ_PICKS
+    )
 
 
 class SubmitStyleQuizPicksResponse(BaseModel):

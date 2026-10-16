@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
-from uuid import UUID
+from uuid import NAMESPACE_DNS, UUID, uuid5
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
@@ -10,13 +11,24 @@ from sqlalchemy import func, select
 from database.models.catalog import StyleQuizPick
 from database.models.identity import UserPhoto
 from database.models.profile import OnboardingProfile
+from fashx.api.v1.onboarding import MIN_QUIZ_PICKS
 from fashx.application.erasure import erase_account
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
+from fashx.core.settings import get_settings
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(tags=["me"])
+
+REQUIRED_CONSENTS = ("terms_and_privacy", "body_photo")
+
+
+def consent_ok(consents: list[Any], version: str) -> bool:
+    granted = {c.data_type for c in consents if c.granted and c.consent_version == version}
+    return all(t in granted for t in REQUIRED_CONSENTS)
 
 
 def get_profile_uow() -> ProfileUnitOfWork:
@@ -50,21 +62,17 @@ async def get_me(
     try:
         user_uuid = UUID(principal.user_id)
     except ValueError:
-        user_uuid = UUID(int=0)
+        user_uuid = uuid5(NAMESPACE_DNS, principal.user_id)
 
     missing: list[str] = []
     consented_version: str | None = None
-    consent_version_required = "2026.1"
+    consent_version_required = get_settings().consent_version
 
     async with profile_uow:
         # 1. Check consent
         consents = await profile_uow.consents.list_for_user(user_uuid)
-        active_consent = next(
-            (c for c in consents if c.granted and c.consent_version == consent_version_required),
-            None,
-        )
-        if active_consent:
-            consented_version = active_consent.consent_version
+        if consent_ok(consents, consent_version_required):
+            consented_version = consent_version_required
         else:
             missing.append("consent")
 
@@ -75,9 +83,11 @@ async def get_me(
             missing.append("profile")
 
         # 3. Check style_quiz
-        quiz_count_stmt = select(func.count(StyleQuizPick.id)).where(StyleQuizPick.user_id == user_uuid)
+        quiz_count_stmt = select(func.count(StyleQuizPick.id)).where(
+            StyleQuizPick.user_id == user_uuid
+        )
         quiz_count = (await profile_uow.session.scalar(quiz_count_stmt)) or 0
-        if quiz_count < 1:
+        if quiz_count < MIN_QUIZ_PICKS:
             missing.append("style_quiz")
 
         # 4. Check photo
@@ -100,7 +110,6 @@ async def get_me(
     )
 
 
-
 @router.delete("/me", status_code=status.HTTP_202_ACCEPTED, response_model=EraseAccountResponse)
 async def delete_me(
     principal: Principal = Depends(get_principal),
@@ -110,16 +119,18 @@ async def delete_me(
     from fashx.application.erasure import ErasureIncomplete
     from fashx.security.errors import ApiError
 
-    try:
-        user_uuid = UUID(principal.user_id)
-    except ValueError:
-        user_uuid = UUID(int=0)
+    user_uuid = UUID(principal.user_id)
 
     try:
         async with uow:
             await erase_account(uow, user_uuid, storage=storage)
-    except ErasureIncomplete as e:
-        raise ApiError(status=503, code="erasure_incomplete", detail=str(e))
+    except ErasureIncomplete:
+        logger.exception(f"Account erasure incomplete for user {user_uuid}")
+        raise ApiError(
+            status=503,
+            code="erasure_incomplete",
+            detail="Account deletion is still in progress. Please try again.",
+        )
 
     return EraseAccountResponse(
         user_id=principal.user_id,
