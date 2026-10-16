@@ -14,15 +14,15 @@ from fashx.integration.outbox import OutboxMessage
 
 # Single source of truth for table classification (Rule I16, Gate G4)
 BIOMETRIC_TABLES: list[str] = [
+    "tryon_jobs",
+    "profile_artifacts",
+    "profile_photo_jobs",
+    "skin_tone_results",
     "media_objects",
     "user_photos",
     "body_profiles",
     "user_measurements",
     "user_style_profiles",
-    "tryon_jobs",
-    "profile_photo_jobs",
-    "profile_artifacts",
-    "skin_tone_results",
 ]
 
 ACCOUNT_TABLES: list[str] = [
@@ -43,6 +43,10 @@ ACCOUNT_TABLES: list[str] = [
     "pilot_feedback",
     "experiment_exposures",
     "tenant_members",
+]
+
+CORE_AUTH: list[str] = [
+    "auth_identities",
     "users",
 ]
 
@@ -191,8 +195,6 @@ async def erase_account(
 
             # 3. Hard-delete user account tables
             for tbl in ACCOUNT_TABLES:
-                if tbl == "users":
-                    continue
                 await _exec(
                     session,
                     f'DELETE FROM "{tbl}" WHERE user_id = :uid',

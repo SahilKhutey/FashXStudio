@@ -8,6 +8,7 @@ from fashx.application.erasure import (
     ACCOUNT_TABLES,
     ANONYMIZE_TABLES,
     BIOMETRIC_TABLES,
+    CORE_AUTH,
     RETAINED_MINIMAL,
     erase_account,
     erase_biometrics,
@@ -30,9 +31,35 @@ def test_every_model_table_is_classified():
         - set(ACCOUNT_TABLES)
         - set(ANONYMIZE_TABLES)
         - set(RETAINED_MINIMAL)
-        - {"auth_identities"}
+        - set(CORE_AUTH)
     )
     assert not unknown, f"Classify these tables for erasure: {unknown}"
+
+
+def test_erasure_lists_are_disjoint():
+    """Verify that all erasure table classification lists are mutually disjoint with no duplicates."""
+    all_lists = [
+        ("BIOMETRIC_TABLES", BIOMETRIC_TABLES),
+        ("ACCOUNT_TABLES", ACCOUNT_TABLES),
+        ("ANONYMIZE_TABLES", ANONYMIZE_TABLES),
+        ("RETAINED_MINIMAL", RETAINED_MINIMAL),
+        ("CORE_AUTH", CORE_AUTH),
+    ]
+
+    # Verify no duplicates within any individual list
+    for name, tbl_list in all_lists:
+        assert len(tbl_list) == len(set(tbl_list)), (
+            f"Duplicates found in {name}: {[t for t in tbl_list if tbl_list.count(t) > 1]}"
+        )
+
+    # Verify pairwise disjointness
+    for i in range(len(all_lists)):
+        name1, list1 = all_lists[i]
+        set1 = set(list1)
+        for j in range(i + 1, len(all_lists)):
+            name2, list2 = all_lists[j]
+            overlap = set1 & set(list2)
+            assert not overlap, f"Tables overlap between {name1} and {name2}: {overlap}"
 
 
 @pytest.mark.db
@@ -55,7 +82,7 @@ def test_every_user_table_is_classified(db_engine):
         - set(ACCOUNT_TABLES)
         - set(ANONYMIZE_TABLES)
         - set(RETAINED_MINIMAL)
-        - {"auth_identities"}
+        - set(CORE_AUTH)
     )
     assert not unknown, f"Classify these tables for erasure: {unknown}"
 
@@ -279,6 +306,7 @@ def test_erasure_classification_matches_database(db_engine):
         ACCOUNT_TABLES,
         ANONYMIZE_TABLES,
         BIOMETRIC_TABLES,
+        CORE_AUTH,
         RETAINED_MINIMAL,
     )
 
@@ -287,7 +315,7 @@ def test_erasure_classification_matches_database(db_engine):
         | set(ACCOUNT_TABLES)
         | set(ANONYMIZE_TABLES)
         | set(RETAINED_MINIMAL)
-        | {"auth_identities", "users"}
+        | set(CORE_AUTH)
     )
     with db_engine.connect() as c:
         all_tables = {
@@ -314,6 +342,79 @@ def test_erasure_classification_matches_database(db_engine):
         }
     assert (by_column | by_fk) - listed == set(), "classify these user-linked tables for erasure"
     assert listed - all_tables == set(), "classified tables that do not exist (typo or renamed?)"
+
+
+@pytest.mark.db
+def test_loop_tables_all_have_user_id_column(db_engine):
+    """Verify that every table deleted or anonymized by user_id in loops actually has a user_id column."""
+    from fashx.application.erasure import (
+        ACCOUNT_TABLES,
+        ANONYMIZE_TABLES,
+        BIOMETRIC_TABLES,
+    )
+
+    loop_tables = BIOMETRIC_TABLES + ACCOUNT_TABLES + ANONYMIZE_TABLES
+    with db_engine.connect() as conn:
+        existing_cols = conn.execute(
+            text(
+                "SELECT table_name FROM information_schema.columns "
+                "WHERE table_schema = 'public' AND column_name = 'user_id'"
+            )
+        ).scalars().all()
+    user_id_tables = set(existing_cols)
+    for tbl in loop_tables:
+        assert tbl in user_id_tables, f"Table '{tbl}' in erasure loop is missing a 'user_id' column"
+
+
+@pytest.mark.db
+def test_children_of_erased_tables_cascade(db_engine):
+    """Verify that foreign keys pointing to erased tables either CASCADE, SET NULL, or have parent-child erasure ordering."""
+    from fashx.application.erasure import (
+        ACCOUNT_TABLES,
+        BIOMETRIC_TABLES,
+        CORE_AUTH,
+    )
+
+    erased_tables = set(BIOMETRIC_TABLES) | set(ACCOUNT_TABLES) | set(CORE_AUTH)
+    with db_engine.connect() as conn:
+        fks = conn.execute(
+            text("""
+                SELECT
+                    tc.table_name AS child_table,
+                    kcu.column_name AS child_column,
+                    ccu.table_name AS parent_table,
+                    rc.delete_rule AS delete_rule
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                JOIN information_schema.referential_constraints rc
+                    ON tc.constraint_name = rc.constraint_name
+                JOIN information_schema.constraint_column_usage ccu
+                    ON rc.unique_constraint_name = ccu.constraint_name
+                WHERE tc.constraint_type = 'FOREIGN KEY'
+                    AND tc.table_schema = 'public'
+            """)
+        ).fetchall()
+
+    for child_tbl, child_col, parent_tbl, rule in fks:
+        if parent_tbl not in erased_tables:
+            continue
+        # If the parent is in erased tables, rule must be CASCADE or SET NULL,
+        # UNLESS the child table is in BIOMETRIC_TABLES and explicitly deleted BEFORE the parent table!
+        if rule not in ("CASCADE", "SET NULL"):
+            if child_tbl in BIOMETRIC_TABLES and parent_tbl in BIOMETRIC_TABLES:
+                child_idx = BIOMETRIC_TABLES.index(child_tbl)
+                parent_idx = BIOMETRIC_TABLES.index(parent_tbl)
+                assert child_idx < parent_idx, (
+                    f"Child table '{child_tbl}' references '{parent_tbl}' with {rule}, "
+                    f"so it must be deleted BEFORE '{parent_tbl}' (found child at {child_idx}, parent at {parent_idx})"
+                )
+            else:
+                pytest.fail(
+                    f"Foreign key {child_tbl}.{child_col} -> {parent_tbl} has non-cascading rule '{rule}' "
+                    f"and is not ordered in erasure sequence"
+                )
 
 
 @pytest.mark.db

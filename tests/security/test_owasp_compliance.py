@@ -59,10 +59,13 @@ def test_function_level_auth_blocks_regular_user_from_admin():
 
 
 def test_bola_user_isolation_on_me_endpoint():
+    from uuid import uuid4
+
     from fashx.security.deps import Principal
 
+    alice_id = str(uuid4())
     user_a = Principal(
-        user_id="usr_alice_001",
+        user_id=alice_id,
         subject="alice@fashx.studio",
         roles=frozenset(["user"]),
     )
@@ -75,6 +78,6 @@ def test_bola_user_isolation_on_me_endpoint():
         resp = client.get("/api/v1/me")
         assert resp.status_code == 200
         data = resp.json()
-        assert data.get("user_id") == "usr_alice_001"
+        assert data.get("user_id") == alice_id
     finally:
         app.dependency_overrides.pop(get_principal, None)

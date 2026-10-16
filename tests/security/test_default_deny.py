@@ -6,7 +6,7 @@ from fashx.security.deps import get_identity_repo
 from fashx.security.identity import InMemoryIdentityRepo
 from fashx.security.public_routes import is_public_path
 from scripts.security.route_inventory import extract_routes
-from tests.conftest import make_token
+from tests.conftest import FROZEN_DIRS, make_token
 
 
 @pytest.fixture
@@ -51,6 +51,9 @@ def test_protected_routes_deny_anonymous(auth_test_context):
         # Skip public routes, capability endpoints, and unit test fixtures
         if is_public_path(path) or "/test-errors" in path or path.startswith("/dev-files"):
             continue
+        # Skip frozen post-MVP commerce domains (tested in frozen job)
+        if any(f"/api/v1/{d}" in path for d in FROZEN_DIRS):
+            continue
 
         method = next(iter(route.methods - {"HEAD", "OPTIONS"}))
         # Call route with dummy or empty payload
@@ -84,3 +87,20 @@ def test_catalog_admin_role_enforcement(auth_test_context):
     res = user_client.get("/api/v1/catalog/quality-audit")
     assert res.status_code == 403
     assert res.json()["title"] == "forbidden"
+
+
+def test_catalog_admin_garment_routes_deny_normal_user(auth_test_context):
+    _, user_client, _ = auth_test_context
+    dummy_uuid = "00000000-0000-0000-0000-000000000000"
+    for method, path, payload in [
+        ("GET", f"/api/v1/catalog/garments/{dummy_uuid}", None),
+        ("POST", f"/api/v1/catalog/garments/{dummy_uuid}/enrich", {}),
+        ("POST", f"/api/v1/catalog/garments/{dummy_uuid}/size-charts", {"raw_text": "S M L"}),
+        ("POST", "/api/v1/catalog/products", {}),
+        ("GET", "/api/v1/catalog/quality-audit", None),
+    ]:
+        res = user_client.request(method, path, json=payload if payload is not None else None)
+        assert res.status_code == 403, (
+            f"Expected 403 for normal user on admin route {method} {path}, got {res.status_code}"
+        )
+        assert res.json()["title"] == "forbidden"

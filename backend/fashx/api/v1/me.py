@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from uuid import NAMESPACE_DNS, UUID, uuid5
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
@@ -59,10 +59,7 @@ async def get_me(
     principal: Principal = Depends(get_principal),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> MeResponse:
-    try:
-        user_uuid = UUID(principal.user_id)
-    except ValueError:
-        user_uuid = uuid5(NAMESPACE_DNS, principal.user_id)
+    user_uuid = UUID(principal.user_id)
 
     missing: list[str] = []
     consented_version: str | None = None

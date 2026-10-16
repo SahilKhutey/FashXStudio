@@ -46,6 +46,28 @@ def upgrade() -> None:
         sa.Column("tryon_supported", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
 
+    # 4. Backfill tryon_supported for existing canonical garments with cleared mirror sources in supported categories
+    op.execute(
+        sa.text(
+            """
+            UPDATE canonical_garments
+            SET tryon_supported = TRUE
+            WHERE id IN (
+                SELECT mo.garment_id
+                FROM merchant_offers mo
+                JOIN merchant_products mp
+                    ON mo.merchant_id = mp.merchant_id AND mo.source_product_id = mp.source_product_id
+                JOIN catalog_sources cs
+                    ON mp.source_id = cs.id
+                WHERE cs.status = 'cleared'
+                  AND cs.rights_tryon = TRUE
+                  AND cs.image_policy = 'mirror'
+            )
+            AND lower(category) IN ('tops', 'bottoms', 'one-pieces', 'top', 'bottom', 'one_piece')
+            """
+        )
+    )
+
 
 def downgrade() -> None:
     op.drop_column("canonical_garments", "tryon_supported")
