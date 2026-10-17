@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -182,6 +185,13 @@ class UserPhotoRepository(BaseRepository[UserPhoto]):
         result = await self.session.scalars(stmt)
         return result.first()
 
+    async def get_owned(self, photo_id: UUID, user_id: UUID) -> UserPhoto | None:
+        stmt = select(UserPhoto).where(
+            UserPhoto.id == photo_id,
+            UserPhoto.user_id == user_id,
+        )
+        return (await self.session.scalars(stmt)).first()
+
 
 class UserPreferenceRepository(BaseRepository[UserPreference]):
     def __init__(self, session: AsyncSession) -> None:
@@ -270,6 +280,59 @@ class MediaRepository(BaseRepository[MediaObject]):
         result = await self.session.scalars(stmt)
         return result.all()
 
+    async def keys_derived_from_photo(self, photo_id: UUID) -> list[str]:
+        from database.models.identity import UserPhoto
+        from database.models.tryon import TryOnArtifact, TryOnJob
+
+        keys: set[str] = set()
+
+        photo = await self.session.get(UserPhoto, photo_id)
+        if photo and photo.storage_key:
+            keys.add(photo.storage_key)
+
+        # Media objects directly matching photo_id or containing photo_id in key (thumbnails, sanitized copies)
+        media_stmt = select(MediaObject).where(
+            (MediaObject.id == photo_id) | (MediaObject.object_key.like(f"%{photo_id}%"))
+        )
+        media_objs = (await self.session.scalars(media_stmt)).all()
+        for m in media_objs:
+            keys.add(m.object_key)
+
+        # Derived try-on jobs
+        jobs_stmt = select(TryOnJob).where(TryOnJob.profile_photo_id == photo_id)
+        jobs = (await self.session.scalars(jobs_stmt)).all()
+        for j in jobs:
+            if j.artifact_key:
+                keys.add(j.artifact_key)
+
+        job_ids = [j.id for j in jobs]
+        if job_ids:
+            art_stmt = select(TryOnArtifact).where(TryOnArtifact.job_id.in_(job_ids))
+            artifacts = (await self.session.scalars(art_stmt)).all()
+            for art in artifacts:
+                if art.artifact_key:
+                    keys.add(art.artifact_key)
+                if art.result_key:
+                    keys.add(art.result_key)
+
+        # Also find any media objects matching these artifact/result keys
+        if keys:
+            job_media_stmt = select(MediaObject).where(
+                MediaObject.object_key.in_(list(keys))
+            )
+            job_media = (await self.session.scalars(job_media_stmt)).all()
+            for m in job_media:
+                keys.add(m.object_key)
+
+        return sorted(keys)
+
+    async def delete_for_photo(self, photo_id: UUID) -> None:
+        from sqlalchemy import delete
+        keys = await self.keys_derived_from_photo(photo_id)
+        if keys:
+            stmt = delete(MediaObject).where(MediaObject.object_key.in_(keys))
+            await self.session.execute(stmt)
+
 
 class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of Work bundling Profile aggregate repositories."""
@@ -288,8 +351,9 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._preferences: UserPreferenceRepository | None = None
         self._onboarding_profiles: OnboardingProfileRepository | None = None
         self._media: MediaRepository | None = None
+        self._outbox: Any | None = None
 
-    async def __aenter__(self) -> "ProfileUnitOfWork":
+    async def __aenter__(self) -> ProfileUnitOfWork:
         await super().__aenter__()
         self._users = None
         self._consents = None
@@ -299,6 +363,7 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         self._preferences = None
         self._onboarding_profiles = None
         self._media = None
+        self._outbox = None
         return self
 
     @property
@@ -348,3 +413,10 @@ class ProfileUnitOfWork(SqlAlchemyUnitOfWork):
         if self._media is None:
             self._media = MediaRepository(self.session)
         return self._media
+
+    @property
+    def outbox(self) -> Any:
+        if self._outbox is None:
+            from fashx.integration.outbox import SqlOutboxRepository
+            self._outbox = SqlOutboxRepository(self.session)
+        return self._outbox

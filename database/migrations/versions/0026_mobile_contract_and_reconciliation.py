@@ -15,6 +15,13 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 
+def _fk_name(bind, table: str, ref_table: str, column: str) -> str | None:
+    for fk in sa.inspect(bind).get_foreign_keys(table):
+        if fk["referred_table"] == ref_table and fk["constrained_columns"] == [column]:
+            return fk["name"]
+    return None
+
+
 def upgrade() -> None:
     # 1. Update consent_records with mobile consent columns (fail-closed, adults only, check constraint)
     with op.batch_alter_table("consent_records") as b:
@@ -47,8 +54,11 @@ def upgrade() -> None:
     )
 
     # 4. Enforce ON DELETE CASCADE on tryon_jobs.profile_photo_id -> user_photos.id
+    bind = op.get_bind()
+    old = _fk_name(bind, "tryon_jobs", "user_photos", "profile_photo_id")
     with op.batch_alter_table("tryon_jobs") as b:
-        b.drop_constraint("tryon_jobs_profile_photo_id_fkey", type_="foreignkey")
+        if old:
+            b.drop_constraint(old, type_="foreignkey")
         b.create_foreign_key(
             "fk_tryon_jobs_profile_photo_id_user_photos",
             "user_photos",

@@ -275,23 +275,15 @@ async def delete_photo_endpoint(
     photo_id: UUID,
     principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
-    storage: Any = Depends(get_storage),
 ) -> None:
-    """Delete a single photo, cascading try-on jobs and removing derived result media."""
+    """Delete a single photo, cascading try-on jobs and queuing derived result media storage purge via outbox."""
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
     from fashx.profile.application.delete_photo import delete_user_photo
 
     async with uow:
-        deleted = await delete_user_photo(
-            uow.session,
-            user_id=user_id,
-            photo_id=photo_id,
-            storage=storage,
-        )
-        if not deleted:
-            raise EntityNotFoundError("Photo", photo_id)
+        await delete_user_photo(uow, user_id=user_id, photo_id=photo_id)
         await uow.commit()
 
 

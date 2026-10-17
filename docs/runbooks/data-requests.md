@@ -50,3 +50,6 @@ To generate an end-to-end data package for a verified user:
    - Inserts pseudonymous tombstone into `erasure_tombstones(user_id, erased_at)` to prevent accidental recreation on backup restore.
    - Logs `pd_access` audit event with actor, timestamp, and purpose.
 4. Issue completion confirmation email to the user within 72 hours.
+
+> [!NOTE]
+> If a photo or account is deleted while an external vendor try-on job is mid-flight, FashX immediately discards any incoming vendor outputs upon return. However, the vendor may already have received the photo; vendor-side retention and processing are governed by the vendor's terms and DPA, which can only be stated truthfully once a real executed vendor agreement exists.
