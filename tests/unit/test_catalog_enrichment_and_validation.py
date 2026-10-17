@@ -180,9 +180,49 @@ def test_tryon_eligibility_multi_factor_gate() -> None:
     ) is False
 
 
+@pytest.mark.parametrize(
+    "case_name, source_policy, source_rights, enrichment_suitable, enrichment_conf, category, expected",
+    [
+        ("hotlink source gives false", "hotlink", True, True, 0.95, "tops", False),
+        ("no try-on rights gives false", "mirror", False, True, 0.95, "tops", False),
+        ("unsuitable enrichment gives false", "mirror", True, False, 0.95, "tops", False),
+        ("unsupported category gives false", "mirror", True, True, 0.95, "footwear", False),
+        ("all four satisfied gives true", "mirror", True, True, 0.95, "tops", True),
+    ],
+)
+def test_backfill_cases_table(
+    case_name: str,
+    source_policy: str,
+    source_rights: bool,
+    enrichment_suitable: bool,
+    enrichment_conf: float,
+    category: str,
+    expected: bool,
+) -> None:
+    from scripts.catalog.backfill_tryon_supported import evaluate_garment_tryon_eligibility
+
+    res = evaluate_garment_tryon_eligibility(
+        category=category,
+        source_rights_tryon=source_rights,
+        source_image_policy=source_policy,
+        source_status="cleared",
+        vlm_tryon_suitable=enrichment_suitable,
+        vlm_confidence=enrichment_conf,
+    )
+    assert res == expected, f"Failed case '{case_name}': expected {expected}, got {res}"
+
+
+def test_backfill_cli_argparse_defaults_to_dry_run() -> None:
+    from scripts.catalog.backfill_tryon_supported import parse_args
+
+    assert parse_args([]).dry_run is True
+    assert parse_args(["--dry-run"]).dry_run is True
+    assert parse_args(["--apply"]).dry_run is False
+
+
 @pytest.mark.asyncio
 async def test_backfill_tryon_supported_unit() -> None:
-    """Unit test for backfill_tryon_supported verifying update of cleared mirror garments in supported categories."""
+    """Unit test for backfill_tryon_supported verifying dry-run default, enrichment, and apply behavior."""
     from uuid import uuid4
 
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -192,6 +232,7 @@ async def test_backfill_tryon_supported_unit() -> None:
     from database.models.catalog import (
         CanonicalGarment,
         CatalogSource,
+        GarmentEnrichment,
         Merchant,
         MerchantOffer,
         MerchantProduct,
@@ -268,7 +309,6 @@ async def test_backfill_tryon_supported_unit() -> None:
         session.add_all([g1, g2, g3])
 
         # 5. Offers
-        # g1: linked to p1 (cleared, mirror, tops) -> should be updated to True
         o1 = MerchantOffer(
             id=uuid4(),
             garment_id=g1.id,
@@ -277,7 +317,6 @@ async def test_backfill_tryon_supported_unit() -> None:
             url="https://merchant.example/p1",
             price_minor=1000,
         )
-        # g2: linked to p3 (cleared, mirror, but shoes) -> should remain False
         o2 = MerchantOffer(
             id=uuid4(),
             garment_id=g2.id,
@@ -286,7 +325,6 @@ async def test_backfill_tryon_supported_unit() -> None:
             url="https://merchant.example/p3",
             price_minor=2000,
         )
-        # g3: linked to p2 (pending, hotlink, bottoms) -> should remain False
         o3 = MerchantOffer(
             id=uuid4(),
             garment_id=g3.id,
@@ -296,13 +334,41 @@ async def test_backfill_tryon_supported_unit() -> None:
             price_minor=3000,
         )
         session.add_all([o1, o2, o3])
+
+        # 6. Enrichments: g1 is enriched as tryon_suitable with confidence 0.95
+        e1 = GarmentEnrichment(
+            id=uuid4(),
+            garment_id=g1.id,
+            model_version="vlm-v1",
+            attributes_json={"tryon_suitable": True, "category": "tops"},
+            confidence_summary={"tryon_suitable": 0.95, "category": 0.95},
+        )
+        # g2 is enriched but category is shoes
+        e2 = GarmentEnrichment(
+            id=uuid4(),
+            garment_id=g2.id,
+            model_version="vlm-v1",
+            attributes_json={"tryon_suitable": True, "category": "shoes"},
+            confidence_summary={"tryon_suitable": 0.95, "category": 0.95},
+        )
+        session.add_all([e1, e2])
         await session.commit()
 
-        # Run backfill
-        count = await backfill_tryon_supported(session)
-        assert count == 1
+        # Step A: Dry run (default) should report 1 update needed, but NOT modify DB
+        dry_stats = await backfill_tryon_supported(session, dry_run=True)
+        assert dry_stats["dry_run"] is True
+        assert dry_stats["eligible"] == 1
+        assert dry_stats["updated"] == 1
 
-        # Verify
+        await session.refresh(g1)
+        assert g1.tryon_supported is False, "Dry run must NOT mutate garments"
+
+        # Step B: Apply mode modifies DB
+        apply_stats = await backfill_tryon_supported(session, dry_run=False)
+        assert apply_stats["dry_run"] is False
+        assert apply_stats["eligible"] == 1
+        assert apply_stats["updated"] == 1
+
         await session.refresh(g1)
         await session.refresh(g2)
         await session.refresh(g3)

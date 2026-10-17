@@ -46,30 +46,28 @@ def upgrade() -> None:
         sa.Column("tryon_supported", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
 
-    # 4. Backfill tryon_supported for existing canonical garments with cleared mirror sources in supported categories
-    op.execute(
-        sa.text(
-            """
-            UPDATE canonical_garments
-            SET tryon_supported = TRUE
-            WHERE id IN (
-                SELECT mo.garment_id
-                FROM merchant_offers mo
-                JOIN merchant_products mp
-                    ON mo.merchant_id = mp.merchant_id AND mo.source_product_id = mp.source_product_id
-                JOIN catalog_sources cs
-                    ON mp.source_id = cs.id
-                WHERE cs.status = 'cleared'
-                  AND cs.rights_tryon = TRUE
-                  AND cs.image_policy = 'mirror'
-            )
-            AND lower(category) IN ('tops', 'bottoms', 'one-pieces', 'top', 'bottom', 'one_piece')
-            """
+    # 4. Enforce ON DELETE CASCADE on tryon_jobs.profile_photo_id -> user_photos.id
+    with op.batch_alter_table("tryon_jobs") as b:
+        b.drop_constraint("tryon_jobs_profile_photo_id_fkey", type_="foreignkey")
+        b.create_foreign_key(
+            "fk_tryon_jobs_profile_photo_id_user_photos",
+            "user_photos",
+            ["profile_photo_id"],
+            ["id"],
+            ondelete="CASCADE",
         )
-    )
 
 
 def downgrade() -> None:
+    with op.batch_alter_table("tryon_jobs") as b:
+        b.drop_constraint("fk_tryon_jobs_profile_photo_id_user_photos", type_="foreignkey")
+        b.create_foreign_key(
+            "tryon_jobs_profile_photo_id_fkey",
+            "user_photos",
+            ["profile_photo_id"],
+            ["id"],
+            ondelete="RESTRICT",
+        )
     op.drop_column("canonical_garments", "tryon_supported")
     op.drop_index("ix_style_quiz_picks_garment_id", table_name="style_quiz_picks")
     op.drop_index("ix_style_quiz_picks_user_id", table_name="style_quiz_picks")

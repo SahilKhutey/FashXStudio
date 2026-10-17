@@ -217,30 +217,214 @@ def test_garments_sizes_in_stock_gin_index_exists(db_engine):
 
 @pytest.mark.db
 def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
-    """End-to-end erasure test on real Postgres: seed user data, erase, assert zero rows, tombstone, outbox, and idempotency."""
+    """End-to-end erasure test on real Postgres: seed user data across all classified tables, erase, assert zero rows, tombstone, outbox, and idempotency."""
     import asyncio
+    import json
 
     user_id = uuid4()
+    photo_id = uuid4()
+    skin_id = uuid4()
+    job_id = uuid4()
+    garment_id = uuid4()
+    merchant_id = uuid4()
+    brand_id = uuid4()
+    offer_id = uuid4()
+    tenant_id = uuid4()
+    click_id = uuid4()
+    event_id = uuid4()
+    invite_hash = f"hash-{uuid4()}"
+
     storage = LocalStorage(tmp_path)
     p_key = f"u/{user_id}/photos/portrait.jpg"
     storage.put(p_key, b"portrait_data", "image/jpeg")
 
-    # Seed user and user-keyed rows
+    # Prerequisites (merchants, brands, garments, offers, tenants)
+    db.execute(
+        text('INSERT INTO "merchants" (id, name, created_at, updated_at) VALUES (:m, :name, now(), now())'),
+        {"m": merchant_id, "name": "Test Merchant"},
+    )
+    db.execute(
+        text('INSERT INTO "brands" (id, name, created_at, updated_at) VALUES (:b, :name, now(), now())'),
+        {"b": brand_id, "name": "Test Brand"},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "canonical_garments" (id, merchant_id, name, category, tryon_supported, created_at, updated_at) '
+            "VALUES (:g, :m, 'Garment', 'tops', false, now(), now())"
+        ),
+        {"g": garment_id, "m": merchant_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "merchant_offers" (id, garment_id, merchant_id, price_minor, currency, in_stock, url, created_at, updated_at) '
+            "VALUES (:o, :g, :m, 1000, 'INR', true, 'https://example.com', now(), now())"
+        ),
+        {"o": offer_id, "g": garment_id, "m": merchant_id},
+    )
+    db.execute(
+        text('INSERT INTO "tenants" (id, name, created_at, updated_at) VALUES (:t, :name, now(), now())'),
+        {"t": tenant_id, "name": "Test Tenant"},
+    )
+
+    # Core user & auth identities
     db.execute(
         text('INSERT INTO "users" (id, created_at, updated_at) VALUES (:u, now(), now())'),
         {"u": user_id},
     )
     db.execute(
+        text('INSERT INTO "auth_identities" (id, issuer, subject, user_id, created_at) VALUES (:aid, :iss, :sub, :u, now())'),
+        {"aid": uuid4(), "iss": "local", "sub": f"sub-{uuid4()}", "u": user_id},
+    )
+
+    # Biometric tables
+    db.execute(
         text(
-            'INSERT INTO "consent_records" (user_id, data_type, granted, consent_version, is_18_or_older, updated_at) VALUES (:u, :dt, true, :cv, true, now())'
+            'INSERT INTO "user_photos" (id, user_id, photo_type, storage_key, status, version, created_at) '
+            "VALUES (:pid, :u, 'body', :sk, 'accepted', 1, now())"
+        ),
+        {"pid": photo_id, "u": user_id, "sk": f"u/{user_id}/photos/1.jpg"},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "skin_tone_results" (id, user_id, photo_id, confidence, method, model_version, status, created_at) '
+            "VALUES (:sid, :u, :pid, 0.95, 'colorimetry', '1.0', 'accepted', now())"
+        ),
+        {"sid": skin_id, "u": user_id, "pid": photo_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "profile_artifacts" (id, user_id, version, body_snapshot, preferences_snapshot, tryon_photo_id, skin_tone_result_id, created_at) '
+            "VALUES (:paid, :u, 1, :bs, :ps, :pid, :sid, now())"
+        ),
+        {"paid": uuid4(), "u": user_id, "bs": json.dumps({}), "ps": json.dumps({}), "pid": photo_id, "sid": skin_id},
+    )
+    db.execute(
+        text('INSERT INTO "profile_photo_jobs" (id, user_id, photo_id, status, created_at) VALUES (:ppjid, :u, :pid, :st, now())'),
+        {"ppjid": uuid4(), "u": user_id, "pid": photo_id, "st": "completed"},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "tryon_jobs" (id, user_id, garment_id, profile_photo_id, idempotency_key, artifact_key, model_version, pipeline_version, created_at) '
+            "VALUES (:jid, :u, :g, :pid, :idem, 'art.jpg', '1.0', '1.0', now())"
+        ),
+        {"jid": job_id, "u": user_id, "g": garment_id, "pid": photo_id, "idem": str(uuid4())},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "media_objects" (id, user_id, kind, object_key, sha256, size_bytes, content_type, created_at) '
+            "VALUES (:mid, :u, 'photo', :sk, :sha, 1024, 'image/jpeg', now())"
+        ),
+        {"mid": uuid4(), "u": user_id, "sk": f"u/{user_id}/media/1.jpg", "sha": "a" * 64},
+    )
+    db.execute(
+        text('INSERT INTO "body_profiles" (user_id, height_cm, weight_kg, version) VALUES (:u, 175, 70, 1)'),
+        {"u": user_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "user_measurements" (id, user_id, measurement, value, unit, source, created_at) '
+            "VALUES (:umid, :u, 'chest', 95.0, 'cm', 'user', now())"
+        ),
+        {"umid": uuid4(), "u": user_id},
+    )
+    db.execute(
+        text('INSERT INTO "user_style_profiles" (user_id, embedding, model_version, version) VALUES (:u, :emb, :mv, 1)'),
+        {"u": user_id, "emb": "[0.1, 0.2]", "mv": "1.0"},
+    )
+
+    # Account tables
+    db.execute(
+        text(
+            'INSERT INTO "wardrobe_items" (id, user_id, garment_id, offer_id, snapshot_title, snapshot_price_minor, snapshot_image_key) '
+            "VALUES (:wid, :u, :g, :o, 'Shirt', 1999, 'shirt.jpg')"
+        ),
+        {"wid": uuid4(), "u": user_id, "g": garment_id, "o": offer_id},
+    )
+    db.execute(
+        text('INSERT INTO "buy_clicks" (id, user_id, garment_id, offer_id, clicked_at) VALUES (:cid, :u, :g, :o, now())'),
+        {"cid": click_id, "u": user_id, "g": garment_id, "o": offer_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "fit_feedback" (id, user_id, garment_id, brand_id, buy_click_id, category, size_label, verdict, created_at) '
+            "VALUES (:ffid, :u, :g, :b, :cid, 'tops', 'M', 'fit', now())"
+        ),
+        {"ffid": uuid4(), "u": user_id, "g": garment_id, "b": brand_id, "cid": click_id},
+    )
+    db.execute(
+        text('INSERT INTO "tryon_feedback" (id, user_id, tryon_job_id, visual_accuracy, created_at) VALUES (:tfid, :u, :jid, :va, now())'),
+        {"tfid": uuid4(), "u": user_id, "jid": job_id, "va": "accurate"},
+    )
+    db.execute(
+        text('INSERT INTO "feed_exclusions" (user_id, garment_id, created_at) VALUES (:u, :g, now())'),
+        {"u": user_id, "g": garment_id},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "feed_impressions" (id, user_id, session_id, garment_id, position, ranker_version, created_at) '
+            "VALUES (:fiid, :u, :sess, :g, 1, '1.0', now())"
+        ),
+        {"fiid": uuid4(), "u": user_id, "sess": uuid4(), "g": garment_id},
+    )
+    db.execute(
+        text('INSERT INTO "feed_signals" (user_id, garment_id, action, created_at) VALUES (:u, :g, :act, now())'),
+        {"u": user_id, "g": garment_id, "act": "like"},
+    )
+    db.execute(
+        text('INSERT INTO "user_preferences" (user_id, colors_favored, colors_avoided, categories, updated_at) VALUES (:u, :cf, :ca, :cats, now())'),
+        {"u": user_id, "cf": json.dumps([]), "ca": json.dumps([]), "cats": json.dumps([])},
+    )
+    db.execute(
+        text('INSERT INTO "onboarding_profiles" (user_id, status, step, created_at, updated_at) VALUES (:u, :st, :step, now(), now())'),
+        {"u": user_id, "st": "completed", "step": "done"},
+    )
+    db.execute(
+        text(
+            'INSERT INTO "consent_records" (user_id, data_type, granted, consent_version, is_18_or_older, updated_at) '
+            "VALUES (:u, :dt, true, :cv, true, now())"
         ),
         {"u": user_id, "dt": "terms_and_privacy", "cv": "2026.1"},
     )
     db.execute(
+        text('INSERT INTO "style_quiz_picks" (id, user_id, garment_id, liked, created_at) VALUES (:sqpid, :u, :g, true, now())'),
+        {"sqpid": uuid4(), "u": user_id, "g": garment_id},
+    )
+    db.execute(
         text(
-            'INSERT INTO "user_preferences" (user_id, categories, colors_favored, colors_avoided, updated_at) VALUES (:u, :cats, :fav, :av, now())'
+            'INSERT INTO "idempotency_records" (id, user_id, key, request_hash, state, created_at, expires_at) '
+            "VALUES (:irid, :u, :k, :rh, 'completed', now(), now())"
         ),
-        {"u": user_id, "cats": "[]", "fav": "[]", "av": "[]"},
+        {"irid": uuid4(), "u": user_id, "k": f"key-{uuid4()}", "rh": "h" * 64},
+    )
+    db.execute(
+        text('INSERT INTO "pilot_participants" (user_id, cohort, channel, joined_at) VALUES (:u, :coh, :ch, now())'),
+        {"u": user_id, "coh": "alpha", "ch": "mobile"},
+    )
+    db.execute(
+        text('INSERT INTO "pilot_survey_responses" (id, user_id, survey_key, answers, created_at) VALUES (:psrid, :u, :sk, :ans, now())'),
+        {"psrid": uuid4(), "u": user_id, "sk": "alpha_survey", "ans": json.dumps({"q": 1})},
+    )
+    db.execute(
+        text('INSERT INTO "pilot_feedback" (id, user_id, kind, message, created_at) VALUES (:pfid, :u, :k, :msg, now())'),
+        {"pfid": uuid4(), "u": user_id, "k": "bug", "msg": "feedback"},
+    )
+    db.execute(
+        text('INSERT INTO "experiment_exposures" (id, user_id, experiment, variant, first_seen_at) VALUES (:eeid, :u, :exp, :var, now())'),
+        {"eeid": uuid4(), "u": user_id, "exp": "feed_v2", "var": "test"},
+    )
+    db.execute(
+        text('INSERT INTO "tenant_members" (id, tenant_id, user_id, role, created_at) VALUES (:tmid, :t, :u, :r, now())'),
+        {"tmid": uuid4(), "t": tenant_id, "u": user_id, "r": "member"},
+    )
+
+    # Anonymize tables (user_id will become NULL)
+    db.execute(
+        text('INSERT INTO "domain_events" (id, event_type, user_id, occurred_at) VALUES (:deid, :et, :u, now())'),
+        {"deid": event_id, "et": "user.signed_up", "u": user_id},
+    )
+    db.execute(
+        text('INSERT INTO "pilot_invites" (code_hash, cohort, channel, user_id, created_at) VALUES (:ch, :coh, :channel, :u, now())'),
+        {"ch": invite_hash, "coh": "alpha", "channel": "mobile", "u": user_id},
     )
     db.flush()
 
@@ -261,24 +445,52 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     asyncio.run(erase_account(uow, user_id, storage=storage))
     db.flush()
 
+    # Storage prefix is wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
+
+    # All biometric tables are empty for user
     for t in BIOMETRIC_TABLES:
         cnt = db.execute(
             text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in biometric table {t}"
+
+    # All account tables are empty for user
     for t in ACCOUNT_TABLES:
-        if t == "users":
-            continue
         cnt = db.execute(
             text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in account table {t}"
-    # Canonical user row deleted
+
+    # Core auth: identities and canonical user row deleted
+    auth_cnt = db.execute(
+        text('select count(*) from "auth_identities" where user_id = :u'), {"u": user_id}
+    ).scalar()
+    assert auth_cnt == 0, "Expected auth_identities rows to be deleted"
+
     user_cnt = db.execute(
         text('select count(*) from "users" where id = :u'), {"u": user_id}
     ).scalar()
     assert user_cnt == 0, "Expected user row to be deleted"
+
+    # Anonymized tables: rows retained but user_id disassociated to NULL
+    de_user_cnt = db.execute(
+        text('select count(*) from "domain_events" where user_id = :u'), {"u": user_id}
+    ).scalar()
+    assert de_user_cnt == 0, "Expected 0 domain_events with user_id"
+    de_null_cnt = db.execute(
+        text('select count(*) from "domain_events" where id = :deid and user_id IS NULL'), {"deid": event_id}
+    ).scalar()
+    assert de_null_cnt == 1, "Expected domain_event to be anonymized with user_id = NULL"
+
+    pi_user_cnt = db.execute(
+        text('select count(*) from "pilot_invites" where user_id = :u'), {"u": user_id}
+    ).scalar()
+    assert pi_user_cnt == 0, "Expected 0 pilot_invites with user_id"
+    pi_null_cnt = db.execute(
+        text('select count(*) from "pilot_invites" where code_hash = :ch and user_id IS NULL'), {"ch": invite_hash}
+    ).scalar()
+    assert pi_null_cnt == 1, "Expected pilot_invite to be anonymized with user_id = NULL"
 
     # Minimal pseudonymous tombstone recorded in erasure_tombstones
     tomb_cnt = db.execute(
@@ -368,7 +580,7 @@ def test_loop_tables_all_have_user_id_column(db_engine):
 
 @pytest.mark.db
 def test_children_of_erased_tables_cascade(db_engine):
-    """Verify that foreign keys pointing to erased tables either CASCADE, SET NULL, or have parent-child erasure ordering."""
+    """Verify that foreign keys pointing to erased tables either CASCADE or SET NULL."""
     from fashx.application.erasure import (
         ACCOUNT_TABLES,
         BIOMETRIC_TABLES,
@@ -400,26 +612,15 @@ def test_children_of_erased_tables_cascade(db_engine):
     for child_tbl, child_col, parent_tbl, rule in fks:
         if parent_tbl not in erased_tables:
             continue
-        # If the parent is in erased tables, rule must be CASCADE or SET NULL,
-        # UNLESS the child table is in BIOMETRIC_TABLES and explicitly deleted BEFORE the parent table!
-        if rule not in ("CASCADE", "SET NULL"):
-            if child_tbl in BIOMETRIC_TABLES and parent_tbl in BIOMETRIC_TABLES:
-                child_idx = BIOMETRIC_TABLES.index(child_tbl)
-                parent_idx = BIOMETRIC_TABLES.index(parent_tbl)
-                assert child_idx < parent_idx, (
-                    f"Child table '{child_tbl}' references '{parent_tbl}' with {rule}, "
-                    f"so it must be deleted BEFORE '{parent_tbl}' (found child at {child_idx}, parent at {parent_idx})"
-                )
-            else:
-                pytest.fail(
-                    f"Foreign key {child_tbl}.{child_col} -> {parent_tbl} has non-cascading rule '{rule}' "
-                    f"and is not ordered in erasure sequence"
-                )
+        assert rule in (
+            "CASCADE",
+            "SET NULL",
+        ), f"Foreign key {child_tbl}.{child_col} -> {parent_tbl} has non-cascading rule '{rule}'"
 
 
 @pytest.mark.db
 def test_erase_account_rolls_back_on_postgres_failure(db, tmp_path, monkeypatch):
-    """When a statement fails during Postgres erasure, the entire transaction rolls back and no rows are erased."""
+    """When a statement fails during Postgres erasure, the entire transaction rolls back and no rows are erased (nothing half-deleted)."""
     import asyncio
 
     from fashx.application.erasure import ErasureIncomplete
@@ -466,11 +667,21 @@ def test_erase_account_rolls_back_on_postgres_failure(db, tmp_path, monkeypatch)
     with pytest.raises(ErasureIncomplete):
         asyncio.run(erase_account(uow, user_id, storage=storage))
 
-    # Rollback must restore all rows; user_photos must still exist
-    cnt = db.execute(
+    # Rollback must restore all rows; user and user_photos must still exist, and zero tombstones recorded
+    user_cnt = db.execute(
+        text('select count(*) from "users" where id = :u'), {"u": user_id}
+    ).scalar()
+    assert user_cnt == 1, "Expected user to still exist after transaction rollback"
+
+    photo_cnt = db.execute(
         text('select count(*) from "user_photos" where user_id = :u'), {"u": user_id}
     ).scalar()
-    assert cnt > 0, "Expected user_photos to still exist after transaction rollback"
+    assert photo_cnt == 1, "Expected user_photos to still exist after transaction rollback"
+
+    tomb_cnt = db.execute(
+        text('select count(*) from "erasure_tombstones" where user_id = :u'), {"u": user_id}
+    ).scalar()
+    assert tomb_cnt == 0, "Expected zero tombstones written when erasure failed and rolled back"
 
 
 @pytest.mark.xfail(reason="Supabase provider deletion pending auth project setup", strict=True)

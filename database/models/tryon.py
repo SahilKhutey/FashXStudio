@@ -29,7 +29,7 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
         ForeignKey("canonical_garments.id", ondelete="CASCADE"), index=True
     )
     profile_photo_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user_photos.id", ondelete="RESTRICT")
+        ForeignKey("user_photos.id", ondelete="CASCADE")
     )
     idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False)
     artifact_key: Mapped[str] = mapped_column(String(512), nullable=False)
