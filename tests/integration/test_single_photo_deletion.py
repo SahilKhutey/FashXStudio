@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import io
-from uuid import uuid4
+from collections.abc import AsyncGenerator
+from uuid import UUID, uuid4
 
 import pytest
 import pytest_asyncio
 from PIL import Image
-from sqlalchemy import event, select
+from sqlalchemy import event, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool, StaticPool
 
 from database.models import Base
 from database.models.catalog import CanonicalGarment, StyleQuizPick
@@ -46,25 +47,56 @@ def _create_valid_portrait_bytes() -> bytes:
     return buf.getvalue()
 
 
-@pytest_asyncio.fixture
-async def session_factory() -> async_sessionmaker[AsyncSession]:
-    engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        poolclass=StaticPool,
-    )
+@pytest_asyncio.fixture(params=["sqlite", pytest.param("postgres", marks=pytest.mark.db)])
+async def session_factory(request) -> AsyncGenerator[async_sessionmaker[AsyncSession], None]:
+    if request.param == "sqlite":
+        engine = create_async_engine(
+            "sqlite+aiosqlite:///:memory:",
+            poolclass=StaticPool,
+        )
 
-    @event.listens_for(engine.sync_engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
+        @event.listens_for(engine.sync_engine, "connect")
+        def _fk_on(dbapi_conn, _record):
+            cur = dbapi_conn.cursor()
+            cur.execute("PRAGMA foreign_keys=ON")
+            cur.close()
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
 
-    factory = async_sessionmaker(engine, expire_on_commit=False)
-    yield factory
-    await engine.dispose()
+        factory = async_sessionmaker(engine, expire_on_commit=False)
+        yield factory
+        await engine.dispose()
+    elif request.param == "postgres":
+        import os
+
+        url = os.environ.get("TEST_DATABASE_URL")
+        if not url:
+            pytest.skip("TEST_DATABASE_URL not set")
+
+        if url.startswith("postgresql://"):
+            async_url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+        elif url.startswith("postgresql+psycopg2://"):
+            async_url = url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
+        else:
+            async_url = url
+
+        engine = create_async_engine(async_url, poolclass=NullPool)
+
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            await conn.execute(
+                text("TRUNCATE TABLE users, canonical_garments, outbox_messages CASCADE;")
+            )
+
+        factory = async_sessionmaker(engine, expire_on_commit=False)
+        yield factory
+
+        async with engine.begin() as conn:
+            await conn.execute(
+                text("TRUNCATE TABLE users, canonical_garments, outbox_messages CASCADE;")
+            )
+        await engine.dispose()
 
 
 @pytest.mark.asyncio
@@ -511,7 +543,7 @@ async def test_in_flight_tryon_discarded_when_photo_deleted(
 
     # Custom adapter simulating photo deletion during long vendor inference
     class MidFlightDeletionAdapter:
-        def __init__(self, factory: async_sessionmaker[AsyncSession], u_id: uuid4, p_id: uuid4):
+        def __init__(self, factory: async_sessionmaker[AsyncSession], u_id: UUID, p_id: UUID):
             self.factory = factory
             self.u_id = u_id
             self.p_id = p_id
