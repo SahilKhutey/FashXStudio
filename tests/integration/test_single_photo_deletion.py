@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 import pytest_asyncio
 from PIL import Image
-from sqlalchemy import event, select, text
+from sqlalchemy import event, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool, StaticPool
 
@@ -70,10 +70,10 @@ async def session_factory(request) -> AsyncGenerator[async_sessionmaker[AsyncSes
     elif request.param == "postgres":
         import os
 
-        url = os.environ.get("TEST_DATABASE_URL")
-        if not url:
-            pytest.skip("TEST_DATABASE_URL not set")
+        # Uses the shared committed_db fixture which runs alembic upgrade head on a clean schema
+        request.getfixturevalue("committed_db")
 
+        url = os.environ.get("TEST_DATABASE_URL", "")
         if url.startswith("postgresql://"):
             async_url = url.replace("postgresql://", "postgresql+psycopg://", 1)
         elif url.startswith("postgresql+psycopg2://"):
@@ -82,20 +82,8 @@ async def session_factory(request) -> AsyncGenerator[async_sessionmaker[AsyncSes
             async_url = url
 
         engine = create_async_engine(async_url, poolclass=NullPool)
-
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            await conn.execute(
-                text("TRUNCATE TABLE users, canonical_garments, outbox_messages CASCADE;")
-            )
-
         factory = async_sessionmaker(engine, expire_on_commit=False)
         yield factory
-
-        async with engine.begin() as conn:
-            await conn.execute(
-                text("TRUNCATE TABLE users, canonical_garments, outbox_messages CASCADE;")
-            )
         await engine.dispose()
 
 
