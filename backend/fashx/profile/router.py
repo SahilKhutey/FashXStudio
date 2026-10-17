@@ -266,6 +266,35 @@ async def get_photo_signed_url(
         return PhotoSignedUrlResponse(url=signed_url, expires_in=300)
 
 
+@router.delete(
+    "/{user_id}/photos/{photo_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_photo_endpoint(
+    user_id: UUID,
+    photo_id: UUID,
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+    storage: Any = Depends(get_storage),
+) -> None:
+    """Delete a single photo, cascading try-on jobs and removing derived result media."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
+    from fashx.profile.application.delete_photo import delete_user_photo
+
+    async with uow:
+        deleted = await delete_user_photo(
+            uow.session,
+            user_id=user_id,
+            photo_id=photo_id,
+            storage=storage,
+        )
+        if not deleted:
+            raise EntityNotFoundError("Photo", photo_id)
+        await uow.commit()
+
+
 @router.put("/{user_id}/preferences", response_model=UpdatePreferencesResponse)
 async def update_preferences(
     user_id: UUID,
