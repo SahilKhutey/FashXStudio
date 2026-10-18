@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from uuid import UUID
 
 from database.models.catalog import CanonicalGarment, CatalogSource, MerchantProduct
@@ -19,6 +20,7 @@ class IngestProductCommand:
     description: str | None = None
     currency: str = "INR"
     in_stock: bool = True
+    sizes_in_stock: list[str] = field(default_factory=list)
     brand_id: UUID | None = None
     source_id: UUID | None = None
     item_group_id: str | None = None
@@ -71,6 +73,8 @@ class IngestMerchantProductUseCase:
                     await self.uow.sources.flush()
                 source_id = source.id
 
+            now = datetime.now(timezone.utc)
+
             # 1. Upsert MerchantProduct
             product = await self.uow.merchant_products.get_by_source_id(
                 cmd.merchant_id, cmd.source_product_id
@@ -84,6 +88,8 @@ class IngestMerchantProductUseCase:
                 product.item_group_id = cmd.item_group_id
                 product.content_hash = cmd.content_hash
                 product.status = cmd.status
+                product.last_seen_at = now
+                product.price_checked_at = now
             else:
                 product = MerchantProduct(
                     merchant_id=cmd.merchant_id,
@@ -96,6 +102,8 @@ class IngestMerchantProductUseCase:
                     title=cmd.title,
                     description=cmd.description,
                     source_url=cmd.source_url,
+                    last_seen_at=now,
+                    price_checked_at=now,
                 )
                 self.uow.merchant_products.add(product)
             await self.uow.merchant_products.flush()
@@ -106,6 +114,11 @@ class IngestMerchantProductUseCase:
             )
             if existing_offer is not None:
                 garment_id = existing_offer.garment_id
+                existing_garment = await self.uow.canonical_garments.get_by_id(garment_id)
+                if existing_garment is not None:
+                    existing_garment.price_updated_at = now
+                    if cmd.sizes_in_stock:
+                        existing_garment.sizes_in_stock = cmd.sizes_in_stock
             else:
                 if source_id is not None and "source" not in locals():
                     source = await self.uow.sources.get_by_id(source_id)
@@ -120,6 +133,10 @@ class IngestMerchantProductUseCase:
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
+                    display_name=cmd.title,
+                    price_minor=cmd.price_minor,
+                    sizes_in_stock=cmd.sizes_in_stock,
+                    price_updated_at=now,
                     version=1,
                     tryon_supported=is_eligible,
                 )
@@ -137,6 +154,7 @@ class IngestMerchantProductUseCase:
                 currency=cmd.currency,
                 in_stock=cmd.in_stock,
             )
+            offer.last_synced_at = now
             await self.uow.offers.flush()
 
             await self.uow.commit()

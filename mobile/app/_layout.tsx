@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import "../src/i18n";
 import { supabase } from "../src/lib/supabase";
 import { useAuthStore, UserMe } from "../src/features/auth/authStore";
+import { getDevToken } from "../src/lib/token";
 import { api } from "../src/api/client";
 import {
   fetchRemoteConfig,
@@ -34,7 +35,8 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
 
-  const { session, setSession, setMe, setIsLoading, isLoading } = useAuthStore();
+  const { session, setSession, setMe, setIsLoading, isLoading, hasSession, setHasSession } =
+    useAuthStore();
   const [remoteConfig, setRemoteConfig] = useState<RemoteConfig | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
 
@@ -61,6 +63,19 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
     let isMounted = true;
 
     const checkSession = async () => {
+      const devTok = getDevToken();
+      if (devTok) {
+        setHasSession(true);
+        try {
+          const me = await api<UserMe>("/me");
+          if (isMounted) setMe(me);
+        } catch {
+          // Token error handled by api client
+        }
+        if (isMounted) setIsLoading(false);
+        return;
+      }
+
       const {
         data: { session: currentSession },
       } = await supabase.auth.getSession();
@@ -86,6 +101,9 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (getDevToken()) {
+        return;
+      }
       if (isMounted) {
         setSession(newSession);
         if (newSession) {
@@ -106,7 +124,7 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [setSession, setMe, setIsLoading]);
+  }, [setSession, setMe, setIsLoading, setHasSession]);
 
   // 3. Navigation routing based on auth state
   useEffect(() => {
@@ -114,14 +132,14 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!session && !inAuthGroup) {
+    if (!hasSession && !inAuthGroup) {
       // Redirect to sign in if unauthenticated
       router.replace("/(auth)/sign-in");
-    } else if (session && inAuthGroup) {
+    } else if (hasSession && inAuthGroup) {
       // Redirect to root if authenticated
       router.replace("/");
     }
-  }, [session, segments, isLoading, configLoading, router]);
+  }, [hasSession, segments, isLoading, configLoading, router]);
 
   // Handle Maintenance Mode
   if (remoteConfig?.maintenance) {

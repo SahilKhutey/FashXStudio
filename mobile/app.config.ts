@@ -19,6 +19,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: "com.fashxstudio.app",
     permissions: ["CAMERA"],
+    allowBackup: false,
+    softwareKeyboardLayoutMode: "resize",
   },
   plugins: [
     "expo-router",
@@ -29,6 +31,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         cameraPermission:
           "FashX uses the camera so you can take the photo used for virtual try-on.",
+        recordAudioAndroid: false,
+      },
+    ],
+    [
+      "expo-image-picker",
+      {
+        photosPermission: false,
       },
     ],
   ],

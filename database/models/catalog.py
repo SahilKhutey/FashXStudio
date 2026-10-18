@@ -199,6 +199,7 @@ class GarmentEnrichment(Base, UUIDPrimaryKeyMixin):
         ForeignKey("garment_images.id", ondelete="SET NULL")
     )
     model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    embedding_model: Mapped[str | None] = mapped_column(String(128), index=True)
     attributes_json: Mapped[dict] = mapped_column(JSON, nullable=False)
     embedding: Mapped[list[float] | None] = mapped_column(Vector512(512))
     confidence_summary: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
