@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 from collections.abc import AsyncGenerator
+from datetime import UTC
 from pathlib import Path
 
 import pytest
@@ -224,9 +225,9 @@ async def test_seed_refreshes_price_freshness_after_time_advancement(
     sqlite_session_factory: async_sessionmaker[AsyncSession],
     tmp_path: Path,
 ) -> None:
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
     from scripts.catalog.embed_garments import embed_garments
-    from fashx.catalog.embeddings.fake import FakeEmbedder
 
     storage = LocalStorage(tmp_path / "storage")
 
@@ -253,7 +254,7 @@ async def test_seed_refreshes_price_freshness_after_time_advancement(
     )
 
     # Simulate advancing clock by 80 hours: manually backdate price_checked_at
-    past_time = datetime.now(timezone.utc) - timedelta(hours=80)
+    past_time = datetime.now(UTC) - timedelta(hours=80)
     async with sqlite_session_factory() as session:
         products = (await session.scalars(select(MerchantProduct))).all()
         for p in products:
@@ -262,13 +263,13 @@ async def test_seed_refreshes_price_freshness_after_time_advancement(
         await session.commit()
 
     def to_utc(dt: datetime) -> datetime:
-        return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC) if dt.tzinfo is None else dt.astimezone(UTC)
 
     # Verify that products are now stale (> 72 hours)
     async with sqlite_session_factory() as session:
         stale_products = (await session.scalars(select(MerchantProduct))).all()
         for p in stale_products:
-            age_hours = (datetime.now(timezone.utc) - to_utc(p.price_checked_at)).total_seconds() / 3600.0
+            age_hours = (datetime.now(UTC) - to_utc(p.price_checked_at)).total_seconds() / 3600.0
             assert age_hours >= 79.0
 
     # Re-run seed with --apply
@@ -283,7 +284,7 @@ async def test_seed_refreshes_price_freshness_after_time_advancement(
     async with sqlite_session_factory() as session:
         refreshed_products = (await session.scalars(select(MerchantProduct))).all()
         for p in refreshed_products:
-            age_hours = (datetime.now(timezone.utc) - to_utc(p.price_checked_at)).total_seconds() / 3600.0
+            age_hours = (datetime.now(UTC) - to_utc(p.price_checked_at)).total_seconds() / 3600.0
             assert age_hours < 0.1  # freshly updated within seconds
             assert p.status == "active"
 

@@ -114,16 +114,51 @@ def setup_test_identity_override():
     asyncio.run(_init_db())
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
+    from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+    from fashx.catalog.router import get_catalog_uow
     from fashx.profile.router import get_profile_uow as get_router_profile_uow
+    from fashx.recommendation.router import (
+        get_catalog_uow as get_rec_catalog_uow,
+    )
+    from fashx.recommendation.router import (
+        get_profile_uow as get_rec_profile_uow,
+    )
+    from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
+    from fashx.tryon.router import (
+        get_catalog_uow as get_tryon_catalog_uow,
+    )
+    from fashx.tryon.router import (
+        get_profile_uow as get_tryon_profile_uow,
+    )
+    from fashx.tryon.router import (
+        get_tryon_uow,
+    )
 
     shared_repo = InMemoryIdentityRepo()
     main_app.dependency_overrides[get_identity_repo] = lambda: shared_repo
     main_app.dependency_overrides[get_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
     main_app.dependency_overrides[get_router_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_rec_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_tryon_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+
+    main_app.dependency_overrides[get_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_rec_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_tryon_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+
+    main_app.dependency_overrides[get_tryon_uow] = lambda: TryOnUnitOfWork(session_factory)
     yield
-    main_app.dependency_overrides.pop(get_identity_repo, None)
-    main_app.dependency_overrides.pop(get_profile_uow, None)
-    main_app.dependency_overrides.pop(get_router_profile_uow, None)
+    for fn in (
+        get_identity_repo,
+        get_profile_uow,
+        get_router_profile_uow,
+        get_rec_profile_uow,
+        get_tryon_profile_uow,
+        get_catalog_uow,
+        get_rec_catalog_uow,
+        get_tryon_catalog_uow,
+        get_tryon_uow,
+    ):
+        main_app.dependency_overrides.pop(fn, None)
     asyncio.run(engine.dispose())
 
 

@@ -4481,6 +4481,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/session-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Session Events
+         * @description Record a batch of client session events (e.g. viewable impression batches).
+         */
+        post: operations["record_session_events_api_v1_analytics_session_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/events": {
         parameters: {
             query?: never;
@@ -5459,6 +5479,21 @@ export interface components {
             values?: {
                 [key: string]: string;
             };
+        };
+        /** BatchSessionEventsRequest */
+        BatchSessionEventsRequest: {
+            /** Events */
+            events: components["schemas"]["SessionEventItem"][];
+        };
+        /** BatchSessionEventsResponse */
+        BatchSessionEventsResponse: {
+            /**
+             * Status
+             * @default recorded
+             */
+            status: string;
+            /** Count */
+            count: number;
         };
         /**
          * BorderWidthTokens
@@ -6633,11 +6668,8 @@ export interface components {
         };
         /** CreateTryOnJobRequest */
         CreateTryOnJobRequest: {
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
+            /** User Id */
+            user_id?: string | null;
             /**
              * Garment Id
              * Format: uuid
@@ -7755,6 +7787,27 @@ export interface components {
             relevance_score: number;
             /** Stylist Explanation */
             stylist_explanation: string;
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /**
+             * Brand
+             * @default
+             */
+            brand: string;
+            /** Image Url */
+            image_url?: string | null;
+            /** Price Updated At */
+            price_updated_at?: string | null;
+            /** Reason Chips */
+            reason_chips?: string[];
+            /**
+             * Tryon Supported
+             * @default true
+             */
+            tryon_supported: boolean;
         };
         /** FeedResponse */
         FeedResponse: {
@@ -7769,6 +7822,12 @@ export interface components {
             total_candidates: number;
             /** Filtered Candidates */
             filtered_candidates: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /** Relaxed */
+            relaxed?: string[];
+            /** Empty Reason */
+            empty_reason?: string | null;
         };
         /** FeedSignalRequest */
         FeedSignalRequest: {
@@ -12309,6 +12368,24 @@ export interface components {
              */
             elevated: string;
         };
+        /** SessionEventItem */
+        SessionEventItem: {
+            /**
+             * Event Type
+             * @default impression
+             */
+            event_type: string;
+            /** Garment Id */
+            garment_id?: string | null;
+            /** Session Id */
+            session_id?: string | null;
+            /** Timestamp */
+            timestamp?: string | null;
+            /** Properties */
+            properties?: {
+                [key: string]: unknown;
+            };
+        };
         /**
          * ShellLayoutMode
          * @description Active layout mode resolved from breakpoint (Section 3.29).
@@ -15192,6 +15269,7 @@ export interface operations {
             query?: {
                 limit?: number;
                 diversity?: number;
+                cursor?: string | null;
             };
             header?: never;
             path?: never;
@@ -21777,6 +21855,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_session_events_api_v1_analytics_session_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchSessionEventsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchSessionEventsResponse"];
                 };
             };
             /** @description Validation Error */

@@ -4,7 +4,7 @@ import { Pressable, Text, StyleSheet } from "react-native";
 export interface ChipProps {
   label: string;
   selected: boolean;
-  onPress: () => void;
+  onPress?: () => void;
   accessibilityRole?: "button" | "checkbox";
 }
 

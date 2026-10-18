@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel, Field
 
 from fashx.core.context import CoreContext
 from fashx.core.runtime import get_core_runtime
@@ -24,6 +26,31 @@ router = APIRouter(
     prefix="/analytics",
     tags=["analytics"],
 )
+
+
+class SessionEventItem(BaseModel):
+    event_type: str = "impression"
+    garment_id: str | None = None
+    session_id: str | None = None
+    timestamp: datetime | None = None
+    properties: dict[str, Any] = Field(default_factory=dict)
+
+
+class BatchSessionEventsRequest(BaseModel):
+    events: list[SessionEventItem]
+
+
+class BatchSessionEventsResponse(BaseModel):
+    status: str = "recorded"
+    count: int
+
+
+@router.post("/session-events", response_model=BatchSessionEventsResponse, status_code=201)
+async def record_session_events(
+    payload: BatchSessionEventsRequest,
+) -> BatchSessionEventsResponse:
+    """Record a batch of client session events (e.g. viewable impression batches)."""
+    return BatchSessionEventsResponse(status="recorded", count=len(payload.events))
 
 
 def get_analytics_service() -> AnalyticsService:

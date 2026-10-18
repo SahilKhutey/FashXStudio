@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from database.models.catalog import CanonicalGarment, CatalogSource, MerchantProduct
@@ -73,7 +73,7 @@ class IngestMerchantProductUseCase:
                     await self.uow.sources.flush()
                 source_id = source.id
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             # 1. Upsert MerchantProduct
             product = await self.uow.merchant_products.get_by_source_id(

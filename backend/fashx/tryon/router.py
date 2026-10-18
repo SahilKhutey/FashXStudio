@@ -36,7 +36,7 @@ def get_catalog_uow() -> CatalogUnitOfWork:
 
 
 class CreateTryOnJobRequest(BaseModel):
-    user_id: UUID
+    user_id: UUID | None = None
     garment_id: UUID
     render_config: dict[str, Any] | None = None
 
@@ -109,10 +109,20 @@ async def submit_tryon_job(
             detail="Virtual try-on processing is temporarily disabled for maintenance",
         )
 
-    if str(request.user_id) != principal.user_id:
+    effective_user_id = request.user_id or UUID(principal.user_id)
+    if str(effective_user_id) != principal.user_id:
         from fashx.security.errors import forbidden
 
         raise forbidden("Forbidden: user_id mismatch")
+
+    async with catalog_uow:
+        garment = await catalog_uow.canonical_garments.get_by_id(request.garment_id)
+        if garment is not None and not getattr(garment, "tryon_supported", True):
+            from fashx.core.errors import ValidationError
+
+            raise ValidationError(
+                "This garment is not supported for virtual try-on", field="garment_id"
+            )
 
     use_case = SubmitTryOnJobUseCase(
         tryon_uow=tryon_uow,
@@ -120,7 +130,7 @@ async def submit_tryon_job(
         catalog_uow=catalog_uow,
     )
     cmd = SubmitTryOnJobCommand(
-        user_id=request.user_id,
+        user_id=effective_user_id,
         garment_id=request.garment_id,
         idempotency_key=idempotency_key,
         render_config=request.render_config,

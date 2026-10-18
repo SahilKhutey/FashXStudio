@@ -1238,6 +1238,22 @@
               "default": 0.7,
               "title": "Diversity"
             }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
           }
         ],
         "responses": {
@@ -10780,6 +10796,48 @@
         }
       }
     },
+    "/api/v1/analytics/session-events": {
+      "post": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Record Session Events",
+        "description": "Record a batch of client session events (e.g. viewable impression batches).",
+        "operationId": "record_session_events_api_v1_analytics_session_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchSessionEventsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchSessionEventsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analytics/events": {
       "post": {
         "tags": [
@@ -12864,6 +12922,40 @@
         ],
         "title": "AttributeComparisonItemContract",
         "description": "Single attribute comparison row across multiple products (Section 9.31)."
+      },
+      "BatchSessionEventsRequest": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/SessionEventItem"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "title": "BatchSessionEventsRequest"
+      },
+      "BatchSessionEventsResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "recorded"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "BatchSessionEventsResponse"
       },
       "BorderWidthTokens": {
         "properties": {
@@ -15214,8 +15306,15 @@
       "CreateTryOnJobRequest": {
         "properties": {
           "user_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id"
           },
           "garment_id": {
@@ -15238,7 +15337,6 @@
         },
         "type": "object",
         "required": [
-          "user_id",
           "garment_id"
         ],
         "title": "CreateTryOnJobRequest"
@@ -17652,6 +17750,51 @@
           "stylist_explanation": {
             "type": "string",
             "title": "Stylist Explanation"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": ""
+          },
+          "brand": {
+            "type": "string",
+            "title": "Brand",
+            "default": ""
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "price_updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Updated At"
+          },
+          "reason_chips": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Chips"
+          },
+          "tryon_supported": {
+            "type": "boolean",
+            "title": "Tryon Supported",
+            "default": true
           }
         },
         "type": "object",
@@ -17688,6 +17831,35 @@
           "filtered_candidates": {
             "type": "integer",
             "title": "Filtered Candidates"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "relaxed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Relaxed"
+          },
+          "empty_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Empty Reason"
           }
         },
         "type": "object",
@@ -26712,6 +26884,56 @@
         ],
         "title": "SemanticSurfaces",
         "description": "Semantic surface roles (Section 2.3)."
+      },
+      "SessionEventItem": {
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "title": "Event Type",
+            "default": "impression"
+          },
+          "garment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Garment Id"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Properties"
+          }
+        },
+        "type": "object",
+        "title": "SessionEventItem"
       },
       "ShellLayoutMode": {
         "type": "string",

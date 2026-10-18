@@ -105,5 +105,59 @@
     "useToken": "Use token",
     "loginLink": "Developer Token Login",
     "backToSignIn": "Back to Sign In"
+  },
+  "tabs": {
+    "feed": "Feed",
+    "looks": "Looks",
+    "closet": "Closet"
+  },
+  "feed": {
+    "title": "For You",
+    "asOf": "as of {{date}}",
+    "tryonBadge": "Virtual Try-On",
+    "save": "Save",
+    "saved": "Saved to Closet",
+    "like": "Like",
+    "notInterested": "Not Interested",
+    "undo": "Undo",
+    "dismissed": "Item hidden",
+    "empty": "No garments found matching your preferences",
+    "emptySub": "Try updating your profile or style quiz picks.",
+    "relaxedBanner": "We broadened your recommendations to find more styles you may love.",
+    "loadingMore": "Loading more styles..."
+  },
+  "garment": {
+    "tryonButton": "Try On Now",
+    "tryonUnavailable": "Try-on not supported for this garment",
+    "buyNow": "Buy on Merchant",
+    "affiliateDisclosure": "We may earn a commission from qualifying purchases made via merchant links.",
+    "sizes": "Available Sizes",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "details": "Product Details"
+  },
+  "tryon": {
+    "title": "Virtual Try-On",
+    "statusQueued": "Preparing your try-on job...",
+    "statusProcessing": "Generating your personalized look...",
+    "statusQuality": "Running quality verification...",
+    "statusCompleted": "Your Try-On is Ready!",
+    "statusFailed": "Unable to generate try-on render",
+    "takingLonger": "Taking longer than usual, please hold on...",
+    "before": "Original",
+    "after": "Try-On",
+    "ratingTitle": "How realistic does this look?",
+    "feedbackChipUnnatural": "Fit looks unnatural",
+    "feedbackChipDistorted": "Garment distorted",
+    "feedbackChipColor": "Color inaccurate",
+    "feedbackChipArtifacts": "Blurry or artifacts",
+    "feedbackThanks": "Thanks for your feedback!",
+    "saveLook": "Save Look to Closet",
+    "savedLook": "Look saved to Closet!"
+  },
+  "looks": {
+    "title": "Try-On History",
+    "empty": "No try-on looks yet",
+    "emptySub": "Tap 'Try On' on any supported garment in the feed to see yourself in it."
   }
 }

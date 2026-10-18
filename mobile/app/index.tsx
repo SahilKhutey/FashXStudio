@@ -12,16 +12,20 @@ export default function HomeScreen() {
   const { data: me } = useMe(true);
 
   useEffect(() => {
-    if (me?.onboarding && !me.onboarding.complete) {
-      const missing = me.onboarding.missing || [];
-      if (missing.includes("consent")) {
-        router.replace("/onboarding/consent");
-      } else if (missing.includes("profile")) {
-        router.replace("/onboarding/profile");
-      } else if (missing.includes("style_quiz")) {
-        router.replace("/onboarding/quiz");
-      } else if (missing.includes("photo")) {
-        router.replace("/onboarding/capture");
+    if (me?.onboarding) {
+      if (!me.onboarding.complete) {
+        const missing = me.onboarding.missing || [];
+        if (missing.includes("consent")) {
+          router.replace("/onboarding/consent");
+        } else if (missing.includes("profile")) {
+          router.replace("/onboarding/profile");
+        } else if (missing.includes("style_quiz")) {
+          router.replace("/onboarding/quiz");
+        } else if (missing.includes("photo")) {
+          router.replace("/onboarding/capture");
+        }
+      } else {
+        router.replace("/(tabs)/feed");
       }
     }
   }, [me?.onboarding, router]);

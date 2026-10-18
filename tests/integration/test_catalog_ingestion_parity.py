@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 from collections.abc import AsyncGenerator
 from pathlib import Path
-from uuid import uuid4
 
 import pytest
 import pytest_asyncio
