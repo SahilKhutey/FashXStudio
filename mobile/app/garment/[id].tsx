@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useGarmentDetail } from "../../src/features/catalog/hooks";
 import { useStartTryOn } from "../../src/features/tryon/useTryOn";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
+import { useBuy } from "../../src/features/commerce/useBuy";
 import { Chip } from "../../src/components/Chip";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -27,6 +28,7 @@ export default function GarmentDetailScreen() {
   const { data: garment, isLoading, isError, refetch } = useGarmentDetail(id || "");
   const { mutateAsync: startTryOn, isPending: isStartingTryOn } = useStartTryOn();
   const { mutate: saveToWardrobe, isPending: isSavingWardrobe } = useSaveToWardrobe();
+  const { mutate: executeBuy, isPending: isBuying } = useBuy();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [tryOnError, setTryOnError] = useState<string | null>(null);
@@ -39,17 +41,6 @@ export default function GarmentDetailScreen() {
       router.push(`/tryon/${res.job_id}`);
     } catch (err: any) {
       setTryOnError(err?.detail || err?.message || "Failed to start try-on");
-    }
-  };
-
-  const handleBuy = async (url: string) => {
-    try {
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
-        await Linking.openURL(url);
-      }
-    } catch {
-      // Ignored
     }
   };
 
@@ -199,16 +190,19 @@ export default function GarmentDetailScreen() {
           </Text>
         </TouchableOpacity>
 
-        {primaryOffer?.url && (
-          <TouchableOpacity
-            style={styles.buyButton}
-            onPress={() => handleBuy(primaryOffer.url)}
-            accessibilityRole="button"
-            accessibilityLabel={t("garment.buyNow")}
-          >
+        <TouchableOpacity
+          style={styles.buyButton}
+          onPress={() => executeBuy(garment.id)}
+          disabled={isBuying}
+          accessibilityRole="button"
+          accessibilityLabel={t("garment.buyNow")}
+        >
+          {isBuying ? (
+            <ActivityIndicator color="#FFFFFF" size="small" />
+          ) : (
             <Text style={styles.buyButtonText}>{t("garment.buyNow")}</Text>
-          </TouchableOpacity>
-        )}
+          )}
+        </TouchableOpacity>
 
         {/* Try-On Button: STRICTLY gated on tryon_supported */}
         {garment.tryon_supported ? (

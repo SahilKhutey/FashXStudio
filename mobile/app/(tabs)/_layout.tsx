@@ -1,10 +1,11 @@
 import React from "react";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const router = useRouter();
 
   return (
     <Tabs
@@ -12,6 +13,16 @@ export default function TabLayout() {
         headerShown: true,
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
+        headerRight: () => (
+          <TouchableOpacity
+            style={styles.headerButton}
+            onPress={() => router.push("/settings")}
+            accessibilityRole="button"
+            accessibilityLabel="Settings"
+          >
+            <Text style={styles.headerButtonIcon}>⚙️</Text>
+          </TouchableOpacity>
+        ),
         tabBarActiveTintColor: "#4F46E5",
         tabBarInactiveTintColor: "#6B7280",
         tabBarStyle: styles.tabBar,
@@ -71,6 +82,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     color: "#111827",
+  },
+  headerButton: {
+    marginRight: 16,
+    padding: 6,
+  },
+  headerButtonIcon: {
+    fontSize: 18,
   },
   tabBar: {
     backgroundColor: "#FFFFFF",

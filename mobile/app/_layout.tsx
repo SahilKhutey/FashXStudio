@@ -35,7 +35,7 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
 
-  const { session, setSession, setMe, setIsLoading, isLoading, hasSession, setHasSession } =
+  const { session, setSession, setMe, setIsLoading, isLoading, hasSession, setHasSession, me } =
     useAuthStore();
   const [remoteConfig, setRemoteConfig] = useState<RemoteConfig | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
@@ -126,20 +126,59 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
     };
   }, [setSession, setMe, setIsLoading, setHasSession]);
 
-  // 3. Navigation routing based on auth state
+  // 3. Navigation routing based on auth state and onboarding gate
   useEffect(() => {
     if (isLoading || configLoading) return;
 
-    const inAuthGroup = segments[0] === "(auth)";
+    const segs = segments as unknown as string[];
+    const inAuthGroup = segs[0] === "(auth)";
+    const inOnboardingGroup = segs[0] === "onboarding";
 
     if (!hasSession && !inAuthGroup) {
       // Redirect to sign in if unauthenticated
       router.replace("/(auth)/sign-in");
-    } else if (hasSession && inAuthGroup) {
-      // Redirect to root if authenticated
-      router.replace("/");
+      return;
     }
-  }, [hasSession, segments, isLoading, configLoading, router]);
+
+    if (hasSession && inAuthGroup) {
+      // Redirect to feed if authenticated
+      router.replace("/(tabs)/feed");
+      return;
+    }
+
+    // Onboarding Gate: ensure missing steps cannot access the feed
+    if (hasSession && me?.onboarding) {
+      if (!me.onboarding.complete) {
+        const missing = me.onboarding.missing || [];
+        if (missing.includes("consent") && segs[1] !== "consent") {
+          router.replace("/onboarding/consent");
+        } else if (
+          missing.includes("profile") &&
+          segs[1] !== "profile" &&
+          !missing.includes("consent")
+        ) {
+          router.replace("/onboarding/profile");
+        } else if (
+          missing.includes("style_quiz") &&
+          segs[1] !== "quiz" &&
+          !missing.includes("consent") &&
+          !missing.includes("profile")
+        ) {
+          router.replace("/onboarding/quiz");
+        } else if (
+          missing.includes("photo") &&
+          segs[1] !== "capture" &&
+          !missing.includes("consent") &&
+          !missing.includes("profile") &&
+          !missing.includes("style_quiz")
+        ) {
+          router.replace("/onboarding/capture");
+        }
+      } else if (inOnboardingGroup) {
+        router.replace("/(tabs)/feed");
+      }
+    }
+  }, [hasSession, segments, isLoading, configLoading, me?.onboarding, router]);
 
   // Handle Maintenance Mode
   if (remoteConfig?.maintenance) {

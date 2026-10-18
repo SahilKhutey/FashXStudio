@@ -14,6 +14,7 @@ class GetJobStatusResult:
     failure_reason: str | None
     model_version: str
     pipeline_version: str
+    provider: str | None = "mock"
 
 
 class GetTryOnJobStatusUseCase:
@@ -42,4 +43,5 @@ class GetTryOnJobStatusUseCase:
                 failure_reason=job.failure_reason,
                 model_version=job.model_version,
                 pipeline_version=job.pipeline_version,
+                provider=getattr(job, "provider", None) or "mock",
             )

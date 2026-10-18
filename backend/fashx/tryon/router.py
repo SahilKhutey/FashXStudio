@@ -57,6 +57,7 @@ class TryOnJobStatusResponse(BaseModel):
     failure_reason: TryOnFailureReason | None = None
     model_version: str
     pipeline_version: str
+    provider: str | None = "mock"
 
 
 class TryOnJobListItem(BaseModel):
@@ -70,6 +71,7 @@ class TryOnJobListItem(BaseModel):
     pipeline_version: str
     created_at: datetime
     expires_at: datetime | None = None
+    provider: str | None = "mock"
 
 
 
@@ -182,6 +184,7 @@ async def list_tryon_jobs(
                     pipeline_version=j.pipeline_version,
                     created_at=j.created_at,
                     expires_at=expires_at,
+                    provider=getattr(j, "provider", None) or "mock",
                 )
             )
     return items
@@ -209,6 +212,7 @@ async def get_tryon_job_status(
         failure_reason=fail_reason,
         model_version=res.model_version,
         pipeline_version=res.pipeline_version,
+        provider=res.provider or "mock",
     )
 
 

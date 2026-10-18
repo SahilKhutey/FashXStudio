@@ -5794,20 +5794,14 @@ export interface components {
         /** BuyClickRequest */
         BuyClickRequest: {
             /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /**
              * Garment Id
              * Format: uuid
              */
             garment_id: string;
-            /**
-             * Offer Id
-             * Format: uuid
-             */
-            offer_id: string;
+            /** User Id */
+            user_id?: string | null;
+            /** Offer Id */
+            offer_id?: string | null;
         };
         /** BuyClickResponse */
         BuyClickResponse: {
@@ -7799,6 +7793,7 @@ export interface components {
             brand: string;
             /** Image Url */
             image_url?: string | null;
+            image?: components["schemas"]["SignedImageResponse"] | null;
             /** Price Updated At */
             price_updated_at?: string | null;
             /** Reason Chips */
@@ -12370,22 +12365,20 @@ export interface components {
         };
         /** SessionEventItem */
         SessionEventItem: {
-            /**
-             * Event Type
-             * @default impression
-             */
-            event_type: string;
+            /** @default impression */
+            event_type: components["schemas"]["SessionEventType"];
             /** Garment Id */
             garment_id?: string | null;
             /** Session Id */
             session_id?: string | null;
             /** Timestamp */
             timestamp?: string | null;
-            /** Properties */
-            properties?: {
-                [key: string]: unknown;
-            };
         };
+        /**
+         * SessionEventType
+         * @enum {string}
+         */
+        SessionEventType: "impression" | "click";
         /**
          * ShellLayoutMode
          * @description Active layout mode resolved from breakpoint (Section 3.29).
@@ -12503,6 +12496,13 @@ export interface components {
          * @enum {string}
          */
         SidebarMode: "expanded" | "collapsed" | "hidden";
+        /** SignedImageResponse */
+        SignedImageResponse: {
+            /** Url */
+            url: string;
+            /** Expires At */
+            expires_at?: string | null;
+        };
         /**
          * SizingScale
          * @description Component standard heights/sizes (Section 2.15).
@@ -13357,6 +13357,11 @@ export interface components {
             created_at: string;
             /** Expires At */
             expires_at?: string | null;
+            /**
+             * Provider
+             * @default mock
+             */
+            provider: string | null;
         };
         /** TryOnJobStatusResponse */
         TryOnJobStatusResponse: {
@@ -13375,6 +13380,11 @@ export interface components {
             model_version: string;
             /** Pipeline Version */
             pipeline_version: string;
+            /**
+             * Provider
+             * @default mock
+             */
+            provider: string | null;
         };
         /** TryOnJobSubmissionResponse */
         TryOnJobSubmissionResponse: {

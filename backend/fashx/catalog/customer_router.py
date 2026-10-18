@@ -74,7 +74,7 @@ async def _resolve_garment_detail(
                     id=o.id,
                     merchant_id=o.merchant_id,
                     source_product_id=o.source_product_id,
-                    url=o.url,
+                    url="",  # Redacted: raw merchant URLs must not be sent to client; use POST /commerce/buy-clicks
                     price_minor=o.price_minor,
                     currency=o.currency,
                     in_stock=o.in_stock,

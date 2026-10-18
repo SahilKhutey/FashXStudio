@@ -155,6 +155,15 @@ export default function TryOnJobScreen() {
       {/* Completed State */}
       {isCompleted && (
         <View style={styles.completedSection}>
+          {/* Label mock results */}
+          {((job as any).provider === "mock" || !(job as any).provider) && (
+            <View style={styles.mockBanner}>
+              <Text style={styles.mockBannerText}>
+                ⚠️ Preview only: not a real try-on
+              </Text>
+            </View>
+          )}
+
           {/* Before / After toggle & Image View */}
           <View style={styles.toggleRow}>
             <TouchableOpacity
@@ -192,15 +201,22 @@ export default function TryOnJobScreen() {
                 <Text style={styles.beforeLabel}>Original Profile Reference</Text>
               </View>
             ) : job.result_url ? (
-              <Image
-                source={{
-                  uri: job.result_url,
-                  cacheKey: job.result_url.split("?")[0],
-                }}
-                style={styles.resultImage}
-                contentFit="cover"
-                transition={200}
-              />
+              <View style={styles.resultContainer}>
+                <Image
+                  source={{
+                    uri: job.result_url,
+                    cacheKey: job.result_url.split("?")[0],
+                  }}
+                  style={styles.resultImage}
+                  contentFit="cover"
+                  transition={200}
+                />
+                {((job as any).provider === "mock" || !(job as any).provider) && (
+                  <View style={styles.watermarkOverlay}>
+                    <Text style={styles.watermarkText}>PREVIEW ONLY</Text>
+                  </View>
+                )}
+              </View>
             ) : (
               <View style={styles.beforePlaceholder}>
                 <Text style={styles.beforeIcon}>🖼️</Text>
@@ -519,5 +535,41 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: "#FFFFFF",
     fontWeight: "600",
+  },
+  mockBanner: {
+    backgroundColor: "#FEF3C7",
+    borderColor: "#FCD34D",
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  mockBannerText: {
+    color: "#92400E",
+    fontSize: 13,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  resultContainer: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  watermarkOverlay: {
+    position: "absolute",
+    bottom: 20,
+    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  watermarkText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1.5,
   },
 });

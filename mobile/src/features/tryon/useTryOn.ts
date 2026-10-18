@@ -42,7 +42,7 @@ export function useStartTryOn() {
   });
 }
 
-export function useJob(jobId: string | null) {
+export function useJob(jobId: string | null, isFocused = true) {
   const [pollCount, setPollCount] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
   const [isTakingLongerThanUsual, setIsTakingLongerThanUsual] = useState(false);
@@ -61,23 +61,37 @@ export function useJob(jobId: string | null) {
 
       // Check if elapsed time exceeds 120 seconds (2 minutes)
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      if (elapsed >= 120 && res.status !== "completed" && res.status !== "failed" && res.status !== "cancelled") {
+      if (
+        elapsed >= 120 &&
+        res.status !== "completed" &&
+        res.status !== "failed" &&
+        res.status !== "cancelled"
+      ) {
         setIsTakingLongerThanUsual(true);
       }
 
       return res;
     },
-    enabled: !!jobId,
+    enabled: !!jobId && isFocused,
     refetchInterval: (q) => {
+      if (!isFocused) return false;
+
       const status = q.state.data?.status;
       if (status === "completed" || status === "failed" || status === "cancelled") {
         return false;
       }
+
+      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      if (elapsed >= 600) {
+        // Ceiling: stop polling after 10 minutes (600s)
+        return false;
+      }
+
       // Exponential backoff: 1s -> 2s -> 4s -> 5s (capped at 5s)
       const backoffMs = Math.min(1000 * Math.pow(2, pollCount), 5000);
       return backoffMs;
     },
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   return {

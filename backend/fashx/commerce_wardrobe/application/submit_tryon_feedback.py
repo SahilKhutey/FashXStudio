@@ -53,11 +53,17 @@ class SubmitTryOnFeedbackUseCase:
             )
 
         async with self.uow:
+            from database.models.tryon import TryOnJob
+
+            job = await self.uow.session.get(TryOnJob, cmd.tryon_job_id)
+            provider = getattr(job, "provider", None) or "mock"
+
             feedback = TryOnFeedback(
                 user_id=cmd.user_id,
                 tryon_job_id=cmd.tryon_job_id,
                 visual_accuracy=cmd.visual_accuracy,
                 purchase_confidence=cmd.purchase_confidence,
+                provider=provider,
             )
             self.uow.tryon_feedback.add(feedback)
             await self.uow.commit()

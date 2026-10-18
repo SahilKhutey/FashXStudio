@@ -95,18 +95,17 @@ export function useSignal() {
   }, []);
 
   useEffect(() => {
-    return () => {
-      // Flush on unmount if any pending
-      if (pendingRef.current) {
-        clearTimeout(pendingRef.current.timerId);
-        mutation.mutate({
-          garmentId: pendingRef.current.garmentId,
-          action: pendingRef.current.action,
-        });
-        pendingRef.current = null;
+    const subscription = AppState.addEventListener("change", (nextState: AppStateStatus) => {
+      if (nextState === "background" || nextState === "inactive") {
+        flushPending();
       }
+    });
+
+    return () => {
+      subscription.remove();
+      flushPending();
     };
-  }, [mutation]);
+  }, [flushPending]);
 
   return {
     sendSignal,

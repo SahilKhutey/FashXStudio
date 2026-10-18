@@ -65,6 +65,7 @@ class TryOnFeedback(Base, UUIDPrimaryKeyMixin):
     tryon_job_id: Mapped[UUID] = mapped_column(ForeignKey("tryon_jobs.id", ondelete="CASCADE"))
     visual_accuracy: Mapped[str] = mapped_column(String(32), nullable=False)
     purchase_confidence: Mapped[int | None] = mapped_column(Integer)
+    provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

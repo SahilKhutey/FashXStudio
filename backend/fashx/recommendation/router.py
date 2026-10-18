@@ -25,6 +25,11 @@ def get_catalog_uow() -> CatalogUnitOfWork:
     return CatalogUnitOfWork(get_session_factory())
 
 
+class SignedImageResponse(BaseModel):
+    url: str
+    expires_at: datetime | None = None
+
+
 class FeedItemResponse(BaseModel):
     garment_id: UUID
     category: str
@@ -37,6 +42,7 @@ class FeedItemResponse(BaseModel):
     title: str = ""
     brand: str = ""
     image_url: str | None = None
+    image: SignedImageResponse | None = None
     price_updated_at: datetime | None = None
     reason_chips: list[str] = Field(default_factory=list)
     tryon_supported: bool = True

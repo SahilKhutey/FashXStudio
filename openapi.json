@@ -12930,9 +12930,11 @@
               "$ref": "#/components/schemas/SessionEventItem"
             },
             "type": "array",
+            "maxItems": 100,
             "title": "Events"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
           "events"
@@ -13526,27 +13528,39 @@
       },
       "BuyClickRequest": {
         "properties": {
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
           "garment_id": {
             "type": "string",
             "format": "uuid",
             "title": "Garment Id"
           },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
           "offer_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Offer Id"
           }
         },
         "type": "object",
         "required": [
-          "user_id",
-          "garment_id",
-          "offer_id"
+          "garment_id"
         ],
         "title": "BuyClickRequest"
       },
@@ -17771,6 +17785,16 @@
               }
             ],
             "title": "Image Url"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignedImageResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "price_updated_at": {
             "anyOf": [
@@ -26888,14 +26912,14 @@
       "SessionEventItem": {
         "properties": {
           "event_type": {
-            "type": "string",
-            "title": "Event Type",
+            "$ref": "#/components/schemas/SessionEventType",
             "default": "impression"
           },
           "garment_id": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "format": "uuid"
               },
               {
                 "type": "null"
@@ -26925,15 +26949,19 @@
               }
             ],
             "title": "Timestamp"
-          },
-          "properties": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Properties"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "title": "SessionEventItem"
+      },
+      "SessionEventType": {
+        "type": "string",
+        "enum": [
+          "impression",
+          "click"
+        ],
+        "title": "SessionEventType"
       },
       "ShellLayoutMode": {
         "type": "string",
@@ -27214,6 +27242,31 @@
         ],
         "title": "SidebarMode",
         "description": "Desktop sidebar display modes (Section 3.12)."
+      },
+      "SignedImageResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "SignedImageResponse"
       },
       "SizingScale": {
         "properties": {
@@ -28925,6 +28978,18 @@
               }
             ],
             "title": "Expires At"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider",
+            "default": "mock"
           }
         },
         "type": "object",
@@ -28981,6 +29046,18 @@
           "pipeline_version": {
             "type": "string",
             "title": "Pipeline Version"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider",
+            "default": "mock"
           }
         },
         "type": "object",

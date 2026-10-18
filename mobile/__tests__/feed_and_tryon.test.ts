@@ -43,22 +43,74 @@ describe("Visual Accuracy Rating Mapping", () => {
   });
 });
 
-describe("Try-on Polling Exponential Backoff", () => {
-  function getBackoffMs(pollCount: number): number {
-    return Math.min(1000 * Math.pow(2, pollCount), 5000);
+describe("Try-on Polling Exponential Backoff and Ceiling", () => {
+  function getRefetchInterval(options: {
+    isFocused: boolean;
+    status: string;
+    elapsedSeconds: number;
+    pollCount: number;
+  }): number | false {
+    if (!options.isFocused) return false;
+    if (
+      options.status === "completed" ||
+      options.status === "failed" ||
+      options.status === "cancelled"
+    ) {
+      return false;
+    }
+    if (options.elapsedSeconds >= 600) {
+      return false;
+    }
+    return Math.min(1000 * Math.pow(2, options.pollCount), 5000);
   }
 
   it("calculates exponential backoff capped at 5000ms", () => {
-    expect(getBackoffMs(0)).toBe(1000);
-    expect(getBackoffMs(1)).toBe(2000);
-    expect(getBackoffMs(2)).toBe(4000);
-    expect(getBackoffMs(3)).toBe(5000);
-    expect(getBackoffMs(4)).toBe(5000);
-    expect(getBackoffMs(10)).toBe(5000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 0, pollCount: 0 })
+    ).toBe(1000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 2, pollCount: 1 })
+    ).toBe(2000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 4, pollCount: 2 })
+    ).toBe(4000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 8, pollCount: 3 })
+    ).toBe(5000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 15, pollCount: 4 })
+    ).toBe(5000);
+  });
+
+  it("stops polling when screen is unfocused", () => {
+    expect(
+      getRefetchInterval({ isFocused: false, status: "processing", elapsedSeconds: 10, pollCount: 2 })
+    ).toBe(false);
+  });
+
+  it("stops polling at the 10-minute (600s) ceiling", () => {
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 599, pollCount: 10 })
+    ).toBe(5000);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 600, pollCount: 10 })
+    ).toBe(false);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "processing", elapsedSeconds: 650, pollCount: 10 })
+    ).toBe(false);
+  });
+
+  it("stops polling when job is in a terminal state", () => {
+    expect(
+      getRefetchInterval({ isFocused: true, status: "completed", elapsedSeconds: 10, pollCount: 2 })
+    ).toBe(false);
+    expect(
+      getRefetchInterval({ isFocused: true, status: "failed", elapsedSeconds: 10, pollCount: 2 })
+    ).toBe(false);
   });
 });
 
-describe("Signal 5-second Undo Timer", () => {
+describe("Signal 5-second Undo Timer and AppState Backgrounding", () => {
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -99,6 +151,159 @@ describe("Signal 5-second Undo Timer", () => {
 
     jest.advanceTimersByTime(1);
     expect(flushMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("immediately flushes pending signal when app moves to background", () => {
+    const flushMock = jest.fn();
+    let timerId: any = null;
+    let pending: { garmentId: string; action: string } | null = null;
+
+    const startSignal = (garmentId: string, action: string) => {
+      pending = { garmentId, action };
+      timerId = setTimeout(() => {
+        if (pending) {
+          flushMock(pending);
+          pending = null;
+        }
+      }, 5000);
+    };
+
+    const onAppStateChange = (state: string) => {
+      if (state === "background" || state === "inactive") {
+        if (timerId) {
+          clearTimeout(timerId);
+          timerId = null;
+        }
+        if (pending) {
+          flushMock(pending);
+          pending = null;
+        }
+      }
+    };
+
+    startSignal("garment-999", "not_interested");
+    expect(flushMock).not.toHaveBeenCalled();
+
+    // App transitions to background after 1.5 seconds
+    jest.advanceTimersByTime(1500);
+    onAppStateChange("background");
+
+    expect(flushMock).toHaveBeenCalledTimes(1);
+    expect(flushMock).toHaveBeenCalledWith({
+      garmentId: "garment-999",
+      action: "not_interested",
+    });
+
+    // Advance remainder of 5000ms - callback must not be invoked again
+    jest.advanceTimersByTime(5000);
+    expect(flushMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Onboarding Gating and Routing Architecture", () => {
+  function computeTargetRoute(
+    hasSession: boolean,
+    onboarding: { complete: boolean; missing: string[] } | null,
+    currentSegments: string[]
+  ): string | null {
+    const inAuthGroup = currentSegments[0] === "(auth)";
+    const inOnboardingGroup = currentSegments[0] === "onboarding";
+
+    if (!hasSession && !inAuthGroup) {
+      return "/(auth)/sign-in";
+    }
+    if (hasSession && inAuthGroup) {
+      return "/(tabs)/feed";
+    }
+    if (hasSession && onboarding) {
+      if (!onboarding.complete) {
+        const missing = onboarding.missing || [];
+        if (missing.includes("consent") && currentSegments[1] !== "consent") {
+          return "/onboarding/consent";
+        }
+        if (
+          missing.includes("profile") &&
+          currentSegments[1] !== "profile" &&
+          !missing.includes("consent")
+        ) {
+          return "/onboarding/profile";
+        }
+        if (
+          missing.includes("style_quiz") &&
+          currentSegments[1] !== "quiz" &&
+          !missing.includes("consent") &&
+          !missing.includes("profile")
+        ) {
+          return "/onboarding/quiz";
+        }
+        if (
+          missing.includes("photo") &&
+          currentSegments[1] !== "capture" &&
+          !missing.includes("consent") &&
+          !missing.includes("profile") &&
+          !missing.includes("style_quiz")
+        ) {
+          return "/onboarding/capture";
+        }
+      } else if (inOnboardingGroup) {
+        return "/(tabs)/feed";
+      }
+    }
+    return null;
+  }
+
+  it("prevents unconsented user from reaching feed and redirects to /onboarding/consent", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: false, missing: ["consent", "profile", "style_quiz", "photo"] },
+      ["(tabs)", "feed"]
+    );
+    expect(target).toBe("/onboarding/consent");
+  });
+
+  it("redirects user missing profile to /onboarding/profile", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: false, missing: ["profile", "style_quiz", "photo"] },
+      ["(tabs)", "feed"]
+    );
+    expect(target).toBe("/onboarding/profile");
+  });
+
+  it("redirects user missing style quiz to /onboarding/quiz", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: false, missing: ["style_quiz", "photo"] },
+      ["(tabs)", "feed"]
+    );
+    expect(target).toBe("/onboarding/quiz");
+  });
+
+  it("redirects user missing photo to /onboarding/capture", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: false, missing: ["photo"] },
+      ["(tabs)", "feed"]
+    );
+    expect(target).toBe("/onboarding/capture");
+  });
+
+  it("redirects completed onboarding users attempting to visit onboarding back to feed", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: true, missing: [] },
+      ["onboarding", "consent"]
+    );
+    expect(target).toBe("/(tabs)/feed");
+  });
+
+  it("allows completed user to remain on feed", () => {
+    const target = computeTargetRoute(
+      true,
+      { complete: true, missing: [] },
+      ["(tabs)", "feed"]
+    );
+    expect(target).toBeNull();
   });
 });
 

@@ -1,5 +1,6 @@
 """Feed router handling /api/v1/feed endpoints and user interaction signals."""
 
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 from uuid import UUID
 
@@ -20,6 +21,7 @@ from fashx.recommendation.application.generate_feed import (
 from fashx.recommendation.router import (
     FeedItemResponse,
     FeedResponse,
+    SignedImageResponse,
     get_catalog_uow,
     get_profile_uow,
 )
@@ -132,6 +134,14 @@ async def get_feed(
                 title=item.title,
                 brand=item.brand,
                 image_url=item.image_url,
+                image=(
+                    SignedImageResponse(
+                        url=item.image_url,
+                        expires_at=datetime.now(UTC) + timedelta(hours=1),
+                    )
+                    if item.image_url
+                    else None
+                ),
                 price_updated_at=item.price_updated_at,
                 reason_chips=item.reason_chips,
                 tryon_supported=item.tryon_supported,
