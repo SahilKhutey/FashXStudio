@@ -31,3 +31,9 @@ export function getErrorMessage(code: string, requestId?: string): string {
   }
   return ERROR_MESSAGES[code] || ERROR_MESSAGES.generic || "An unexpected error occurred.";
 }
+
+export function errorKey(code: string | undefined): string {
+  if (!code) return "common.error";
+  return `errors.${code}`;
+}
+

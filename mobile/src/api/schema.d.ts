@@ -269,6 +269,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/{user_id}/photos/{photo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Photo Endpoint
+         * @description Delete a single photo, cascading try-on jobs and queuing derived result media storage purge via outbox.
+         */
+        delete: operations["delete_photo_endpoint_api_v1_profile__user_id__photos__photo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/{user_id}/preferences": {
         parameters: {
             query?: never;
@@ -6318,6 +6338,19 @@ export interface components {
             screen_id: components["schemas"]["DetailScreenId"];
             view_model: components["schemas"]["ProductDetailViewModelContract"];
         };
+        /** ConfigResponse */
+        ConfigResponse: {
+            /** Min App Version */
+            min_app_version: string;
+            /** Maintenance */
+            maintenance: boolean;
+            /** Tryon Supported Categories */
+            tryon_supported_categories: string[];
+            /** Consent Version */
+            consent_version: string;
+            legal: components["schemas"]["LegalConfig"];
+            flags: components["schemas"]["FlagsConfig"];
+        };
         /**
          * ConfirmationTemplateSpecContract
          * @description SH10: Order confirmation and next actions (Section 7.47).
@@ -7956,6 +7989,11 @@ export interface components {
          * @enum {string}
          */
         FitVerdict: "too_tight" | "true_to_size" | "too_loose";
+        /** FlagsConfig */
+        FlagsConfig: {
+            /** Tryon */
+            tryon: boolean;
+        };
         /**
          * FocusTokens
          * @description Keyboard visible focus indicator tokens (Section 2.31).
@@ -8326,6 +8364,13 @@ export interface components {
              * @default viewport
              */
             scroll_behavior: string;
+        };
+        /** LegalConfig */
+        LegalConfig: {
+            /** Privacy Url */
+            privacy_url?: string | null;
+            /** Terms Url */
+            terms_url?: string | null;
         };
         /**
          * LineHeightTokens
@@ -9914,11 +9959,6 @@ export interface components {
              */
             expires_in: number;
         };
-        /**
-         * PhotoType
-         * @enum {string}
-         */
-        PhotoType: "skin_tone" | "tryon_reference";
         /** PilotFeedbackRequest */
         PilotFeedbackRequest: {
             /**
@@ -13500,13 +13540,6 @@ export interface components {
             /** Delivery Region */
             delivery_region?: string | null;
         };
-        /** UploadPhotoRequest */
-        UploadPhotoRequest: {
-            /** @default tryon_reference */
-            photo_type: components["schemas"]["PhotoType"];
-            /** Photo B64 */
-            photo_b64: string;
-        };
         /** UploadPhotoResponse */
         UploadPhotoResponse: {
             /**
@@ -14354,9 +14387,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ConfigResponse"];
                 };
             };
         };
@@ -14600,11 +14631,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UploadPhotoRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             201: {
@@ -14646,6 +14673,36 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PhotoSignedUrlResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_photo_endpoint_api_v1_profile__user_id__photos__photo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                photo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

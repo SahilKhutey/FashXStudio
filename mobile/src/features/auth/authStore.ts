@@ -7,8 +7,12 @@ import { setDevToken } from "../../lib/token";
 export interface UserMe {
   user_id: string;
   roles: string[];
-  consent_given?: boolean;
-  profile_completed?: boolean;
+  onboarding?: {
+    complete: boolean;
+    missing: string[];
+    consent_version_required: string;
+    consented_version: string | null;
+  };
 }
 
 interface AuthState {

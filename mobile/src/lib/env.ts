@@ -17,3 +17,8 @@ export const env: MobileEnv = {
     (typeof __DEV__ !== "undefined" ? Boolean(__DEV__) : process.env.NODE_ENV !== "production") &&
     process.env.EXPO_PUBLIC_DEV_TOKEN_LOGIN === "1",
 };
+
+export function isDevTokenEnabled(): boolean {
+  return env.devTokenLogin;
+}
+

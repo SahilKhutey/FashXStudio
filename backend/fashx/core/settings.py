@@ -96,6 +96,8 @@ class Settings(BaseSettings):
     maintenance_mode: bool = Field(default=False, validation_alias="MAINTENANCE_MODE")
     tryon_enabled: bool = Field(default=True, validation_alias="TRYON_ENABLED")
     consent_version: str = Field(default="2026.1", validation_alias="CONSENT_VERSION")
+    privacy_url: str | None = Field(default=None, validation_alias="PRIVACY_URL")
+    terms_url: str | None = Field(default=None, validation_alias="TERMS_URL")
     supabase_url: str | None = Field(default=None, validation_alias="SUPABASE_URL")
     supabase_secret_key: SecretStr | None = Field(
         default=None, validation_alias="SUPABASE_SECRET_KEY"
@@ -128,6 +130,8 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if self.tryon_provider == "mock":
                 raise ValueError("prod requires non-mock TRYON_PROVIDER (rule I08)")
+            if not self.privacy_url or not self.terms_url:
+                raise ValueError("prod requires PRIVACY_URL and TERMS_URL")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
         return self

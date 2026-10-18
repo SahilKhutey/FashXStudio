@@ -1,11 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../src/features/auth/authStore";
+import { useMe } from "../src/api/hooks";
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const { session, me, signOut } = useAuthStore();
+  const router = useRouter();
+  const { session, signOut } = useAuthStore();
+  const { data: me } = useMe(true);
+
+  useEffect(() => {
+    if (me?.onboarding && !me.onboarding.complete) {
+      const missing = me.onboarding.missing || [];
+      if (missing.includes("consent")) {
+        router.replace("/onboarding/consent");
+      } else if (missing.includes("profile")) {
+        router.replace("/onboarding/profile");
+      } else if (missing.includes("style_quiz")) {
+        router.replace("/onboarding/quiz");
+      } else if (missing.includes("photo")) {
+        router.replace("/onboarding/capture");
+      }
+    }
+  }, [me?.onboarding, router]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

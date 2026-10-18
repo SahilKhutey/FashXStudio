@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from fashx.core.database import get_session_factory
@@ -183,7 +183,7 @@ async def record_measurement(
 )
 async def upload_user_photo(
     user_id: UUID,
-    req: UploadPhotoRequest,
+    request: Request,
     principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
     storage: Any = Depends(get_storage),
@@ -191,10 +191,22 @@ async def upload_user_photo(
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
-    try:
-        raw_bytes = base64.b64decode(req.photo_b64)
-    except Exception:
-        raise ValidationError("Invalid base64 encoded photo payload", field="photo_b64") from None
+    content_type = request.headers.get("content-type", "")
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        file_obj = form.get("file")
+        if file_obj is None or not hasattr(file_obj, "read"):
+            raise ValidationError("Missing 'file' field in multipart form upload", field="file")
+        raw_bytes = await file_obj.read()
+        photo_type_val = form.get("photo_type", PhotoType.TRYON_REFERENCE.value)
+    else:
+        try:
+            body = await request.json()
+            req = UploadPhotoRequest.model_validate(body)
+            raw_bytes = base64.b64decode(req.photo_b64)
+            photo_type_val = req.photo_type
+        except Exception:
+            raise ValidationError("Invalid base64 encoded photo payload", field="photo_b64") from None
 
     from fashx.security.uploads import sanitize_photo
 
@@ -203,7 +215,7 @@ async def upload_user_photo(
     use_case = UploadUserPhotoUseCase(uow, storage=storage)
     cmd = UploadPhotoCommand(
         user_id=user_id,
-        photo_type=req.photo_type,
+        photo_type=photo_type_val,
         photo_bytes=sanitized_bytes,
     )
     res = await use_case.execute(cmd)

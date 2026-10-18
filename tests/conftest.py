@@ -114,12 +114,16 @@ def setup_test_identity_override():
     asyncio.run(_init_db())
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
+    from fashx.profile.router import get_profile_uow as get_router_profile_uow
+
     shared_repo = InMemoryIdentityRepo()
     main_app.dependency_overrides[get_identity_repo] = lambda: shared_repo
     main_app.dependency_overrides[get_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_router_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
     yield
     main_app.dependency_overrides.pop(get_identity_repo, None)
     main_app.dependency_overrides.pop(get_profile_uow, None)
+    main_app.dependency_overrides.pop(get_router_profile_uow, None)
     asyncio.run(engine.dispose())
 
 
