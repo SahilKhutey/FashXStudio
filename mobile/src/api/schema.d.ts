@@ -6803,11 +6803,6 @@ export interface components {
              * @default []
              */
             images: string[];
-            /**
-             * Offers
-             * @default []
-             */
-            offers: components["schemas"]["OfferDetail"][];
         };
         /** CustomerResponse */
         CustomerResponse: {

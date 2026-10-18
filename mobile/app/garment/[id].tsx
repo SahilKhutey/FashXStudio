@@ -64,7 +64,6 @@ export default function GarmentDetailScreen() {
   }
 
   const images = garment.images && garment.images.length > 0 ? garment.images : [];
-  const primaryOffer = garment.offers && garment.offers.length > 0 ? garment.offers[0] : null;
   const formattedPrice = `₹${(garment.price_minor / 100).toFixed(0)}`;
 
   return (

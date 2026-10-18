@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 from database.models.catalog import Brand
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
-from fashx.catalog.router import OfferDetail, get_catalog_uow
+from fashx.catalog.router import get_catalog_uow
 from fashx.core.errors import EntityNotFoundError
 from fashx.security.deps import Principal, get_principal
 
@@ -29,7 +29,6 @@ class CustomerGarmentDetailResponse(BaseModel):
     sizes_in_stock: list[str] = []
     tryon_supported: bool = True
     images: list[str] = []
-    offers: list[OfferDetail] = []
 
 
 async def _resolve_garment_detail(
@@ -69,18 +68,6 @@ async def _resolve_garment_detail(
             sizes_in_stock=garment.sizes_in_stock or [],
             tryon_supported=garment.tryon_supported,
             images=images,
-            offers=[
-                OfferDetail(
-                    id=o.id,
-                    merchant_id=o.merchant_id,
-                    source_product_id=o.source_product_id,
-                    url="",  # Redacted: raw merchant URLs must not be sent to client; use POST /commerce/buy-clicks
-                    price_minor=o.price_minor,
-                    currency=o.currency,
-                    in_stock=o.in_stock,
-                )
-                for o in offers
-            ],
         )
 
 

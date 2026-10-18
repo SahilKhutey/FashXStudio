@@ -15571,14 +15571,6 @@
             "type": "array",
             "title": "Images",
             "default": []
-          },
-          "offers": {
-            "items": {
-              "$ref": "#/components/schemas/OfferDetail"
-            },
-            "type": "array",
-            "title": "Offers",
-            "default": []
           }
         },
         "additionalProperties": false,

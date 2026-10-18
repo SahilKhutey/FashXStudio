@@ -46,6 +46,7 @@ export function useJob(jobId: string | null, isFocused = true) {
   const [pollCount, setPollCount] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
   const [isTakingLongerThanUsual, setIsTakingLongerThanUsual] = useState(false);
+  const wasUnfocusedRef = useRef(false);
 
   useEffect(() => {
     startTimeRef.current = Date.now();
@@ -72,7 +73,8 @@ export function useJob(jobId: string | null, isFocused = true) {
 
       return res;
     },
-    enabled: !!jobId && isFocused,
+    enabled: !!jobId,
+    refetchOnWindowFocus: true,
     refetchInterval: (q) => {
       if (!isFocused) return false;
 
@@ -93,6 +95,19 @@ export function useJob(jobId: string | null, isFocused = true) {
     },
     refetchIntervalInBackground: false,
   });
+
+  // Resume on focus: when returning from unfocused state, immediately refetch if not in terminal state
+  useEffect(() => {
+    if (!isFocused) {
+      wasUnfocusedRef.current = true;
+    } else if (wasUnfocusedRef.current && jobId) {
+      wasUnfocusedRef.current = false;
+      const status = query.data?.status;
+      if (status !== "completed" && status !== "failed" && status !== "cancelled") {
+        query.refetch();
+      }
+    }
+  }, [isFocused, jobId, query]);
 
   return {
     ...query,

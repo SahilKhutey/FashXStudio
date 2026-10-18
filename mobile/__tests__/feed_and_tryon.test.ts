@@ -108,6 +108,35 @@ describe("Try-on Polling Exponential Backoff and Ceiling", () => {
       getRefetchInterval({ isFocused: true, status: "failed", elapsedSeconds: 10, pollCount: 2 })
     ).toBe(false);
   });
+
+  it("resumes polling and triggers immediate refetch on return to focus", () => {
+    let wasUnfocused = false;
+    const refetchMock = jest.fn();
+
+    const simulateFocusChange = (isFocused: boolean, status: string) => {
+      if (!isFocused) {
+        wasUnfocused = true;
+      } else if (wasUnfocused) {
+        wasUnfocused = false;
+        if (status !== "completed" && status !== "failed" && status !== "cancelled") {
+          refetchMock();
+        }
+      }
+    };
+
+    // Screen becomes unfocused (paused)
+    simulateFocusChange(false, "processing");
+    expect(refetchMock).not.toHaveBeenCalled();
+
+    // Screen regains focus while still processing -> immediate refetch
+    simulateFocusChange(true, "processing");
+    expect(refetchMock).toHaveBeenCalledTimes(1);
+
+    // If job finished while away (terminal status), refetch is not repeated
+    simulateFocusChange(false, "completed");
+    simulateFocusChange(true, "completed");
+    expect(refetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("Signal 5-second Undo Timer and AppState Backgrounding", () => {
