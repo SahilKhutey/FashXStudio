@@ -23,10 +23,15 @@ from .base import Base, UUIDPrimaryKeyMixin
 
 class TryOnJob(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_jobs"
+    __table_args__ = (
+        Index("ix_tryon_jobs_user_id", "user_id", "created_at"),
+        UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
+        UniqueConstraint("artifact_key", name="uq_tryon_jobs_artifact_key"),
+    )
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     garment_id: Mapped[UUID] = mapped_column(
-        ForeignKey("canonical_garments.id", ondelete="CASCADE"), index=True
+        ForeignKey("canonical_garments.id", ondelete="CASCADE")
     )
     profile_photo_id: Mapped[UUID] = mapped_column(
         ForeignKey("user_photos.id", ondelete="CASCADE")
@@ -50,12 +55,7 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     last_error: Mapped[str | None] = mapped_column(Text)
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)
-    provider_job_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    __table_args__ = (
-        UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
-        UniqueConstraint("artifact_key", name="uq_tryon_artifact_key"),
-    )
+    provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
 
 class TryOnArtifact(Base, UUIDPrimaryKeyMixin):

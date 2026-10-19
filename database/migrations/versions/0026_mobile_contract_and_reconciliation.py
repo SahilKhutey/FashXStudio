@@ -16,9 +16,12 @@ depends_on: str | Sequence[str] | None = None
 
 
 def _fk_name(bind, table: str, ref_table: str, column: str) -> str | None:
-    for fk in sa.inspect(bind).get_foreign_keys(table):
-        if fk["referred_table"] == ref_table and fk["constrained_columns"] == [column]:
-            return fk["name"]
+    try:
+        for fk in sa.inspect(bind).get_foreign_keys(table):
+            if fk["referred_table"] == ref_table and fk["constrained_columns"] == [column]:
+                return fk["name"]
+    except Exception:
+        pass
     return None
 
 

@@ -15,7 +15,7 @@ class MediaObject(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "media_objects"
 
     user_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
     kind: Mapped[str] = mapped_column(String(32), nullable=False)
     object_key: Mapped[str] = mapped_column(Text, nullable=False, unique=True)

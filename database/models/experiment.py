@@ -22,7 +22,7 @@ class ExperimentExposure(Base, UUIDPrimaryKeyMixin):
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    experiment: Mapped[str] = mapped_column(Text, nullable=False)
+    experiment: Mapped[str] = mapped_column(Text, nullable=False, index=True)
     variant: Mapped[str] = mapped_column(Text, nullable=False)
     first_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

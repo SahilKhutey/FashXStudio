@@ -61,8 +61,11 @@ class ConsentRecord(Base):
 
 class UserPhoto(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "user_photos"
+    __table_args__ = (
+        Index("ix_user_photos_user_id", "user_id", "photo_type"),
+    )
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     photo_type: Mapped[str] = mapped_column(String(32), nullable=False)
     storage_key: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)

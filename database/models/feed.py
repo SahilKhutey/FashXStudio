@@ -16,7 +16,7 @@ class FeedImpression(Base, UUIDPrimaryKeyMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     session_id: Mapped[UUID] = mapped_column(nullable=False)
     garment_id: Mapped[UUID] = mapped_column(nullable=False)
