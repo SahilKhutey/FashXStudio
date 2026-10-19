@@ -2,11 +2,13 @@ import base64
 
 from fastapi.testclient import TestClient
 
+from fashx.core.settings import Settings
 from fashx.main import create_app
 
 
 def get_client() -> TestClient:
-    app = create_app()
+    settings = Settings(enable_b2b=True)
+    app = create_app(settings)
     return TestClient(app)
 
 

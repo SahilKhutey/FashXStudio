@@ -23,7 +23,13 @@ FROZEN_DIRS = {
     "fulfillment",
     "returns",
 }
-FROZEN_FILES = {"test_cross_core.py"}
+FROZEN_FILES = {"test_cross_core.py", "test_visual_shopping_router.py"}
+FROZEN_NAME_SUBSTRINGS = (
+    "to_cart",
+    "to_shopping_cart",
+    "shopping_cart",
+    "commerce_loop",
+)
 
 # Enable frozen routers if running all tests or specifically running frozen tests,
 # unless "not frozen" is specified in the pytest marker argument.
@@ -38,7 +44,11 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(items):
     for item in items:
         p = pathlib.Path(str(item.fspath))
-        if FROZEN_DIRS & set(p.parts) or p.name in FROZEN_FILES:
+        if (
+            FROZEN_DIRS & set(p.parts)
+            or p.name in FROZEN_FILES
+            or any(sub in item.name for sub in FROZEN_NAME_SUBSTRINGS)
+        ):
             item.add_marker(pytest.mark.frozen)
 
 

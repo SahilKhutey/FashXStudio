@@ -11,6 +11,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+        populate_by_name=True,
     )
 
     env: Literal["dev", "test", "prod"] = Field(default="dev", validation_alias="ENV")
@@ -35,6 +36,10 @@ class Settings(BaseSettings):
     enable_frozen: bool = Field(
         default=False,
         validation_alias="FASHX_ENABLE_FROZEN",
+    )
+    enable_b2b: bool = Field(
+        default=False,
+        validation_alias="ENABLE_B2B",
     )
     feature_flags: dict[str, bool] = Field(
         default_factory=dict,
@@ -134,6 +139,8 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires PRIVACY_URL and TERMS_URL")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
+            if self.enable_b2b:
+                raise ValueError("ENABLE_B2B must be false in prod for MVP")
         return self
 
 

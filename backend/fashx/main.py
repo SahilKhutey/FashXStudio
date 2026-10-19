@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,8 +21,9 @@ from fashx.tryon.router import router as tryon_router
 from fashx.visual.router import router as visual_router
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+def create_app(settings: Any | None = None) -> FastAPI:
+    if settings is None:
+        settings = get_settings()
     configure_logging(settings.log_level)
     configure_sentry()
 
@@ -89,43 +92,45 @@ def create_app() -> FastAPI:
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(pilot_router, dependencies=[Depends(get_principal)])
 
-    from fashx.b2b.dashboard import router as b2b_merchant_router
-    from fashx.b2b.widget import router as b2b_widget_router
+    if settings.enable_b2b:
+        from fashx.b2b.dashboard import router as b2b_merchant_router
+        from fashx.b2b.widget import router as b2b_widget_router
 
-    app.include_router(b2b_widget_router)
-    app.include_router(b2b_merchant_router)
-    app.include_router(b2b_merchant_router, prefix="/api/v1")
+        app.include_router(b2b_widget_router)
+        app.include_router(b2b_merchant_router)
+        app.include_router(b2b_merchant_router, prefix="/api/v1")
 
-    if settings.env != "prod":
-        import hashlib
-        import hmac
-        import time
+    if settings.env in ("dev", "test") and settings.storage_backend == "local":
         from pathlib import Path
-        from typing import Any
 
-        from fastapi import Response
-        from fastapi.responses import JSONResponse
+        from fastapi import HTTPException
+        from fastapi.responses import FileResponse
 
         from fashx.core.dependencies import get_storage
 
+        dev_storage_root = Path(settings.local_storage_dir).resolve()
+        DEV_MIME = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".webp": "image/webp",
+        }
+
         @app.get("/dev-files/{file_path:path}", include_in_schema=False)
-        async def serve_dev_file(
+        def serve_dev_file(
             file_path: str,
             exp: int = 0,
             sig: str = "",
             storage: Any = Depends(get_storage),
-        ) -> Response:
-            now = int(time.time())
-            if exp < now:
-                return JSONResponse(status_code=403, content={"detail": "URL expired"})
-            expected_sig = hmac.new(b"dev-secret", f"{file_path}:{exp}".encode(), hashlib.sha256).hexdigest()[:16]
-            if not hmac.compare_digest(sig, expected_sig):
-                return JSONResponse(status_code=403, content={"detail": "Invalid signature"})
-            storage_dir = getattr(storage, "root", Path(settings.local_storage_dir))
-            storage_path = Path(storage_dir) / file_path
-            if not storage_path.is_file():
-                return JSONResponse(status_code=404, content={"detail": "File not found"})
-            return Response(content=storage_path.read_bytes(), media_type="image/jpeg")
+        ) -> FileResponse:
+            verify_fn = getattr(storage, "verify", None)
+            if not verify_fn or not verify_fn(file_path, exp, sig):
+                raise HTTPException(status_code=403, detail="Invalid or expired signature")
+            root = Path(getattr(storage, "root", dev_storage_root)).resolve()
+            p = (root / file_path).resolve()
+            if root not in p.parents or not p.is_file() or p.suffix.lower() not in DEV_MIME:
+                raise HTTPException(status_code=404, detail="File not found")
+            return FileResponse(p, media_type=DEV_MIME[p.suffix.lower()], headers={"Cache-Control": "no-store"})
 
     from fashx.api.v1.analytics import router as analytics_router
     from fashx.api.v1.cart import router as cart_router
@@ -162,14 +167,17 @@ def create_app() -> FastAPI:
 
     enable_frozen = settings.enable_frozen or os.getenv("FASHX_ENABLE_FROZEN", "0") == "1"
     if enable_frozen:
-        app.include_router(inventory_router, prefix="/api/v1")
-        app.include_router(promotions_router, prefix="/api/v1")
-        app.include_router(cart_router, prefix="/api/v1")
-        app.include_router(checkout_router, prefix="/api/v1")
-        app.include_router(orders_router, prefix="/api/v1")
-        app.include_router(payments_router, prefix="/api/v1")
-        app.include_router(fulfillment_router, prefix="/api/v1")
-        app.include_router(returns_router, prefix="/api/v1")
+        from fashx.visual.router import visual_shopping_frozen_router
+
+        app.include_router(visual_shopping_frozen_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(inventory_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(promotions_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(cart_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(checkout_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(orders_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(payments_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(fulfillment_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(returns_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
 
 
     @app.get("/", tags=["system"])
