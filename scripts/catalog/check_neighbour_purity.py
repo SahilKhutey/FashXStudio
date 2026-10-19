@@ -40,7 +40,6 @@ async def evaluate_neighbour_purity(
             print(f"Need at least 6 embedded garments to evaluate 5 nearest neighbours (found {len(rows)}).")
             return {"count": len(rows), "purity": 0.0, "chance": 0.0}
 
-        ids = [r[0] for r in rows]
         titles = [r[1] or "Unknown" for r in rows]
         cats = [r[2] for r in rows]
         vectors = [r[3] for r in rows]

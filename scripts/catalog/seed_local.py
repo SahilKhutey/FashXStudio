@@ -17,7 +17,7 @@ import asyncio
 import csv
 import hashlib
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -163,7 +163,7 @@ async def seed_local_catalog(
                 continue
 
             # APPLY MODE:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             # Put image into storage
             if img_bytes:
