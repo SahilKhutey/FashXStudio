@@ -38,6 +38,13 @@ class WardrobeRepository(BaseRepository[WardrobeItem]):
         )
         return await self.session.scalar(stmt)
 
+    async def get_by_id_and_user(self, item_id: UUID, user_id: UUID) -> WardrobeItem | None:
+        stmt = select(WardrobeItem).where(
+            WardrobeItem.id == item_id,
+            WardrobeItem.user_id == user_id,
+        )
+        return await self.session.scalar(stmt)
+
 
 class BuyClickRepository(BaseRepository[BuyClick]):
     def __init__(self, session: AsyncSession) -> None:
@@ -57,6 +64,18 @@ class BuyClickRepository(BaseRepository[BuyClick]):
 class FitFeedbackRepository(BaseRepository[FitFeedback]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session, FitFeedback)
+
+    async def get_by_user_and_garment(self, user_id: UUID, garment_id: UUID) -> FitFeedback | None:
+        stmt = select(FitFeedback).where(
+            FitFeedback.user_id == user_id,
+            FitFeedback.garment_id == garment_id,
+        )
+        return await self.session.scalar(stmt)
+
+    async def list_for_user(self, user_id: UUID) -> Sequence[FitFeedback]:
+        stmt = select(FitFeedback).where(FitFeedback.user_id == user_id)
+        result = await self.session.scalars(stmt)
+        return result.all()
 
     async def list_for_brand(
         self, brand_id: UUID, category: str | None = None

@@ -686,7 +686,11 @@ export interface paths {
         delete: operations["remove_from_wardrobe_api_v1_wardrobe_items__item_id__delete"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Mark Purchased
+         * @description Mark a wardrobe item as purchased (scoped to owner).
+         */
+        patch: operations["mark_purchased_api_v1_wardrobe_items__item_id__patch"];
         trace?: never;
     };
     "/api/v1/commerce/buy-clicks": {
@@ -1485,276 +1489,6 @@ export interface paths {
          * @description Generate product comparison matrix.
          */
         post: operations["post_compare_products_api_v1_visual_shopping_compare_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/cart": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user shopping cart
-         * @description Retrieve active user cart.
-         */
-        get: operations["get_cart_api_v1_visual_shopping_cart_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/cart/add": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add product variant to shopping cart
-         * @description Add item to cart and recompute summary.
-         */
-        post: operations["post_add_to_cart_api_v1_visual_shopping_cart_add_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/cart/update": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Update quantity or remove item from shopping cart
-         * @description Update line item quantity.
-         */
-        post: operations["post_update_cart_quantity_api_v1_visual_shopping_cart_update_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/cart/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Validate cart before proceeding to checkout
-         * @description Validate cart readiness.
-         */
-        get: operations["get_cart_validation_api_v1_visual_shopping_cart_validate_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/wishlist/toggle": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Toggle product presence in user wishlist
-         * @description Execute wishlist toggle.
-         */
-        post: operations["post_toggle_wishlist_api_v1_visual_shopping_wishlist_toggle_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/home": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH01: Shopping Home template */
-        get: operations["get_template_shopping_home_api_v1_visual_shopping_templates_home_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/category/{category_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH02: Category browsing template */
-        get: operations["get_template_category_api_v1_visual_shopping_templates_category__category_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/product-detail/{product_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH07-adjacent: Product Detail template */
-        get: operations["get_template_product_detail_api_v1_visual_shopping_templates_product_detail__product_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/wishlist": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH05: Wishlist template */
-        get: operations["get_template_wishlist_api_v1_visual_shopping_templates_wishlist_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/cart": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH06: Shopping Cart template */
-        get: operations["get_template_cart_api_v1_visual_shopping_templates_cart_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/checkout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH08: Progressive Checkout template */
-        get: operations["get_template_checkout_api_v1_visual_shopping_templates_checkout_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/order-review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH09: Order Review template */
-        get: operations["get_template_order_review_api_v1_visual_shopping_templates_order_review_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/confirmation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH10: Order Confirmation template */
-        get: operations["get_template_confirmation_api_v1_visual_shopping_templates_confirmation_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH11: Customer Order History template */
-        get: operations["get_template_orders_api_v1_visual_shopping_templates_orders_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/visual/shopping/templates/order-detail/{order_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** SH12: Order Detail template */
-        get: operations["get_template_order_detail_api_v1_visual_shopping_templates_order_detail__order_id__get"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3869,186 +3603,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/widget/v1/session": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create Widget Session
-         * @description Create an ephemeral 24-hour shopper session for the embedded storefront widget.
-         */
-        post: operations["create_widget_session_widget_v1_session_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/widget/v1/tryon": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit Widget Tryon
-         * @description Generate virtual try-on and fit recommendation for the active session.
-         */
-        post: operations["submit_widget_tryon_widget_v1_tryon_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/widget/v1/session/{session_token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Widget Session
-         * @description Retrieve the status and remaining time for a widget session.
-         */
-        get: operations["get_widget_session_widget_v1_session__session_token__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/merchant/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Merchant Dashboard
-         * @description Retrieve operational dashboard summary and return-reduction ROI for merchant.
-         */
-        get: operations["get_merchant_dashboard_merchant_dashboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/merchant/analytics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Merchant Analytics
-         * @description Retrieve detailed shopper conversion funnel and size selection metrics.
-         */
-        get: operations["get_merchant_analytics_merchant_analytics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/merchant/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sync Merchant Product
-         * @description Sync or register a product from merchant catalog for fit processing.
-         */
-        post: operations["sync_merchant_product_merchant_products_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/merchant/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Merchant Dashboard
-         * @description Retrieve operational dashboard summary and return-reduction ROI for merchant.
-         */
-        get: operations["get_merchant_dashboard_api_v1_merchant_dashboard_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/merchant/analytics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Merchant Analytics
-         * @description Retrieve detailed shopper conversion funnel and size selection metrics.
-         */
-        get: operations["get_merchant_analytics_api_v1_merchant_analytics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/merchant/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Sync Merchant Product
-         * @description Sync or register a product from merchant catalog for fit processing.
-         */
-        post: operations["sync_merchant_product_api_v1_merchant_products_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/fashion/taxonomy": {
         parameters: {
             query?: never;
@@ -5203,23 +4757,6 @@ export interface components {
                 [key: string]: string;
             };
         };
-        /**
-         * AddToCartRequestContract
-         * @description Payload to add a product variant to the cart (Section 7.31).
-         */
-        AddToCartRequestContract: {
-            /** Product Id */
-            product_id: string;
-            /**
-             * Quantity
-             * @default 1
-             */
-            quantity: number;
-            /** Selected Variants */
-            selected_variants?: {
-                [key: string]: string;
-            };
-        };
         /** AddressCreateRequest */
         AddressCreateRequest: {
             /**
@@ -5947,182 +5484,11 @@ export interface components {
             display_tags: boolean;
         };
         /**
-         * CartContract
-         * @description Active shopping cart state (Section 7.36).
-         */
-        CartContract: {
-            /** Cart Id */
-            cart_id: string;
-            /** Items */
-            items?: components["schemas"]["CartItemContract"][];
-            summary: components["schemas"]["CartSummaryContract"];
-            /** @default ready */
-            state: components["schemas"]["ShoppingState"];
-            /** Validation Errors */
-            validation_errors?: string[];
-        };
-        /**
-         * CartItemContract
-         * @description Cart item with variant selection, quantity, and line price (Section 7.36).
-         */
-        CartItemContract: {
-            /** Item Id */
-            item_id: string;
-            /** Product Id */
-            product_id: string;
-            /** Title */
-            title: string;
-            /** Brand */
-            brand: string;
-            /** Media Uri */
-            media_uri: string;
-            /** Selected Variants */
-            selected_variants?: {
-                [key: string]: string;
-            };
-            /**
-             * Quantity
-             * @default 1
-             */
-            quantity: number;
-            unit_price: components["schemas"]["PriceSpecContract"];
-            total_price: components["schemas"]["PriceSpecContract"];
-            /** @default in_stock */
-            availability: components["schemas"]["schemas__visual__shopping__ProductAvailabilityState"];
-        };
-        /**
-         * CartSummaryContract
-         * @description Authoritative order financial breakdown (Section 7.37).
-         */
-        CartSummaryContract: {
-            /**
-             * Subtotal
-             * @default 0
-             */
-            subtotal: number;
-            /**
-             * Discount
-             * @default 0
-             */
-            discount: number;
-            /**
-             * Delivery Fee
-             * @default 0
-             */
-            delivery_fee: number;
-            /**
-             * Total
-             * @default 0
-             */
-            total: number;
-            /**
-             * Currency Symbol
-             * @default ₹
-             */
-            currency_symbol: string;
-            /**
-             * Item Count
-             * @default 0
-             */
-            item_count: number;
-        };
-        /**
-         * CartTemplateSpecContract
-         * @description SH06: Shopping Cart template (Section 7.36).
-         */
-        CartTemplateSpecContract: {
-            /** @default SH06 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            cart: components["schemas"]["CartContract"];
-            /** Suggested Cross Sell Ids */
-            suggested_cross_sell_ids?: string[];
-        };
-        /**
-         * CartValidationResultContract
-         * @description Pre-checkout cart validation report (Section 7.40).
-         */
-        CartValidationResultContract: {
-            /** Is Valid */
-            is_valid: boolean;
-            /**
-             * Has Price Change
-             * @default false
-             */
-            has_price_change: boolean;
-            /**
-             * Has Out Of Stock
-             * @default false
-             */
-            has_out_of_stock: boolean;
-            /** Messages */
-            messages?: string[];
-        };
-        /**
-         * CategoryTemplateSpecContract
-         * @description SH02: Category browsing screen with subcategory hierarchy (Section 7.7).
-         */
-        CategoryTemplateSpecContract: {
-            /** @default SH02 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            /** Category Id */
-            category_id: string;
-            /** Category Name */
-            category_name: string;
-            /** Parent Category Name */
-            parent_category_name?: string | null;
-            /** Subcategories */
-            subcategories?: {
-                [key: string]: string;
-            }[];
-            /** Featured Product Ids */
-            featured_product_ids?: string[];
-        };
-        /**
          * CheckoutLayoutType
          * @description Commercial checkout adaptation (Section 14.44 & 14.45).
          * @enum {string}
          */
         CheckoutLayoutType: "desktop_2_column" | "mobile_accordion_sticky";
-        /**
-         * CheckoutStateContract
-         * @description Multi-step checkout session state (Section 7.41 - 7.44).
-         */
-        CheckoutStateContract: {
-            /** Checkout Id */
-            checkout_id: string;
-            /** @default contact */
-            current_step: components["schemas"]["CheckoutStep"];
-            cart: components["schemas"]["CartContract"];
-            delivery_address?: components["schemas"]["DeliveryAddressContract"] | null;
-            delivery_method?: components["schemas"]["DeliveryMethodContract"] | null;
-            payment_method?: components["schemas"]["PaymentMethodContract"] | null;
-            /**
-             * Is Ready To Place
-             * @default false
-             */
-            is_ready_to_place: boolean;
-        };
-        /**
-         * CheckoutStep
-         * @description Progressive checkout step model (Section 7.43).
-         * @enum {string}
-         */
-        CheckoutStep: "contact" | "address" | "delivery" | "payment" | "review" | "confirmation";
-        /**
-         * CheckoutTemplateSpecContract
-         * @description SH08: Progressive Checkout template (Section 7.41).
-         */
-        CheckoutTemplateSpecContract: {
-            /** @default SH08 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            checkout_state: components["schemas"]["CheckoutStateContract"];
-            /** Available Addresses */
-            available_addresses?: components["schemas"]["DeliveryAddressContract"][];
-            /** Available Delivery Methods */
-            available_delivery_methods?: components["schemas"]["DeliveryMethodContract"][];
-            /** Available Payment Methods */
-            available_payment_methods?: components["schemas"]["PaymentMethodContract"][];
-        };
         /**
          * CityTemplateSpecContract
          * @description M06: City and urban fashion hub canvas specification (Section 11.23).
@@ -6380,31 +5746,6 @@ export interface components {
             legal: components["schemas"]["LegalConfig"];
             flags: components["schemas"]["FlagsConfig"];
         };
-        /**
-         * ConfirmationTemplateSpecContract
-         * @description SH10: Order confirmation and next actions (Section 7.47).
-         */
-        ConfirmationTemplateSpecContract: {
-            /** @default SH10 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            /** Order Number */
-            order_number: string;
-            /** Order Id */
-            order_id: string;
-            /** Placed At */
-            placed_at: string;
-            /** Estimated Delivery */
-            estimated_delivery: string;
-            /** Items Count */
-            items_count: number;
-            /** Total Amount */
-            total_amount: number;
-            /**
-             * Currency Symbol
-             * @default ₹
-             */
-            currency_symbol: string;
-        };
         /** ConsentCreateRequest */
         ConsentCreateRequest: {
             /**
@@ -6628,38 +5969,6 @@ export interface components {
                 [key: string]: boolean;
             };
         };
-        /** CreateSessionRequest */
-        CreateSessionRequest: {
-            /**
-             * External Product Id
-             * @description External Shopify/store product ID
-             */
-            external_product_id: string;
-            /**
-             * Category
-             * @description Garment category
-             * @default kurta
-             */
-            category: string | null;
-        };
-        /** CreateSessionResponse */
-        CreateSessionResponse: {
-            /** Session Token */
-            session_token: string;
-            /** Tenant Name */
-            tenant_name: string;
-            /** Expires At */
-            expires_at: string;
-            /**
-             * Ephemeral Guarantee
-             * @default Shopper data is purged automatically within 24h. DPDP Compliant.
-             */
-            ephemeral_guarantee: string;
-            /** Theme */
-            theme?: {
-                [key: string]: unknown;
-            };
-        };
         /** CreateTryOnJobRequest */
         CreateTryOnJobRequest: {
             /** User Id */
@@ -6843,38 +6152,6 @@ export interface components {
          */
         DataType: "body_photo" | "measurements" | "camera_feed" | "personalization" | "model_training";
         /**
-         * DeliveryAddressContract
-         * @description Customer delivery address specification (Section 7.41).
-         */
-        DeliveryAddressContract: {
-            /** Id */
-            id: string;
-            /** Full Name */
-            full_name: string;
-            /** Address Line1 */
-            address_line1: string;
-            /** Address Line2 */
-            address_line2?: string | null;
-            /** City */
-            city: string;
-            /** State */
-            state: string;
-            /** Postal Code */
-            postal_code: string;
-            /**
-             * Country
-             * @default India
-             */
-            country: string;
-            /** Phone */
-            phone: string;
-            /**
-             * Is Default
-             * @default false
-             */
-            is_default: boolean;
-        };
-        /**
          * DeliveryInfoContract
          * @description Authoritative delivery estimate and cost breakdown (Section 7.21).
          */
@@ -6893,25 +6170,6 @@ export interface components {
             is_free_delivery: boolean;
             /** Postal Code */
             postal_code?: string | null;
-        };
-        /**
-         * DeliveryMethodContract
-         * @description Selected shipping and logistics speed option (Section 7.41).
-         */
-        DeliveryMethodContract: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Description */
-            description: string;
-            /**
-             * Fee
-             * @default 0
-             */
-            fee: number;
-            /** Estimated Time */
-            estimated_time: string;
         };
         /**
          * DensityScaleMultipliers
@@ -7982,24 +7240,20 @@ export interface components {
         FilterType: "checkbox" | "radio" | "range" | "swatch";
         /** FitFeedbackRequest */
         FitFeedbackRequest: {
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /**
-             * Garment Id
-             * Format: uuid
-             */
-            garment_id: string;
-            /**
-             * Brand Id
-             * Format: uuid
-             */
-            brand_id: string;
+            /** Item Id */
+            item_id?: string | null;
+            /** User Id */
+            user_id?: string | null;
+            /** Garment Id */
+            garment_id?: string | null;
+            /** Brand Id */
+            brand_id?: string | null;
             /** Category */
-            category: string;
-            /** Size Label */
+            category?: string | null;
+            /**
+             * Size Label
+             * @default M
+             */
             size_label: string;
             verdict: components["schemas"]["FitVerdict"];
             /** Fit Type */
@@ -8737,6 +7991,14 @@ export interface components {
             /** Bounding Box */
             bounding_box?: number[] | null;
         };
+        /** MarkPurchasedRequest */
+        MarkPurchasedRequest: {
+            /**
+             * Purchased
+             * @default true
+             */
+            purchased: boolean;
+        };
         /**
          * MarkerCategory
          * @description Semantic category classification for map markers (Section 11.15).
@@ -8853,23 +8115,6 @@ export interface components {
          * @enum {string}
          */
         MediaType: "image" | "thumbnail" | "detail" | "lifestyle" | "model" | "video" | "view_360";
-        /** MerchantProductPayload */
-        MerchantProductPayload: {
-            /** External Product Id */
-            external_product_id: string;
-            /** Title */
-            title: string;
-            /** Handle */
-            handle: string;
-            /** Category */
-            category: string;
-            /** Image Url */
-            image_url: string;
-            /** Size Chart */
-            size_chart?: {
-                [key: string]: unknown;
-            } | null;
-        };
         /**
          * MixMatchContract
          * @description Mix & Match experiment matrix (Section 10.16, 10.17).
@@ -9519,102 +8764,6 @@ export interface components {
             scrim: number;
         };
         /**
-         * OrderContract
-         * @description Authoritative placed order detail (Section 7.48 - 7.50).
-         */
-        OrderContract: {
-            /** Order Id */
-            order_id: string;
-            /** Order Number */
-            order_number: string;
-            /** Placed At */
-            placed_at: string;
-            /** @default placed */
-            status: components["schemas"]["OrderStatus"];
-            /** Items */
-            items?: components["schemas"]["OrderItemContract"][];
-            delivery_address: components["schemas"]["DeliveryAddressContract"];
-            delivery_method: components["schemas"]["DeliveryMethodContract"];
-            /** Payment Summary */
-            payment_summary: string;
-            price_summary: components["schemas"]["CartSummaryContract"];
-        };
-        /**
-         * OrderDetailTemplateSpecContract
-         * @description SH12: Granular order inspection and tracking (Section 7.50).
-         */
-        OrderDetailTemplateSpecContract: {
-            /** @default SH12 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            order: components["schemas"]["OrderContract"];
-            /** Tracking Steps */
-            tracking_steps?: {
-                [key: string]: string;
-            }[];
-        };
-        /**
-         * OrderItemContract
-         * @description Line item in a placed order (Section 7.50).
-         */
-        OrderItemContract: {
-            /** Product Id */
-            product_id: string;
-            /** Title */
-            title: string;
-            /** Brand */
-            brand: string;
-            /** Media Uri */
-            media_uri: string;
-            /** Selected Variants */
-            selected_variants?: {
-                [key: string]: string;
-            };
-            /**
-             * Quantity
-             * @default 1
-             */
-            quantity: number;
-            unit_price: components["schemas"]["PriceSpecContract"];
-            total_price: components["schemas"]["PriceSpecContract"];
-        };
-        /**
-         * OrderReviewTemplateSpecContract
-         * @description SH09: Final pre-submission order review (Section 7.45).
-         */
-        OrderReviewTemplateSpecContract: {
-            /** @default SH09 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            /** Checkout Id */
-            checkout_id: string;
-            /** Items */
-            items?: components["schemas"]["CartItemContract"][];
-            delivery_address: components["schemas"]["DeliveryAddressContract"];
-            delivery_method: components["schemas"]["DeliveryMethodContract"];
-            payment_method: components["schemas"]["PaymentMethodContract"];
-            summary: components["schemas"]["CartSummaryContract"];
-        };
-        /**
-         * OrderStatus
-         * @description Authoritative commerce order lifecycle status (Section 7.49).
-         * @enum {string}
-         */
-        OrderStatus: "placed" | "processing" | "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "returned" | "refunded";
-        /**
-         * OrdersTemplateSpecContract
-         * @description SH11: Customer order history list (Section 7.48).
-         */
-        OrdersTemplateSpecContract: {
-            /** @default SH11 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            /** Orders */
-            orders?: components["schemas"]["OrderContract"][];
-            /**
-             * Total Orders
-             * @default 0
-             */
-            total_orders: number;
-        };
-        /**
          * OutfitBuilderLayoutType
          * @description Styling studio 3-way layout adaptation (Section 14.35 & 14.36).
          * @enum {string}
@@ -9879,28 +9028,6 @@ export interface components {
             measurements: {
                 [key: string]: unknown;
             }[];
-        };
-        /**
-         * PaymentMethodContract
-         * @description Selected payment provider or card token (Section 7.41).
-         */
-        PaymentMethodContract: {
-            /** Id */
-            id: string;
-            /**
-             * Method Type
-             * @description card | upi | netbanking | cod
-             */
-            method_type: string;
-            /** Title */
-            title: string;
-            /** Last4 */
-            last4?: string | null;
-            /**
-             * Is Selected
-             * @default false
-             */
-            is_selected: boolean;
         };
         /** PendingSurveyResponse */
         PendingSurveyResponse: {
@@ -10415,20 +9542,6 @@ export interface components {
             /** @default P09 */
             screen_id: components["schemas"]["DetailScreenId"];
             comparison: components["schemas"]["ProductComparisonDetailContract"];
-        };
-        /**
-         * ProductDetailTemplateSpecContract
-         * @description SH07-adjacent / Product Detail Screen Template (Section 7.21).
-         */
-        ProductDetailTemplateSpecContract: {
-            product: components["schemas"]["ShoppingProductDetailContract"];
-            /** Breadcrumb Trail */
-            breadcrumb_trail?: string[];
-            /**
-             * Sticky Action Enabled
-             * @default true
-             */
-            sticky_action_enabled: boolean;
         };
         /**
          * ProductDetailViewModelContract
@@ -12413,29 +11526,6 @@ export interface components {
             total_price: number;
         };
         /**
-         * ShoppingHomeTemplateSpecContract
-         * @description SH01: Shopping Home combining discovery and commerce (Section 7.6).
-         */
-        ShoppingHomeTemplateSpecContract: {
-            /** @default SH01 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            /**
-             * Search Placeholder
-             * @default Search luxury fashion, streetwear, shoes...
-             */
-            search_placeholder: string;
-            /** Featured Collection Ids */
-            featured_collection_ids?: string[];
-            /** Categories */
-            categories?: {
-                [key: string]: string;
-            }[];
-            /** Trending Product Ids */
-            trending_product_ids?: string[];
-            /** Recommended Product Ids */
-            recommended_product_ids?: string[];
-        };
-        /**
          * ShoppingProductDetailContract
          * @description Comprehensive product detail visual specification (Section 7.21).
          */
@@ -12473,18 +11563,6 @@ export interface components {
              */
             is_in_wishlist: boolean;
         };
-        /**
-         * ShoppingScreenId
-         * @description Inventory screen identifiers for Phase-1 shopping (Section 7.3).
-         * @enum {string}
-         */
-        ShoppingScreenId: "SH01" | "SH02" | "SH03" | "SH04" | "SH05" | "SH06" | "SH07" | "SH08" | "SH09" | "SH10" | "SH11" | "SH12";
-        /**
-         * ShoppingState
-         * @description Unified shopping visual state machine (Section 7.51).
-         * @enum {string}
-         */
-        ShoppingState: "loading" | "ready" | "empty" | "partial" | "validation_error" | "service_error" | "unavailable" | "success";
         /**
          * SidebarMode
          * @description Desktop sidebar display modes (Section 3.12).
@@ -12889,39 +11967,6 @@ export interface components {
             answers: {
                 [key: string]: unknown;
             };
-        };
-        /** SubmitTryOnRequest */
-        SubmitTryOnRequest: {
-            /** Session Token */
-            session_token: string;
-            /** External Product Id */
-            external_product_id: string;
-            /**
-             * Size
-             * @description Selected garment size
-             * @default M
-             */
-            size: string;
-            /**
-             * Photo Base64
-             * @description Shopper body photo base64
-             */
-            photo_base64: string;
-        };
-        /** SubmitTryOnResponse */
-        SubmitTryOnResponse: {
-            /** Tryon Id */
-            tryon_id: string;
-            /** Status */
-            status: string;
-            /** Result Image Url */
-            result_image_url: string;
-            /** Fit Recommendation */
-            fit_recommendation: {
-                [key: string]: unknown;
-            };
-            /** Expires At */
-            expires_at: string;
         };
         /**
          * SuggestionType
@@ -13518,16 +12563,6 @@ export interface components {
             activity_history_retention?: string | null;
         };
         /**
-         * UpdateCartQuantityRequestContract
-         * @description Payload to increment/decrement/remove cart quantity (Section 7.39).
-         */
-        UpdateCartQuantityRequestContract: {
-            /** Item Id */
-            item_id: string;
-            /** Quantity */
-            quantity: number;
-        };
-        /**
          * UpdateExplicitPreferencesRequestContract
          * @description Payload for updating explicit style preferences.
          */
@@ -13973,6 +13008,11 @@ export interface components {
         /** WardrobeItemView */
         WardrobeItemView: {
             /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
              * Item Id
              * Format: uuid
              */
@@ -13987,6 +13027,12 @@ export interface components {
              * Format: uuid
              */
             garment_id: string;
+            /** Title At Save */
+            title_at_save: string;
+            /** Price At Save */
+            price_at_save: number;
+            /** Currency */
+            currency: string;
             /** Snapshot Title */
             snapshot_title: string;
             /** Snapshot Price Minor */
@@ -13999,47 +13045,78 @@ export interface components {
             tryon_artifact_id: string | null;
             /** Saved At */
             saved_at: string;
+            /** Purchased At */
+            purchased_at: string | null;
+            /** Fit Feedback Given */
+            fit_feedback_given: boolean;
+            /** Current Price */
+            current_price: number | null;
+            /** Render */
+            render: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
-         * WishlistContract
-         * @description Complete wishlist representation (Section 7.33).
+         * WishlistItemContract
+         * @description Shopping-intent item tracking real-time commerce availability and changes (Section 13.19 - 13.21).
          */
-        WishlistContract: {
-            /** Wishlist Id */
-            wishlist_id: string;
-            /** User Id */
-            user_id: string;
-            /** Items */
-            items?: components["schemas"]["schemas__visual__shopping__WishlistItemContract"][];
+        WishlistItemContract: {
+            /** Id */
+            id: string;
+            /** Product Id */
+            product_id: string;
+            /** Brand */
+            brand: string;
+            /** Name */
+            name: string;
+            /** Price */
+            price: number;
             /**
-             * Total Count
-             * @default 0
+             * Currency
+             * @default USD
              */
+            currency: string;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Availability
+             * @default in_stock
+             */
+            availability: string;
+            /**
+             * Is Available
+             * @default true
+             */
+            is_available: boolean;
+            /** Availability Notice */
+            availability_notice?: string | null;
+            /** Alternative Product Id */
+            alternative_product_id?: string | null;
+            /** Added At */
+            added_at: string;
+        };
+        /**
+         * WishlistTemplateSpecContract
+         * @description PR06: Commercial wishlist with real-time stock and price change tracking (Section 13.19 - 13.21).
+         */
+        WishlistTemplateSpecContract: {
+            /** @default PR06 */
+            screen_id: components["schemas"]["PersonalScreenId"];
+            /**
+             * Title
+             * @default Wishlist
+             */
+            title: string;
+            /** Items */
+            items?: components["schemas"]["WishlistItemContract"][];
+            /** Total Count */
             total_count: number;
-        };
-        /**
-         * WishlistToggleRequestContract
-         * @description Payload to add/remove a product from wishlist (Section 7.33).
-         */
-        WishlistToggleRequestContract: {
-            /** Product Id */
-            product_id: string;
-            /** Currently Wishlisted */
-            currently_wishlisted: boolean;
-        };
-        /**
-         * WishlistToggleResultContract
-         * @description Response returned when toggling wishlist state.
-         */
-        WishlistToggleResultContract: {
-            /** Product Id */
-            product_id: string;
-            /** Is In Wishlist */
-            is_in_wishlist: boolean;
-            /** Total Wishlist Count */
-            total_wishlist_count: number;
-            /** Message */
-            message: string;
+            /** Available Count */
+            available_count: number;
+            /** Unavailable Count */
+            unavailable_count: number;
+            /** @default loaded */
+            state: components["schemas"]["PersonalState"];
         };
         /**
          * ZIndexTokens
@@ -14184,68 +13261,6 @@ export interface components {
             state: components["schemas"]["PersonalState"];
         };
         /**
-         * WishlistItemContract
-         * @description Shopping-intent item tracking real-time commerce availability and changes (Section 13.19 - 13.21).
-         */
-        schemas__visual__personal__WishlistItemContract: {
-            /** Id */
-            id: string;
-            /** Product Id */
-            product_id: string;
-            /** Brand */
-            brand: string;
-            /** Name */
-            name: string;
-            /** Price */
-            price: number;
-            /**
-             * Currency
-             * @default USD
-             */
-            currency: string;
-            /** Image Url */
-            image_url?: string | null;
-            /**
-             * Availability
-             * @default in_stock
-             */
-            availability: string;
-            /**
-             * Is Available
-             * @default true
-             */
-            is_available: boolean;
-            /** Availability Notice */
-            availability_notice?: string | null;
-            /** Alternative Product Id */
-            alternative_product_id?: string | null;
-            /** Added At */
-            added_at: string;
-        };
-        /**
-         * WishlistTemplateSpecContract
-         * @description PR06: Commercial wishlist with real-time stock and price change tracking (Section 13.19 - 13.21).
-         */
-        schemas__visual__personal__WishlistTemplateSpecContract: {
-            /** @default PR06 */
-            screen_id: components["schemas"]["PersonalScreenId"];
-            /**
-             * Title
-             * @default Wishlist
-             */
-            title: string;
-            /** Items */
-            items?: components["schemas"]["schemas__visual__personal__WishlistItemContract"][];
-            /** Total Count */
-            total_count: number;
-            /** Available Count */
-            available_count: number;
-            /** Unavailable Count */
-            unavailable_count: number;
-            /** @default loaded */
-            state: components["schemas"]["PersonalState"];
-        };
-        /**
          * BreadcrumbItemContract
          * @description A single breadcrumb navigation entry.
          */
@@ -14283,38 +13298,6 @@ export interface components {
             filter_state: components["schemas"]["FilterStateContract"];
             /** Product Ids */
             product_ids?: string[];
-        };
-        /**
-         * WishlistItemContract
-         * @description Saved product item within user's wishlist (Section 7.33).
-         */
-        schemas__visual__shopping__WishlistItemContract: {
-            /** Item Id */
-            item_id: string;
-            /** Product Id */
-            product_id: string;
-            /** Title */
-            title: string;
-            /** Brand */
-            brand: string;
-            /** Media Uri */
-            media_uri: string;
-            price: components["schemas"]["PriceSpecContract"];
-            /** @default in_stock */
-            availability: components["schemas"]["schemas__visual__shopping__ProductAvailabilityState"];
-            /** Added Timestamp */
-            added_timestamp: string;
-        };
-        /**
-         * WishlistTemplateSpecContract
-         * @description SH05: Wishlist screen template (Section 7.33).
-         */
-        schemas__visual__shopping__WishlistTemplateSpecContract: {
-            /** @default SH05 */
-            screen_id: components["schemas"]["ShoppingScreenId"];
-            wishlist: components["schemas"]["WishlistContract"];
-            /** Sort Options */
-            sort_options?: string[];
         };
         /**
          * SavedLookContract
@@ -15517,6 +14500,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_purchased_api_v1_wardrobe_items__item_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkPurchasedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WardrobeItemView"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -16754,472 +15772,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductComparisonContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_cart_api_v1_visual_shopping_cart_get: {
-        parameters: {
-            query?: {
-                cart_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    post_add_to_cart_api_v1_visual_shopping_cart_add_post: {
-        parameters: {
-            query?: {
-                cart_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddToCartRequestContract"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    post_update_cart_quantity_api_v1_visual_shopping_cart_update_post: {
-        parameters: {
-            query?: {
-                cart_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateCartQuantityRequestContract"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_cart_validation_api_v1_visual_shopping_cart_validate_get: {
-        parameters: {
-            query?: {
-                cart_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartValidationResultContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    post_toggle_wishlist_api_v1_visual_shopping_wishlist_toggle_post: {
-        parameters: {
-            query?: {
-                user_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WishlistToggleRequestContract"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WishlistToggleResultContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_shopping_home_api_v1_visual_shopping_templates_home_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ShoppingHomeTemplateSpecContract"];
-                };
-            };
-        };
-    };
-    get_template_category_api_v1_visual_shopping_templates_category__category_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                category_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_product_detail_api_v1_visual_shopping_templates_product_detail__product_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                product_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProductDetailTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_wishlist_api_v1_visual_shopping_templates_wishlist_get: {
-        parameters: {
-            query?: {
-                user_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["schemas__visual__shopping__WishlistTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_cart_api_v1_visual_shopping_templates_cart_get: {
-        parameters: {
-            query?: {
-                cart_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CartTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_checkout_api_v1_visual_shopping_templates_checkout_get: {
-        parameters: {
-            query?: {
-                checkout_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CheckoutTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_order_review_api_v1_visual_shopping_templates_order_review_get: {
-        parameters: {
-            query?: {
-                checkout_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderReviewTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_confirmation_api_v1_visual_shopping_templates_confirmation_get: {
-        parameters: {
-            query?: {
-                order_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ConfirmationTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_orders_api_v1_visual_shopping_templates_orders_get: {
-        parameters: {
-            query?: {
-                user_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrdersTemplateSpecContract"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_template_order_detail_api_v1_visual_shopping_templates_order_detail__order_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                order_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderDetailTemplateSpecContract"];
                 };
             };
             /** @description Validation Error */
@@ -19359,7 +17911,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["schemas__visual__personal__WishlistTemplateSpecContract"];
+                    "application/json": components["schemas"]["WishlistTemplateSpecContract"];
                 };
             };
         };
@@ -20502,314 +19054,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         [key: string]: string;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_widget_session_widget_v1_session_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-                origin?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["CreateSessionRequest"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreateSessionResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    submit_widget_tryon_widget_v1_tryon_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["SubmitTryOnRequest"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SubmitTryOnResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_widget_session_widget_v1_session__session_token__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                session_token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_merchant_dashboard_merchant_dashboard_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_merchant_analytics_merchant_analytics_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sync_merchant_product_merchant_products_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["MerchantProductPayload"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_merchant_dashboard_api_v1_merchant_dashboard_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_merchant_analytics_api_v1_merchant_analytics_get: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sync_merchant_product_api_v1_merchant_products_post: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-FashX-Key"?: string | null;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["MerchantProductPayload"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
                     };
                 };
             };
