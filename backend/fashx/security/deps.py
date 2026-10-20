@@ -111,6 +111,7 @@ def require_role(role: str) -> Callable[[Principal], Principal]:
             raise forbidden(f"Role '{role}' required")
         return principal
 
+    _dependency.__name__ = f"require_role_{role}"
     return _dependency
 
 

@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../../src/lib/supabase";
+import { isDevTokenEnabled } from "./dev-token";
 
 export default function SignInScreen() {
   const { t } = useTranslation();
@@ -113,6 +114,17 @@ export default function SignInScreen() {
             <Text style={styles.buttonText}>{t("auth.sendCode")}</Text>
           )}
         </TouchableOpacity>
+
+        {isDevTokenEnabled() ? (
+          <TouchableOpacity
+            style={styles.devButton}
+            onPress={() => router.push("/(auth)/dev-token")}
+            accessibilityRole="button"
+            accessibilityLabel={t("dev.loginLink")}
+          >
+            <Text style={styles.devButtonText}>{t("dev.loginLink")}</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </KeyboardAvoidingView>
   );
@@ -194,6 +206,21 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  devButton: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#4F46E5",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 12,
+    backgroundColor: "#EEF2FF",
+  },
+  devButtonText: {
+    color: "#4F46E5",
+    fontSize: 15,
     fontWeight: "600",
   },
 });

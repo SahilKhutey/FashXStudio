@@ -2,12 +2,9 @@ from uuid import uuid4
 
 import pytest
 
-from fashx.tryon.adapters.commercial_api_adapter import CommercialApiAdapter
-from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
-from fashx.tryon.adapters.research_diffusion_adapter import (
-    CommercialLicenseViolationError,
-    ResearchDiffusionAdapter,
-)
+from fashx.infrastructure.tryon.fashn_api import FashnApiAdapter
+from fashx.ml.licenses import ALLOWED_LICENSE_IDS, assert_production_license
+from fashx.tryon.adapters.mock_adapter import MockAdapter, MockTryOnAdapter
 from fashx.tryon.ports import InferenceInput
 
 
@@ -31,43 +28,22 @@ async def test_mock_tryon_adapter_execution() -> None:
     assert output.inference_latency_ms >= 0.0
 
 
-@pytest.mark.asyncio
-async def test_commercial_api_adapter_execution() -> None:
-    adapter = CommercialApiAdapter()
-    assert adapter.is_commercial_cleared is True
+def test_fashn_api_adapter_license_guard() -> None:
+    # 1. Real commercial adapter declares commercial-api license
+    adapter = FashnApiAdapter(api_key="test-key")
+    assert adapter.license_id == "commercial-api"
+    assert adapter.license_id in ALLOWED_LICENSE_IDS
+    assert_production_license(adapter)  # must not raise
 
-    payload = InferenceInput(
-        job_id=uuid4(),
-        user_id=uuid4(),
-        garment_id=uuid4(),
-        user_photo_bytes=b"user_bytes",
-        garment_image_bytes=b"garment_bytes",
-        garment_category="tops",
-    )
-    output = await adapter.execute_tryon(payload)
-    assert output.raw_metadata.get("provider") == "commercial_licensed_api"
+    # 2. Mock adapter must be rejected by production license guard (Rule I08)
+    mock = MockAdapter()
+    assert mock.license_id == "mock"
+    with pytest.raises(RuntimeError, match="not allowed in production"):
+        assert_production_license(mock)
 
+    # 3. Arbitrary / unknown license must be rejected
+    class UnlicensedAdapter:
+        license_id = "research-only"
 
-@pytest.mark.asyncio
-async def test_research_diffusion_adapter_license_guard() -> None:
-    # 1. Evaluation mode is allowed
-    eval_adapter = ResearchDiffusionAdapter(environment="test", allow_research_mode=True)
-    assert eval_adapter.is_commercial_cleared is False
-
-    payload = InferenceInput(
-        job_id=uuid4(),
-        user_id=uuid4(),
-        garment_id=uuid4(),
-        user_photo_bytes=b"user_bytes",
-        garment_image_bytes=b"garment_bytes",
-        garment_category="dresses",
-    )
-    res = await eval_adapter.execute_tryon(payload)
-    assert res.raw_metadata.get("license") == "Non-Commercial / Academic Research Only"
-
-    # 2. Production mode without research flag must fail (Rule I08)
-    prod_adapter = ResearchDiffusionAdapter(environment="production", allow_research_mode=False)
-    with pytest.raises(CommercialLicenseViolationError) as exc_info:
-        await prod_adapter.execute_tryon(payload)
-
-    assert "academic non-commercial license" in str(exc_info.value)
+    with pytest.raises(RuntimeError, match="not allowed in production"):
+        assert_production_license(UnlicensedAdapter())

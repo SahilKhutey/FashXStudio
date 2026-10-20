@@ -709,7 +709,10 @@ def post_compare_products(product_ids: list[str]) -> ProductComparisonContract:
     return compare_products(product_ids=product_ids)
 
 
-@router.get(
+visual_shopping_frozen_router = APIRouter(prefix="/visual", tags=["Visual Shopping Templates"])
+
+
+@visual_shopping_frozen_router.get(
     "/shopping/cart",
     response_model=CartContract,
     summary="Get user shopping cart",
@@ -719,7 +722,7 @@ def get_cart(cart_id: str = Query(default="cart-user-1")) -> CartContract:
     return get_user_cart(cart_id=cart_id)
 
 
-@router.post(
+@visual_shopping_frozen_router.post(
     "/shopping/cart/add",
     response_model=CartContract,
     summary="Add product variant to shopping cart",
@@ -735,7 +738,7 @@ def post_add_to_cart(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.post(
+@visual_shopping_frozen_router.post(
     "/shopping/cart/update",
     response_model=CartContract,
     summary="Update quantity or remove item from shopping cart",
@@ -751,7 +754,7 @@ def post_update_cart_quantity(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/cart/validate",
     response_model=CartValidationResultContract,
     summary="Validate cart before proceeding to checkout",
@@ -761,7 +764,7 @@ def get_cart_validation(cart_id: str = Query(default="cart-user-1")) -> CartVali
     return validate_cart_state(cart_id=cart_id)
 
 
-@router.post(
+@visual_shopping_frozen_router.post(
     "/shopping/wishlist/toggle",
     response_model=WishlistToggleResultContract,
     summary="Toggle product presence in user wishlist",
@@ -776,7 +779,7 @@ def post_toggle_wishlist(
 
 # --- 12 Shopping Screen Templates (SH01 - SH12) ---
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/home",
     response_model=ShoppingHomeTemplateSpecContract,
     summary="SH01: Shopping Home template",
@@ -785,7 +788,7 @@ def get_template_shopping_home() -> ShoppingHomeTemplateSpecContract:
     return get_shopping_home_template()
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/category/{category_id}",
     response_model=CategoryTemplateSpecContract,
     summary="SH02: Category browsing template",
@@ -794,7 +797,7 @@ def get_template_category(category_id: str) -> CategoryTemplateSpecContract:
     return get_category_template(category_id=category_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/product-detail/{product_id}",
     response_model=ProductDetailTemplateSpecContract,
     summary="SH07-adjacent: Product Detail template",
@@ -806,7 +809,7 @@ def get_template_product_detail(product_id: str) -> ProductDetailTemplateSpecCon
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/wishlist",
     response_model=WishlistTemplateSpecContract,
     summary="SH05: Wishlist template",
@@ -815,7 +818,7 @@ def get_template_wishlist(user_id: str = Query(default="user-1")) -> WishlistTem
     return get_wishlist_template(user_id=user_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/cart",
     response_model=CartTemplateSpecContract,
     summary="SH06: Shopping Cart template",
@@ -824,7 +827,7 @@ def get_template_cart(cart_id: str = Query(default="cart-user-1")) -> CartTempla
     return get_cart_template(cart_id=cart_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/checkout",
     response_model=CheckoutTemplateSpecContract,
     summary="SH08: Progressive Checkout template",
@@ -833,7 +836,7 @@ def get_template_checkout(checkout_id: str = Query(default="chk-101")) -> Checko
     return get_checkout_template(checkout_id=checkout_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/order-review",
     response_model=OrderReviewTemplateSpecContract,
     summary="SH09: Order Review template",
@@ -842,7 +845,7 @@ def get_template_order_review(checkout_id: str = Query(default="chk-101")) -> Or
     return get_order_review_template(checkout_id=checkout_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/confirmation",
     response_model=ConfirmationTemplateSpecContract,
     summary="SH10: Order Confirmation template",
@@ -851,7 +854,7 @@ def get_template_confirmation(order_id: str = Query(default="ord-98210")) -> Con
     return get_confirmation_template(order_id=order_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/orders",
     response_model=OrdersTemplateSpecContract,
     summary="SH11: Customer Order History template",
@@ -860,7 +863,7 @@ def get_template_orders(user_id: str = Query(default="user-1")) -> OrdersTemplat
     return get_orders_template(user_id=user_id)
 
 
-@router.get(
+@visual_shopping_frozen_router.get(
     "/shopping/templates/order-detail/{order_id}",
     response_model=OrderDetailTemplateSpecContract,
     summary="SH12: Order Detail template",

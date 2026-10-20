@@ -1,13 +1,15 @@
 import base64
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, Request, status
+from pydantic import BaseModel, ConfigDict, Field
 
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
 from fashx.core.errors import EntityNotFoundError, ValidationError
+from fashx.core.settings import get_settings
 from fashx.profile.application.create_profile import (
     CreateProfileCommand,
     CreateProfileUseCase,
@@ -26,7 +28,7 @@ from fashx.profile.application.upload_photo import (
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
-from fashx.security.errors import forbidden
+from fashx.security.errors import ApiError, forbidden
 from schemas.common.enums import BuildType, MeasurementSource, PhotoType
 from schemas.identity.consent import ConsentUpdate
 
@@ -181,7 +183,7 @@ async def record_measurement(
 )
 async def upload_user_photo(
     user_id: UUID,
-    req: UploadPhotoRequest,
+    request: Request,
     principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
     storage: Any = Depends(get_storage),
@@ -189,10 +191,22 @@ async def upload_user_photo(
     if str(user_id) != principal.user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
-    try:
-        raw_bytes = base64.b64decode(req.photo_b64)
-    except Exception:
-        raise ValidationError("Invalid base64 encoded photo payload", field="photo_b64") from None
+    content_type = request.headers.get("content-type", "")
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        file_obj = form.get("file")
+        if file_obj is None or not hasattr(file_obj, "read"):
+            raise ValidationError("Missing 'file' field in multipart form upload", field="file")
+        raw_bytes = await file_obj.read()
+        photo_type_val = form.get("photo_type", PhotoType.TRYON_REFERENCE.value)
+    else:
+        try:
+            body = await request.json()
+            req = UploadPhotoRequest.model_validate(body)
+            raw_bytes = base64.b64decode(req.photo_b64)
+            photo_type_val = req.photo_type
+        except Exception:
+            raise ValidationError("Invalid base64 encoded photo payload", field="photo_b64") from None
 
     from fashx.security.uploads import sanitize_photo
 
@@ -201,7 +215,7 @@ async def upload_user_photo(
     use_case = UploadUserPhotoUseCase(uow, storage=storage)
     cmd = UploadPhotoCommand(
         user_id=user_id,
-        photo_type=req.photo_type,
+        photo_type=photo_type_val,
         photo_bytes=sanitized_bytes,
     )
     res = await use_case.execute(cmd)
@@ -262,6 +276,27 @@ async def get_photo_signed_url(
 
         signed_url = storage.signed_get_url(key, ttl_s=300)
         return PhotoSignedUrlResponse(url=signed_url, expires_in=300)
+
+
+@router.delete(
+    "/{user_id}/photos/{photo_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_photo_endpoint(
+    user_id: UUID,
+    photo_id: UUID,
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> None:
+    """Delete a single photo, cascading try-on jobs and queuing derived result media storage purge via outbox."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
+    from fashx.profile.application.delete_photo import delete_user_photo
+
+    async with uow:
+        await delete_user_photo(uow, user_id=user_id, photo_id=photo_id)
+        await uow.commit()
 
 
 @router.put("/{user_id}/preferences", response_model=UpdatePreferencesResponse)
@@ -404,4 +439,98 @@ async def revoke_user_consent(
         status="queued",
         photos_purged=res.photos_purged,
         jobs_purged=res.jobs_purged,
+    )
+
+
+def get_current_consent_version() -> str:
+    return get_settings().consent_version
+
+
+CURRENT_CONSENT_VERSION = get_current_consent_version()
+
+
+class ConsentGrantIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    consent_version: str
+    is_18_or_older: bool
+    accepts_terms: bool
+    accepts_body_photo: bool
+
+
+SubmitConsentRequest = ConsentGrantIn
+
+
+class SubmitConsentResponse(BaseModel):
+    user_id: UUID
+    consent_version: str
+    is_18_or_older: bool
+    accepts_terms: bool
+    accepts_body_photo: bool
+    consented_at: datetime
+    status: str = "granted"
+
+
+@router.post(
+    "/{user_id}/consent",
+    response_model=SubmitConsentResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_user_consent(
+    user_id: UUID,
+    req: ConsentGrantIn,
+    principal: Principal = Depends(get_principal),
+    profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> SubmitConsentResponse:
+    """Record mobile onboarding consent with strict adult verification (Rule I07 / DPDP)."""
+    if str(user_id) != principal.user_id:
+        raise forbidden("Forbidden: user_id mismatch")
+
+    current_version = get_settings().consent_version
+    if req.consent_version != current_version:
+        raise ApiError(
+            409,
+            "consent_version_outdated",
+            f"Consent version '{req.consent_version}' is outdated. Version '{current_version}' is required.",
+        )
+
+    if not req.is_18_or_older:
+        raise ApiError(
+            403,
+            "age_requirement",
+            "You must be 18 or older to use try-on.",
+        )
+
+    if not req.accepts_terms:
+        raise ApiError(
+            400,
+            "terms_required",
+            "Terms and privacy policy acceptance is required.",
+        )
+
+    if not req.accepts_body_photo:
+        raise ApiError(
+            400,
+            "body_photo_consent_required",
+            "Body photo processing consent is required for try-on.",
+        )
+
+    async with profile_uow:
+        terms_rec, photo_rec = await profile_uow.consents.record_mobile_consent(
+            user_id=user_id,
+            consent_version=req.consent_version,
+            is_18_or_older=req.is_18_or_older,
+            accepts_terms=req.accepts_terms,
+            accepts_body_photo=req.accepts_body_photo,
+        )
+        await profile_uow.commit()
+
+    return SubmitConsentResponse(
+        user_id=terms_rec.user_id,
+        consent_version=terms_rec.consent_version,
+        is_18_or_older=bool(terms_rec.is_18_or_older),
+        accepts_terms=terms_rec.granted,
+        accepts_body_photo=photo_rec.granted,
+        consented_at=photo_rec.consented_at or terms_rec.consented_at,
+        status="granted",
     )

@@ -1,0 +1,12 @@
+[
+  "face_not_visible",
+  "invalid_format",
+  "landscape_orientation",
+  "low_contrast",
+  "multiple_people",
+  "person_not_detected",
+  "pose_not_upright",
+  "resolution_too_low",
+  "too_bright",
+  "too_dark"
+]

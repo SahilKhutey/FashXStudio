@@ -53,7 +53,15 @@ class LocalStorage:
             (self.root / k).unlink(missing_ok=True)
         return len(keys)
 
+    def _sign(self, key: str, exp: int) -> str:
+        return hmac.new(b"dev-secret", f"{key}:{exp}".encode(), hashlib.sha256).hexdigest()[:16]
+
     def signed_get_url(self, key: str, ttl_s: int = 300) -> str:
         exp = int(time.time()) + ttl_s
-        sig = hmac.new(b"dev-secret", f"{key}:{exp}".encode(), hashlib.sha256).hexdigest()[:16]
+        sig = self._sign(key, exp)
         return f"{self.base_url}/dev-files/{key}?exp={exp}&sig={sig}"
+
+    def verify(self, key: str, exp: int, sig: str) -> bool:
+        if exp < int(time.time()):
+            return False
+        return hmac.compare_digest(self._sign(key, exp), sig)

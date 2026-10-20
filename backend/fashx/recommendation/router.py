@@ -1,7 +1,8 @@
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
@@ -24,6 +25,11 @@ def get_catalog_uow() -> CatalogUnitOfWork:
     return CatalogUnitOfWork(get_session_factory())
 
 
+class SignedImageResponse(BaseModel):
+    url: str
+    expires_at: datetime | None = None
+
+
 class FeedItemResponse(BaseModel):
     garment_id: UUID
     category: str
@@ -33,6 +39,13 @@ class FeedItemResponse(BaseModel):
     silhouette: str | None
     relevance_score: float
     stylist_explanation: str
+    title: str = ""
+    brand: str = ""
+    image_url: str | None = None
+    image: SignedImageResponse | None = None
+    price_updated_at: datetime | None = None
+    reason_chips: list[str] = Field(default_factory=list)
+    tryon_supported: bool = True
 
 
 class FeedResponse(BaseModel):
@@ -40,6 +53,9 @@ class FeedResponse(BaseModel):
     items: list[FeedItemResponse]
     total_candidates: int
     filtered_candidates: int
+    next_cursor: str | None = None
+    relaxed: list[str] = Field(default_factory=list)
+    empty_reason: str | None = None
 
 
 class RecordExclusionRequest(BaseModel):

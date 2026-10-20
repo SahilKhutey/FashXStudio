@@ -23,7 +23,13 @@ FROZEN_DIRS = {
     "fulfillment",
     "returns",
 }
-FROZEN_FILES = {"test_cross_core.py"}
+FROZEN_FILES = {"test_cross_core.py", "test_visual_shopping_router.py"}
+FROZEN_NAME_SUBSTRINGS = (
+    "to_cart",
+    "to_shopping_cart",
+    "shopping_cart",
+    "commerce_loop",
+)
 
 # Enable frozen routers if running all tests or specifically running frozen tests,
 # unless "not frozen" is specified in the pytest marker argument.
@@ -38,7 +44,11 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(items):
     for item in items:
         p = pathlib.Path(str(item.fspath))
-        if FROZEN_DIRS & set(p.parts) or p.name in FROZEN_FILES:
+        if (
+            FROZEN_DIRS & set(p.parts)
+            or p.name in FROZEN_FILES
+            or any(sub in item.name for sub in FROZEN_NAME_SUBSTRINGS)
+        ):
             item.add_marker(pytest.mark.frozen)
 
 
@@ -51,7 +61,9 @@ def make_token(
     alg: str = "HS256",
 ) -> str:
     now = int(time.time())
-    signing_secret = secret or os.environ.get("AUTH_JWT_SECRET", "test-secret-key-at-least-32-chars-long")
+    signing_secret = secret or os.environ.get(
+        "AUTH_JWT_SECRET", "test-secret-key-at-least-32-chars-long"
+    )
     payload = {
         "sub": sub,
         "iss": iss,
@@ -91,14 +103,73 @@ TestClient.__init__ = _patched_testclient_init
 
 @pytest.fixture(autouse=True)
 def setup_test_identity_override():
+    import asyncio
+
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import StaticPool
+
+    from database.models import Base
+    from fashx.api.v1.me import get_profile_uow
     from fashx.main import app as main_app
+    from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
     from fashx.security.deps import get_identity_repo
     from fashx.security.identity import InMemoryIdentityRepo
 
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool)
+
+    async def _init_db():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    asyncio.run(_init_db())
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
+    from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+    from fashx.catalog.router import get_catalog_uow
+    from fashx.profile.router import get_profile_uow as get_router_profile_uow
+    from fashx.recommendation.router import (
+        get_catalog_uow as get_rec_catalog_uow,
+    )
+    from fashx.recommendation.router import (
+        get_profile_uow as get_rec_profile_uow,
+    )
+    from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
+    from fashx.tryon.router import (
+        get_catalog_uow as get_tryon_catalog_uow,
+    )
+    from fashx.tryon.router import (
+        get_profile_uow as get_tryon_profile_uow,
+    )
+    from fashx.tryon.router import (
+        get_tryon_uow,
+    )
+
     shared_repo = InMemoryIdentityRepo()
     main_app.dependency_overrides[get_identity_repo] = lambda: shared_repo
+    main_app.dependency_overrides[get_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_router_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_rec_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_tryon_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+
+    main_app.dependency_overrides[get_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_rec_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_tryon_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+
+    main_app.dependency_overrides[get_tryon_uow] = lambda: TryOnUnitOfWork(session_factory)
     yield
-    main_app.dependency_overrides.pop(get_identity_repo, None)
+    for fn in (
+        get_identity_repo,
+        get_profile_uow,
+        get_router_profile_uow,
+        get_rec_profile_uow,
+        get_tryon_profile_uow,
+        get_catalog_uow,
+        get_rec_catalog_uow,
+        get_tryon_catalog_uow,
+        get_tryon_uow,
+    ):
+        main_app.dependency_overrides.pop(fn, None)
+    asyncio.run(engine.dispose())
 
 
 @pytest.fixture
@@ -112,10 +183,12 @@ def identity_repo():
 def anon_client(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     with TestClient(app) as client:
         yield client
@@ -125,10 +198,12 @@ def anon_client(identity_repo):
 def client_a(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-a")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:
@@ -139,10 +214,12 @@ def client_a(identity_repo):
 def client_b(identity_repo):
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-b")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:
@@ -155,11 +232,13 @@ def client_admin(identity_repo):
 
     from fastapi.testclient import TestClient
 
+    from fashx.main import app as main_app
     from fashx.main import create_app
     from fashx.security.deps import get_identity_repo
 
     asyncio.run(identity_repo.set_role("fashx-test", "user-admin", "admin"))
     app = create_app()
+    app.dependency_overrides.update(main_app.dependency_overrides)
     app.dependency_overrides[get_identity_repo] = lambda: identity_repo
     token = make_token(sub="user-admin")
     with TestClient(app, headers={"Authorization": f"Bearer {token}"}) as client:

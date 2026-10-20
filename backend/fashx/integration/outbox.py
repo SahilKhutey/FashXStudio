@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fashx.core.events import DomainEvent
 
@@ -22,8 +22,9 @@ class OutboxRepository(ABC):
     @abstractmethod
     async def add(
         self,
-        message: OutboxMessage,
-    ) -> None:
+        message: OutboxMessage | str,
+        payload: dict[str, Any] | None = None,
+    ) -> Any:
         raise NotImplementedError
 
     @abstractmethod
@@ -55,9 +56,23 @@ class InMemoryOutboxRepository(OutboxRepository):
 
     async def add(
         self,
-        message: OutboxMessage,
-    ) -> None:
-        self._messages[message.id] = message
+        message: OutboxMessage | str,
+        payload: dict[str, Any] | None = None,
+    ) -> Any:
+        if isinstance(message, str):
+            msg_id = uuid4()
+            msg = OutboxMessage(
+                id=msg_id,
+                event=DomainEvent(event_id=msg_id),
+                created_at=datetime.now(UTC),
+            )
+            msg.topic = message
+            msg.payload = payload or {}
+            self._messages[msg_id] = msg
+            return msg
+        else:
+            self._messages[message.id] = message
+            return message
 
     async def pending(
         self,
@@ -93,25 +108,46 @@ class SqlOutboxRepository(OutboxRepository):
     def __init__(self, session: Any) -> None:
         self.session = session
 
-    async def add(self, message: OutboxMessage) -> None:
+    async def add(
+        self,
+        message: OutboxMessage | str,
+        payload: dict[str, Any] | None = None,
+    ) -> Any:
         from database.models.operations import OutboxMessageRecord
 
-        entity_type = getattr(message.event, "entity_type", "")
-        payload = {
-            "event_type": message.event.event_type,
-            "entity_type": entity_type,
-            "event_id": str(getattr(message.event, "event_id", message.id)),
-        }
-        record = OutboxMessageRecord(
-            id=message.id,
-            topic=message.event.event_type,
-            payload=payload,
-            created_at=message.created_at,
-            published_at=datetime.now() if message.published else None,
-            attempts=message.attempts,
-        )
-        self.session.add(record)
-        await self.session.flush()
+        if isinstance(message, str):
+            record = OutboxMessageRecord(
+                id=uuid4(),
+                topic=message,
+                payload=payload or {},
+                created_at=datetime.now(UTC),
+                attempts=0,
+            )
+            self.session.add(record)
+            await self.session.flush()
+            return record
+        else:
+            entity_type = getattr(message.event, "entity_type", "")
+            data_payload = {
+                "event_type": message.event.event_type,
+                "entity_type": entity_type,
+                "event_id": str(getattr(message.event, "event_id", message.id)),
+            }
+            if hasattr(message.event, "prefix"):
+                data_payload["prefix"] = message.event.prefix
+            if hasattr(message.event, "keys"):
+                data_payload["keys"] = list(message.event.keys)
+            record = OutboxMessageRecord(
+                id=message.id,
+                topic=message.event.event_type,
+                payload=data_payload,
+                created_at=message.created_at,
+                published_at=datetime.now(UTC) if message.published else None,
+                attempts=message.attempts,
+            )
+            self.session.add(record)
+            await self.session.flush()
+            return record
 
     async def pending(self, limit: int = 100) -> list[OutboxMessage]:
         from sqlalchemy import select
@@ -189,4 +225,53 @@ class SqlOutboxRepository(OutboxRepository):
             published=r.published_at is not None,
             attempts=r.attempts,
         )
+
+
+async def run_outbox_worker_once(uow_or_session: Any, storage: Any) -> int:
+    """Executes pending outbox tasks (such as storage.delete_keys and StoragePurgeRequested) and marks them published."""
+    import inspect
+
+    from sqlalchemy import select
+
+    from database.models.operations import OutboxMessageRecord
+
+    session = getattr(uow_or_session, "session", uow_or_session)
+    stmt = (
+        select(OutboxMessageRecord)
+        .where(OutboxMessageRecord.published_at.is_(None))
+        .order_by(OutboxMessageRecord.created_at)
+    )
+    records = (await session.scalars(stmt)).all()
+    processed = 0
+    now = datetime.now(UTC)
+
+    for rec in records:
+        topic = rec.topic
+        payload = rec.payload or {}
+
+        if topic in ("storage.delete_keys", "StorageDeleteKeysRequested"):
+            keys = payload.get("keys", [])
+            for k in keys:
+                try:
+                    res = storage.delete(k)
+                    if inspect.isawaitable(res):
+                        await res
+                except Exception:
+                    pass
+            rec.published_at = now
+            processed += 1
+        elif topic in ("StoragePurgeRequested", "storage.purge_prefix"):
+            prefix = payload.get("prefix", "")
+            if prefix and hasattr(storage, "delete_prefix"):
+                try:
+                    res = storage.delete_prefix(prefix)
+                    if inspect.isawaitable(res):
+                        await res
+                except Exception:
+                    pass
+            rec.published_at = now
+            processed += 1
+
+    await session.flush()
+    return processed
 

@@ -2,7 +2,20 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, UUIDPrimaryKeyMixin
@@ -10,13 +23,18 @@ from .base import Base, UUIDPrimaryKeyMixin
 
 class TryOnJob(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_jobs"
+    __table_args__ = (
+        Index("ix_tryon_jobs_user_id", "user_id", "created_at"),
+        UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
+        UniqueConstraint("artifact_key", name="uq_tryon_jobs_artifact_key"),
+    )
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     garment_id: Mapped[UUID] = mapped_column(
-        ForeignKey("canonical_garments.id", ondelete="CASCADE"), index=True
+        ForeignKey("canonical_garments.id", ondelete="CASCADE")
     )
     profile_photo_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user_photos.id", ondelete="RESTRICT")
+        ForeignKey("user_photos.id", ondelete="CASCADE")
     )
     idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False)
     artifact_key: Mapped[str] = mapped_column(String(512), nullable=False)
@@ -28,13 +46,16 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     attempts: Mapped[int] = mapped_column(default=1, nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    photo_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    garment_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    configuration_hash: Mapped[str] = mapped_column(String(128), default="default", nullable=False)
+    queue_name: Mapped[str] = mapped_column(String(128), default="tryon-jobs", nullable=False)
+    locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    last_error: Mapped[str | None] = mapped_column(Text)
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)
-    provider_job_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    __table_args__ = (
-        UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
-        UniqueConstraint("artifact_key", name="uq_tryon_artifact_key"),
-    )
+    provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
 
 class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
@@ -49,6 +70,14 @@ class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
     pipeline_version: Mapped[str] = mapped_column(String(64), nullable=False)
     photo_version: Mapped[int] = mapped_column(nullable=False)
     garment_version: Mapped[int] = mapped_column(nullable=False)
+    quality_status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)
+    quality_score: Mapped[float | None] = mapped_column(Float)
+    width: Mapped[int | None] = mapped_column(Integer)
+    height: Mapped[int | None] = mapped_column(Integer)
+    size_bytes: Mapped[int | None] = mapped_column(Integer)
+    content_type: Mapped[str | None] = mapped_column(String(64))
+    content_sha256: Mapped[str | None] = mapped_column(String(64), index=True)
+    quality_reasons: Mapped[list[str]] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

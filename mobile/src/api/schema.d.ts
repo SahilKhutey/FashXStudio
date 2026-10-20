@@ -107,6 +107,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/onboarding/style-quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Style Quiz
+         * @description Fetch 6-12 seed garments for the cold-start onboarding style quiz.
+         */
+        get: operations["get_style_quiz_api_v1_onboarding_style_quiz_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/style-quiz/picks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Style Quiz Picks
+         * @description Record customer style preference picks from the onboarding quiz.
+         */
+        post: operations["submit_style_quiz_picks_api_v1_onboarding_style_quiz_picks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/features": {
         parameters: {
             query?: never;
@@ -229,6 +269,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/{user_id}/photos/{photo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Photo Endpoint
+         * @description Delete a single photo, cascading try-on jobs and queuing derived result media storage purge via outbox.
+         */
+        delete: operations["delete_photo_endpoint_api_v1_profile__user_id__photos__photo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/{user_id}/preferences": {
         parameters: {
             query?: never;
@@ -283,6 +343,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/{user_id}/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit User Consent
+         * @description Record mobile onboarding consent with strict adult verification (Rule I07 / DPDP).
+         */
+        post: operations["submit_user_consent_api_v1_profile__user_id__consent_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/feature-flags": {
         parameters: {
             query?: never;
@@ -301,6 +381,26 @@ export interface paths {
          * @description Toggle a feature flag / kill switch with audit attribution (Rule 9.10).
          */
         post: operations["update_feature_flag_api_v1_admin_feature_flags_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/garments/{garment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Garment Detail
+         * @description Customer-facing garment detail route (accessible without admin role).
+         */
+        get: operations["get_garment_detail_api_v1_garments__garment_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -475,7 +575,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Tryon Jobs
+         * @description List recent try-on jobs for current user with signed URLs and expires_at.
+         */
+        get: operations["list_tryon_jobs_api_v1_tryon_jobs_get"];
         put?: never;
         /** Submit Tryon Job */
         post: operations["submit_tryon_job_api_v1_tryon_jobs_post"];
@@ -4377,6 +4481,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/session-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Session Events
+         * @description Record a batch of client session events (e.g. viewable impression batches).
+         */
+        post: operations["record_session_events_api_v1_analytics_session_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/analytics/events": {
         parameters: {
             query?: never;
@@ -5356,6 +5480,21 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** BatchSessionEventsRequest */
+        BatchSessionEventsRequest: {
+            /** Events */
+            events: components["schemas"]["SessionEventItem"][];
+        };
+        /** BatchSessionEventsResponse */
+        BatchSessionEventsResponse: {
+            /**
+             * Status
+             * @default recorded
+             */
+            status: string;
+            /** Count */
+            count: number;
+        };
         /**
          * BorderWidthTokens
          * @description Border width primitives (Section 2.17).
@@ -5655,20 +5794,14 @@ export interface components {
         /** BuyClickRequest */
         BuyClickRequest: {
             /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /**
              * Garment Id
              * Format: uuid
              */
             garment_id: string;
-            /**
-             * Offer Id
-             * Format: uuid
-             */
-            offer_id: string;
+            /** User Id */
+            user_id?: string | null;
+            /** Offer Id */
+            offer_id?: string | null;
         };
         /** BuyClickResponse */
         BuyClickResponse: {
@@ -6234,6 +6367,19 @@ export interface components {
             screen_id: components["schemas"]["DetailScreenId"];
             view_model: components["schemas"]["ProductDetailViewModelContract"];
         };
+        /** ConfigResponse */
+        ConfigResponse: {
+            /** Min App Version */
+            min_app_version: string;
+            /** Maintenance */
+            maintenance: boolean;
+            /** Tryon Supported Categories */
+            tryon_supported_categories: string[];
+            /** Consent Version */
+            consent_version: string;
+            legal: components["schemas"]["LegalConfig"];
+            flags: components["schemas"]["FlagsConfig"];
+        };
         /**
          * ConfirmationTemplateSpecContract
          * @description SH10: Order confirmation and next actions (Section 7.47).
@@ -6276,6 +6422,17 @@ export interface components {
              * @default 1.0
              */
             version: string;
+        };
+        /** ConsentGrantIn */
+        ConsentGrantIn: {
+            /** Consent Version */
+            consent_version: string;
+            /** Is 18 Or Older */
+            is_18_or_older: boolean;
+            /** Accepts Terms */
+            accepts_terms: boolean;
+            /** Accepts Body Photo */
+            accepts_body_photo: boolean;
         };
         /** ConsentResponse */
         ConsentResponse: {
@@ -6505,11 +6662,8 @@ export interface components {
         };
         /** CreateTryOnJobRequest */
         CreateTryOnJobRequest: {
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
+            /** User Id */
+            user_id?: string | null;
             /**
              * Garment Id
              * Format: uuid
@@ -6601,6 +6755,54 @@ export interface components {
             phone?: string | null;
             /** External Identity Id */
             external_identity_id?: string | null;
+        };
+        /** CustomerGarmentDetailResponse */
+        CustomerGarmentDetailResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Brand Id */
+            brand_id?: string | null;
+            /** Brand Name */
+            brand_name?: string | null;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Subcategory */
+            subcategory?: string | null;
+            /**
+             * Gender
+             * @default unisex
+             */
+            gender: string;
+            /**
+             * Price Minor
+             * @default 0
+             */
+            price_minor: number;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /**
+             * Sizes In Stock
+             * @default []
+             */
+            sizes_in_stock: string[];
+            /**
+             * Tryon Supported
+             * @default true
+             */
+            tryon_supported: boolean;
+            /**
+             * Images
+             * @default []
+             */
+            images: string[];
         };
         /** CustomerResponse */
         CustomerResponse: {
@@ -7574,6 +7776,28 @@ export interface components {
             relevance_score: number;
             /** Stylist Explanation */
             stylist_explanation: string;
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /**
+             * Brand
+             * @default
+             */
+            brand: string;
+            /** Image Url */
+            image_url?: string | null;
+            image?: components["schemas"]["SignedImageResponse"] | null;
+            /** Price Updated At */
+            price_updated_at?: string | null;
+            /** Reason Chips */
+            reason_chips?: string[];
+            /**
+             * Tryon Supported
+             * @default true
+             */
+            tryon_supported: boolean;
         };
         /** FeedResponse */
         FeedResponse: {
@@ -7588,6 +7812,12 @@ export interface components {
             total_candidates: number;
             /** Filtered Candidates */
             filtered_candidates: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /** Relaxed */
+            relaxed?: string[];
+            /** Empty Reason */
+            empty_reason?: string | null;
         };
         /** FeedSignalRequest */
         FeedSignalRequest: {
@@ -7808,6 +8038,11 @@ export interface components {
          * @enum {string}
          */
         FitVerdict: "too_tight" | "true_to_size" | "too_loose";
+        /** FlagsConfig */
+        FlagsConfig: {
+            /** Tryon */
+            tryon: boolean;
+        };
         /**
          * FocusTokens
          * @description Keyboard visible focus indicator tokens (Section 2.31).
@@ -8179,6 +8414,13 @@ export interface components {
              */
             scroll_behavior: string;
         };
+        /** LegalConfig */
+        LegalConfig: {
+            /** Privacy Url */
+            privacy_url?: string | null;
+            /** Terms Url */
+            terms_url?: string | null;
+        };
         /**
          * LineHeightTokens
          * @description Relative line heights (Section 2.12).
@@ -8546,6 +8788,7 @@ export interface components {
             user_id: string;
             /** Roles */
             roles: string[];
+            onboarding: components["schemas"]["OnboardingStatus"];
         };
         /** MeasurementResponse */
         MeasurementResponse: {
@@ -9232,6 +9475,23 @@ export interface components {
             /** In Stock */
             in_stock: boolean;
         };
+        /** OnboardingStatus */
+        OnboardingStatus: {
+            /** Complete */
+            complete: boolean;
+            /**
+             * Missing
+             * @default []
+             */
+            missing: string[];
+            /**
+             * Consent Version Required
+             * @default 2026.1
+             */
+            consent_version_required: string;
+            /** Consented Version */
+            consented_version?: string | null;
+        };
         /**
          * OpacityTokens
          * @description Opacity tokens (Section 2.20).
@@ -9748,11 +10008,6 @@ export interface components {
              */
             expires_in: number;
         };
-        /**
-         * PhotoType
-         * @enum {string}
-         */
-        PhotoType: "skin_tone" | "tryon_reference";
         /** PilotFeedbackRequest */
         PilotFeedbackRequest: {
             /**
@@ -12103,6 +12358,22 @@ export interface components {
              */
             elevated: string;
         };
+        /** SessionEventItem */
+        SessionEventItem: {
+            /** @default impression */
+            event_type: components["schemas"]["SessionEventType"];
+            /** Garment Id */
+            garment_id?: string | null;
+            /** Session Id */
+            session_id?: string | null;
+            /** Timestamp */
+            timestamp?: string | null;
+        };
+        /**
+         * SessionEventType
+         * @enum {string}
+         */
+        SessionEventType: "impression" | "click";
         /**
          * ShellLayoutMode
          * @description Active layout mode resolved from breakpoint (Section 3.29).
@@ -12220,6 +12491,13 @@ export interface components {
          * @enum {string}
          */
         SidebarMode: "expanded" | "collapsed" | "hidden";
+        /** SignedImageResponse */
+        SignedImageResponse: {
+            /** Url */
+            url: string;
+            /** Expires At */
+            expires_at?: string | null;
+        };
         /**
          * SizingScale
          * @description Component standard heights/sizes (Section 2.15).
@@ -12499,6 +12777,42 @@ export interface components {
             /** Available Materials */
             available_materials?: string[];
         };
+        /** StyleQuizItem */
+        StyleQuizItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Category */
+            category: string;
+            /** Subcategory */
+            subcategory?: string | null;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Tags
+             * @default []
+             */
+            tags: string[];
+        };
+        /** StyleQuizPickInput */
+        StyleQuizPickInput: {
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
+            /** Liked */
+            liked: boolean;
+        };
+        /** StyleQuizResponse */
+        StyleQuizResponse: {
+            /** Garments */
+            garments: components["schemas"]["StyleQuizItem"][];
+        };
         /**
          * StyleRecommendationTemplateSpecContract
          * @description ST05: Explainable style recommendations with trust boundary (Section 10.20 - 10.22).
@@ -12521,6 +12835,49 @@ export interface components {
          * @enum {string}
          */
         StylingScreenId: "ST01" | "ST02" | "ST03" | "ST04" | "ST05" | "ST06" | "ST07" | "ST08" | "ST09";
+        /** SubmitConsentResponse */
+        SubmitConsentResponse: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Consent Version */
+            consent_version: string;
+            /** Is 18 Or Older */
+            is_18_or_older: boolean;
+            /** Accepts Terms */
+            accepts_terms: boolean;
+            /** Accepts Body Photo */
+            accepts_body_photo: boolean;
+            /**
+             * Consented At
+             * Format: date-time
+             */
+            consented_at: string;
+            /**
+             * Status
+             * @default granted
+             */
+            status: string;
+        };
+        /** SubmitStyleQuizPicksRequest */
+        SubmitStyleQuizPicksRequest: {
+            /** Picks */
+            picks: components["schemas"]["StyleQuizPickInput"][];
+        };
+        /** SubmitStyleQuizPicksResponse */
+        SubmitStyleQuizPicksResponse: {
+            /** User Id */
+            user_id: string;
+            /** Saved Count */
+            saved_count: number;
+            /**
+             * Status
+             * @default recorded
+             */
+            status: string;
+        };
         /** SubmitSurveyRequest */
         SubmitSurveyRequest: {
             /**
@@ -12966,6 +13323,41 @@ export interface components {
             /** Purchase Confidence */
             purchase_confidence: number | null;
         };
+        /** TryOnJobListItem */
+        TryOnJobListItem: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
+            status: components["schemas"]["TryOnStatus"];
+            /** Artifact Key */
+            artifact_key: string;
+            /** Result Url */
+            result_url?: string | null;
+            failure_reason?: components["schemas"]["TryOnFailureReason"] | null;
+            /** Model Version */
+            model_version: string;
+            /** Pipeline Version */
+            pipeline_version: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /**
+             * Provider
+             * @default mock
+             */
+            provider: string | null;
+        };
         /** TryOnJobStatusResponse */
         TryOnJobStatusResponse: {
             /**
@@ -12983,6 +13375,11 @@ export interface components {
             model_version: string;
             /** Pipeline Version */
             pipeline_version: string;
+            /**
+             * Provider
+             * @default mock
+             */
+            provider: string | null;
         };
         /** TryOnJobSubmissionResponse */
         TryOnJobSubmissionResponse: {
@@ -13224,13 +13621,6 @@ export interface components {
             regional_discovery_enabled?: boolean | null;
             /** Delivery Region */
             delivery_region?: string | null;
-        };
-        /** UploadPhotoRequest */
-        UploadPhotoRequest: {
-            /** @default tryon_reference */
-            photo_type: components["schemas"]["PhotoType"];
-            /** Photo B64 */
-            photo_b64: string;
         };
         /** UploadPhotoResponse */
         UploadPhotoResponse: {
@@ -14079,9 +14469,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ConfigResponse"];
                 };
             };
         };
@@ -14122,6 +14510,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EraseAccountResponse"];
+                };
+            };
+        };
+    };
+    get_style_quiz_api_v1_onboarding_style_quiz_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StyleQuizResponse"];
+                };
+            };
+        };
+    };
+    submit_style_quiz_picks_api_v1_onboarding_style_quiz_picks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitStyleQuizPicksRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitStyleQuizPicksResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -14272,11 +14713,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UploadPhotoRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             201: {
@@ -14318,6 +14755,36 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PhotoSignedUrlResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_photo_endpoint_api_v1_profile__user_id__photos__photo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+                photo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -14431,6 +14898,41 @@ export interface operations {
             };
         };
     };
+    submit_user_consent_api_v1_profile__user_id__consent_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentGrantIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitConsentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_feature_flags_api_v1_admin_feature_flags_get: {
         parameters: {
             query?: never;
@@ -14473,6 +14975,37 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_garment_detail_api_v1_garments__garment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                garment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerGarmentDetailResponse"];
                 };
             };
             /** @description Validation Error */
@@ -14741,6 +15274,7 @@ export interface operations {
             query?: {
                 limit?: number;
                 diversity?: number;
+                cursor?: string | null;
             };
             header?: never;
             path?: never;
@@ -14755,6 +15289,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tryon_jobs_api_v1_tryon_jobs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TryOnJobListItem"][];
                 };
             };
             /** @description Validation Error */
@@ -21295,6 +21860,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_session_events_api_v1_analytics_session_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchSessionEventsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchSessionEventsResponse"];
                 };
             };
             /** @description Validation Error */

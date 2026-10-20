@@ -15,6 +15,11 @@ class CandidateItem:
     formality: str | None = None
     attributes: dict[str, Any] = field(default_factory=dict)
     embedding: list[float] | None = None
+    title: str = ""
+    brand: str = ""
+    image_url: str | None = None
+    price_updated_at: Any = None
+    tryon_supported: bool = True
 
 
 @dataclass

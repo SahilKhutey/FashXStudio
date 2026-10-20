@@ -11,6 +11,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+        populate_by_name=True,
     )
 
     env: Literal["dev", "test", "prod"] = Field(default="dev", validation_alias="ENV")
@@ -36,6 +37,10 @@ class Settings(BaseSettings):
         default=False,
         validation_alias="FASHX_ENABLE_FROZEN",
     )
+    enable_b2b: bool = Field(
+        default=False,
+        validation_alias="ENABLE_B2B",
+    )
     feature_flags: dict[str, bool] = Field(
         default_factory=dict,
         validation_alias="FEATURE_FLAGS",
@@ -47,15 +52,23 @@ class Settings(BaseSettings):
     auth_audience: str = Field(default="fashx-api", validation_alias="AUTH_AUDIENCE")
     auth_jwt_secret: SecretStr | None = Field(default=None, validation_alias="AUTH_JWT_SECRET")
     auth_jwks_url: str | None = Field(default=None, validation_alias="AUTH_JWKS_URL")
-    internal_service_token: str | None = Field(default=None, validation_alias="INTERNAL_SERVICE_TOKEN")
+    internal_service_token: str | None = Field(
+        default=None, validation_alias="INTERNAL_SERVICE_TOKEN"
+    )
 
-    repo_backend: Literal["memory", "sql"] = Field(default="memory", validation_alias="REPO_BACKEND")
-    storage_backend: Literal["local", "s3"] = Field(default="local", validation_alias="STORAGE_BACKEND")
+    repo_backend: Literal["memory", "sql"] = Field(
+        default="memory", validation_alias="REPO_BACKEND"
+    )
+    storage_backend: Literal["local", "s3"] = Field(
+        default="local", validation_alias="STORAGE_BACKEND"
+    )
     s3_endpoint_url: str | None = Field(default=None, validation_alias="S3_ENDPOINT_URL")
     s3_region: str = Field(default="auto", validation_alias="S3_REGION")
     s3_bucket: str | None = Field(default=None, validation_alias="S3_BUCKET")
     s3_access_key_id: SecretStr | None = Field(default=None, validation_alias="S3_ACCESS_KEY_ID")
-    s3_secret_access_key: SecretStr | None = Field(default=None, validation_alias="S3_SECRET_ACCESS_KEY")
+    s3_secret_access_key: SecretStr | None = Field(
+        default=None, validation_alias="S3_SECRET_ACCESS_KEY"
+    )
     s3_use_iam_role: bool = Field(default=False, validation_alias="S3_USE_IAM_ROLE")
     signed_url_ttl_s: int = Field(default=300, validation_alias="SIGNED_URL_TTL_S")
     local_storage_dir: str = Field(default="./.local_storage", validation_alias="LOCAL_STORAGE_DIR")
@@ -64,7 +77,9 @@ class Settings(BaseSettings):
         default="mock", validation_alias="TRYON_PROVIDER"
     )
     fashn_api_key: SecretStr | None = Field(default=None, validation_alias="FASHN_API_KEY")
-    fashn_base_url: str = Field(default="https://api.fashn.ai/v1", validation_alias="FASHN_BASE_URL")
+    fashn_base_url: str = Field(
+        default="https://api.fashn.ai/v1", validation_alias="FASHN_BASE_URL"
+    )
     fashn_model: str = Field(default="tryon-v1.6", validation_alias="FASHN_MODEL")
     fashn_mode: str | None = Field(default=None, validation_alias="FASHN_MODE")
     tryon_timeout_s: int = Field(default=90, validation_alias="TRYON_TIMEOUT_S")
@@ -85,8 +100,13 @@ class Settings(BaseSettings):
     min_app_version: str = Field(default="0.1.0", validation_alias="MIN_APP_VERSION")
     maintenance_mode: bool = Field(default=False, validation_alias="MAINTENANCE_MODE")
     tryon_enabled: bool = Field(default=True, validation_alias="TRYON_ENABLED")
+    consent_version: str = Field(default="2026.1", validation_alias="CONSENT_VERSION")
+    privacy_url: str | None = Field(default=None, validation_alias="PRIVACY_URL")
+    terms_url: str | None = Field(default=None, validation_alias="TERMS_URL")
     supabase_url: str | None = Field(default=None, validation_alias="SUPABASE_URL")
-    supabase_secret_key: SecretStr | None = Field(default=None, validation_alias="SUPABASE_SECRET_KEY")
+    supabase_secret_key: SecretStr | None = Field(
+        default=None, validation_alias="SUPABASE_SECRET_KEY"
+    )
 
     @property
     def is_production(self) -> bool:
@@ -105,18 +125,25 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires STORAGE_BACKEND=s3")
             if not self.s3_bucket:
                 raise ValueError("prod requires S3_BUCKET")
-            if not self.s3_use_iam_role and (not self.s3_access_key_id or not self.s3_secret_access_key):
-                raise ValueError("prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)")
+            if not self.s3_use_iam_role and (
+                not self.s3_access_key_id or not self.s3_secret_access_key
+            ):
+                raise ValueError(
+                    "prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)"
+                )
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if self.tryon_provider == "mock":
                 raise ValueError("prod requires non-mock TRYON_PROVIDER (rule I08)")
+            if not self.privacy_url or not self.terms_url:
+                raise ValueError("prod requires PRIVACY_URL and TERMS_URL")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
+            if self.enable_b2b:
+                raise ValueError("ENABLE_B2B must be false in prod for MVP")
         return self
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-

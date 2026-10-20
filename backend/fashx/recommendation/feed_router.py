@@ -1,5 +1,6 @@
 """Feed router handling /api/v1/feed endpoints and user interaction signals."""
 
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 from uuid import UUID
 
@@ -20,6 +21,7 @@ from fashx.recommendation.application.generate_feed import (
 from fashx.recommendation.router import (
     FeedItemResponse,
     FeedResponse,
+    SignedImageResponse,
     get_catalog_uow,
     get_profile_uow,
 )
@@ -91,6 +93,7 @@ async def get_feed(
     response: Response,
     limit: int = Query(default=20, ge=1, le=100),
     diversity: float = Query(default=0.7, ge=0.0, le=1.0),
+    cursor: str | None = Query(default=None),
     principal: Principal = Depends(get_principal),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
@@ -111,6 +114,11 @@ async def get_feed(
     # Attach Server-Timing metrics header
     response.headers["Server-Timing"] = format_server_timing()
 
+    offset = int(cursor) if cursor and cursor.isdigit() else 0
+    paginated_items = result.items[offset : offset + limit] if offset > 0 else result.items[:limit]
+    has_more = (offset + len(paginated_items)) < len(result.items)
+    next_cursor = str(offset + limit) if has_more else None
+
     return FeedResponse(
         user_id=result.user_id,
         items=[
@@ -123,9 +131,26 @@ async def get_feed(
                 silhouette=item.silhouette,
                 relevance_score=item.relevance_score,
                 stylist_explanation=item.stylist_explanation,
+                title=item.title,
+                brand=item.brand,
+                image_url=item.image_url,
+                image=(
+                    SignedImageResponse(
+                        url=item.image_url,
+                        expires_at=datetime.now(UTC) + timedelta(hours=1),
+                    )
+                    if item.image_url
+                    else None
+                ),
+                price_updated_at=item.price_updated_at,
+                reason_chips=item.reason_chips,
+                tryon_supported=item.tryon_supported,
             )
-            for item in result.items
+            for item in paginated_items
         ],
         total_candidates=result.total_candidates,
         filtered_candidates=result.filtered_candidates,
+        next_cursor=next_cursor,
+        relaxed=result.relaxed,
+        empty_reason=result.empty_reason,
     )

@@ -54,14 +54,16 @@ def mint_token(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Mint a local dev JWT token")
+    parser.add_argument("user", nargs="?", default=None, help="Optional subject identifier (e.g. 'me')")
     parser.add_argument("--sub", default="dev-user-001", help="Subject identifier (e.g. user id)")
     parser.add_argument("--exp-hours", type=int, default=24, help="Token expiration in hours")
     parser.add_argument("--iss", default=None, help="Issuer override")
     parser.add_argument("--aud", default=None, help="Audience override")
     args = parser.parse_args()
 
+    sub = args.user if args.user is not None else args.sub
     token = mint_token(
-        sub=args.sub,
+        sub=sub,
         exp_hours=args.exp_hours,
         issuer=args.iss,
         audience=args.aud,

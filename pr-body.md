@@ -1,0 +1,7 @@
+- Adults-only mobile onboarding consent (two explicit consents, fail-closed CHECK constraint).
+- Dynamic onboarding status in GET /me and style quiz pick endpoints.
+- Single photo deletion cascades derived try-on jobs and artifacts; wardrobe items survive with NULL render.
+- Outbox-backed asynchronous storage purge; in-flight try-on deletion guard.
+- Fail-closed try-on eligibility (schema-only migration 0026 plus single-function backfill CLI).
+- Photo-deletion tests run on SQLite (FK pragma on) and on the Alembic-migrated Postgres schema.
+- Docs state that no vendor agreement exists yet.

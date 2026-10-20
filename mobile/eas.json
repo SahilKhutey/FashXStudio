@@ -4,21 +4,24 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://10.0.2.2:8000"
+        "EXPO_PUBLIC_API_URL": "http://10.0.2.2:8000",
+        "EXPO_PUBLIC_DEV_TOKEN_LOGIN": "1"
       }
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://staging-api.fashxstudio.com"
+        "EXPO_PUBLIC_API_URL": "https://staging-api.fashxstudio.com",
+        "EXPO_PUBLIC_DEV_TOKEN_LOGIN": "0"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.fashxstudio.com"
+        "EXPO_PUBLIC_API_URL": "https://api.fashxstudio.com",
+        "EXPO_PUBLIC_DEV_TOKEN_LOGIN": "0"
       }
     }
   }

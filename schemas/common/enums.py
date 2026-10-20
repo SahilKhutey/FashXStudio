@@ -27,6 +27,19 @@ class PhotoStatus(StrEnum):
     REJECTED = "rejected"
 
 
+class PhotoRejectReason(StrEnum):
+    FACE_NOT_VISIBLE = "face_not_visible"
+    INVALID_FORMAT = "invalid_format"
+    LANDSCAPE_ORIENTATION = "landscape_orientation"
+    LOW_CONTRAST = "low_contrast"
+    MULTIPLE_PEOPLE = "multiple_people"
+    PERSON_NOT_DETECTED = "person_not_detected"
+    POSE_NOT_UPRIGHT = "pose_not_upright"
+    RESOLUTION_TOO_LOW = "resolution_too_low"
+    TOO_BRIGHT = "too_bright"
+    TOO_DARK = "too_dark"
+
+
 class MeasurementSource(StrEnum):
     USER_ENTERED = "user_entered"
     CV_ESTIMATED = "cv_estimated"

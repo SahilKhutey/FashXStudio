@@ -6,14 +6,13 @@ from typing import TYPE_CHECKING
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fashx.catalog.repositories.catalog import CatalogRepository
-from fashx.profile.repositories.profile import ProfileRepository
-
-from .database import get_db_session
-
 if TYPE_CHECKING:
     from fashx.application.ports.storage import ObjectStorage
     from fashx.application.ports.tryon import TryOnAdapter
+    from fashx.catalog.repositories.catalog import CatalogRepository
+    from fashx.profile.repositories.profile import ProfileRepository
+
+from .database import get_db_session
 
 
 async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIterator[AsyncSession]:
@@ -21,10 +20,14 @@ async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIt
 
 
 def profile_repository(session: AsyncSession = Depends(get_db_session)) -> ProfileRepository:
+    from fashx.profile.repositories.profile import ProfileRepository
+
     return ProfileRepository(session)
 
 
 def catalog_repository(session: AsyncSession = Depends(get_db_session)) -> CatalogRepository:
+    from fashx.catalog.repositories.catalog import CatalogRepository
+
     return CatalogRepository(session)
 
 

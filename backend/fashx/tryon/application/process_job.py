@@ -211,7 +211,17 @@ class ProcessTryOnJobUseCase:
                     failure_reason=f"model_error: {exc}",
                 )
 
-        # 5. Consent can be revoked during long vendor call: re-check, then discard result
+        # 5. Check if job was deleted (e.g. photo was deleted mid-flight) or consent was revoked
+        async with self.tryon_uow:
+            current_job = await self.tryon_uow.jobs.get_by_id(job_id)
+        if current_job is None:
+            return ProcessJobResult(
+                job_id=job_id,
+                status="cancelled",
+                artifact_key=job.artifact_key,
+                failure_reason="job_deleted",
+            )
+
         async with self.profile_uow:
             has_consent_post = await self.profile_uow.consents.has_consent(job.user_id, "body_photo")
         if not has_consent_post:
@@ -262,7 +272,17 @@ class ProcessTryOnJobUseCase:
                 failure_reason="quality_rejected",
             )
 
-        # 8. Success: Store Result Object in Private Bucket First (Rule I06)
+        # 8. Success: Verify job still exists before storing result in bucket (discard if deleted mid-flight)
+        async with self.tryon_uow:
+            final_check = await self.tryon_uow.jobs.get_by_id(job_id)
+        if final_check is None:
+            return ProcessJobResult(
+                job_id=job_id,
+                status="cancelled",
+                artifact_key=job.artifact_key,
+                failure_reason="job_deleted",
+            )
+
         key = media_key(job.user_id, "tryon_result", job.id)
         if self.storage:
             put_res = self.storage.put(key, watermarked_bytes, content_type="image/jpeg")
@@ -271,6 +291,19 @@ class ProcessTryOnJobUseCase:
 
         # 9. Success: Persist Artifact & Complete Job
         async with self.tryon_uow:
+            # Re-verify job was not deleted while storing file
+            job_record = await self.tryon_uow.jobs.get_by_id(job_id)
+            if job_record is None:
+                if self.storage and hasattr(self.storage, "delete"):
+                    del_res = self.storage.delete(key)
+                    if inspect.isawaitable(del_res):
+                        await del_res
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="cancelled",
+                    artifact_key=job.artifact_key,
+                    failure_reason="job_deleted",
+                )
             artifact = TryOnArtifact(
                 job_id=job_id,
                 artifact_key=job.artifact_key,

@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
+from typing import Any
 from uuid import UUID
 
+from database.models.catalog import Brand
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
@@ -35,6 +37,12 @@ class FeedItemResult:
     silhouette: str | None
     relevance_score: float
     stylist_explanation: str
+    title: str = ""
+    brand: str = ""
+    image_url: str | None = None
+    price_updated_at: Any = None
+    reason_chips: list[str] = field(default_factory=list)
+    tryon_supported: bool = True
 
 
 @dataclass
@@ -43,6 +51,8 @@ class GenerateFeedResult:
     items: list[FeedItemResult] = field(default_factory=list)
     total_candidates: int = 0
     filtered_candidates: int = 0
+    empty_reason: str | None = None
+    relaxed: list[str] = field(default_factory=list)
 
 
 class GenerateFeedUseCase:
@@ -95,6 +105,18 @@ class GenerateFeedUseCase:
                 attrs = enrichment.attributes_json if enrichment else {}
                 emb = enrichment.embedding if enrichment else None
 
+                brand_name = ""
+                if g.brand_id:
+                    brand_obj = await self.catalog_uow.session.get(Brand, g.brand_id)
+                    if brand_obj:
+                        brand_name = brand_obj.name
+
+                images_rec = await self.catalog_uow.images.list_for_garment(g.id)
+                image_url = images_rec[0].image_url if images_rec and images_rec[0].image_url else None
+                title = g.display_name or f"{g.category.capitalize()} {g.subcategory or ''}".strip()
+                tryon_supported = bool(getattr(g, "tryon_supported", True))
+                price_updated_at = getattr(top_offer, "price_checked_at", None) or getattr(top_offer, "updated_at", None)
+
                 candidates.append(
                     CandidateItem(
                         garment_id=g.id,
@@ -107,6 +129,11 @@ class GenerateFeedUseCase:
                         formality=attrs.get("formality"),
                         attributes=attrs,
                         embedding=emb,
+                        title=title,
+                        brand=brand_name,
+                        image_url=image_url,
+                        price_updated_at=price_updated_at,
+                        tryon_supported=tryon_supported,
                     )
                 )
 
@@ -173,6 +200,14 @@ class GenerateFeedUseCase:
                 user_build=user_build,
                 user_undertone=undertone,
             )
+            reason_chips = []
+            if s.item.category:
+                reason_chips.append(s.item.category.capitalize())
+            if s.item.dominant_color:
+                reason_chips.append(s.item.dominant_color.capitalize())
+            elif s.item.silhouette:
+                reason_chips.append(s.item.silhouette.replace("_", " ").capitalize())
+
             feed_items.append(
                 FeedItemResult(
                     garment_id=s.item.garment_id,
@@ -183,12 +218,23 @@ class GenerateFeedUseCase:
                     silhouette=s.item.silhouette,
                     relevance_score=s.relevance_score,
                     stylist_explanation=explanation,
+                    title=s.item.title,
+                    brand=s.item.brand,
+                    image_url=s.item.image_url,
+                    price_updated_at=s.item.price_updated_at,
+                    reason_chips=reason_chips[:2],
+                    tryon_supported=s.item.tryon_supported,
                 )
             )
+
+        empty_reason = None
+        if not feed_items:
+            empty_reason = "catalog_empty" if total_candidates == 0 else "no_matches_in_size_or_budget"
 
         return GenerateFeedResult(
             user_id=cmd.user_id,
             items=feed_items,
             total_candidates=total_candidates,
             filtered_candidates=filtered_count,
+            empty_reason=empty_reason,
         )

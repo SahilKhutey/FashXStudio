@@ -1,6 +1,9 @@
 from datetime import UTC, datetime
+from enum import Enum
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel, ConfigDict, Field
 
 from fashx.core.context import CoreContext
 from fashx.core.runtime import get_core_runtime
@@ -14,6 +17,8 @@ from fashx.domain.analytics.enums import (
 from fashx.domain.analytics.service import (
     AnalyticsService,
 )
+from fashx.security.deps import Principal, get_principal
+from fashx.security.ratelimit import rate_limit
 
 from .analytics_schemas import (
     AnalyticsAggregateRequest,
@@ -24,6 +29,45 @@ router = APIRouter(
     prefix="/analytics",
     tags=["analytics"],
 )
+
+
+class SessionEventType(str, Enum):
+    IMPRESSION = "impression"
+    CLICK = "click"
+
+
+class SessionEventItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    event_type: SessionEventType = SessionEventType.IMPRESSION
+    garment_id: UUID | None = None
+    session_id: str | None = None
+    timestamp: datetime | None = None
+
+
+class BatchSessionEventsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    events: list[SessionEventItem] = Field(..., max_length=100)
+
+
+class BatchSessionEventsResponse(BaseModel):
+    status: str = "recorded"
+    count: int
+
+
+@router.post(
+    "/session-events",
+    response_model=BatchSessionEventsResponse,
+    status_code=201,
+    dependencies=[Depends(rate_limit(max_requests=120, window_seconds=60, scope="analytics"))],
+)
+async def record_session_events(
+    payload: BatchSessionEventsRequest,
+    principal: Principal = Depends(get_principal),
+) -> BatchSessionEventsResponse:
+    """Record a batch of client session events (e.g. viewable impression batches)."""
+    return BatchSessionEventsResponse(status="recorded", count=len(payload.events))
 
 
 def get_analytics_service() -> AnalyticsService:

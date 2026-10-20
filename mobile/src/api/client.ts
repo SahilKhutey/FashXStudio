@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { env } from "../lib/env";
+import { getAccessToken, getDevToken } from "../lib/token";
 
 export class ApiError extends Error {
   constructor(
@@ -58,13 +59,10 @@ export async function api<T>(
     }
   };
 
-  let {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const token = await getAccessToken();
+  let res = await attempt(token);
 
-  let res = await attempt(session?.access_token);
-
-  if (res.status === 401) {
+  if (res.status === 401 && !getDevToken()) {
     // Refresh session once, then retry once
     const { data } = await supabase.auth.refreshSession();
     if (!data.session) {
