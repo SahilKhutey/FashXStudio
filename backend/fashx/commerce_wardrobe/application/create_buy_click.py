@@ -7,7 +7,7 @@ from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from fashx.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError, ValidationError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 
 
@@ -54,6 +54,19 @@ class CreateBuyClickUseCase:
             product = await self.catalog_uow.merchant_products.get_by_source_id(
                 offer.merchant_id, offer.source_product_id
             )
+            if product is None:
+                raise EntityNotFoundError("MerchantProduct", offer.source_product_id)
+
+            if product.status != "active":
+                raise ValidationError(f"Product is not active (status={product.status})")
+
+            if product.source_id is not None:
+                source = await self.catalog_uow.sources.get_by_id(product.source_id)
+                if source is not None and source.status != "cleared":
+                    raise ValidationError(
+                        f"Garment source is {source.status}, requires cleared status"
+                    )
+
             raw_destination_url = product.source_url if product else "https://fashx.studio/shop"
 
         # 3. Generate Tracking ID & Record Click

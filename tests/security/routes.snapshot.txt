@@ -148,6 +148,7 @@ GET /healthz/live
 GET /healthz/ready
 GET /pilot/surveys/pending
 PATCH /api/v1/customers/{customer_id}
+PATCH /api/v1/wardrobe/items/{item_id}
 POST /api/v1/admin/feature-flags
 POST /api/v1/analytics/aggregate
 POST /api/v1/analytics/events

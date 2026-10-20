@@ -38,6 +38,7 @@ class WardrobeItem(Base, UUIDPrimaryKeyMixin):
     snapshot_currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
     snapshot_image_key: Mapped[str] = mapped_column(Text, nullable=False)
     saved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    purchased_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class BuyClick(Base, UUIDPrimaryKeyMixin):
