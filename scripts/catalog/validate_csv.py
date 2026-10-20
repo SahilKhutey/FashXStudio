@@ -23,6 +23,7 @@ REQUIRED = [
     "image",
 ]
 CATEGORIES = {"top", "bottom", "one_piece", "outerwear"}
+SUPPORTED_TRYON_CATEGORIES = {"top", "bottom", "one_piece"}
 GENDERS = {"female", "male", "unisex"}
 PATTERNS = {"solid", "striped", "checked", "floral", "printed", "embroidered", "other"}
 SIZES = {"XS", "S", "M", "L", "XL", "XXL", "FREE"}
@@ -119,6 +120,11 @@ def main(path: str) -> int:
         for flag in ("ethnic_wear", "tryon_suitable"):
             if r[flag].lower() not in {"true", "false"}:
                 err(f"{flag} must be true or false")
+        if (
+            r["tryon_suitable"].lower() == "true"
+            and r["category"] not in SUPPORTED_TRYON_CATEGORIES
+        ):
+            err("tryon_suitable=true needs a try-on supported category (top, bottom, one_piece)")
         sizes = [s for s in r["sizes"].split("|") if s]
         if not sizes or any(s not in SIZES for s in sizes):
             err(f"sizes must be a '|'-separated subset of {sorted(SIZES)}")

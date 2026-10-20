@@ -8,3 +8,6 @@
 6. Tests that touch the database must run on Postgres (marker `db`) as well as any SQLite path.
 7. Do not add dependencies without asking. Do not send real photos or data to any external service.
 8. When something fails, paste the exact command and the first failing output. Do not summarize failures as passes.
+9. One open PR at a time. Do not create a new branch while an earlier PR is unmerged, unless the task names that branch.
+10. Push only to the branch named in the task.
+11. A command that only prints usage text is not verification. Run it on real or fixture input and paste the output.
