@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import (
@@ -136,7 +137,7 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "canonical_garments"
 
     brand_id: Mapped[UUID | None] = mapped_column(ForeignKey("brands.id", ondelete="SET NULL"))
-    display_name: Mapped[str | None] = mapped_column(Text)
+    display_name: Mapped[str] = mapped_column(Text, default="", nullable=False)
     category: Mapped[str] = mapped_column(String(64), nullable=False)
     subcategory: Mapped[str | None] = mapped_column(String(64))
     gender: Mapped[str] = mapped_column(String(32), default="unisex", nullable=False)
@@ -155,6 +156,11 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if "display_name" not in kwargs or kwargs["display_name"] is None:
+            kwargs["display_name"] = kwargs.get("subcategory") or kwargs.get("category") or ""
+        super().__init__(*args, **kwargs)
 
     __table_args__ = (
         Index("ix_canonical_garments_category", "category", "subcategory"),
