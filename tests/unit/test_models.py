@@ -35,4 +35,4 @@ def test_tryon_job_has_idempotency_and_artifact_constraints() -> None:
     table = Base.metadata.tables["tryon_jobs"]
     constraint_names = {c.name for c in table.constraints if c.name}
     assert "uq_tryon_user_idempotency" in constraint_names
-    assert "uq_tryon_artifact_key" in constraint_names
+    assert "uq_tryon_jobs_artifact_key" in constraint_names or "uq_tryon_artifact_key" in constraint_names

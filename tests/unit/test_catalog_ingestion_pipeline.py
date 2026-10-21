@@ -60,7 +60,7 @@ def test_parsers_csv_and_xml() -> None:
         "\ufeffid,title,description,price,link,image_link,availability,gender,age_group\n"
         'SKU-1,"Embroidered Silk Kurta","Traditional festive wear","2499 INR",https://brand.com/p1,https://brand.com/i1.jpg,in_stock,female,adult\n'
         'SKU-2,"Slim Chino Pants","Cotton casual trousers","1799 INR",https://brand.com/p2,https://brand.com/i2.jpg,in_stock,male,adult\n'
-    ).encode("utf-8")
+    ).encode()
 
     rows = list(rows_from_csv(csv_bytes))
     assert len(rows) == 2

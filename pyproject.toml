@@ -55,14 +55,6 @@ dev = [
   "psycopg[binary]>=3.1.18",
 ]
 
-[tool.pytest.ini_options]
-addopts = "-q"
-testpaths = ["tests"]
-pythonpath = [".", "backend"]
-asyncio_mode = "auto"
-
-
-
 [build-system]
 requires = ["hatchling>=1.27.0,<2"]
 build-backend = "hatchling.build"
@@ -72,4 +64,3 @@ packages = ["backend/fashx", "schemas", "database"]
 
 [tool.hatch.build.targets.wheel.sources]
 "backend" = ""
-
