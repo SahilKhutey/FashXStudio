@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 
 from fashx.core.errors import (
@@ -8,7 +8,7 @@ from fashx.core.errors import (
     IdempotencyConflictError,
     ValidationError,
 )
-from fashx.main import app
+from fashx.gateway.errors import install_exception_handlers
 
 router = APIRouter(prefix="/api/v1/test-errors")
 
@@ -43,11 +43,15 @@ async def trigger_domain_val():
     raise ValidationError("Invalid height measurement", field="height_cm")
 
 
-app.include_router(router)
+def _get_client() -> TestClient:
+    app = FastAPI()
+    install_exception_handlers(app)
+    app.include_router(router)
+    return TestClient(app)
 
 
 def test_validation_errors_use_standard_envelope() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/typed", params={"value": "bad"})
     assert response.status_code == 400
     payload = response.json()
@@ -56,7 +60,7 @@ def test_validation_errors_use_standard_envelope() -> None:
 
 
 def test_entity_not_found_returns_404() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/not-found")
     assert response.status_code == 404
     payload = response.json()
@@ -65,7 +69,7 @@ def test_entity_not_found_returns_404() -> None:
 
 
 def test_consent_required_returns_403() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/consent")
     assert response.status_code == 403
     payload = response.json()
@@ -73,7 +77,7 @@ def test_consent_required_returns_403() -> None:
 
 
 def test_duplicate_entity_returns_409() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/duplicate")
     assert response.status_code == 409
     payload = response.json()
@@ -82,7 +86,7 @@ def test_duplicate_entity_returns_409() -> None:
 
 
 def test_idempotency_conflict_returns_409() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/conflict")
     assert response.status_code == 409
     payload = response.json()
@@ -90,7 +94,7 @@ def test_idempotency_conflict_returns_409() -> None:
 
 
 def test_domain_validation_returns_422() -> None:
-    client = TestClient(app)
+    client = _get_client()
     response = client.get("/api/v1/test-errors/domain-val")
     assert response.status_code == 422
     payload = response.json()

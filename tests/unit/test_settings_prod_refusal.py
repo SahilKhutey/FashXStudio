@@ -17,6 +17,8 @@ def set_prod_env(monkeypatch):
     monkeypatch.setenv("AUTH_AUDIENCE", "authenticated")
     monkeypatch.setenv("TRYON_PROVIDER", "fashn_selfhost")
     monkeypatch.setenv("CORS_ORIGINS", '["https://app.fashxstudio.com"]')
+    monkeypatch.setenv("PRIVACY_URL", "https://app.fashxstudio.com/privacy")
+    monkeypatch.setenv("TERMS_URL", "https://app.fashxstudio.com/terms")
 
 
 def test_prod_accepts_valid_production_config(monkeypatch):
