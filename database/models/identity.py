@@ -85,7 +85,7 @@ class UserPhoto(Base, UUIDPrimaryKeyMixin):
     framing_score: Mapped[float | None] = mapped_column(Float)
     landmark_confidence: Mapped[float | None] = mapped_column(Float)
     ready_for_tryon: Mapped[bool | None] = mapped_column(Boolean)
-    quality_reasons: Mapped[list[str]] = mapped_column(JSON, default=list)
+    quality_reasons: Mapped[list[str] | None] = mapped_column(JSON, default=list, nullable=True)
     pose_provider: Mapped[str | None] = mapped_column(String(64))
     pose_provider_version: Mapped[str | None] = mapped_column(String(64))
 

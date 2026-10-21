@@ -77,7 +77,7 @@ class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
     size_bytes: Mapped[int | None] = mapped_column(Integer)
     content_type: Mapped[str | None] = mapped_column(String(64))
     content_sha256: Mapped[str | None] = mapped_column(String(64), index=True)
-    quality_reasons: Mapped[list[str]] = mapped_column(JSON, default=list)
+    quality_reasons: Mapped[list[str] | None] = mapped_column(JSON, default=list, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

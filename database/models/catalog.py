@@ -136,7 +136,7 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "canonical_garments"
 
     brand_id: Mapped[UUID | None] = mapped_column(ForeignKey("brands.id", ondelete="SET NULL"))
-    display_name: Mapped[str | None] = mapped_column(Text)
+    display_name: Mapped[str] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(64), nullable=False)
     subcategory: Mapped[str | None] = mapped_column(String(64))
     gender: Mapped[str] = mapped_column(String(32), default="unisex", nullable=False)
