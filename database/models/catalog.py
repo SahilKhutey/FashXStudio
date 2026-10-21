@@ -158,8 +158,14 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        if "display_name" not in kwargs or kwargs["display_name"] is None:
-            kwargs["display_name"] = kwargs.get("subcategory") or kwargs.get("category") or ""
+        title = kwargs.pop("title", None)
+        if "display_name" not in kwargs or not kwargs["display_name"]:
+            kwargs["display_name"] = (
+                title
+                or kwargs.get("subcategory")
+                or kwargs.get("category")
+                or ""
+            )
         super().__init__(*args, **kwargs)
 
     __table_args__ = (

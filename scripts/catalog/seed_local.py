@@ -200,15 +200,16 @@ async def seed_local_catalog(
                 await session.flush()
 
             # Find or create CanonicalGarment
+            effective_display_name = title or sub_category or category or ""
             cg_stmt = select(CanonicalGarment).where(
                 CanonicalGarment.brand_id == brand.id,
-                CanonicalGarment.display_name == title,
+                CanonicalGarment.display_name == effective_display_name,
             )
             garment = (await session.scalars(cg_stmt)).first()
             if garment is None:
                 garment = CanonicalGarment(
                     brand_id=brand.id,
-                    display_name=title,
+                    display_name=effective_display_name,
                     category=category,
                     subcategory=sub_category,
                     gender=gender,

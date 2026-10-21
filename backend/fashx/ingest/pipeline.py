@@ -263,6 +263,7 @@ class IngestPipeline:
                             canonical_id = UUID(dedup_res.canonical_id)
                         except ValueError:
                             garment = CanonicalGarment(
+                                display_name=product.title or product.source_category or category_name,
                                 category=category_name,
                                 subcategory=product.source_category,
                                 tryon_supported=(source.rights_tryon and source.image_policy == "mirror"),
@@ -272,6 +273,7 @@ class IngestPipeline:
                             canonical_id = garment.id
                     else:
                         garment = CanonicalGarment(
+                            display_name=product.title or product.source_category or category_name,
                             category=category_name,
                             subcategory=product.source_category,
                             tryon_supported=(source.rights_tryon and source.image_policy == "mirror"),

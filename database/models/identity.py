@@ -89,4 +89,8 @@ class UserPhoto(Base, UUIDPrimaryKeyMixin):
     pose_provider: Mapped[str | None] = mapped_column(String(64))
     pose_provider_version: Mapped[str | None] = mapped_column(String(64))
 
+    @property
+    def safe_quality_reasons(self) -> list[str]:
+        return self.quality_reasons or []
+
     user: Mapped[User] = relationship(back_populates="photos")
