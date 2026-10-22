@@ -12316,6 +12316,11 @@ export interface components {
             photo_version: number;
             /** Garment Version */
             garment_version: number;
+            /**
+             * Quality Reasons
+             * @default []
+             */
+            quality_reasons: string[];
         };
         /**
          * TryOnFailureReason
@@ -12689,6 +12694,11 @@ export interface components {
             storage_key: string;
             /** Reject Reason */
             reject_reason?: string | null;
+            /**
+             * Quality Reasons
+             * @default []
+             */
+            quality_reasons: string[];
         };
         /** ValidationError */
         ValidationError: {

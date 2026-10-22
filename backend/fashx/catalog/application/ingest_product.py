@@ -133,7 +133,7 @@ class IngestMerchantProductUseCase:
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
-                    display_name=cmd.title,
+                    display_name=cmd.title or cmd.subcategory or cmd.category or "",
                     price_minor=cmd.price_minor,
                     sizes_in_stock=cmd.sizes_in_stock,
                     price_updated_at=now,

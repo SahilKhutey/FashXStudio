@@ -15,8 +15,9 @@ class CatalogRepository:
     async def get_garment(self, garment_id: UUID) -> CanonicalGarment | None:
         return await self.session.get(CanonicalGarment, garment_id)
 
-    async def create_garment(self, *, category: str, subcategory: str | None = None, brand_id: UUID | None = None) -> CanonicalGarment:
-        garment = CanonicalGarment(category=category, subcategory=subcategory, brand_id=brand_id)
+    async def create_garment(self, *, category: str, subcategory: str | None = None, brand_id: UUID | None = None, display_name: str | None = None) -> CanonicalGarment:
+        name = display_name or subcategory or category or ""
+        garment = CanonicalGarment(category=category, subcategory=subcategory, brand_id=brand_id, display_name=name)
         self.session.add(garment)
         await self.session.flush()
         return garment

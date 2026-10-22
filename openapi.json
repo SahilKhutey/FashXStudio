@@ -26546,6 +26546,14 @@
           "garment_version": {
             "type": "integer",
             "title": "Garment Version"
+          },
+          "quality_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Reasons",
+            "default": []
           }
         },
         "type": "object",
@@ -27490,6 +27498,14 @@
               }
             ],
             "title": "Reject Reason"
+          },
+          "quality_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality Reasons",
+            "default": []
           }
         },
         "type": "object",

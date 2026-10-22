@@ -12,3 +12,5 @@
 10. Push only to the branch named in the task.
 11. A command that only prints usage text is not verification. Run it on real or fixture input and paste the output.
 12. Never push or merge to main directly. All changes go through a pull request. Only the human founder merges, on GitHub, after CI is green.
+13. A change is verified only if scripts/ci/local_gate.sh printed "LOCAL GATE: ALL GREEN" against Postgres, or CI is green. `alembic upgrade head --sql` is not verification.
+14. If a command cannot run in your environment (no Docker, no Postgres), say so plainly and list exactly what remains unverified. Never substitute a different command.

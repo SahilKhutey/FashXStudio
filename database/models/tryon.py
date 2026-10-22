@@ -80,6 +80,10 @@ class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
     quality_reasons: Mapped[list[str] | None] = mapped_column(JSON, default=list, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+    @property
+    def safe_quality_reasons(self) -> list[str]:
+        return self.quality_reasons or []
+
 
 class TryOnUsage(Base, UUIDPrimaryKeyMixin):
     """Cost and vendor tracking table. Deliberately has NO user_id or job_id for privacy."""
