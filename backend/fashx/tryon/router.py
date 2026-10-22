@@ -82,6 +82,7 @@ class TryOnArtifactResponse(BaseModel):
     pipeline_version: str
     photo_version: int
     garment_version: int
+    quality_reasons: list[str] = []
 
 
 @router.post(
@@ -236,4 +237,5 @@ async def get_tryon_artifact(
             pipeline_version=artifact.pipeline_version,
             photo_version=artifact.photo_version,
             garment_version=artifact.garment_version,
+            quality_reasons=artifact.quality_reasons or [],
         )

@@ -1,52 +1,107 @@
-from uuid import uuid4
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import CanonicalGarment
-
-
-def test_display_name_prefers_explicit_display_name() -> None:
-    garment = CanonicalGarment(
-        id=uuid4(),
-        display_name="Custom Silk Blouse",
-        title="Ignored Title",
-        category="tops",
-        subcategory="blouse",
-    )
-    assert garment.display_name == "Custom Silk Blouse"
+from database.models.catalog import Merchant
+from fashx.catalog.application import IngestMerchantProductUseCase, IngestProductCommand
+from fashx.catalog.repositories.catalog import CatalogRepository
+from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 
 
-def test_display_name_uses_title_when_display_name_absent() -> None:
-    garment = CanonicalGarment(
-        id=uuid4(),
+@pytest.mark.asyncio
+async def test_ingest_product_sets_display_name_from_title(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    uow = CatalogUnitOfWork(session_factory)
+    async with uow:
+        merchant = Merchant(name="Brand Direct", merchant_type="retailer")
+        uow.merchants.add(merchant)
+        await uow.commit()
+        merchant_id = merchant.id
+
+    use_case = IngestMerchantProductUseCase(uow)
+    cmd = IngestProductCommand(
+        merchant_id=merchant_id,
+        source_product_id="SKU-TITLE-1",
         title="Embroidered Festive Kurta",
+        source_url="https://example.com/items/1",
         category="tops",
         subcategory="kurta",
+        price_minor=249900,
     )
+    res = await use_case.execute(cmd)
+    garment = await uow.canonical_garments.get_by_id(res.canonical_garment_id)
+    assert garment is not None
     assert garment.display_name == "Embroidered Festive Kurta"
 
 
-def test_display_name_falls_back_to_subcategory_when_title_and_display_name_absent() -> None:
-    garment = CanonicalGarment(
-        id=uuid4(),
+@pytest.mark.asyncio
+async def test_ingest_product_falls_back_to_subcategory_when_title_empty(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    uow = CatalogUnitOfWork(session_factory)
+    async with uow:
+        merchant = Merchant(name="Brand Direct 2", merchant_type="retailer")
+        uow.merchants.add(merchant)
+        await uow.commit()
+        merchant_id = merchant.id
+
+    use_case = IngestMerchantProductUseCase(uow)
+    cmd = IngestProductCommand(
+        merchant_id=merchant_id,
+        source_product_id="SKU-TITLE-2",
+        title="",
+        source_url="https://example.com/items/2",
         category="tops",
-        subcategory="linen_shirt",
+        subcategory="casual_shirts",
+        price_minor=189900,
     )
-    assert garment.display_name == "linen_shirt"
+    res = await use_case.execute(cmd)
+    garment = await uow.canonical_garments.get_by_id(res.canonical_garment_id)
+    assert garment is not None
+    assert garment.display_name == "casual_shirts"
 
 
-def test_display_name_falls_back_to_category_when_subcategory_and_title_absent() -> None:
-    garment = CanonicalGarment(
-        id=uuid4(),
+@pytest.mark.asyncio
+async def test_ingest_product_falls_back_to_category_when_title_and_subcat_empty(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    uow = CatalogUnitOfWork(session_factory)
+    async with uow:
+        merchant = Merchant(name="Brand Direct 3", merchant_type="retailer")
+        uow.merchants.add(merchant)
+        await uow.commit()
+        merchant_id = merchant.id
+
+    use_case = IngestMerchantProductUseCase(uow)
+    cmd = IngestProductCommand(
+        merchant_id=merchant_id,
+        source_product_id="SKU-TITLE-3",
+        title="",
+        source_url="https://example.com/items/3",
         category="dresses",
+        subcategory="",
+        price_minor=299900,
     )
+    res = await use_case.execute(cmd)
+    garment = await uow.canonical_garments.get_by_id(res.canonical_garment_id)
+    assert garment is not None
     assert garment.display_name == "dresses"
 
 
-def test_display_name_falls_back_when_explicit_display_name_empty() -> None:
-    garment = CanonicalGarment(
-        id=uuid4(),
-        display_name="",
-        title="",
-        category="bottoms",
-        subcategory="cargo_pants",
-    )
-    assert garment.display_name == "cargo_pants"
+@pytest.mark.asyncio
+async def test_catalog_repository_create_garment_sets_display_name_and_fallback(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    async with session_factory() as session:
+        repo = CatalogRepository(session)
+        # 1. Explicit display_name
+        g1 = await repo.create_garment(category="tops", subcategory="linen_shirt", display_name="My Linen Shirt")
+        assert g1.display_name == "My Linen Shirt"
+
+        # 2. Fallback to subcategory
+        g2 = await repo.create_garment(category="tops", subcategory="linen_shirt")
+        assert g2.display_name == "linen_shirt"
+
+        # 3. Fallback to category
+        g3 = await repo.create_garment(category="tops")
+        assert g3.display_name == "tops"

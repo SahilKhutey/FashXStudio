@@ -111,6 +111,7 @@ class UserPhotoItem(BaseModel):
     status: str
     storage_key: str
     reject_reason: str | None = None
+    quality_reasons: list[str] = []
 
 
 class DerivedProfileResponse(BaseModel):
@@ -386,6 +387,7 @@ async def get_derived_profile(
                     status=p.status,
                     storage_key=p.storage_key,
                     reject_reason=p.reject_reason,
+                    quality_reasons=p.quality_reasons or [],
                 )
                 for p in photos_list
             ],

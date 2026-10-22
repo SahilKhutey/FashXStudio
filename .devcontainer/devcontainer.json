@@ -1,0 +1,11 @@
+{
+  "name": "fashx",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" }
+  },
+  "postCreateCommand": "python -m venv .venv && . .venv/bin/activate && pip install -e '.[dev]' && (cd mobile && npm ci)",
+  "forwardPorts": [8000],
+  "customizations": { "vscode": { "extensions": ["ms-python.python", "dbaeumer.vscode-eslint"] } }
+}
