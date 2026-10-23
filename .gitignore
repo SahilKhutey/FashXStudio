@@ -55,3 +55,7 @@ eval/sheets/
 *.7z
 *.rar
 *.tar.gz
+
+# Audit artifacts
+openapi.audit.json
+mvp-audit.md
