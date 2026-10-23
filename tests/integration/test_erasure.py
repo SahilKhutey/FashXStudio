@@ -329,7 +329,7 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     )
     db.execute(
         text('INSERT INTO "user_style_profiles" (user_id, embedding, model_version, version) VALUES (:u, :emb, :mv, 1)'),
-        {"u": user_id, "emb": "[0.1, 0.2]", "mv": "1.0"},
+        {"u": user_id, "emb": "[" + ",".join(["0.1"] * 512) + "]", "mv": "1.0"},
     )
 
     # Account tables
