@@ -1,3 +1,0 @@
-"""
-FashXStudio API Test Suite
-"""

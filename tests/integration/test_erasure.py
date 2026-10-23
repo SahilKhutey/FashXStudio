@@ -240,30 +240,30 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
 
     # Prerequisites (merchants, brands, garments, offers, tenants)
     db.execute(
-        text('INSERT INTO "merchants" (id, name, created_at, updated_at) VALUES (:m, :name, now(), now())'),
-        {"m": merchant_id, "name": "Test Merchant"},
+        text('INSERT INTO "merchants" (id, name, merchant_type) VALUES (:m, :name, :mt)'),
+        {"m": merchant_id, "name": "Test Merchant", "mt": "affiliate"},
     )
     db.execute(
-        text('INSERT INTO "brands" (id, name, created_at, updated_at) VALUES (:b, :name, now(), now())'),
-        {"b": brand_id, "name": "Test Brand"},
-    )
-    db.execute(
-        text(
-            'INSERT INTO "canonical_garments" (id, merchant_id, name, category, tryon_supported, created_at, updated_at) '
-            "VALUES (:g, :m, 'Garment', 'tops', false, now(), now())"
-        ),
-        {"g": garment_id, "m": merchant_id},
+        text('INSERT INTO "brands" (id, name, normalized_name) VALUES (:b, :name, :norm)'),
+        {"b": brand_id, "name": "Test Brand", "norm": f"test-brand-{brand_id}"},
     )
     db.execute(
         text(
-            'INSERT INTO "merchant_offers" (id, garment_id, merchant_id, price_minor, currency, in_stock, url, created_at, updated_at) '
-            "VALUES (:o, :g, :m, 1000, 'INR', true, 'https://example.com', now(), now())"
+            'INSERT INTO "canonical_garments" (id, brand_id, display_name, category, tryon_supported, created_at, updated_at) '
+            "VALUES (:g, :b, 'Garment', 'tops', false, now(), now())"
         ),
-        {"o": offer_id, "g": garment_id, "m": merchant_id},
+        {"g": garment_id, "b": brand_id},
     )
     db.execute(
-        text('INSERT INTO "tenants" (id, name, created_at, updated_at) VALUES (:t, :name, now(), now())'),
-        {"t": tenant_id, "name": "Test Tenant"},
+        text(
+            'INSERT INTO "merchant_offers" (id, garment_id, merchant_id, source_product_id, price_minor, currency, in_stock, url, last_synced_at) '
+            "VALUES (:o, :g, :m, :spid, 1000, 'INR', true, 'https://example.com', now())"
+        ),
+        {"o": offer_id, "g": garment_id, "m": merchant_id, "spid": f"src-{offer_id}"},
+    )
+    db.execute(
+        text('INSERT INTO "tenants" (id, slug, name, created_at, updated_at) VALUES (:t, :slug, :name, now(), now())'),
+        {"t": tenant_id, "slug": f"slug-{tenant_id}", "name": "Test Tenant"},
     )
 
     # Core user & auth identities
@@ -312,7 +312,7 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     db.execute(
         text(
             'INSERT INTO "media_objects" (id, user_id, kind, object_key, sha256, size_bytes, content_type, created_at) '
-            "VALUES (:mid, :u, 'photo', :sk, :sha, 1024, 'image/jpeg', now())"
+            "VALUES (:mid, :u, 'reference_photo', :sk, :sha, 1024, 'image/jpeg', now())"
         ),
         {"mid": uuid4(), "u": user_id, "sk": f"u/{user_id}/media/1.jpg", "sha": "a" * 64},
     )

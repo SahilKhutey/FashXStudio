@@ -1,7 +1,7 @@
 target-version = "py312"
 line-length = 100
 src = ["backend", "."]
-extend-exclude = ["apps", "docs"]
+extend-exclude = ["docs"]
 
 [lint]
 select = [
