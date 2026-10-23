@@ -96,7 +96,7 @@ jobs:
         with: { node-version: 22, cache: npm, cache-dependency-path: mobile/package-lock.json }
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: npx eslint . --max-warnings 0 || true # Deliberate: awaiting full eslint flat-config adoption in PR 8B-1
+      - run: npx eslint . --max-warnings 0
       - run: npx jest --ci
       - run: npx expo-doctor
       - run: npx expo export --platform android # proves the JS bundle builds
