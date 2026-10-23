@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import inspect
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
@@ -74,13 +75,15 @@ async def _exec(
     label: str,
     counts: dict[str, int],
 ) -> None:
-    res = await session.execute(text(sql).bindparams(bindparam("uid", uid, type_=SqlUUID)))
+    res = session.execute(text(sql).bindparams(bindparam("uid", uid, type_=SqlUUID)))
+    if inspect.isawaitable(res):
+        res = await res
     rc = getattr(res, "rowcount", None)
     counts[label] = rc if isinstance(rc, int) and rc >= 0 else 0
 
 
 async def _write_tombstone(session: Any, user_id: UUID) -> None:
-    await session.execute(
+    res = session.execute(
         text(
             'INSERT INTO "erasure_tombstones" (user_id, erased_at) '
             "VALUES (:uid, :erased_at) ON CONFLICT (user_id) DO NOTHING"
@@ -89,6 +92,8 @@ async def _write_tombstone(session: Any, user_id: UUID) -> None:
             bindparam("erased_at", datetime.now(UTC)),
         )
     )
+    if inspect.isawaitable(res):
+        await res
 
 
 async def erase_biometrics(
@@ -102,16 +107,22 @@ async def erase_biometrics(
 
     # 1. Revoke consent in consent_records if requested
     if record_revocation and getattr(uow, "consents", None) is not None:
-        await uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=False)
+        res = uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=False)
+        if inspect.isawaitable(res):
+            await res
 
     # 2. Collect storage keys for user
     keys: list[str] = []
     if getattr(uow, "media", None) is not None:
-        records = await uow.media.list_for_user(user_id)
+        records = uow.media.list_for_user(user_id)
+        if inspect.isawaitable(records):
+            records = await records
         keys.extend([r.object_key for r in records if r.object_key])
 
     if getattr(uow, "photos", None) is not None:
-        photos = await uow.photos.list_for_user(user_id)
+        photos = uow.photos.list_for_user(user_id)
+        if inspect.isawaitable(photos):
+            photos = await photos
         keys.extend([p.storage_key for p in photos if p.storage_key])
 
     # 3. Delete from biometric tables without swallowing errors
@@ -128,14 +139,22 @@ async def erase_biometrics(
     else:
         # Fallback for in-memory / unit-of-work mocks
         if getattr(uow, "photos", None) is not None:
-            photos = await uow.photos.list_for_user(user_id)
+            photos = uow.photos.list_for_user(user_id)
+            if inspect.isawaitable(photos):
+                photos = await photos
             for p in photos:
-                await uow.photos.delete(p)
+                del_res = uow.photos.delete(p)
+                if inspect.isawaitable(del_res):
+                    await del_res
 
         if getattr(uow, "body_profiles", None) is not None:
-            bp = await uow.body_profiles.get_by_user_id(user_id)
+            bp = uow.body_profiles.get_by_user_id(user_id)
+            if inspect.isawaitable(bp):
+                bp = await bp
             if bp:
-                await uow.body_profiles.delete(bp)
+                del_res = uow.body_profiles.delete(bp)
+                if inspect.isawaitable(del_res):
+                    await del_res
 
     # 4. Enqueue storage purge via Outbox
     prefix = f"u/{user_id}/"
@@ -149,7 +168,9 @@ async def erase_biometrics(
             ),
             created_at=datetime.now(UTC),
         )
-        await uow.outbox.add(msg)
+        add_res = uow.outbox.add(msg)
+        if inspect.isawaitable(add_res):
+            await add_res
 
     # If storage passed directly, prune immediately
     if storage is not None:
@@ -233,21 +254,32 @@ async def erase_account(
                     ),
                     created_at=datetime.now(UTC),
                 )
-                await uow.outbox.add(msg)
+                add_res = uow.outbox.add(msg)
+                if inspect.isawaitable(add_res):
+                    await add_res
 
             # 7. Commit whole transaction
             if hasattr(uow, "commit"):
-                await uow.commit()
-            else:
-                await session.commit()
+                res = uow.commit()
+                if inspect.isawaitable(res):
+                    await res
+            elif hasattr(session, "commit"):
+                res = session.commit()
+                if inspect.isawaitable(res):
+                    await res
         except Exception as e:
             if hasattr(uow, "rollback"):
-                await uow.rollback()
-            else:
-                await session.rollback()
+                res = uow.rollback()
+                if inspect.isawaitable(res):
+                    await res
+            elif hasattr(session, "rollback"):
+                res = session.rollback()
+                if inspect.isawaitable(res):
+                    await res
             raise ErasureIncomplete([f"{type(e).__name__}: {e}"]) from e
 
-        session.expunge_all()
+        if hasattr(session, "expunge_all"):
+            session.expunge_all()
     else:
         # Fallback for mock unit-of-work
         bio_res = await erase_biometrics(uow, user_id, storage=storage, record_revocation=False)
@@ -262,7 +294,9 @@ async def erase_account(
                 ),
                 created_at=datetime.now(UTC),
             )
-            await uow.outbox.add(msg)
+            add_res = uow.outbox.add(msg)
+            if inspect.isawaitable(add_res):
+                await add_res
 
     if storage is not None and hasattr(storage, "delete_prefix"):
         storage.delete_prefix(prefix)
