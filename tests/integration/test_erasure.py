@@ -322,8 +322,8 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     )
     db.execute(
         text(
-            'INSERT INTO "user_measurements" (id, user_id, measurement, value, unit, source, created_at) '
-            "VALUES (:umid, :u, 'chest', 95.0, 'cm', 'user', now())"
+            'INSERT INTO "user_measurements" (id, user_id, measurement, value, unit, source) '
+            "VALUES (:umid, :u, 'chest', 95.0, 'cm', 'user')"
         ),
         {"umid": uuid4(), "u": user_id},
     )
