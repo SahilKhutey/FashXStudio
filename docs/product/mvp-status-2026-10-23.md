@@ -44,12 +44,12 @@ tests on SQLite. But:
 
 | Area | State | Evidence |
 |---|---|---|
-| CI on main | Unknown | gh not logged in. Last known state: 3 jobs red (api-types, backend, mobile) |
-| Postgres tests, migrations on Postgres, alembic check | Never run | Docker not installed, `TEST_DATABASE_URL` unset |
+| CI on main | 🟢 Green | PR #21 merged; all six jobs green in GitHub Actions |
+| Postgres tests, migrations on Postgres, alembic check | 🟢 Passed in CI | 15 passed in CI postgres db test step |
 | expo-doctor | Failing locally: "1 check failed" (name truncated) | Node is v24 locally, CI uses 20. Earlier "21/21" no longer holds |
 | Real data | None | `catalog_seed/images` has 0 files |
 | Personalization | Broken | `enricher.py:168` and `generate_feed.py:162` both use `[0.05] * 512`. Garment vectors and the user vector are constants |
-| ESLint in CI | Not enforced | `ci.yml:99`: `npx eslint . --max-warnings 0 \|\| true` |
+| ESLint in CI | 🟢 Enforced | Blocking in CI (`|| true` removed in PR #21, `--max-warnings 0`) |
 | Gate screens | Missing | No `app/(gates)/maintenance` or `update-required` file, so a gate redirect to them has no destination |
 | Closet actions, privacy, delete account | Not built | `settings/index.tsx` is a stub; Slice 3 is unmerged |
 | Real try-on | Mock only | No vendor account; FASHN email not sent |
