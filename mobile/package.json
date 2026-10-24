@@ -49,5 +49,18 @@
     "jest-expo": "~57.0.6",
     "openapi-typescript": "^7.13.0",
     "typescript": "~6.0.3"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "expo",
+        "expo-router",
+        "jest-expo",
+        "expo-constants",
+        "expo-linking",
+        "expo-file-system",
+        "expo-image-picker"
+      ]
+    }
   }
 }

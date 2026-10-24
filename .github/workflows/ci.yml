@@ -96,7 +96,7 @@ jobs:
         with: { node-version: 22, cache: npm, cache-dependency-path: mobile/package-lock.json }
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: npx eslint . --max-warnings 0 || true # Deliberate: awaiting full eslint flat-config adoption in PR 8B-1
+      - run: npx eslint . --max-warnings 0
       - run: npx jest --ci
       - run: npx expo-doctor
       - run: npx expo export --platform android # proves the JS bundle builds
@@ -125,4 +125,4 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - run: pip install bandit pip-audit
       - run: bandit -r backend/fashx -ll -ii
-      - run: pip-audit --desc on || true # Deliberate: security audit reporting; non-blocking on advisory notices
+      - run: pip-audit --desc on || true # Issue #21: security advisory audit; non-blocking on advisory notices

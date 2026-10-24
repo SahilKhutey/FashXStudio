@@ -199,6 +199,14 @@ async def erase_account(
     prefix = f"u/{user_id}/"
 
     if session is not None:
+        # Use a SAVEPOINT so that a rollback on failure only undoes the erasure
+        # work, not the caller's outer transaction (important for tests and for
+        # production callers that hold an open unit-of-work).
+        nested = None
+        if hasattr(session, "begin_nested"):
+            nested = session.begin_nested()
+            if inspect.isawaitable(nested):
+                nested = await nested
         try:
             # 1. Erase biometrics first (skip revocation logging for whole-account erasure)
             bio_res = await erase_biometrics(uow, user_id, storage=storage, record_revocation=False)
@@ -258,7 +266,12 @@ async def erase_account(
                 if inspect.isawaitable(add_res):
                     await add_res
 
-            # 7. Commit whole transaction
+            # 7. Commit the savepoint, then flush to the outer transaction
+            if nested is not None and hasattr(nested, "commit"):
+                commit_res = nested.commit()
+                if inspect.isawaitable(commit_res):
+                    await commit_res
+
             if hasattr(uow, "commit"):
                 res = uow.commit()
                 if inspect.isawaitable(res):
@@ -268,14 +281,20 @@ async def erase_account(
                 if inspect.isawaitable(res):
                     await res
         except Exception as e:
-            if hasattr(uow, "rollback"):
-                res = uow.rollback()
-                if inspect.isawaitable(res):
-                    await res
+            # Roll back only to the savepoint; the caller's outer transaction
+            # is preserved so no half-deleted state leaks into the session.
+            if nested is not None and hasattr(nested, "rollback"):
+                rb_res = nested.rollback()
+                if inspect.isawaitable(rb_res):
+                    await rb_res
+            elif hasattr(uow, "rollback"):
+                rb_res = uow.rollback()
+                if inspect.isawaitable(rb_res):
+                    await rb_res
             elif hasattr(session, "rollback"):
-                res = session.rollback()
-                if inspect.isawaitable(res):
-                    await res
+                rb_res = session.rollback()
+                if inspect.isawaitable(rb_res):
+                    await rb_res
             raise ErasureIncomplete([f"{type(e).__name__}: {e}"]) from e
 
         if hasattr(session, "expunge_all"):
