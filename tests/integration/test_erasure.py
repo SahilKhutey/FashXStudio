@@ -375,8 +375,21 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
         {"u": user_id, "cf": json.dumps([]), "ca": json.dumps([]), "cats": json.dumps([])},
     )
     db.execute(
-        text('INSERT INTO "onboarding_profiles" (user_id, status, step, created_at, updated_at) VALUES (:u, :st, :step, now(), now())'),
-        {"u": user_id, "st": "completed", "step": "done"},
+        text(
+            'INSERT INTO "onboarding_profiles" ('
+            'user_id, status, step, styles, occasions, fit_preferences, shopping_preferences, discovery_preferences, created_at, updated_at'
+            ') VALUES (:u, :st, :step, :styles, :occasions, :fit, :shop, :disc, now(), now())'
+        ),
+        {
+            "u": user_id,
+            "st": "completed",
+            "step": "done",
+            "styles": json.dumps([]),
+            "occasions": json.dumps([]),
+            "fit": json.dumps([]),
+            "shop": json.dumps([]),
+            "disc": json.dumps([]),
+        },
     )
     db.execute(
         text(
@@ -419,8 +432,8 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
 
     # Anonymize tables (user_id will become NULL)
     db.execute(
-        text('INSERT INTO "domain_events" (id, event_type, user_id, occurred_at) VALUES (:deid, :et, :u, now())'),
-        {"deid": event_id, "et": "user.signed_up", "u": user_id},
+        text('INSERT INTO "domain_events" (id, event_type, user_id, payload, occurred_at) VALUES (:deid, :et, :u, :payload, now())'),
+        {"deid": event_id, "et": "user.signed_up", "u": user_id, "payload": json.dumps({})},
     )
     db.execute(
         text('INSERT INTO "pilot_invites" (code_hash, cohort, channel, user_id, created_at) VALUES (:ch, :coh, :channel, :u, now())'),
