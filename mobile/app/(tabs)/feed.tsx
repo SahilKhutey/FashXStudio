@@ -19,6 +19,13 @@ import {
 } from "../../src/features/feed/hooks";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
 import { Chip } from "../../src/components/Chip";
+import {
+  useDesignTokens,
+  AppText,
+  spacing,
+  radius,
+  elevation,
+} from "../../src/design-system";
 
 function formatPrice(priceMinor: number): string {
   const amount = (priceMinor / 100).toFixed(0);
@@ -38,6 +45,7 @@ function formatDate(isoDate?: string | null): string {
 export default function FeedScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useDesignTokens();
 
   const {
     data,
@@ -89,14 +97,14 @@ export default function FeedScreen() {
       const formattedDate = formatDate(item.price_updated_at);
 
       return (
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => router.push(`/garment/${item.garment_id}`)}
             accessibilityRole="button"
             accessibilityLabel={`${item.brand} ${item.title}`}
           >
-            <View style={styles.imageContainer}>
+            <View style={[styles.imageContainer, { backgroundColor: colors.surfaceSecondary }]}>
               {item.image_url ? (
                 <Image
                   source={{ uri: item.image_url, cacheKey: stableCacheKey }}
@@ -112,25 +120,39 @@ export default function FeedScreen() {
 
               {item.tryon_supported && (
                 <View style={styles.tryonBadge}>
-                  <Text style={styles.tryonBadgeText}>✨ {t("feed.tryonBadge")}</Text>
+                  <AppText variant="caption" color="textOnBrand" style={styles.tryonBadgeText}>
+                    ✨ {t("feed.tryonBadge")}
+                  </AppText>
                 </View>
               )}
             </View>
 
             <View style={styles.cardContent}>
-              <Text style={styles.brandText} numberOfLines={1}>
+              <AppText
+                variant="label"
+                color="textMuted"
+                style={styles.brandText}
+                numberOfLines={1}
+              >
                 {item.brand.toUpperCase()}
-              </Text>
-              <Text style={styles.titleText} numberOfLines={2}>
+              </AppText>
+              <AppText
+                variant="body"
+                color="textPrimary"
+                style={styles.titleText}
+                numberOfLines={2}
+              >
                 {item.title}
-              </Text>
+              </AppText>
 
               <View style={styles.priceRow}>
-                <Text style={styles.priceText}>{formatPrice(item.price_minor)}</Text>
+                <AppText variant="heading3" color="textPrimary" style={styles.priceText}>
+                  {formatPrice(item.price_minor)}
+                </AppText>
                 {formattedDate ? (
-                  <Text style={styles.priceFreshnessText}>
+                  <AppText variant="caption" color="textMuted" style={styles.priceFreshnessText}>
                     {t("feed.asOf", { date: formattedDate })}
-                  </Text>
+                  </AppText>
                 ) : null}
               </View>
 
@@ -144,19 +166,21 @@ export default function FeedScreen() {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.actionRow}>
+          <View style={[styles.actionRow, { borderTopColor: colors.border }]}>
             <TouchableOpacity
-              style={styles.actionButtonSecondary}
+              style={[styles.actionButtonSecondary, { backgroundColor: colors.surfaceSecondary }]}
               onPress={() => sendSignal(item.garment_id, "not_interested", 5000)}
               accessibilityRole="button"
               accessibilityLabel={t("feed.notInterested")}
             >
-              <Text style={styles.actionSecondaryText}>{t("feed.notInterested")}</Text>
+              <AppText variant="label" color="textSecondary" style={styles.actionSecondaryText}>
+                {t("feed.notInterested")}
+              </AppText>
             </TouchableOpacity>
 
             <View style={styles.rightActions}>
               <TouchableOpacity
-                style={styles.iconButton}
+                style={[styles.iconButton, { backgroundColor: colors.surfaceSecondary }]}
                 onPress={() => sendSignal(item.garment_id, "like", 0)}
                 accessibilityRole="button"
                 accessibilityLabel={t("feed.like")}
@@ -165,68 +189,89 @@ export default function FeedScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.actionButtonPrimary}
+                style={[styles.actionButtonPrimary, { backgroundColor: colors.brand }]}
                 onPress={() => saveToWardrobe({ garmentId: item.garment_id })}
                 disabled={isSaving}
                 accessibilityRole="button"
                 accessibilityLabel={t("feed.save")}
               >
-                <Text style={styles.actionPrimaryText}>{t("feed.save")}</Text>
+                <AppText variant="label" color="textOnBrand" style={styles.actionPrimaryText}>
+                  {t("feed.save")}
+                </AppText>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       );
     },
-    [router, t, sendSignal, saveToWardrobe, isSaving]
+    [router, t, sendSignal, saveToWardrobe, isSaving, colors]
   );
 
   if (isLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
-        <Text style={styles.loadingText}>{t("common.loading")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
+        <AppText variant="body" color="textMuted" style={styles.loadingText}>
+          {t("common.loading")}
+        </AppText>
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorTitle}>{t("common.error")}</Text>
-        <Text style={styles.errorSubtitle}>{t("common.networkError")}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <AppText variant="heading2" color="textPrimary" style={styles.errorTitle}>
+          {t("common.error")}
+        </AppText>
+        <AppText variant="body" color="textSecondary" style={styles.errorSubtitle}>
+          {t("common.networkError")}
+        </AppText>
         <TouchableOpacity
-          style={styles.retryButton}
+          style={[styles.retryButton, { backgroundColor: colors.brand }]}
           onPress={() => refetch()}
           accessibilityRole="button"
           accessibilityLabel={t("common.retry")}
         >
-          <Text style={styles.retryButtonText}>{t("common.retry")}</Text>
+          <AppText variant="label" color="textOnBrand" style={styles.retryButtonText}>
+            {t("common.retry")}
+          </AppText>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {relaxedFilters.length > 0 && (
-        <View style={styles.relaxedBanner}>
-          <Text style={styles.relaxedBannerText}>💡 {t("feed.relaxedBanner")}</Text>
+        <View
+          style={[
+            styles.relaxedBanner,
+            { backgroundColor: colors.brandSubtle, borderBottomColor: colors.border },
+          ]}
+        >
+          <AppText variant="caption" color="textSecondary" style={styles.relaxedBannerText}>
+            💡 {t("feed.relaxedBanner")}
+          </AppText>
         </View>
       )}
 
       {feedItems.length === 0 ? (
         <View style={styles.centerContainer}>
-          <Text style={styles.emptyTitle}>
+          <AppText variant="heading2" color="textPrimary" style={styles.emptyTitle}>
             {emptyReason || t("feed.empty")}
-          </Text>
-          <Text style={styles.emptySubtitle}>{t("feed.emptySub")}</Text>
+          </AppText>
+          <AppText variant="body" color="textSecondary" style={styles.emptySubtitle}>
+            {t("feed.emptySub")}
+          </AppText>
           <TouchableOpacity
-            style={styles.retryButton}
+            style={[styles.retryButton, { backgroundColor: colors.brand }]}
             onPress={() => refetch()}
             accessibilityRole="button"
           >
-            <Text style={styles.retryButtonText}>{t("common.retry")}</Text>
+            <AppText variant="label" color="textOnBrand" style={styles.retryButtonText}>
+              {t("common.retry")}
+            </AppText>
           </TouchableOpacity>
         </View>
       ) : (
@@ -246,8 +291,10 @@ export default function FeedScreen() {
           ListFooterComponent={
             isFetchingNextPage ? (
               <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#4F46E5" />
-                <Text style={styles.footerLoaderText}>{t("feed.loadingMore")}</Text>
+                <ActivityIndicator size="small" color={colors.brand} />
+                <AppText variant="caption" color="textMuted" style={styles.footerLoaderText}>
+                  {t("feed.loadingMore")}
+                </AppText>
               </View>
             ) : null
           }
@@ -258,14 +305,18 @@ export default function FeedScreen() {
       {/* 5-second Undo Snackbar */}
       {pendingSignal && (
         <View style={styles.snackbar}>
-          <Text style={styles.snackbarText}>{t("feed.dismissed")}</Text>
+          <AppText variant="body" color="textOnBrand" style={styles.snackbarText}>
+            {t("feed.dismissed")}
+          </AppText>
           <TouchableOpacity
             style={styles.undoButton}
             onPress={undoSignal}
             accessibilityRole="button"
             accessibilityLabel={t("feed.undo")}
           >
-            <Text style={styles.undoButtonText}>{t("feed.undo")}</Text>
+            <AppText variant="label" style={styles.undoButtonText}>
+              {t("feed.undo")}
+            </AppText>
           </TouchableOpacity>
         </View>
       )}
@@ -276,87 +327,64 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: spacing[6],
   },
   listContent: {
-    padding: 16,
-    paddingBottom: 80,
+    padding: spacing[4],
+    paddingBottom: spacing[20],
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 15,
-    color: "#6B7280",
+    marginTop: spacing[3],
   },
   errorTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 6,
+    marginBottom: spacing[1.5],
   },
   errorSubtitle: {
-    fontSize: 14,
-    color: "#6B7280",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   retryButton: {
-    backgroundColor: "#4F46E5",
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing[5],
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: radius.md,
   },
   retryButtonText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: "#6B7280",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   relaxedBanner: {
-    backgroundColor: "#EEF2FF",
     borderBottomWidth: 1,
-    borderBottomColor: "#C7D2FE",
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing[4],
     paddingVertical: 10,
   },
   relaxedBannerText: {
-    fontSize: 13,
-    color: "#3730A3",
-    fontWeight: "500",
     lineHeight: 18,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    marginBottom: 20,
+    borderRadius: radius.xl,
+    marginBottom: spacing[5],
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
-    elevation: 3,
+    elevation: elevation.medium,
   },
   imageContainer: {
     width: "100%",
     height: 380,
-    backgroundColor: "#E5E7EB",
     position: "relative",
   },
   garmentImage: {
@@ -379,72 +407,51 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(17, 24, 39, 0.85)",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: radius.pill,
   },
   tryonBadgeText: {
     color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "600",
   },
   cardContent: {
-    padding: 16,
+    padding: spacing[4],
   },
   brandText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#6B7280",
     letterSpacing: 0.8,
-    marginBottom: 4,
+    marginBottom: spacing[1],
   },
   titleText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
     lineHeight: 22,
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   priceRow: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: 8,
+    gap: spacing[2],
     marginBottom: 10,
   },
-  priceText: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  priceFreshnessText: {
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
+  priceText: {},
+  priceFreshnessText: {},
   reasonsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6,
-    marginTop: 4,
+    gap: spacing[1.5],
+    marginTop: spacing[1],
   },
   actionRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 8,
+    paddingHorizontal: spacing[4],
+    paddingBottom: spacing[4],
+    paddingTop: spacing[2],
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
   },
   actionButtonSecondary: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: "#F3F4F6",
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
+    borderRadius: radius.md,
   },
-  actionSecondaryText: {
-    fontSize: 13,
-    color: "#4B5563",
-    fontWeight: "500",
-  },
+  actionSecondaryText: {},
   rightActions: {
     flexDirection: "row",
     alignItems: "center",
@@ -454,7 +461,6 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -462,36 +468,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   actionButtonPrimary: {
-    backgroundColor: "#4F46E5",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+    borderRadius: radius.md,
   },
   actionPrimaryText: {
-    fontSize: 13,
-    fontWeight: "600",
     color: "#FFFFFF",
   },
   footerLoader: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: spacing[4],
+    gap: spacing[2],
   },
-  footerLoaderText: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
+  footerLoaderText: {},
   snackbar: {
     position: "absolute",
     bottom: 20,
     left: 20,
     right: 20,
     backgroundColor: "#1F2937",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    borderRadius: radius.lg,
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[4],
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -499,22 +499,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: elevation.high,
   },
   snackbarText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "500",
   },
   undoButton: {
     backgroundColor: "#374151",
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingHorizontal: spacing[3],
+    borderRadius: radius.sm,
   },
   undoButtonText: {
     color: "#60A5FA",
-    fontSize: 14,
-    fontWeight: "700",
   },
 });
