@@ -3,6 +3,8 @@ import re
 
 from PIL import Image
 
+from fashx.catalog.embeddings.fake import FakeEmbedder
+
 from .ports import EnrichmentResult, GarmentAttributes
 
 COLOR_MAP = {
@@ -68,6 +70,9 @@ MATERIAL_RULES = [
 
 class HeuristicGarmentEnricher:
     """Deterministic extractor parsing listing text and image data for garment attributes."""
+
+    def __init__(self) -> None:
+        self.embedder = FakeEmbedder()
 
     async def enrich(
         self,
@@ -161,11 +166,16 @@ class HeuristicGarmentEnricher:
         if material:
             confidences["material"] = material_conf
 
+        if image_bytes:
+            garment_emb = self.embedder.embed_images([image_bytes])[0]
+        else:
+            garment_emb = self.embedder.embed_text([full_text])[0]
+
         return EnrichmentResult(
             attributes=attributes,
             confidence_summary=confidences,
-            model_version="heuristic-enricher-v1",
-            embedding=[0.05] * 512,  # 512-dim mock vector matching Vector512 schema
+            model_version=f"heuristic-enricher-{self.embedder.model_id}",
+            embedding=garment_emb,
         )
 
     def _extract_dominant_color_from_image(self, image_bytes: bytes) -> str | None:

@@ -34,7 +34,7 @@ Thumbs.db
 backups/
 coverage.xml
 htmlcov/
-catalog_seed/
+# catalog_seed/ (tracked for reproducible fixture catalog)
 
 # Secrets / credentials
 *.pem
