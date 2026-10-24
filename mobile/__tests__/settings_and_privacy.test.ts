@@ -46,8 +46,9 @@ describe("Settings Privacy and DPDP Contracts", () => {
     ];
 
     const activePhoto = photos.find((p) => p.status === "accepted") || photos[0];
-    expect(activePhoto.id).toBe("p2");
-    expect(activePhoto.status).toBe("accepted");
+    expect(activePhoto).toBeDefined();
+    expect(activePhoto?.id).toBe("p2");
+    expect(activePhoto?.status).toBe("accepted");
   });
 });
 
