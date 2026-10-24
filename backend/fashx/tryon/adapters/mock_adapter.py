@@ -34,7 +34,8 @@ class MockTryOnAdapter:
 
     @property
     def is_commercial_cleared(self) -> bool:
-        return True
+        """Mock compositing adapter is strictly a development fallback and is not commercially cleared."""
+        return False
 
     def submit(self, req: TryOnRequest) -> str:
         self.submit_count += 1

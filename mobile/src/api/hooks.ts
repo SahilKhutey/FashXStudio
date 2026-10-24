@@ -33,3 +33,39 @@ export function useMe(enabled = true) {
     staleTime: 30 * 1000,
   });
 }
+
+export interface UserPhotoItem {
+  id: string;
+  photo_type: string;
+  status: string;
+  storage_key: string;
+  reject_reason: string | null;
+  quality_reasons: string[];
+}
+
+export interface DerivedProfileResponse {
+  user_id: string;
+  height_cm: number | null;
+  weight_kg: number | null;
+  build: string | null;
+  consents: Record<string, boolean>;
+  measurements: Array<{
+    id: string;
+    measurement: string;
+    value: number;
+    unit: string;
+    source: string;
+    confidence: number;
+  }>;
+  photos: UserPhotoItem[];
+}
+
+export function useDerivedProfile(userId?: string, enabled = true) {
+  const hasSession = useAuthStore((s) => s.hasSession);
+  return useQuery({
+    queryKey: ["derivedProfile", userId],
+    queryFn: () => api<DerivedProfileResponse>(`/profile/${userId}/derived`),
+    enabled: Boolean(enabled && hasSession && userId),
+    staleTime: 30 * 1000,
+  });
+}

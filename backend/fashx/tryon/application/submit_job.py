@@ -6,7 +6,6 @@ from database.models.tryon import TryOnJob
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError, ValidationError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
 from fashx.tryon.cache_key import compute_tryon_cache_key
 from fashx.tryon.ports import TryOnModelAdapterPort
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
@@ -42,7 +41,12 @@ class SubmitTryOnJobUseCase:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
-        self.adapter = adapter or MockTryOnAdapter()
+        if adapter is not None:
+            self.adapter = adapter
+        else:
+            from fashx.core.dependencies import get_tryon_adapter
+
+            self.adapter = get_tryon_adapter()
 
     async def execute(self, cmd: SubmitTryOnJobCommand) -> SubmitTryOnJobResult:
         # 1. Pre-Inference Consent & Quality Gate (Rule I07)
@@ -165,6 +169,7 @@ class SubmitTryOnJobUseCase:
                 status="queued",
                 model_version=self.adapter.model_version,
                 pipeline_version=self.adapter.pipeline_version,
+                provider=getattr(self.adapter, "provider", "mock"),
             )
             self.tryon_uow.jobs.add(job)
             await self.tryon_uow.commit()

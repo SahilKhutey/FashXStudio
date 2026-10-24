@@ -58,8 +58,10 @@ def get_tryon_adapter() -> TryOnAdapter:
 
     s = get_settings()
     if s.tryon_provider == "fashn_api":
+        if not s.fashn_api_key or not s.fashn_api_key.get_secret_value():
+            raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
         adapter = FashnApiAdapter(
-            api_key=s.fashn_api_key.get_secret_value() if s.fashn_api_key else "",
+            api_key=s.fashn_api_key.get_secret_value(),
             base_url=s.fashn_base_url,
             model=s.fashn_model,
             mode=s.fashn_mode,

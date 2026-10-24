@@ -12,6 +12,7 @@ import httpx
 from PIL import Image
 
 from fashx.application.ports.tryon import TryOnError, TryOnOutput, TryOnRequest
+from fashx.tryon.ports import InferenceInput, InferenceOutput
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +55,18 @@ class FashnApiAdapter:
         self._dl = download_client or httpx.Client(
             timeout=httpx.Timeout(30.0, connect=5.0)
         )
+
+    @property
+    def model_version(self) -> str:
+        return self._model
+
+    @property
+    def pipeline_version(self) -> str:
+        return "fashn-hosted-v1"
+
+    @property
+    def is_commercial_cleared(self) -> bool:
+        return True
 
     # ---- error mapping -------------------------------------------------
     @staticmethod
@@ -196,6 +209,31 @@ class FashnApiAdapter:
 
     def run(self, req: TryOnRequest, *, deadline_s: float = 90.0) -> TryOnOutput:
         return self.collect(self.submit(req), deadline_s=deadline_s)
+
+    async def execute_tryon(self, payload: InferenceInput) -> InferenceOutput:
+        start_time = time.perf_counter()
+        category = "auto"
+        if payload.garment_category in ("tops", "bottoms", "one-pieces"):
+            category = payload.garment_category
+        req = TryOnRequest(
+            person_jpeg=payload.user_photo_bytes,
+            garment_jpeg=payload.garment_image_bytes,
+            category=category,  # type: ignore[arg-type]
+        )
+        out = self.run(req)
+        latency_ms = (time.perf_counter() - start_time) * 1000.0
+        return InferenceOutput(
+            rendered_image_bytes=out.image_bytes,
+            model_version=self.model_version,
+            pipeline_version=self.pipeline_version,
+            inference_latency_ms=round(latency_ms, 2),
+            raw_metadata={
+                "category": payload.garment_category,
+                "provider": self.provider,
+                "provider_job_id": out.provider_job_id,
+                "cost_usd_est": out.cost_usd_est,
+            },
+        )
 
     def _download(self, url: str) -> bytes:
         u = urlparse(url)

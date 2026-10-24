@@ -11,7 +11,7 @@ Legend: 🟢 code and tests pass in CI · 🟡 partial · ⬜ not started · ❄
 | Try-on (adapter, worker, mock default) | 🟢 | None: no vendor account, no real image ever generated |
 | Catalog (ingest, dedup, enrichment) | 🟢 on fixtures | None: no partner feed; VLM accuracy unmeasured (mock client) |
 | Discovery (ranker, metrics) | 🟢 on synthetic personas | None: no human ratings |
-| Mobile app | 🟡 16 screens + 8 Jest suites (60 tests); settings/privacy stubbed | None |
+| Mobile app | 🟢 19 screens + 9 Jest suites (67 tests); settings & DPDP privacy wired; dedicated gate routes | None: unverified on physical hardware |
 | Infra and deploy pipeline | 🟡 workflow exists | None: no cloud environment |
 | B2B tenant platform and widget | 🟡 code, flag off | None |
 | Operations, experiments, SLOs | 🟡 code and documents | None |
@@ -22,4 +22,4 @@ Legend: 🟢 code and tests pass in CI · 🟡 partial · ⬜ not started · ❄
 Single source: [docs/release/gates.md](release/gates.md). All gates are **not measured**.
 
 ## Known debt
-Personalization uses constant [0.05]*512 vectors in enricher.py and generate_feed.py; real catalog contains 0 images on disk (3 fixture rows in CSV); try-on runs on mock adapter (0 real GPU inferences); settings/privacy screen is a Slice 4 stub without photo/account deletion UI; 67 type-ignores across backend; mobile gate screens (maintenance/update-required) rendered inline without dedicated route files.
+P0 foundation implemented on `development/p0-foundation`. Remaining debt: 20 studio fixture images and CSV seeded locally (no live brand partner feeds connected); personalization uses token-hashed 512-d embeddings responsive to style quiz (real VLM/CLIP model pending); virtual try-on adapter contract and fail-closed guards implemented (no live FASHN vendor key or paid GPU runs); mobile settings and DPDP erasure wired (physical device test pending); 67 type-ignores across backend.

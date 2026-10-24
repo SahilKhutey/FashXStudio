@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
-from fashx.core.dependencies import get_storage
+from fashx.core.dependencies import get_storage, get_tryon_adapter
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
 from fashx.tryon.application.get_job_status import (
@@ -100,6 +100,7 @@ async def submit_tryon_job(
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
+    adapter: Any = Depends(get_tryon_adapter),
     principal: Principal = Depends(get_principal),
 ) -> TryOnJobSubmissionResponse:
     from fashx.core.flags import TRYON_ENABLED, is_flag_enabled
@@ -131,6 +132,7 @@ async def submit_tryon_job(
         tryon_uow=tryon_uow,
         profile_uow=profile_uow,
         catalog_uow=catalog_uow,
+        adapter=adapter,
     )
     cmd = SubmitTryOnJobCommand(
         user_id=effective_user_id,
