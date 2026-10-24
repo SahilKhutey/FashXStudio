@@ -3,8 +3,10 @@ from typing import Any
 from uuid import UUID
 
 from database.models.catalog import Brand
+from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
+from fashx.discovery.taste import compute_taste_vector
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.recommendation.compatibility import CompatibilityMatrix
 from fashx.recommendation.filters import (
@@ -75,6 +77,12 @@ class GenerateFeedUseCase:
 
             body = await self.profile_uow.body_profiles.get_by_user_id(cmd.user_id)
             pref = await self.profile_uow.preferences.get_by_user_id(cmd.user_id)
+            onboarding_profile = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
+            user_styles = (
+                list(onboarding_profile.styles)
+                if onboarding_profile and onboarding_profile.styles
+                else []
+            )
             active_photo = await self.profile_uow.photos.get_active_photo(
                 cmd.user_id, "tryon_reference"
             )
@@ -159,7 +167,9 @@ class GenerateFeedUseCase:
 
         # 4. Stage 2: Multimodal Compatibility Scoring
         scored_items: list[ScoredItem] = []
-        user_emb = [0.05] * 512  # baseline preference embedding vector
+        user_taste = compute_taste_vector([], user_styles=user_styles if user_styles else None)
+        user_emb = user_taste.tolist()
+        embedder = FakeEmbedder()
 
         for cand in surviving:
             compat = CompatibilityMatrix.evaluate(
@@ -172,8 +182,13 @@ class GenerateFeedUseCase:
                 category=cand.category,
             )
 
+            cand_emb = cand.embedding
+            if cand_emb is None:
+                garment_text = f"{cand.title} {cand.category} {cand.subcategory or ''} {cand.dominant_color or ''} {cand.silhouette or ''}"
+                cand_emb = embedder.embed_text([garment_text])[0]
+
             # Stage 3 Relevance: Combine compatibility + embedding similarity
-            emb_sim = cosine_similarity(user_emb, cand.embedding)
+            emb_sim = cosine_similarity(user_emb, cand_emb)
             relevance = round(0.70 * compat.total_score + 0.30 * emb_sim, 3)
 
             scored_items.append(

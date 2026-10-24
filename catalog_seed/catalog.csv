@@ -1,0 +1,21 @@
+id,title,brand,price,gender,category,sub_category,primary_color,pattern,formality,ethnic_wear,tryon_suitable,sizes,image
+g001,Women's Teal Cotton Printed Kurta,Own,1299,female,top,kurta,teal,printed,3,true,true,S|M|L|XL,images/g001.jpg
+g002,Men's White Linen Casual Shirt,Own,1499,male,top,shirt,white,solid,3,false,true,M|L|XL,images/g002.jpg
+g003,Women's Maroon Embroidered Anarkali Kurta,Own,2499,female,top,kurta,maroon,embroidered,4,true,true,S|M|L,images/g003.jpg
+g004,Men's Navy Slim Fit Formal Shirt,Own,1799,male,top,shirt,navy,solid,4,false,true,M|L|XL|XXL,images/g004.jpg
+g005,Unisex Black Graphic Streetwear Hoodie,Own,2199,unisex,top,hoodie,black,printed,1,false,true,S|M|L|XL,images/g005.jpg
+g006,Women's Pink Floral Chiffon Blouse,Own,1199,female,top,blouse,pink,floral,3,false,true,XS|S|M|L,images/g006.jpg
+g007,Men's Olive Green Casual T-Shirt,Own,799,male,top,tshirt,green,solid,1,false,true,S|M|L|XL,images/g007.jpg
+g008,Women's Yellow Festive Short Kurti,Own,999,female,top,kurti,yellow,solid,3,true,true,S|M|L,images/g008.jpg
+g009,Men's Dark Navy Slim Fit Denim Jeans,Own,1999,male,bottom,jeans,navy,solid,2,false,true,S|M|L|XL,images/g009.jpg
+g010,Women's Beige Wide Leg Palazzo Pants,Own,1399,female,bottom,palazzo,beige,solid,3,true,true,S|M|L|XL,images/g010.jpg
+g011,Men's Grey Chino Formal Trousers,Own,1899,male,bottom,trousers,grey,solid,4,false,true,M|L|XL,images/g011.jpg
+g012,Women's Black High-Waist Skinny Jeans,Own,1799,female,bottom,jeans,black,solid,2,false,true,XS|S|M|L,images/g012.jpg
+g013,Women's Red Printed Cotton Ethnic Skirt,Own,1599,female,bottom,skirt,red,printed,3,true,true,S|M|L,images/g013.jpg
+g014,Women's White Cotton Stretch Leggings,Own,699,female,bottom,leggings,white,solid,1,true,true,FREE|S|M|L,images/g014.jpg
+g015,Men's Khaki Casual Cargo Trousers,Own,1699,male,bottom,trousers,beige,solid,2,false,true,S|M|L|XL,images/g015.jpg
+g016,Women's Blue Tiered Maxi Summer Dress,Own,2299,female,one_piece,dress,blue,floral,2,false,true,S|M|L,images/g016.jpg
+g017,Women's Emerald Green Festive Kurta Set,Own,3499,female,one_piece,kurta_set,green,embroidered,4,true,true,S|M|L|XL,images/g017.jpg
+g018,Women's Purple Silk Blend Festive Dress,Own,2799,female,one_piece,dress,purple,solid,4,false,true,S|M|L,images/g018.jpg
+g019,Women's Orange Striped Cotton A-Line Dress,Own,1899,female,one_piece,dress,orange,striped,2,false,true,XS|S|M|L,images/g019.jpg
+g020,Women's Black Cocktail Slip Dress,Own,2999,female,one_piece,dress,black,solid,5,false,true,XS|S|M,images/g020.jpg

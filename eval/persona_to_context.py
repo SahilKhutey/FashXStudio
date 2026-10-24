@@ -1,6 +1,5 @@
 """Translate evaluation persona definitions into user context objects for the ranking pipeline."""
 
-import hashlib
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import NAMESPACE_DNS, UUID, uuid5
@@ -29,11 +28,11 @@ ARCHETYPE_STYLES = [
 
 def style_to_embedding(style_name: str) -> np.ndarray:
     """Generate a deterministic, unit-normalized 512-d embedding vector for a style archetype."""
-    seed = int.from_bytes(hashlib.sha256(style_name.encode("utf-8")).digest()[:4], "big")
-    rng = np.random.RandomState(seed)
-    v = rng.randn(512).astype(np.float32)
+    from fashx.catalog.embeddings.fake import FakeEmbedder
+
+    v = np.array(FakeEmbedder().embed_text([style_name])[0], dtype=np.float32)
     norm = np.linalg.norm(v)
-    return v / norm if norm > 0 else v
+    return (v / norm).astype(np.float32) if norm > 0 else v
 
 
 ARCHETYPE_CENTROIDS = [style_to_embedding(s) for s in ARCHETYPE_STYLES]

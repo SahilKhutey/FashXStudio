@@ -36,6 +36,7 @@ from database.models.catalog import (
     MerchantProduct,
 )
 from fashx.catalog.eligibility import compute_tryon_eligibility
+from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
 
@@ -283,6 +284,13 @@ async def seed_local_catalog(
                 "tryon_suitable": tryon_suitable_bool,
                 "source_of_truth": "human",
             }
+            embedder = FakeEmbedder()
+            embedder_text = f"{title} {category} {sub_category or ''} {r.get('primary_color', '')} {r.get('pattern', '')}"
+            if img_bytes:
+                garment_embedding = embedder.embed_images([img_bytes])[0]
+            else:
+                garment_embedding = embedder.embed_text([embedder_text])[0]
+
             enrichment_stmt = select(GarmentEnrichment).where(
                 GarmentEnrichment.garment_id == garment.id
             )
@@ -291,14 +299,15 @@ async def seed_local_catalog(
                 enrichment = GarmentEnrichment(
                     garment_id=garment.id,
                     image_id=g_img.id,
-                    model_version="human-expert-1.0",
+                    model_version=embedder.model_id,
                     attributes_json=human_attrs,
-                    embedding=[0.05] * 512,  # Baseline 512-dim embedding
+                    embedding=garment_embedding,
                     confidence_summary={"overall": 1.0, "source": "human"},
                 )
                 session.add(enrichment)
             else:
                 enrichment.attributes_json = human_attrs
+                enrichment.embedding = garment_embedding
                 enrichment.confidence_summary = {"overall": 1.0, "source": "human"}
 
             await session.flush()
