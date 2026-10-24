@@ -3,10 +3,8 @@ from typing import Any
 from uuid import UUID
 
 from database.models.catalog import Brand
-from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
-from fashx.discovery.taste import compute_taste_vector
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.recommendation.compatibility import CompatibilityMatrix
 from fashx.recommendation.filters import (
@@ -17,7 +15,6 @@ from fashx.recommendation.filters import (
 from fashx.recommendation.ranker import (
     PersonalizedRanker,
     ScoredItem,
-    cosine_similarity,
 )
 from fashx.recommendation.stylist_explainer import StylistExplainer
 
@@ -77,12 +74,6 @@ class GenerateFeedUseCase:
 
             body = await self.profile_uow.body_profiles.get_by_user_id(cmd.user_id)
             pref = await self.profile_uow.preferences.get_by_user_id(cmd.user_id)
-            onboarding_profile = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
-            user_styles = (
-                list(onboarding_profile.styles)
-                if onboarding_profile and onboarding_profile.styles
-                else []
-            )
             active_photo = await self.profile_uow.photos.get_active_photo(
                 cmd.user_id, "tryon_reference"
             )
@@ -165,12 +156,12 @@ class GenerateFeedUseCase:
                 filtered_candidates=0,
             )
 
-        # 4. Stage 2: Multimodal Compatibility Scoring
+        # 4. Stage 2: Explicit preference and compatibility scoring.
+        #
+        # Do not use placeholder embeddings as a relevance signal.
+        # Semantic similarity will be enabled when a real user taste vector
+        # and version-compatible garment embeddings are available.
         scored_items: list[ScoredItem] = []
-        user_taste = compute_taste_vector([], user_styles=user_styles if user_styles else None)
-        user_emb = user_taste.tolist()
-        embedder = FakeEmbedder()
-
         for cand in surviving:
             compat = CompatibilityMatrix.evaluate(
                 user_undertone=undertone,
@@ -181,16 +172,10 @@ class GenerateFeedUseCase:
                 favored_categories=allowed_categories,
                 category=cand.category,
             )
-
-            cand_emb = cand.embedding
-            if cand_emb is None:
-                garment_text = f"{cand.title} {cand.category} {cand.subcategory or ''} {cand.dominant_color or ''} {cand.silhouette or ''}"
-                cand_emb = embedder.embed_text([garment_text])[0]
-
-            # Stage 3 Relevance: Combine compatibility + embedding similarity
-            emb_sim = cosine_similarity(user_emb, cand_emb)
-            relevance = round(0.70 * compat.total_score + 0.30 * emb_sim, 3)
-
+            # Compatibility is the only trusted score in this interim slice.
+            # Do not assign an artificial neutral cosine score when embeddings
+            # are absent or incompatible.
+            relevance = round(compat.total_score, 3)
             scored_items.append(
                 ScoredItem(
                     item=cand,

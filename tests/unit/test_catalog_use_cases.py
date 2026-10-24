@@ -100,3 +100,50 @@ async def test_ingest_product_success_and_idempotent_update(
     assert res2.offer_id == res1.offer_id
     assert res2.price_minor == 159900
     assert res2.title == "Slim Fit Linen Shirt - Updated"
+
+
+@pytest.mark.asyncio
+async def test_ingest_product_validation_rules(
+    session_factory: async_sessionmaker[AsyncSession],
+) -> None:
+    uow = CatalogUnitOfWork(session_factory)
+    use_case = IngestMerchantProductUseCase(uow)
+
+    # Empty title
+    with pytest.raises(ValidationError, match="title"):
+        await use_case.execute(
+            IngestProductCommand(
+                merchant_id=uuid4(),
+                source_product_id="SKU-ERR-1",
+                title="   ",
+                source_url="https://merchant.com/1",
+                category="tops",
+                price_minor=1000,
+            )
+        )
+
+    # Malformed URL
+    with pytest.raises(ValidationError, match="URL"):
+        await use_case.execute(
+            IngestProductCommand(
+                merchant_id=uuid4(),
+                source_product_id="SKU-ERR-2",
+                title="Valid Title",
+                source_url="ftp://invalid-scheme.com",
+                category="tops",
+                price_minor=1000,
+            )
+        )
+
+    # Unknown category
+    with pytest.raises(ValidationError, match="category"):
+        await use_case.execute(
+            IngestProductCommand(
+                merchant_id=uuid4(),
+                source_product_id="SKU-ERR-3",
+                title="Valid Title",
+                source_url="https://merchant.com/3",
+                category="electronics",
+                price_minor=1000,
+            )
+        )

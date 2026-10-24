@@ -11,7 +11,6 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from database.models.catalog import Merchant
-from database.models.profile import OnboardingProfile
 from fashx.catalog.application.enrich_garment import EnrichGarmentCommand, EnrichGarmentUseCase
 from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
@@ -77,25 +76,27 @@ async def test_different_preferences_produce_different_rankings(
     user_a = user_a_res.user_id
     user_b = user_b_res.user_id
 
-    # Set User A preferences: Ethnic / Festive
-    async with profile_uow:
-        prof_a = OnboardingProfile(
-            user_id=user_a,
-            status="completed",
-            step="complete",
-            styles=["ethnic", "festive"],
-        )
-        profile_uow.session.add(prof_a)
+    # Set User A preferences: Favors olive
+    from fashx.profile.application.update_preferences import (
+        UpdatePreferencesCommand,
+        UpdatePreferencesUseCase,
+    )
 
-        # Set User B preferences: Streetwear / Casual
-        prof_b = OnboardingProfile(
-            user_id=user_b,
-            status="completed",
-            step="complete",
-            styles=["streetwear", "casual"],
+    pref_uc = UpdatePreferencesUseCase(profile_uow)
+    await pref_uc.execute(
+        UpdatePreferencesCommand(
+            user_id=user_a,
+            colors_favored=["olive"],
         )
-        profile_uow.session.add(prof_b)
-        await profile_uow.commit()
+    )
+
+    # Set User B preferences: Favors black
+    await pref_uc.execute(
+        UpdatePreferencesCommand(
+            user_id=user_b,
+            colors_favored=["black"],
+        )
+    )
 
     # 2. Ingest two distinct catalog items
     async with catalog_uow:
@@ -107,12 +108,12 @@ async def test_different_preferences_produce_different_rankings(
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     enrich_uc = EnrichGarmentUseCase(catalog_uow)
 
-    # Item 1: Traditional Ethnic Silk Kurta
+    # Item 1: Olive Silk Anarkali Ethnic Kurta
     item_ethnic = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
             source_product_id="ETHNIC-01",
-            title="Embroidered Silk Anarkali Ethnic Kurta",
+            title="Olive Silk Anarkali Ethnic Kurta",
             source_url="https://hub.com/ethnic",
             category="top",
             price_minor=199900,
@@ -120,12 +121,12 @@ async def test_different_preferences_produce_different_rankings(
     )
     await enrich_uc.execute(EnrichGarmentCommand(garment_id=item_ethnic.canonical_garment_id))
 
-    # Item 2: Streetwear Graphic Hoodie
+    # Item 2: Black Graphic Streetwear Hoodie
     item_street = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
             source_product_id="STREET-01",
-            title="Oversized Heavyweight Graphic Streetwear Hoodie",
+            title="Black Heavyweight Graphic Streetwear Hoodie",
             source_url="https://hub.com/street",
             category="top",
             price_minor=199900,

@@ -7,6 +7,39 @@ from fashx.catalog.eligibility import compute_tryon_eligibility
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError, ValidationError
 
+VALID_TAXONOMY_CATEGORIES = {
+    "top",
+    "tops",
+    "shirt",
+    "shirts",
+    "tshirt",
+    "tshirts",
+    "bottom",
+    "bottoms",
+    "pants",
+    "trousers",
+    "jeans",
+    "skirts",
+    "one_piece",
+    "one-piece",
+    "one-pieces",
+    "dress",
+    "dresses",
+    "jumpsuit",
+    "outerwear",
+    "jacket",
+    "jackets",
+    "coat",
+    "coats",
+    "sweater",
+    "sweaters",
+    "hoodie",
+    "hoodies",
+    "kurta",
+    "kurtas",
+    "ethnic",
+}
+
 
 @dataclass
 class IngestProductCommand:
@@ -46,8 +79,25 @@ class IngestMerchantProductUseCase:
         self.uow = uow
 
     async def execute(self, cmd: IngestProductCommand) -> IngestProductResult:
+        title = cmd.title.strip() if cmd.title else ""
+        if not title:
+            raise ValidationError("Product title cannot be empty", field="title")
+
         if cmd.price_minor < 0:
             raise ValidationError("Price cannot be negative", field="price_minor")
+
+        if not cmd.source_url or not (
+            cmd.source_url.startswith("http://") or cmd.source_url.startswith("https://")
+        ):
+            raise ValidationError(
+                "Invalid or malformed product destination URL", field="source_url"
+            )
+
+        cat_normalized = cmd.category.strip().lower() if cmd.category else ""
+        if not cat_normalized or cat_normalized not in VALID_TAXONOMY_CATEGORIES:
+            raise ValidationError(
+                f"Unknown category '{cmd.category}' not in approved taxonomy", field="category"
+            )
 
         async with self.uow:
             merchant = await self.uow.merchants.get_by_id(cmd.merchant_id)

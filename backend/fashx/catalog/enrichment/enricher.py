@@ -166,16 +166,13 @@ class HeuristicGarmentEnricher:
         if material:
             confidences["material"] = material_conf
 
-        if image_bytes:
-            garment_emb = self.embedder.embed_images([image_bytes])[0]
-        else:
-            garment_emb = self.embedder.embed_text([full_text])[0]
-
         return EnrichmentResult(
             attributes=attributes,
             confidence_summary=confidences,
-            model_version=f"heuristic-enricher-{self.embedder.model_id}",
-            embedding=garment_emb,
+            model_version="heuristic-enricher-v2",
+            # This component extracts attributes; it does not generate
+            # semantic embeddings. A real embedding provider must supply them.
+            embedding=None,
         )
 
     def _extract_dominant_color_from_image(self, image_bytes: bytes) -> str | None:
