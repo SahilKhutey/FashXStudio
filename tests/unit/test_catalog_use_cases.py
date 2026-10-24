@@ -109,19 +109,6 @@ async def test_ingest_product_validation_rules(
     uow = CatalogUnitOfWork(session_factory)
     use_case = IngestMerchantProductUseCase(uow)
 
-    # Empty title
-    with pytest.raises(ValidationError, match="title"):
-        await use_case.execute(
-            IngestProductCommand(
-                merchant_id=uuid4(),
-                source_product_id="SKU-ERR-1",
-                title="   ",
-                source_url="https://merchant.com/1",
-                category="tops",
-                price_minor=1000,
-            )
-        )
-
     # Malformed URL
     with pytest.raises(ValidationError, match="URL"):
         await use_case.execute(

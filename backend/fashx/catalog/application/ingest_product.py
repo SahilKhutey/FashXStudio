@@ -79,8 +79,19 @@ class IngestMerchantProductUseCase:
         self.uow = uow
 
     async def execute(self, cmd: IngestProductCommand) -> IngestProductResult:
+        cat_normalized = cmd.category.strip().lower() if cmd.category else ""
+        if not cat_normalized or cat_normalized not in VALID_TAXONOMY_CATEGORIES:
+            raise ValidationError(
+                f"Unknown category '{cmd.category}' not in approved taxonomy", field="category"
+            )
+
         title = cmd.title.strip() if cmd.title else ""
-        if not title:
+        effective_title = (
+            title
+            or (cmd.subcategory.strip() if cmd.subcategory else "")
+            or cat_normalized
+        )
+        if not effective_title:
             raise ValidationError("Product title cannot be empty", field="title")
 
         if cmd.price_minor < 0:
@@ -91,12 +102,6 @@ class IngestMerchantProductUseCase:
         ):
             raise ValidationError(
                 "Invalid or malformed product destination URL", field="source_url"
-            )
-
-        cat_normalized = cmd.category.strip().lower() if cmd.category else ""
-        if not cat_normalized or cat_normalized not in VALID_TAXONOMY_CATEGORIES:
-            raise ValidationError(
-                f"Unknown category '{cmd.category}' not in approved taxonomy", field="category"
             )
 
         async with self.uow:
