@@ -371,7 +371,7 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
         {"u": user_id, "g": garment_id, "act": "like"},
     )
     db.execute(
-        text('INSERT INTO "user_preferences" (user_id, colors_favored, colors_avoided, categories, updated_at) VALUES (:u, :cf, :ca, :cats, now())'),
+        text('INSERT INTO "user_preferences" (user_id, colors_favored, colors_avoided, categories) VALUES (:u, :cf, :ca, :cats)'),
         {"u": user_id, "cf": json.dumps([]), "ca": json.dumps([]), "cats": json.dumps([])},
     )
     db.execute(
