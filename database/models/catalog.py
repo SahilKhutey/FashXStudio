@@ -202,6 +202,10 @@ class GarmentImage(Base, UUIDPrimaryKeyMixin):
 
     __table_args__ = (UniqueConstraint("garment_id", "content_hash", name="uq_garment_image_hash"),)
 
+    @property
+    def image_url(self) -> str:
+        return self.storage_key
+
 
 class GarmentEnrichment(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "garment_enrichments"
