@@ -8,7 +8,7 @@ from fashx.catalog.eligibility import compute_tryon_eligibility
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError, ValidationError
 
-VALID_TAXONOMY_CATEGORIES = {
+VALID_TAXONOMY_CATEGORIES: set[str] = {
     "top",
     "tops",
     "shirt",
@@ -39,6 +39,8 @@ VALID_TAXONOMY_CATEGORIES = {
     "kurta",
     "kurtas",
     "ethnic",
+    "accessories",
+    "footwear",
 }
 
 
@@ -50,12 +52,14 @@ class IngestProductCommand:
     source_url: str
     category: str
     price_minor: int
+    brand_id: UUID | None = None
     subcategory: str | None = None
     description: str | None = None
+    color: str | None = None
+    gender: str = "unisex"
     currency: str = "INR"
     in_stock: bool = True
     sizes_in_stock: list[str] = field(default_factory=list)
-    brand_id: UUID | None = None
     source_id: UUID | None = None
     item_group_id: str | None = None
     content_hash: str | None = None
@@ -122,7 +126,7 @@ class IngestMerchantProductUseCase:
             if merchant is None:
                 raise EntityNotFoundError("Merchant", cmd.merchant_id)
 
-            # Determine source_id (must be pre-registered or default fallback in unapproved status)
+            # Determine source_id (fallback to merchant default cleared source)
             source_id = cmd.source_id
             if source_id is not None:
                 source = await self.uow.sources.get_by_id(source_id)
@@ -148,7 +152,7 @@ class IngestMerchantProductUseCase:
             now = datetime.now(UTC)
 
             # Calculate try-on eligibility (requires source approval + product-level permission if specified)
-            rights_tryon = source.rights_tryon if source else False
+            rights_tryon = (source.rights_tryon and source.status == "cleared") if source else False
             if cmd.tryon_rights is not None:
                 rights_tryon = rights_tryon and cmd.tryon_rights
             image_policy = source.image_policy if source else "hotlink"
@@ -163,7 +167,7 @@ class IngestMerchantProductUseCase:
                 cmd.merchant_id, cmd.source_product_id
             )
             if product is not None:
-                product.title = cmd.title
+                product.title = effective_title
                 product.description = cmd.description
                 product.source_url = cmd.source_url
                 product.brand_id = cmd.brand_id
@@ -182,7 +186,7 @@ class IngestMerchantProductUseCase:
                     item_group_id=cmd.item_group_id,
                     content_hash=cmd.content_hash,
                     status=cmd.status,
-                    title=cmd.title,
+                    title=effective_title,
                     description=cmd.description,
                     source_url=cmd.source_url,
                     last_seen_at=now,
@@ -191,15 +195,20 @@ class IngestMerchantProductUseCase:
                 self.uow.merchant_products.add(product)
             await self.uow.merchant_products.flush()
 
-            # 2. Link or create CanonicalGarment
-            existing_offer = await self.uow.offers.get_by_merchant_and_product(
-                cmd.merchant_id, cmd.source_product_id
-            )
-            if existing_offer is not None:
-                garment_id = existing_offer.garment_id
+            # 2. Upsert CanonicalGarment
+            garment_id = product.canonical_garment_id
+            if not garment_id:
+                existing_offer = await self.uow.offers.get_by_merchant_and_product(
+                    cmd.merchant_id, cmd.source_product_id
+                )
+                if existing_offer is not None:
+                    garment_id = existing_offer.garment_id
+
+            if garment_id:
                 existing_garment = await self.uow.canonical_garments.get_by_id(garment_id)
                 if existing_garment is not None:
                     existing_garment.price_updated_at = now
+                    existing_garment.price_minor = cmd.price_minor
                     existing_garment.in_stock = cmd.in_stock
                     existing_garment.tryon_supported = is_eligible
                     if cmd.sizes_in_stock:
@@ -209,7 +218,7 @@ class IngestMerchantProductUseCase:
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
-                    display_name=cmd.title or cmd.subcategory or cmd.category or "",
+                    display_name=effective_title,
                     price_minor=cmd.price_minor,
                     sizes_in_stock=cmd.sizes_in_stock,
                     price_updated_at=now,
@@ -220,6 +229,7 @@ class IngestMerchantProductUseCase:
                 self.uow.canonical_garments.add(garment)
                 await self.uow.canonical_garments.flush()
                 garment_id = garment.id
+                product.canonical_garment_id = garment_id
 
             # 3. Upsert MerchantOffer
             offer = await self.uow.offers.upsert_offer(

@@ -63,6 +63,18 @@ async def test_generate_feed_integration_scenarios(
     async with catalog_uow:
         merchant = Merchant(name="Contract Test Merchant", merchant_type="retailer")
         catalog_uow.merchants.add(merchant)
+        await catalog_uow.flush()
+        from database.models.catalog import CatalogSource
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
 

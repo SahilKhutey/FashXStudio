@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import Merchant
+from database.models.catalog import CatalogSource, Merchant
 from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
@@ -58,10 +58,21 @@ async def test_ingest_product_success_and_idempotent_update(
 ) -> None:
     uow = CatalogUnitOfWork(session_factory)
 
-    # 1. Setup merchant
+    # 1. Setup merchant and cleared source
     async with uow:
         merchant = Merchant(name="Myntra Direct", merchant_type="retailer")
         uow.merchants.add(merchant)
+        await uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
 
