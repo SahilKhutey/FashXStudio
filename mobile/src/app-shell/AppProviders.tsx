@@ -1,18 +1,28 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppStatusBar } from "./AppStatusBar";
+import { ApiError } from "../api/errors";
+
+export const queryRetry = (
+  failureCount: number,
+  error: unknown,
+): boolean => {
+  if (failureCount >= 2) return false;
+  if (error instanceof ApiError) {
+    return error.isRetryable;
+  }
+  // Unknown errors are not automatically assumed to be transient.
+  return false;
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (failureCount, error: any) => {
-        // Automatically retry up to 2 times for network or 5xx errors on idempotent GETs
-        if (failureCount >= 2) return false;
-        if (error?.status && error.status >= 400 && error.status < 500) {
-          return false;
-        }
-        return true;
-      },
+      retry: queryRetry,
+      staleTime: 60_000,
+    },
+    mutations: {
+      retry: false,
     },
   },
 });
