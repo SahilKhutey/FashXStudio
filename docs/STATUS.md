@@ -9,7 +9,7 @@ Legend: 🟢 code and tests pass in CI · 🟡 partial · ⬜ not started · ❄
 | Authentication and ownership (local tokens; Supabase not connected) | 🟢 | None: no provider project |
 | Persistence and erasure (SQL repos, tombstones) | 🟢 in CI Postgres | None: no real bucket tested |
 | Try-on (adapter, worker, mock default) | 🟢 | None: no vendor account, no real image ever generated |
-| Catalog (ingest, dedup, enrichment) | 🟢 on fixtures | None: no partner feed; VLM accuracy unmeasured (mock client) |
+| Catalog (ingest, dedup, enrichment) | 🟢 pipeline + validator + quality gate (P5) | None: no partner feed; VLM accuracy unmeasured (mock client) |
 | Discovery (ranker, metrics) | 🟢 on synthetic personas | None: no human ratings |
 | Mobile app | 🟢 19 screens + 12 Jest suites (97 tests); Hardened API client & typed data layer (P4); App shell & route policy (P3); Design Token System | None: unverified on physical hardware |
 | Infra and deploy pipeline | 🟡 workflow exists | None: no cloud environment |
