@@ -4,7 +4,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ActivityIndicator,
   ViewToken,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
@@ -26,6 +25,11 @@ import {
   radius,
   elevation,
 } from "../../src/design-system";
+import {
+  LoadingState,
+  ErrorState,
+  EmptyState,
+} from "../../src/components/states";
 
 function formatPrice(priceMinor: number): string {
   const amount = (priceMinor / 100).toFixed(0);
@@ -208,37 +212,11 @@ export default function FeedScreen() {
   );
 
   if (isLoading) {
-    return (
-      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.brand} />
-        <AppText variant="body" color="textMuted" style={styles.loadingText}>
-          {t("common.loading")}
-        </AppText>
-      </View>
-    );
+    return <LoadingState message={t("common.loading")} />;
   }
 
   if (isError) {
-    return (
-      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
-        <AppText variant="heading2" color="textPrimary" style={styles.errorTitle}>
-          {t("common.error")}
-        </AppText>
-        <AppText variant="body" color="textSecondary" style={styles.errorSubtitle}>
-          {t("common.networkError")}
-        </AppText>
-        <TouchableOpacity
-          style={[styles.retryButton, { backgroundColor: colors.brand }]}
-          onPress={() => refetch()}
-          accessibilityRole="button"
-          accessibilityLabel={t("common.retry")}
-        >
-          <AppText variant="label" color="textOnBrand" style={styles.retryButtonText}>
-            {t("common.retry")}
-          </AppText>
-        </TouchableOpacity>
-      </View>
-    );
+    return <ErrorState onRetry={() => void refetch()} />;
   }
 
   return (
@@ -257,23 +235,12 @@ export default function FeedScreen() {
       )}
 
       {feedItems.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <AppText variant="heading2" color="textPrimary" style={styles.emptyTitle}>
-            {emptyReason || t("feed.empty")}
-          </AppText>
-          <AppText variant="body" color="textSecondary" style={styles.emptySubtitle}>
-            {t("feed.emptySub")}
-          </AppText>
-          <TouchableOpacity
-            style={[styles.retryButton, { backgroundColor: colors.brand }]}
-            onPress={() => refetch()}
-            accessibilityRole="button"
-          >
-            <AppText variant="label" color="textOnBrand" style={styles.retryButtonText}>
-              {t("common.retry")}
-            </AppText>
-          </TouchableOpacity>
-        </View>
+        <EmptyState
+          title={emptyReason || t("feed.empty")}
+          message={t("feed.emptySub")}
+          actionLabel={t("common.retry")}
+          onAction={() => void refetch()}
+        />
       ) : (
         <FlashList
           data={feedItems}
@@ -281,21 +248,16 @@ export default function FeedScreen() {
           keyExtractor={(item) => item.garment_id}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
+              void fetchNextPage();
             }
           }}
           onEndReachedThreshold={0.5}
           onViewableItemsChanged={onViewableItemsChanged}
           refreshing={isRefetching}
-          onRefresh={refetch}
+          onRefresh={() => void refetch()}
           ListFooterComponent={
             isFetchingNextPage ? (
-              <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color={colors.brand} />
-                <AppText variant="caption" color="textMuted" style={styles.footerLoaderText}>
-                  {t("feed.loadingMore")}
-                </AppText>
-              </View>
+              <LoadingState message={t("feed.loadingMore")} compact />
             ) : null
           }
           contentContainerStyle={styles.listContent}
@@ -328,41 +290,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: spacing[6],
-  },
   listContent: {
     padding: spacing[4],
     paddingBottom: spacing[20],
-  },
-  loadingText: {
-    marginTop: spacing[3],
-  },
-  errorTitle: {
-    marginBottom: spacing[1.5],
-  },
-  errorSubtitle: {
-    textAlign: "center",
-    marginBottom: spacing[4],
-  },
-  retryButton: {
-    paddingHorizontal: spacing[5],
-    paddingVertical: 10,
-    borderRadius: radius.md,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-  },
-  emptyTitle: {
-    textAlign: "center",
-    marginBottom: spacing[2],
-  },
-  emptySubtitle: {
-    textAlign: "center",
-    marginBottom: spacing[4],
   },
   relaxedBanner: {
     borderBottomWidth: 1,
@@ -475,14 +405,6 @@ const styles = StyleSheet.create({
   actionPrimaryText: {
     color: "#FFFFFF",
   },
-  footerLoader: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: spacing[4],
-    gap: spacing[2],
-  },
-  footerLoaderText: {},
   snackbar: {
     position: "absolute",
     bottom: 20,

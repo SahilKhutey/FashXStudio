@@ -4,29 +4,31 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ActivityIndicator,
   FlatList,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useUserWardrobe, UserWardrobeItem } from "../../src/features/wardrobe/hooks";
+import { useDesignTokens, AppText, spacing, radius } from "../../src/design-system";
+import { LoadingState, ErrorState, EmptyState } from "../../src/components/states";
 
 export default function ClosetScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colors } = useDesignTokens();
   const { data: wardrobeItems, isLoading, isError, refetch, isRefetching } = useUserWardrobe();
 
   const renderItem = ({ item }: { item: UserWardrobeItem }) => {
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, { backgroundColor: colors.surface }]}
         activeOpacity={0.8}
         onPress={() => router.push(`/garment/${item.garment_id}`)}
         accessibilityRole="button"
         accessibilityLabel={`Wardrobe item ${item.garment_id}`}
       >
-        <View style={styles.thumbnailContainer}>
+        <View style={[styles.thumbnailContainer, { backgroundColor: colors.surfaceSecondary }]}>
           {item.snapshot_image_key ? (
             <Image
               source={{ uri: item.snapshot_image_key }}
@@ -41,59 +43,50 @@ export default function ClosetScreen() {
         </View>
 
         <View style={styles.detailsContainer}>
-          <Text style={styles.itemTitle} numberOfLines={1}>
+          <AppText variant="body" color="textPrimary" style={styles.itemTitle} numberOfLines={1}>
             {item.snapshot_title || "Saved Garment"}
-          </Text>
-          <Text style={styles.subText} numberOfLines={1}>
+          </AppText>
+          <AppText variant="caption" color="textMuted" style={styles.subText} numberOfLines={1}>
             ID: {item.garment_id.slice(0, 8)}...
-          </Text>
+          </AppText>
           {item.tryon_artifact_id && (
-            <View style={styles.renderedBadge}>
-              <Text style={styles.renderedBadgeText}>✨ Try-On Saved</Text>
+            <View style={[styles.renderedBadge, { backgroundColor: colors.brandSubtle }]}>
+              <Text style={[styles.renderedBadgeText, { color: colors.brand }]}>
+                ✨ Try-On Saved
+              </Text>
             </View>
           )}
         </View>
-        <Text style={styles.chevron}>›</Text>
+        <Text style={[styles.chevron, { color: colors.borderStrong }]}>›</Text>
       </TouchableOpacity>
     );
   };
 
   if (isLoading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
-      </View>
-    );
+    return <LoadingState message={t("common.loading")} />;
   }
 
   if (isError) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorTitle}>{t("common.error")}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>{t("common.retry")}</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    return <ErrorState onRetry={() => void refetch()} />;
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={wardrobeItems || []}
         renderItem={renderItem}
         keyExtractor={(item) => item.item_id || item.garment_id}
         refreshing={isRefetching}
-        onRefresh={refetch}
+        onRefresh={() => void refetch()}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>👗</Text>
-            <Text style={styles.emptyTitle}>Your closet is empty</Text>
-            <Text style={styles.emptySub}>
-              Save garments or try-on renders from your feed to build your collection.
-            </Text>
-          </View>
+          <EmptyState
+            icon="👗"
+            title="Your closet is empty"
+            message="Save garments or try-on renders from your feed to build your collection."
+            actionLabel={t("common.retry")}
+            onAction={() => void refetch()}
+          />
         }
       />
     </View>
@@ -103,25 +96,17 @@ export default function ClosetScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
   },
   listContent: {
-    padding: 16,
+    padding: spacing[4],
     flexGrow: 1,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: radius.lg,
+    padding: spacing[3],
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing[3],
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -131,8 +116,7 @@ const styles = StyleSheet.create({
   thumbnailContainer: {
     width: 68,
     height: 80,
-    borderRadius: 8,
-    backgroundColor: "#F3F4F6",
+    borderRadius: radius.md,
     overflow: "hidden",
   },
   thumbnail: {
@@ -154,70 +138,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   itemTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
     marginBottom: 2,
   },
   subText: {
-    fontSize: 12,
-    color: "#9CA3AF",
     marginBottom: 4,
   },
   renderedBadge: {
-    backgroundColor: "#EEF2FF",
     alignSelf: "flex-start",
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing[2],
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: radius.sm,
   },
   renderedBadgeText: {
-    color: "#4F46E5",
     fontSize: 11,
     fontWeight: "600",
   },
   chevron: {
     fontSize: 22,
-    color: "#D1D5DB",
-    paddingHorizontal: 8,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingTop: 80,
-    paddingHorizontal: 24,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  emptySub: {
-    fontSize: 14,
-    color: "#6B7280",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  errorTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 12,
-  },
-  retryButton: {
-    backgroundColor: "#4F46E5",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+    paddingHorizontal: spacing[2],
   },
 });
