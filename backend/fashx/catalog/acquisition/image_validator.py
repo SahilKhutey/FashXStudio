@@ -32,7 +32,7 @@ class SafeImageValidator:
         if not clean_host:
             return False, "Empty host"
 
-        if clean_host in {"localhost", "127.0.0.1", "::1", "0.0.0.0"}:
+        if clean_host == "localhost":
             return False, f"Prohibited local/loopback host '{clean_host}'"
 
         # Check if direct IP literal
@@ -44,6 +44,7 @@ class SafeImageValidator:
                 or ip.is_link_local
                 or ip.is_multicast
                 or ip.is_reserved
+                or ip.is_unspecified
             ):
                 return False, f"Prohibited private/internal IP address '{clean_host}'"
             return True, None
