@@ -214,6 +214,8 @@ class IngestMerchantProductUseCase:
                     existing_garment.price_minor = cmd.price_minor
                     existing_garment.in_stock = cmd.in_stock
                     existing_garment.tryon_supported = is_eligible
+                    if effective_title:
+                        existing_garment.display_name = effective_title
                     if cmd.sizes_in_stock:
                         existing_garment.sizes_in_stock = cmd.sizes_in_stock
             else:
