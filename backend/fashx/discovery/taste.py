@@ -1,5 +1,6 @@
 """Taste vector computation with exponential signal decay and cold-start archetype blending (Step 7.13)."""
 
+import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
@@ -97,3 +98,29 @@ def compute_taste_vector(
         blended = blended / final_norm
 
     return blended.astype(np.float32)
+
+
+def build_user_vector(signals: list[tuple[list[float], float]]) -> list[float] | None:
+    """Normalize and aggregate garment embeddings weighted by user interaction signals.
+
+    Formula: u = normalize(sum(w_i * e_i))
+    Validates model dimensions, non-finite values, and skips zero-norm outcomes.
+    """
+    if not signals:
+        return None
+    dimension = len(signals[0][0])
+    if dimension == 0:
+        return None
+    result = [0.0] * dimension
+    for embedding, weight in signals:
+        if len(embedding) != dimension:
+            continue
+        for index, value in enumerate(embedding):
+            if not math.isfinite(value):
+                raise ValueError("Embedding contains non-finite values")
+            result[index] += weight * value
+    norm = math.sqrt(sum(value * value for value in result))
+    if norm < 1e-12:
+        return None
+    return [value / norm for value in result]
+

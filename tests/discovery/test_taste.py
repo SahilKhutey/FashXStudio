@@ -3,11 +3,13 @@
 from datetime import UTC, datetime, timedelta
 
 import numpy as np
+import pytest
 
 from eval.persona_to_context import style_to_embedding
 from fashx.discovery.taste import (
     HALF_LIFE_DAYS,
     SignalEvent,
+    build_user_vector,
     compute_archetype_vector,
     compute_taste_vector,
     signal_decay_factor,
@@ -64,3 +66,30 @@ def test_full_signals_when_three_or_more() -> None:
     assert abs(np.linalg.norm(vec) - 1.0) < 1e-5
     # >=3 signals ignore cold-start archetype and align fully with observed signals
     assert float(np.dot(vec, e1)) > 0.95
+
+
+def test_build_user_vector_aggregation() -> None:
+    # Empty signals return None
+    assert build_user_vector([]) is None
+
+    # Single signal returns unit normalized vector
+    v1 = [1.0, 2.0, 3.0]
+    res1 = build_user_vector([(v1, 1.0)])
+    assert res1 is not None
+    norm1 = np.linalg.norm(res1)
+    assert abs(norm1 - 1.0) < 1e-5
+
+    # Opposing weights cancel out appropriately
+    v2 = [1.0, 0.0, 0.0]
+    v3 = [0.0, 1.0, 0.0]
+    res2 = build_user_vector([(v2, 2.0), (v3, 1.0)])
+    assert res2 is not None
+    assert res2[0] > res2[1]
+
+    # Non-finite raises ValueError
+    with pytest.raises(ValueError, match="non-finite"):
+        build_user_vector([([float("nan"), 1.0, 0.0], 1.0)])
+
+    # Zero norm returns None
+    assert build_user_vector([([1.0, 0.0], 1.0), ([1.0, 0.0], -1.0)]) is None
+
