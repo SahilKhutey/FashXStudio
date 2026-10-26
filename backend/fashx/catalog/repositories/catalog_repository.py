@@ -84,6 +84,15 @@ class MerchantProductRepository(BaseRepository[MerchantProduct]):
         result = await self.session.scalars(stmt)
         return result.first()
 
+    async def get_by_canonical_garment_id(
+        self, garment_id: UUID
+    ) -> Sequence[MerchantProduct]:
+        stmt = select(MerchantProduct).where(
+            MerchantProduct.canonical_garment_id == garment_id
+        )
+        result = await self.session.scalars(stmt)
+        return result.all()
+
 
 class CanonicalGarmentRepository(BaseRepository[CanonicalGarment]):
     def __init__(self, session: AsyncSession) -> None:
@@ -102,6 +111,7 @@ class CanonicalGarmentRepository(BaseRepository[CanonicalGarment]):
             .join(CatalogSource, CatalogSource.id == MerchantProduct.source_id)
             .where(
                 CatalogSource.status == "cleared",
+                CatalogSource.rights_display.is_(True),
                 MerchantProduct.status == "active",
             )
             .distinct()

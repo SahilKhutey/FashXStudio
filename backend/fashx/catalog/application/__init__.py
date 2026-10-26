@@ -8,6 +8,11 @@ from .ingest_product import (
     IngestProductCommand,
     IngestProductResult,
 )
+from .manage_catalog_source import (
+    ApproveCatalogSourceCommand,
+    CatalogSourceDecision,
+    ManageCatalogSourceUseCase,
+)
 from .parse_size_chart import (
     ParseSizeChartCommand,
     ParseSizeChartResult,
@@ -18,6 +23,9 @@ __all__ = [
     "IngestProductCommand",
     "IngestProductResult",
     "IngestMerchantProductUseCase",
+    "ApproveCatalogSourceCommand",
+    "CatalogSourceDecision",
+    "ManageCatalogSourceUseCase",
     "EnrichGarmentCommand",
     "EnrichGarmentResult",
     "EnrichGarmentUseCase",

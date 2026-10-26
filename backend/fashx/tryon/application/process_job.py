@@ -86,7 +86,7 @@ class ProcessTryOnJobUseCase:
                 failure_reason="consent_revoked",
             )
 
-        # 3. Retrieve Garment Details
+        # 3. Retrieve Garment Details and recheck current source clearance and try-on rights
         async with self.catalog_uow:
             garment = await self.catalog_uow.canonical_garments.get_by_id(job.garment_id)
             if garment is None:
@@ -101,6 +101,29 @@ class ProcessTryOnJobUseCase:
                     artifact_key=job.artifact_key,
                     failure_reason="unsupported_garment",
                 )
+
+            # Recheck live source clearance and try-on rights at job execution time
+            if hasattr(self.catalog_uow, "merchant_products") and hasattr(
+                self.catalog_uow.merchant_products, "get_by_canonical_garment_id"
+            ):
+                products = await self.catalog_uow.merchant_products.get_by_canonical_garment_id(garment.id)
+                if products:
+                    for prod in products:
+                        if prod.source_id and hasattr(self.catalog_uow, "sources"):
+                            src = await self.catalog_uow.sources.get_by_id(prod.source_id)
+                            if src and (src.status != "cleared" or not src.rights_display or not src.rights_tryon):
+                                async with self.tryon_uow:
+                                    await self.tryon_uow.jobs.update_status(
+                                        job_id, "failed", failure_reason="tryon_rights_revoked"
+                                    )
+                                    await self.tryon_uow.commit()
+                                return ProcessJobResult(
+                                    job_id=job_id,
+                                    status="failed",
+                                    artifact_key=job.artifact_key,
+                                    failure_reason="tryon_rights_revoked",
+                                )
+
             garment_category = garment.category
             garment_version = garment.version
 

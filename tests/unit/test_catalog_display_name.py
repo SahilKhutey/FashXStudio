@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import Merchant
+from database.models.catalog import CatalogSource, Merchant
 from fashx.catalog.application import IngestMerchantProductUseCase, IngestProductCommand
 from fashx.catalog.repositories.catalog import CatalogRepository
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
@@ -15,6 +15,17 @@ async def test_ingest_product_sets_display_name_from_title(
     async with uow:
         merchant = Merchant(name="Brand Direct", merchant_type="retailer")
         uow.merchants.add(merchant)
+        await uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
 
@@ -42,6 +53,17 @@ async def test_ingest_product_falls_back_to_subcategory_when_title_empty(
     async with uow:
         merchant = Merchant(name="Brand Direct 2", merchant_type="retailer")
         uow.merchants.add(merchant)
+        await uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
 
@@ -69,6 +91,17 @@ async def test_ingest_product_falls_back_to_category_when_title_and_subcat_empty
     async with uow:
         merchant = Merchant(name="Brand Direct 3", merchant_type="retailer")
         uow.merchants.add(merchant)
+        await uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
 

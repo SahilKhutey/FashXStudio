@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import Merchant
+from database.models.catalog import CatalogSource, Merchant
 from fashx.catalog.application.ingest_product import (
     IngestMerchantProductUseCase,
     IngestProductCommand,
@@ -45,6 +45,17 @@ async def test_wardrobe_save_list_and_remove(
     async with catalog_uow:
         merchant = Merchant(name="Closet Merchant", merchant_type="retailer")
         catalog_uow.merchants.add(merchant)
+        await catalog_uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
 

@@ -88,6 +88,22 @@ class IngestMerchantProductUseCase:
     def __init__(self, uow: CatalogUnitOfWork) -> None:
         self.uow = uow
 
+    async def _resolve_source(self, cmd: IngestProductCommand, merchant: object) -> CatalogSource:
+        """Resolve an existing source; ingestion must never grant source rights."""
+        if cmd.source_id is not None:
+            source = await self.uow.sources.get_by_id(cmd.source_id)
+        else:
+            source = await self.uow.sources.get_by_slug(
+                f"merchant-{cmd.merchant_id}"
+            )
+        if source is None:
+            raise EntityNotFoundError(
+                "CatalogSource",
+                cmd.source_id if cmd.source_id is not None
+                else f"merchant-{cmd.merchant_id}",
+            )
+        return source
+
     async def execute(self, cmd: IngestProductCommand) -> IngestProductResult:
         cat_normalized = cmd.category.strip().lower() if cmd.category else ""
         if not cat_normalized or cat_normalized not in VALID_TAXONOMY_CATEGORIES:
@@ -126,39 +142,26 @@ class IngestMerchantProductUseCase:
             if merchant is None:
                 raise EntityNotFoundError("Merchant", cmd.merchant_id)
 
-            # Determine source_id (fallback to merchant default cleared source)
-            source_id = cmd.source_id
-            if source_id is not None:
-                source = await self.uow.sources.get_by_id(source_id)
-                if source is None:
-                    raise EntityNotFoundError("CatalogSource", source_id)
-            else:
-                default_slug = f"merchant-{cmd.merchant_id}"
-                source = await self.uow.sources.get_by_slug(default_slug)
-                if source is None:
-                    source = CatalogSource(
-                        slug=default_slug,
-                        name=merchant.name,
-                        kind="manual",
-                        status="pending_approval",
-                        rights_display=False,
-                        rights_tryon=False,
-                        image_policy="mirror",
-                    )
-                    self.uow.sources.add(source)
-                    await self.uow.sources.flush()
-                source_id = source.id
+            # Resolve an explicitly registered source.
+            # Never create or clear a source implicitly during product ingestion.
+            source = await self._resolve_source(cmd, merchant)
+            source_id = source.id
 
+            # A pending or suspended source may be retained for review/audit,
+            # but it must not become visible or eligible for virtual try-on.
+            can_tryon = (
+                source.status == "cleared"
+                and source.rights_display
+                and source.rights_tryon
+            )
+            if cmd.tryon_rights is not None:
+                can_tryon = can_tryon and cmd.tryon_rights
             now = datetime.now(UTC)
 
-            # Calculate try-on eligibility (requires source approval + product-level permission if specified)
-            rights_tryon = (source.rights_tryon and source.status == "cleared") if source else False
-            if cmd.tryon_rights is not None:
-                rights_tryon = rights_tryon and cmd.tryon_rights
-            image_policy = source.image_policy if source else "hotlink"
+            # Calculate try-on eligibility
             is_eligible = compute_tryon_eligibility(
-                source_rights_tryon=rights_tryon,
-                source_image_policy=image_policy,
+                source_rights_tryon=can_tryon,
+                source_image_policy=source.image_policy,
                 category=cmd.category,
             )
 

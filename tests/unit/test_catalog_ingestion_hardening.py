@@ -20,7 +20,7 @@ from fashx.core.errors import EntityNotFoundError
 async def test_fallback_source_created_as_unapproved(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
-    """When no source is provided or pre-registered, fallback source must NOT self-grant clearance."""
+    """When no source is pre-registered, ingestion fails (no source auto-created). When pre-registered as pending, tryon fails closed."""
     uow = CatalogUnitOfWork(session_factory)
     async with uow:
         merchant = Merchant(name="Unapproved Retailer", merchant_type="retailer")
@@ -37,17 +37,26 @@ async def test_fallback_source_created_as_unapproved(
         category="tops",
         price_minor=129900,
     )
-    result = await use_case.execute(cmd)
+    # Unregistered source must fail
+    with pytest.raises(EntityNotFoundError):
+        await use_case.execute(cmd)
 
-    # Check source status in database
+    # Now register a pending source
     async with uow:
-        source = await uow.sources.get_by_slug(f"merchant-{merchant_id}")
-        assert source is not None
-        assert source.status == "pending_approval"
-        assert source.rights_display is False
-        assert source.rights_tryon is False
+        source = CatalogSource(
+            slug=f"merchant-{merchant_id}",
+            name=merchant.name,
+            kind="manual",
+            status="pending",
+            rights_display=False,
+            rights_tryon=False,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
+        await uow.commit()
 
-        # Garment tryon_supported must fail closed because source is unapproved
+    result = await use_case.execute(cmd)
+    async with uow:
         garment = await uow.canonical_garments.get_by_id(result.canonical_garment_id)
         assert garment is not None
         assert garment.tryon_supported is False
