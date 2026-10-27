@@ -128,11 +128,14 @@ async def submit_tryon_job(
                 "This garment is not supported for virtual try-on", field="garment_id"
             )
 
+    from fashx.tryon.ports_dispatch import CeleryTryOnJobDispatcher
+
     use_case = SubmitTryOnJobUseCase(
         tryon_uow=tryon_uow,
         profile_uow=profile_uow,
         catalog_uow=catalog_uow,
         adapter=adapter,
+        dispatcher=CeleryTryOnJobDispatcher(),
     )
     cmd = SubmitTryOnJobCommand(
         user_id=effective_user_id,
@@ -222,15 +225,27 @@ async def get_tryon_job_status(
 @router.get("/artifacts/{artifact_key}", response_model=TryOnArtifactResponse)
 async def get_tryon_artifact(
     artifact_key: str,
+    principal: Principal = Depends(get_principal),
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
 ) -> TryOnArtifactResponse:
-    """Retrieve rendered try-on artifact by composite cache key."""
+    """Retrieve rendered try-on artifact by composite cache key (authenticated and owner-verified)."""
     async with tryon_uow:
         artifact = await tryon_uow.artifacts.get_by_artifact_key(artifact_key)
         if artifact is None:
             from fashx.core.errors import EntityNotFoundError
 
             raise EntityNotFoundError("TryOnArtifact", artifact_key)
+
+        job = await tryon_uow.jobs.get_by_id(artifact.job_id)
+        if job is None:
+            from fashx.core.errors import EntityNotFoundError
+
+            raise EntityNotFoundError("TryOnJob", artifact.job_id)
+
+        if str(job.user_id) != principal.user_id:
+            from fashx.security.errors import forbidden
+
+            raise forbidden("Forbidden: You cannot access this try-on result")
 
         return TryOnArtifactResponse(
             artifact_key=artifact.artifact_key,

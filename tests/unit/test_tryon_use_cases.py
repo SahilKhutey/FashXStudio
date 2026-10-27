@@ -301,7 +301,12 @@ async def test_tryon_post_inference_quality_failure(
         catalog_uow,
         adapter=FailingQualityAdapter(),
     )
-    proc_res = await process_uc.execute(job_id=sub_res.job_id)
+    valid_img = _create_valid_portrait_bytes()
+    proc_res = await process_uc.execute(
+        job_id=sub_res.job_id,
+        user_photo_bytes=valid_img,
+        garment_image_bytes=valid_img,
+    )
 
     assert proc_res.status == "failed"
     assert proc_res.failure_reason == "quality_rejected"

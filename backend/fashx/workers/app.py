@@ -1,4 +1,6 @@
 import logging
+from typing import Any
+from uuid import UUID
 
 from celery import Celery
 
@@ -37,12 +39,61 @@ app.conf.update(
 )
 
 
+def run_tryon_job(job_id: Any) -> Any:
+    """Worker bootstrap that initializes dependencies and executes ProcessTryOnJobUseCase."""
+    import asyncio
+
+    from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+    from fashx.core.database import get_session_factory
+    from fashx.core.dependencies import get_storage, get_tryon_adapter
+    from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+    from fashx.tryon.application.process_job import ProcessTryOnJobUseCase
+    from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
+
+    job_uuid = job_id if isinstance(job_id, UUID) else UUID(str(job_id))
+
+    async def _async_exec() -> Any:
+        session_factory = get_session_factory()
+        tryon_uow = TryOnUnitOfWork(session_factory)
+        profile_uow = ProfileUnitOfWork(session_factory)
+        catalog_uow = CatalogUnitOfWork(session_factory)
+        adapter = get_tryon_adapter()
+        storage = get_storage()
+        use_case = ProcessTryOnJobUseCase(
+            tryon_uow=tryon_uow,
+            profile_uow=profile_uow,
+            catalog_uow=catalog_uow,
+            adapter=adapter,
+            storage=storage,
+        )
+        return await use_case.execute(job_uuid)
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(lambda: asyncio.run(_async_exec())).result()
+    else:
+        return asyncio.run(_async_exec())
+
+
 @app.task(name="fashx.workers.app.process_tryon_job", bind=True, max_retries=3)
 def process_tryon_job(self, job_id_str: str) -> dict:
     """Execute asynchronous virtual try-on processing."""
     logger.info("Processing tryon job: %s", job_id_str)
-    # Execution handled through ProcessTryOnJobUseCase
-    return {"job_id": job_id_str, "status": "completed"}
+
+    job_id = UUID(job_id_str)
+    result = run_tryon_job(job_id)
+    return {
+        "job_id": str(result.job_id),
+        "status": result.status,
+        "failure_reason": result.failure_reason,
+    }
 
 
 @app.task(name="fashx.workers.app.ingest_catalog_feed")
