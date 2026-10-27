@@ -224,6 +224,7 @@ async def test_ingest_fails_for_unregistered_unknown_source(
     use_case = IngestMerchantProductUseCase(uow)
     cmd = IngestProductCommand(
         merchant_id=merchant_id,
+        source_id=uuid4(),
         source_product_id="SKU-UNREG-01",
         title="Unregistered Shirt",
         source_url="https://merchant.example.com/items/01",

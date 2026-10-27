@@ -5,6 +5,7 @@ from database.models.catalog import CatalogSource, Merchant
 from fashx.catalog.application import IngestMerchantProductUseCase, IngestProductCommand
 from fashx.catalog.repositories.catalog import CatalogRepository
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.core.errors import ValidationError
 
 
 @pytest.mark.asyncio
@@ -28,10 +29,12 @@ async def test_ingest_product_sets_display_name_from_title(
         uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     use_case = IngestMerchantProductUseCase(uow)
     cmd = IngestProductCommand(
         merchant_id=merchant_id,
+        source_id=source_id,
         source_product_id="SKU-TITLE-1",
         title="Embroidered Festive Kurta",
         source_url="https://example.com/items/1",
@@ -46,7 +49,7 @@ async def test_ingest_product_sets_display_name_from_title(
 
 
 @pytest.mark.asyncio
-async def test_ingest_product_falls_back_to_subcategory_when_title_empty(
+async def test_ingest_product_rejects_empty_title(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
     uow = CatalogUnitOfWork(session_factory)
@@ -66,10 +69,12 @@ async def test_ingest_product_falls_back_to_subcategory_when_title_empty(
         uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     use_case = IngestMerchantProductUseCase(uow)
     cmd = IngestProductCommand(
         merchant_id=merchant_id,
+        source_id=source_id,
         source_product_id="SKU-TITLE-2",
         title="",
         source_url="https://example.com/items/2",
@@ -77,48 +82,9 @@ async def test_ingest_product_falls_back_to_subcategory_when_title_empty(
         subcategory="casual_shirts",
         price_minor=189900,
     )
-    res = await use_case.execute(cmd)
-    garment = await uow.canonical_garments.get_by_id(res.canonical_garment_id)
-    assert garment is not None
-    assert garment.display_name == "casual_shirts"
-
-
-@pytest.mark.asyncio
-async def test_ingest_product_falls_back_to_category_when_title_and_subcat_empty(
-    session_factory: async_sessionmaker[AsyncSession],
-) -> None:
-    uow = CatalogUnitOfWork(session_factory)
-    async with uow:
-        merchant = Merchant(name="Brand Direct 3", merchant_type="retailer")
-        uow.merchants.add(merchant)
-        await uow.flush()
-        source = CatalogSource(
-            slug=f"merchant-{merchant.id}",
-            name=merchant.name,
-            kind="manual",
-            status="cleared",
-            rights_display=True,
-            rights_tryon=True,
-            image_policy="mirror",
-        )
-        uow.sources.add(source)
-        await uow.commit()
-        merchant_id = merchant.id
-
-    use_case = IngestMerchantProductUseCase(uow)
-    cmd = IngestProductCommand(
-        merchant_id=merchant_id,
-        source_product_id="SKU-TITLE-3",
-        title="",
-        source_url="https://example.com/items/3",
-        category="dresses",
-        subcategory="",
-        price_minor=299900,
-    )
-    res = await use_case.execute(cmd)
-    garment = await uow.canonical_garments.get_by_id(res.canonical_garment_id)
-    assert garment is not None
-    assert garment.display_name == "dresses"
+    with pytest.raises(ValidationError) as exc_info:
+        await use_case.execute(cmd)
+    assert "title" in str(exc_info.value).lower()
 
 
 @pytest.mark.asyncio

@@ -69,6 +69,7 @@ async def test_generate_personalized_feed_end_to_end(
         catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     enrich_uc = EnrichGarmentUseCase(catalog_uow)
@@ -77,6 +78,7 @@ async def test_generate_personalized_feed_end_to_end(
     item_a = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-A",
             title="Slim Fit Oxford Olive Cotton Shirt",
             source_url="https://hub.com/a",
@@ -90,6 +92,7 @@ async def test_generate_personalized_feed_end_to_end(
     item_b = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-B",
             title="Relaxed Fit Yellow Linen Shirt",
             source_url="https://hub.com/b",
@@ -103,6 +106,7 @@ async def test_generate_personalized_feed_end_to_end(
     item_c = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-C",
             title="Designer Leather Biker Jacket",
             source_url="https://hub.com/c",
@@ -116,6 +120,7 @@ async def test_generate_personalized_feed_end_to_end(
     item_d = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-D",
             title="Slim Fit Navy Chinos Pants",
             source_url="https://hub.com/d",

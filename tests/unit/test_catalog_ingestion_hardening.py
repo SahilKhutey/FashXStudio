@@ -20,7 +20,8 @@ from fashx.core.errors import EntityNotFoundError
 async def test_fallback_source_created_as_unapproved(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
-    """When no source is pre-registered, ingestion fails (no source auto-created). When pre-registered as pending, tryon fails closed."""
+    """When no source is provided, ingestion fails. When source is pending, ingestion fails closed with ValidationError."""
+    from fashx.core.errors import ValidationError
     uow = CatalogUnitOfWork(session_factory)
     async with uow:
         merchant = Merchant(name="Unapproved Retailer", merchant_type="retailer")
@@ -29,7 +30,7 @@ async def test_fallback_source_created_as_unapproved(
         merchant_id = merchant.id
 
     use_case = IngestMerchantProductUseCase(uow)
-    cmd = IngestProductCommand(
+    cmd_no_source = IngestProductCommand(
         merchant_id=merchant_id,
         source_product_id="SKU-UNAPP-1",
         title="Unapproved Top",
@@ -37,9 +38,9 @@ async def test_fallback_source_created_as_unapproved(
         category="tops",
         price_minor=129900,
     )
-    # Unregistered source must fail
-    with pytest.raises(EntityNotFoundError):
-        await use_case.execute(cmd)
+    # Missing source_id must fail
+    with pytest.raises(ValidationError):
+        await use_case.execute(cmd_no_source)
 
     # Now register a pending source
     async with uow:
@@ -54,12 +55,21 @@ async def test_fallback_source_created_as_unapproved(
         )
         uow.sources.add(source)
         await uow.commit()
+        source_id = source.id
 
-    result = await use_case.execute(cmd)
-    async with uow:
-        garment = await uow.canonical_garments.get_by_id(result.canonical_garment_id)
-        assert garment is not None
-        assert garment.tryon_supported is False
+    cmd_pending = IngestProductCommand(
+        merchant_id=merchant_id,
+        source_id=source_id,
+        source_product_id="SKU-UNAPP-1",
+        title="Unapproved Top",
+        source_url="https://merchant.example.com/items/1",
+        category="tops",
+        price_minor=129900,
+    )
+    # Pending source must be rejected
+    with pytest.raises(ValidationError) as exc_info:
+        await use_case.execute(cmd_pending)
+    assert "not cleared" in str(exc_info.value)
 
 
 @pytest.mark.asyncio

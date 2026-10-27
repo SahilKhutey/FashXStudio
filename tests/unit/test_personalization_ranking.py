@@ -116,6 +116,7 @@ async def test_different_preferences_produce_different_rankings(
         catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     enrich_uc = EnrichGarmentUseCase(catalog_uow)
@@ -124,6 +125,7 @@ async def test_different_preferences_produce_different_rankings(
     item_ethnic = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ETHNIC-01",
             title="Olive Silk Anarkali Ethnic Kurta",
             source_url="https://hub.com/ethnic",
@@ -137,6 +139,7 @@ async def test_different_preferences_produce_different_rankings(
     item_street = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="STREET-01",
             title="Black Heavyweight Graphic Streetwear Hoodie",
             source_url="https://hub.com/street",

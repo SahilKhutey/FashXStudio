@@ -151,11 +151,13 @@ async def test_tryon_full_async_lifecycle_and_caching(
         catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     product_res = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="TRYON-TEE-01",
             title="Premium Cotton Graphic Tee White",
             source_url="https://boutique.com/tee01",
@@ -266,11 +268,13 @@ async def test_tryon_post_inference_quality_failure(
         catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     product_res = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-FAIL-01",
             title="Linen Shirt",
             source_url="https://shop.com/1",

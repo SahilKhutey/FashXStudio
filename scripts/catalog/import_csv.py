@@ -7,9 +7,10 @@ import sys
 from pathlib import Path
 from uuid import UUID
 
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
 from fashx.catalog.acquisition.sync_service import CatalogSyncService
 from fashx.core.database import get_session_factory
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 def parse_args() -> argparse.Namespace:

@@ -1,6 +1,7 @@
 import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from urllib.parse import urlparse
 from uuid import UUID
 
 from database.models.catalog import CanonicalGarment, CatalogSource, GarmentImage, MerchantProduct
@@ -42,6 +43,61 @@ VALID_TAXONOMY_CATEGORIES: set[str] = {
     "accessories",
     "footwear",
 }
+
+
+def validate_product_input(
+    *,
+    source_product_id: str,
+    title: str,
+    source_url: str,
+    category: str,
+    price_minor: int,
+    currency: str = "INR",
+) -> None:
+    """Validate required merchant-product fields before database writes."""
+    if not source_product_id or not source_product_id.strip():
+        raise ValidationError(
+            "Source product ID cannot be empty",
+            field="source_product_id",
+        )
+    if not title or not title.strip():
+        raise ValidationError("Title cannot be empty", field="title")
+    if not category or not category.strip():
+        raise ValidationError("Category cannot be empty", field="category")
+    cat_normalized = category.strip().lower()
+    if cat_normalized not in VALID_TAXONOMY_CATEGORIES:
+        raise ValidationError(
+            f"Unknown category '{category}' not in approved taxonomy",
+            field="category",
+        )
+    if price_minor < 0:
+        raise ValidationError("Price cannot be negative", field="price_minor")
+    if currency.upper() != "INR":
+        raise ValidationError(
+            "Only INR pricing is supported by the current catalog",
+            field="currency",
+        )
+    parsed = urlparse(source_url)
+    if parsed.scheme.lower() != "https" or not parsed.netloc:
+        raise ValidationError(
+            "Invalid or malformed product destination URL (must be HTTPS)",
+            field="source_url",
+        )
+
+
+def validate_catalog_source(source: CatalogSource) -> CatalogSource:
+    """Validate catalog source status and display rights before product ingestion."""
+    if source.status != "cleared":
+        raise ValidationError(
+            f"Catalog source '{source.slug}' is not cleared (status='{source.status}')",
+            field="source_id",
+        )
+    if not source.rights_display:
+        raise ValidationError(
+            f"Catalog source '{source.slug}' does not have display rights",
+            field="source_id",
+        )
+    return source
 
 
 @dataclass
@@ -88,75 +144,46 @@ class IngestMerchantProductUseCase:
     def __init__(self, uow: CatalogUnitOfWork) -> None:
         self.uow = uow
 
-    async def _resolve_source(self, cmd: IngestProductCommand, merchant: object) -> CatalogSource:
-        """Resolve an existing source; ingestion must never grant source rights."""
-        if cmd.source_id is not None:
-            source = await self.uow.sources.get_by_id(cmd.source_id)
-        else:
-            source = await self.uow.sources.get_by_slug(
-                f"merchant-{cmd.merchant_id}"
-            )
-        if source is None:
-            raise EntityNotFoundError(
-                "CatalogSource",
-                cmd.source_id if cmd.source_id is not None
-                else f"merchant-{cmd.merchant_id}",
-            )
-        return source
-
     async def execute(self, cmd: IngestProductCommand) -> IngestProductResult:
-        cat_normalized = cmd.category.strip().lower() if cmd.category else ""
-        if not cat_normalized or cat_normalized not in VALID_TAXONOMY_CATEGORIES:
-            raise ValidationError(
-                f"Unknown category '{cmd.category}' not in approved taxonomy", field="category"
-            )
-
-        title = cmd.title.strip() if cmd.title else ""
-        effective_title = (
-            title
-            or (cmd.subcategory.strip() if cmd.subcategory else "")
-            or cat_normalized
+        validate_product_input(
+            source_product_id=cmd.source_product_id,
+            title=cmd.title,
+            source_url=cmd.source_url,
+            category=cmd.category,
+            price_minor=cmd.price_minor,
+            currency=cmd.currency,
         )
-        if not effective_title:
-            raise ValidationError("Product title cannot be empty", field="title")
 
-        if cmd.price_minor < 0:
-            raise ValidationError("Price cannot be negative", field="price_minor")
-
-        if not cmd.source_url or not (
-            cmd.source_url.startswith("http://") or cmd.source_url.startswith("https://")
-        ):
+        if cmd.source_id is None:
             raise ValidationError(
-                "Invalid or malformed product destination URL", field="source_url"
+                "A registered catalog source is required",
+                field="source_id",
             )
 
-        if cmd.image_url and not (
-            cmd.image_url.startswith("http://") or cmd.image_url.startswith("https://")
-        ):
-            raise ValidationError(
-                "Invalid or malformed product image URL", field="image_url"
-            )
+        if cmd.image_url:
+            parsed_img = urlparse(cmd.image_url)
+            if parsed_img.scheme.lower() not in ("http", "https") or not parsed_img.netloc:
+                raise ValidationError(
+                    "Invalid or malformed product image URL",
+                    field="image_url",
+                )
 
         async with self.uow:
             merchant = await self.uow.merchants.get_by_id(cmd.merchant_id)
             if merchant is None:
                 raise EntityNotFoundError("Merchant", cmd.merchant_id)
 
-            # Resolve an explicitly registered source.
-            # Never create or clear a source implicitly during product ingestion.
-            source = await self._resolve_source(cmd, merchant)
-            source_id = source.id
+            source = await self.uow.sources.get_by_id(cmd.source_id)
+            if source is None:
+                raise EntityNotFoundError("CatalogSource", cmd.source_id)
 
-            # A pending or suspended source may be retained for review/audit,
-            # but it must not become visible or eligible for virtual try-on.
-            can_tryon = (
-                source.status == "cleared"
-                and source.rights_display
-                and source.rights_tryon
-            )
+            source = validate_catalog_source(source)
+            source_id = source.id
+            now = datetime.now(UTC)
+
+            can_tryon = bool(source.rights_tryon)
             if cmd.tryon_rights is not None:
                 can_tryon = can_tryon and cmd.tryon_rights
-            now = datetime.now(UTC)
 
             # Calculate try-on eligibility
             is_eligible = compute_tryon_eligibility(
@@ -169,8 +196,9 @@ class IngestMerchantProductUseCase:
             product = await self.uow.merchant_products.get_by_source_id(
                 cmd.merchant_id, cmd.source_product_id
             )
+            title = cmd.title.strip()
             if product is not None:
-                product.title = effective_title
+                product.title = title
                 product.description = cmd.description
                 product.source_url = cmd.source_url
                 product.brand_id = cmd.brand_id
@@ -189,7 +217,7 @@ class IngestMerchantProductUseCase:
                     item_group_id=cmd.item_group_id,
                     content_hash=cmd.content_hash,
                     status=cmd.status,
-                    title=effective_title,
+                    title=title,
                     description=cmd.description,
                     source_url=cmd.source_url,
                     last_seen_at=now,
@@ -214,8 +242,7 @@ class IngestMerchantProductUseCase:
                     existing_garment.price_minor = cmd.price_minor
                     existing_garment.in_stock = cmd.in_stock
                     existing_garment.tryon_supported = is_eligible
-                    if effective_title:
-                        existing_garment.display_name = effective_title
+                    existing_garment.display_name = title
                     if cmd.sizes_in_stock:
                         existing_garment.sizes_in_stock = cmd.sizes_in_stock
             else:
@@ -223,7 +250,7 @@ class IngestMerchantProductUseCase:
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
-                    display_name=effective_title,
+                    display_name=title,
                     price_minor=cmd.price_minor,
                     sizes_in_stock=cmd.sizes_in_stock,
                     price_updated_at=now,

@@ -77,6 +77,7 @@ async def test_generate_feed_integration_scenarios(
         catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     enrich_uc = EnrichGarmentUseCase(catalog_uow)
@@ -86,6 +87,7 @@ async def test_generate_feed_integration_scenarios(
     item_blue = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="PROD-BLUE-01",
             title="Navy Blue Cotton Casual Shirt",
             source_url="https://merchant.com/blue",
@@ -100,6 +102,7 @@ async def test_generate_feed_integration_scenarios(
     item_olive = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="PROD-OLIVE-01",
             title="Olive Green Linen Relaxed Shirt",
             source_url="https://merchant.com/olive",
@@ -113,6 +116,7 @@ async def test_generate_feed_integration_scenarios(
     item_expensive = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="PROD-EXP-01",
             title="Black Silk Formal Shirt",
             source_url="https://merchant.com/exp",
