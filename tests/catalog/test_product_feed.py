@@ -323,6 +323,7 @@ async def test_import_csv_cli_execution_success_and_failures(
     """Test import_csv CLI run() on fixture input, missing file, and partial errors."""
     import argparse
     import json
+
     from scripts.catalog.import_csv import run as cli_run
 
     uow = CatalogUnitOfWork(session_factory)

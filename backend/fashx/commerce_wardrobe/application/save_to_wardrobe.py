@@ -89,7 +89,12 @@ class SaveToWardrobeUseCase:
 
             # Determine snapshot image
             images = await self.catalog_uow.images.list_for_garment(garment.id)
-            snapshot_image_key = images[0].s3_key if images else f"garments/{garment.id}/front.png"
+            snapshot_image_key = (
+                getattr(images[0], "storage_key", None)
+                or getattr(images[0], "s3_key", None)
+                if images
+                else f"garments/{garment.id}/front.png"
+            )
 
         # 3. Save or Update in Wardrobe
         async with self.wardrobe_uow:

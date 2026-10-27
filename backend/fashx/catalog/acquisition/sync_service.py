@@ -216,6 +216,7 @@ class CatalogSyncService:
                     brand_id=norm_prod.brand_id,
                     item_group_id=norm_prod.item_group_id,
                     content_hash=norm_prod.content_hash,
+                    image_url=norm_prod.image_url,
                 )
                 await ingest_uc.execute(cmd)
                 report.imported += 1

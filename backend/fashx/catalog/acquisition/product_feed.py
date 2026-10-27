@@ -34,6 +34,7 @@ class NormalizedProduct:
     description: str | None = None
     brand_id: UUID | None = None
     item_group_id: str | None = None
+    image_url: str | None = None
 
 
 def normalize_product(row: dict[str, str]) -> NormalizedProduct:
@@ -46,7 +47,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
     if not title:
         raise ValidationError("Missing required title", field="title")
 
-    source_url = str(row.get("source_url", "")).strip()
+    source_url = str(row.get("source_url") or row.get("product_url") or "").strip()
     if not source_url:
         raise ValidationError("Missing required source_url", field="source_url")
 
@@ -81,7 +82,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
     in_stock_raw = str(row.get("in_stock", "true")).strip().lower()
     in_stock = in_stock_raw in {"true", "1", "yes", "t"}
 
-    sizes_raw = str(row.get("sizes_in_stock", "")).strip()
+    sizes_raw = str(row.get("sizes_in_stock") or row.get("size_values") or "").strip()
     sizes: tuple[str, ...] = ()
     if sizes_raw:
         sep = "|" if "|" in sizes_raw else ","
@@ -91,6 +92,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
     description = str(row.get("description", "")).strip() or None
 
     brand_id_raw = str(row.get("brand_id", "")).strip()
+    brand_name = str(row.get("brand", "")).strip()
     brand_id: UUID | None = None
     if brand_id_raw:
         try:
@@ -100,8 +102,13 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
                 f"Invalid brand_id '{brand_id_raw}'; must be a valid UUID",
                 field="brand_id",
             ) from exc
+    elif brand_name:
+        import uuid
+
+        brand_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"brand.{brand_name.lower()}")
 
     item_group_id = str(row.get("item_group_id", "")).strip() or None
+    image_url = str(row.get("image_url", "")).strip() or None
 
     # Deterministic fingerprint payload
     canonical_dict = {
@@ -117,6 +124,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
         "description": description,
         "brand_id": str(brand_id) if brand_id else None,
         "item_group_id": item_group_id,
+        "image_url": image_url,
     }
     digest = hashlib.sha256(
         json.dumps(canonical_dict, sort_keys=True).encode("utf-8")
@@ -135,6 +143,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
         description=description,
         brand_id=brand_id,
         item_group_id=item_group_id,
+        image_url=image_url,
         content_hash=digest,
     )
 

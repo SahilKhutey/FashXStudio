@@ -10,7 +10,6 @@ from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
 from fashx.ml.prep import prepare_for_provider
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
 from fashx.tryon.ports import InferenceInput
 from fashx.tryon.quality_validator import PostInferenceQualityValidator
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
@@ -41,7 +40,12 @@ class ProcessTryOnJobUseCase:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
-        self.adapter = adapter or MockTryOnAdapter()
+        if adapter is not None:
+            self.adapter = adapter
+        else:
+            from fashx.core.dependencies import get_tryon_adapter
+
+            self.adapter = get_tryon_adapter()
         self.storage = storage
         self.breaker = breaker
 

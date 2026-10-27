@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
+import numpy as np
+from sqlalchemy import select
+
 from database.models.catalog import Brand
+from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
+from fashx.discovery.taste import SignalEvent, compute_taste_vector
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.recommendation.compatibility import CompatibilityMatrix
 from fashx.recommendation.filters import (
@@ -15,6 +21,7 @@ from fashx.recommendation.filters import (
 from fashx.recommendation.ranker import (
     PersonalizedRanker,
     ScoredItem,
+    cosine_similarity,
 )
 from fashx.recommendation.stylist_explainer import StylistExplainer
 
@@ -66,7 +73,11 @@ class GenerateFeedUseCase:
         self.catalog_uow = catalog_uow
 
     async def execute(self, cmd: GenerateFeedCommand) -> GenerateFeedResult:
-        # 1. Fetch User Profile & Preferences
+        # 1. Fetch User Profile, Preferences & Interaction Signals
+        user_styles: list[str] | None = None
+        raw_signals: list[tuple[UUID, str, datetime | None]] = []
+        now = datetime.now(UTC)
+
         async with self.profile_uow:
             user = await self.profile_uow.users.get_by_id(cmd.user_id)
             if user is None:
@@ -78,11 +89,42 @@ class GenerateFeedUseCase:
                 cmd.user_id, "tryon_reference"
             )
 
+            # Style quiz archetype preferences
+            try:
+                onboarding = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
+                if onboarding and onboarding.styles:
+                    user_styles = list(onboarding.styles)
+            except Exception:
+                pass
+
+            # Feed interaction signals (likes, hides, not_interested)
+            try:
+                from database.models.feed import FeedSignal
+
+                res_sig = await self.profile_uow.session.scalars(
+                    select(FeedSignal).where(FeedSignal.user_id == cmd.user_id)
+                )
+                for s in res_sig.all():
+                    raw_signals.append((s.garment_id, s.action, s.created_at))
+            except Exception:
+                pass
+
+            # Saved wardrobe items (positive interaction signal)
+            try:
+                from database.models.commerce_feedback import WardrobeItem
+
+                res_w = await self.profile_uow.session.scalars(
+                    select(WardrobeItem).where(WardrobeItem.user_id == cmd.user_id)
+                )
+                for w in res_w.all():
+                    raw_signals.append((w.garment_id, "like", w.saved_at))
+            except Exception:
+                pass
+
             user_build = body.build if body else "regular"
             undertone = "neutral"
-            # If user has an active portrait photo with skin tone, calibrate undertone
             if active_photo:
-                undertone = "warm"  # calibrated baseline
+                undertone = "warm"
 
             budget_min = pref.budget_min if pref else None
             budget_max = pref.budget_max if pref else None
@@ -91,7 +133,34 @@ class GenerateFeedUseCase:
             allowed_categories = list(pref.categories) if pref and pref.categories else None
 
         # 2. Fetch Catalog Candidates (Gated: cleared sources + active products)
+        embedder = FakeEmbedder()
         async with self.catalog_uow:
+            # Resolve garment embeddings for raw interaction signals
+            signal_events: list[SignalEvent] = []
+            for g_id, action, dt in raw_signals:
+                try:
+                    enrichment = await self.catalog_uow.enrichments.get_by_garment_id(g_id)
+                    if enrichment and enrichment.embedding:
+                        emb = enrichment.embedding
+                    else:
+                        g_obj = await self.catalog_uow.canonical_garments.get_by_id(g_id)
+                        title = g_obj.display_name if g_obj else "garment"
+                        emb = embedder.embed_text([title])[0]
+                    signal_events.append(
+                        SignalEvent(
+                            garment_id=str(g_id),
+                            action=action,
+                            timestamp=dt or now,
+                            embedding=np.array(emb, dtype=np.float32),
+                        )
+                    )
+                except Exception:
+                    continue
+
+            # Compute taste vector blending cold-start archetypes with interaction signals
+            taste_vector = compute_taste_vector(signal_events, user_styles=user_styles, now=now)
+            taste_vector_list = taste_vector.tolist()
+
             garments = await self.catalog_uow.canonical_garments.list_feed_candidates(limit=200)
             candidates: list[CandidateItem] = []
 
@@ -156,12 +225,10 @@ class GenerateFeedUseCase:
                 filtered_candidates=0,
             )
 
-        # 4. Stage 2: Explicit preference and compatibility scoring.
-        #
-        # Do not use placeholder embeddings as a relevance signal.
-        # Semantic similarity will be enabled when a real user taste vector
-        # and version-compatible garment embeddings are available.
+        # 4. Stage 2: Explicit preference, compatibility, and taste vector scoring
         scored_items: list[ScoredItem] = []
+        has_taste_signal = bool(user_styles or signal_events)
+
         for cand in surviving:
             compat = CompatibilityMatrix.evaluate(
                 user_undertone=undertone,
@@ -172,10 +239,19 @@ class GenerateFeedUseCase:
                 favored_categories=allowed_categories,
                 category=cand.category,
             )
-            # Compatibility is the only trusted score in this interim slice.
-            # Do not assign an artificial neutral cosine score when embeddings
-            # are absent or incompatible.
-            relevance = round(compat.total_score, 3)
+
+            if has_taste_signal:
+                cand_emb = cand.embedding
+                if not cand_emb:
+                    cand_emb = embedder.embed_text(
+                        [f"{cand.title} {cand.category} {cand.subcategory or ''}"]
+                    )[0]
+                taste_sim = cosine_similarity(taste_vector_list, cand_emb)
+                # Blend compatibility (50%) with personalized taste similarity (50%)
+                relevance = round(0.5 * compat.total_score + 0.5 * taste_sim, 3)
+            else:
+                relevance = round(compat.total_score, 3)
+
             scored_items.append(
                 ScoredItem(
                     item=cand,
