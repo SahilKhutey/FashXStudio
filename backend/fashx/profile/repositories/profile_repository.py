@@ -8,7 +8,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.identity import ConsentRecord, User, UserPhoto
+from database.models.identity import ConsentEvent, ConsentRecord, User, UserPhoto
 from database.models.media import MediaObject
 from database.models.profile import BodyProfile, OnboardingProfile, UserMeasurement, UserPreference
 from fashx.core.repository import BaseRepository
@@ -36,29 +36,71 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
         record = await self.get_by_user_and_type(user_id, data_type)
         return bool(record and record.granted)
 
+    async def record_consent_event(
+        self,
+        user_id: UUID,
+        data_type: str,
+        granted: bool,
+        consent_version: str = "2026.1",
+        policy_url: str | None = None,
+        decision_source: str = "api",
+    ) -> ConsentEvent:
+        event = ConsentEvent(
+            user_id=user_id,
+            data_type=data_type,
+            granted=granted,
+            consent_version=consent_version,
+            policy_url=policy_url,
+            decision_source=decision_source,
+        )
+        self.session.add(event)
+        return event
+
+    async def list_events_for_user(self, user_id: UUID) -> Sequence[ConsentEvent]:
+        stmt = (
+            select(ConsentEvent)
+            .where(ConsentEvent.user_id == user_id)
+            .order_by(ConsentEvent.created_at.desc())
+        )
+        result = await self.session.scalars(stmt)
+        return result.all()
+
     async def upsert(
         self,
         user_id: UUID,
         data_type: str,
         granted: bool,
         is_18_or_older: bool | None = None,
+        consent_version: str = "2026.1",
+        decision_source: str = "api",
+        policy_url: str | None = None,
     ) -> ConsentRecord:
         effective_age = is_18_or_older if is_18_or_older is not None else (True if granted else None)
         record = await self.get_by_user_and_type(user_id, data_type)
         if record is not None:
             record.granted = granted
+            record.consent_version = consent_version
             record.updated_at = datetime.now(UTC)
             if effective_age is not None:
                 record.is_18_or_older = effective_age
-            return record
+        else:
+            record = ConsentRecord(
+                user_id=user_id,
+                data_type=data_type,
+                granted=granted,
+                consent_version=consent_version,
+                is_18_or_older=effective_age,
+            )
+            self.add(record)
 
-        record = ConsentRecord(
+        await self.record_consent_event(
             user_id=user_id,
             data_type=data_type,
             granted=granted,
-            is_18_or_older=effective_age,
+            consent_version=consent_version,
+            policy_url=policy_url,
+            decision_source=decision_source,
         )
-        self.add(record)
         return record
 
     async def record_mobile_consent(
@@ -108,6 +150,21 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
                 updated_at=now_photo,
             )
             self.add(body_photo_rec)
+
+        await self.record_consent_event(
+            user_id=user_id,
+            data_type="terms_and_privacy",
+            granted=accepts_terms,
+            consent_version=consent_version,
+            decision_source="mobile_onboarding",
+        )
+        await self.record_consent_event(
+            user_id=user_id,
+            data_type="body_photo",
+            granted=accepts_body_photo,
+            consent_version=consent_version,
+            decision_source="mobile_onboarding",
+        )
 
         return terms_rec, body_photo_rec
 

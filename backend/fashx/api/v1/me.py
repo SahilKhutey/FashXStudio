@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -105,6 +106,77 @@ async def get_me(
             consented_version=consented_version,
         ),
     )
+
+
+class MeConsentItem(BaseModel):
+    user_id: UUID
+    data_type: str
+    granted: bool
+    consent_version: str
+    is_18_or_older: bool | None = None
+    consented_at: datetime
+    updated_at: datetime
+
+
+class UpdateConsentBody(BaseModel):
+    granted: bool
+    consent_version: str | None = None
+    is_18_or_older: bool | None = None
+    policy_url: str | None = None
+
+
+@router.get("/me/consents", response_model=list[MeConsentItem])
+async def get_my_consents(
+    principal: Principal = Depends(get_principal),
+    profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> list[MeConsentItem]:
+    user_uuid = UUID(principal.user_id)
+    async with profile_uow:
+        consents = await profile_uow.consents.list_for_user(user_uuid)
+        return [
+            MeConsentItem(
+                user_id=c.user_id,
+                data_type=c.data_type,
+                granted=c.granted,
+                consent_version=c.consent_version,
+                is_18_or_older=c.is_18_or_older,
+                consented_at=c.consented_at,
+                updated_at=c.updated_at,
+            )
+            for c in consents
+        ]
+
+
+@router.put("/me/consents/{data_type}", response_model=MeConsentItem)
+async def update_my_consent_alias(
+    data_type: str,
+    req: UpdateConsentBody,
+    principal: Principal = Depends(get_principal),
+    profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> MeConsentItem:
+    user_uuid = UUID(principal.user_id)
+    version = req.consent_version or get_settings().consent_version
+    async with profile_uow:
+        rec = await profile_uow.consents.upsert(
+            user_id=user_uuid,
+            data_type=data_type,
+            granted=req.granted,
+            is_18_or_older=req.is_18_or_older,
+            consent_version=version,
+            decision_source="me_api",
+            policy_url=req.policy_url,
+        )
+        await profile_uow.commit()
+
+        return MeConsentItem(
+            user_id=rec.user_id,
+            data_type=rec.data_type,
+            granted=rec.granted,
+            consent_version=rec.consent_version,
+            is_18_or_older=rec.is_18_or_older,
+            consented_at=rec.consented_at,
+            updated_at=rec.updated_at,
+        )
 
 
 @router.delete("/me", status_code=status.HTTP_202_ACCEPTED, response_model=EraseAccountResponse)

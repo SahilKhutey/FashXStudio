@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
 from fashx.security.deps import Principal, get_principal
+from fashx.security.errors import unauthorized
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 
@@ -160,6 +161,13 @@ async def get_style_quiz(
         return StyleQuizResponse(garments=items)
 
 
+def principal_user_uuid(principal: Principal) -> UUID:
+    try:
+        return UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Authenticated identity has an invalid user ID")
+
+
 @router.post(
     "/style-quiz/picks",
     response_model=SubmitStyleQuizPicksResponse,
@@ -171,10 +179,7 @@ async def submit_style_quiz_picks(
     uow: CatalogUnitOfWork = Depends(get_catalog_uow),
 ) -> SubmitStyleQuizPicksResponse:
     """Record customer style preference picks from the onboarding quiz."""
-    try:
-        user_uuid = UUID(principal.user_id)
-    except ValueError:
-        user_uuid = uuid4()
+    user_uuid = principal_user_uuid(principal)
 
     saved = 0
     async with uow:

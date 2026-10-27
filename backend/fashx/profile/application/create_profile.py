@@ -8,6 +8,7 @@ from schemas.identity.consent import ConsentUpdate
 
 @dataclass
 class CreateProfileCommand:
+    user_id: UUID | None = None
     height_cm: int | None = None
     weight_kg: int | None = None
     build: str | None = None
@@ -31,9 +32,16 @@ class CreateProfileUseCase:
 
     async def execute(self, cmd: CreateProfileCommand) -> CreateProfileResult:
         async with self.uow:
-            user = User()
-            self.uow.users.add(user)
-            await self.uow.users.flush()
+            if cmd.user_id is not None:
+                user = await self.uow.users.get_by_id(cmd.user_id)
+                if user is None:
+                    user = User(id=cmd.user_id)
+                    self.uow.users.add(user)
+                    await self.uow.users.flush()
+            else:
+                user = User()
+                self.uow.users.add(user)
+                await self.uow.users.flush()
 
             body_profile = None
             if cmd.height_cm is not None or cmd.weight_kg is not None or cmd.build is not None:
