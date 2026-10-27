@@ -1,7 +1,7 @@
 """Feed router handling /api/v1/feed endpoints and user interaction signals."""
 
 from datetime import UTC, datetime, timedelta
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Response, status
@@ -26,6 +26,7 @@ from fashx.recommendation.router import (
     get_profile_uow,
 )
 from fashx.security.deps import Principal, get_principal
+from fashx.security.errors import unauthorized
 
 feed_router = APIRouter(prefix="/feed", tags=["feed"])
 
@@ -50,32 +51,33 @@ class FeedSignalResponse(BaseModel):
 async def record_feed_signal(
     payload: FeedSignalRequest,
     principal: Principal = Depends(get_principal),
+    session_factory: Any = Depends(get_session_factory),
 ) -> FeedSignalResponse:
     """Record a user signal (like, hide, not_interested) on a feed garment.
 
     Owned-resource rule: the signal's user is always the authenticated principal.
+    Fail-closed and transactional.
     """
-    user_id = UUID(principal.user_id)
-    session_factory = get_session_factory()
     try:
-        async with session_factory() as session:
-            stmt = select(FeedSignal).where(
-                FeedSignal.user_id == user_id,
-                FeedSignal.garment_id == payload.garment_id,
-                FeedSignal.action == payload.action,
+        user_id = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Authenticated identity has an invalid user ID")
+
+    async with session_factory() as session:
+        stmt = select(FeedSignal).where(
+            FeedSignal.user_id == user_id,
+            FeedSignal.garment_id == payload.garment_id,
+            FeedSignal.action == payload.action,
+        )
+        existing = (await session.scalars(stmt)).first()
+        if not existing:
+            sig = FeedSignal(
+                user_id=user_id,
+                garment_id=payload.garment_id,
+                action=payload.action,
             )
-            existing = (await session.scalars(stmt)).first()
-            if not existing:
-                sig = FeedSignal(
-                    user_id=user_id,
-                    garment_id=payload.garment_id,
-                    action=payload.action,
-                )
-                session.add(sig)
-                await session.commit()
-    except Exception:
-        # Graceful fallback if database unavailable during offline/mock execution
-        pass
+            session.add(sig)
+            await session.commit()
 
     # Positive and negative signals invalidate active feed caches for fresh recommendations
     invalidate_user_cache(user_id)

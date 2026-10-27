@@ -113,6 +113,9 @@ class CanonicalGarmentRepository(BaseRepository[CanonicalGarment]):
                 CatalogSource.status == "cleared",
                 CatalogSource.rights_display.is_(True),
                 MerchantProduct.status == "active",
+                CanonicalGarment.active.is_(True),
+                CanonicalGarment.in_stock.is_(True),
+                MerchantOffer.in_stock.is_(True),
             )
             .distinct()
             .limit(limit)

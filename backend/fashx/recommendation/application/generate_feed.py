@@ -21,7 +21,6 @@ from fashx.recommendation.filters import (
 from fashx.recommendation.ranker import (
     PersonalizedRanker,
     ScoredItem,
-    cosine_similarity,
 )
 from fashx.recommendation.stylist_explainer import StylistExplainer
 
@@ -121,6 +120,32 @@ class GenerateFeedUseCase:
             except Exception:
                 pass
 
+            # Style quiz picks (positive and negative customer preference signals)
+            try:
+                from database.models.catalog import StyleQuizPick
+
+                res_quiz = await self.profile_uow.session.scalars(
+                    select(StyleQuizPick).where(StyleQuizPick.user_id == cmd.user_id)
+                )
+                for q in res_quiz.all():
+                    action = "like" if q.liked else "not_interested"
+                    raw_signals.append((q.garment_id, action, q.created_at))
+            except Exception:
+                pass
+
+            # User exclusions (Rule I06 / Feed Exclusions)
+            feed_exclusions: set[UUID] = set()
+            try:
+                from database.models.commerce_feedback import FeedExclusion
+
+                res_ex = await self.profile_uow.session.scalars(
+                    select(FeedExclusion).where(FeedExclusion.user_id == cmd.user_id)
+                )
+                for ex in res_ex.all():
+                    feed_exclusions.add(ex.garment_id)
+            except Exception:
+                pass
+
             user_build = body.build if body else "regular"
             undertone = "neutral"
             if active_photo:
@@ -207,12 +232,18 @@ class GenerateFeedUseCase:
 
         total_candidates = len(candidates)
 
+        # Collect negative interaction signals (hide, not_interested, dislike) and feed exclusions
+        excluded_ids = feed_exclusions | {
+            s[0] for s in raw_signals if s[1] in ("hide", "not_interested", "dislike")
+        }
+
         # 3. Stage 1: Deterministic Filtering
         criteria = FilterCriteria(
             budget_min=budget_min,
             budget_max=budget_max,
             allowed_categories=allowed_categories,
             avoided_colors=avoided_colors,
+            excluded_garment_ids=excluded_ids,
         )
         surviving = DeterministicFilter.filter_candidates(candidates, criteria)
         filtered_count = len(surviving)
@@ -226,6 +257,8 @@ class GenerateFeedUseCase:
             )
 
         # 4. Stage 2: Explicit preference, compatibility, and taste vector scoring
+        from fashx.recommendation.scoring import compute_explainable_score
+
         scored_items: list[ScoredItem] = []
         has_taste_signal = bool(user_styles or signal_events)
 
@@ -240,23 +273,19 @@ class GenerateFeedUseCase:
                 category=cand.category,
             )
 
-            if has_taste_signal:
-                cand_emb = cand.embedding
-                if not cand_emb:
-                    cand_emb = embedder.embed_text(
-                        [f"{cand.title} {cand.category} {cand.subcategory or ''}"]
-                    )[0]
-                taste_sim = cosine_similarity(taste_vector_list, cand_emb)
-                # Blend compatibility (50%) with personalized taste similarity (50%)
-                relevance = round(0.5 * compat.total_score + 0.5 * taste_sim, 3)
-            else:
-                relevance = round(compat.total_score, 3)
+            scoring = compute_explainable_score(
+                item=cand,
+                compatibility=compat,
+                taste_vector=taste_vector_list,
+                has_taste_signal=has_taste_signal,
+            )
 
             scored_items.append(
                 ScoredItem(
                     item=cand,
                     compatibility=compat,
-                    relevance_score=relevance,
+                    relevance_score=scoring.relevance_score,
+                    reason_chips=scoring.reason_chips,
                 )
             )
 
@@ -276,13 +305,14 @@ class GenerateFeedUseCase:
                 user_build=user_build,
                 user_undertone=undertone,
             )
-            reason_chips = []
-            if s.item.category:
-                reason_chips.append(s.item.category.capitalize())
-            if s.item.dominant_color:
-                reason_chips.append(s.item.dominant_color.capitalize())
-            elif s.item.silhouette:
-                reason_chips.append(s.item.silhouette.replace("_", " ").capitalize())
+            reason_chips = list(s.reason_chips) if s.reason_chips else []
+            if not reason_chips:
+                if s.item.category:
+                    reason_chips.append(s.item.category.capitalize())
+                if s.item.dominant_color:
+                    reason_chips.append(s.item.dominant_color.capitalize())
+                elif s.item.silhouette:
+                    reason_chips.append(s.item.silhouette.replace("_", " ").capitalize())
 
             feed_items.append(
                 FeedItemResult(
@@ -298,7 +328,7 @@ class GenerateFeedUseCase:
                     brand=s.item.brand,
                     image_url=s.item.image_url,
                     price_updated_at=s.item.price_updated_at,
-                    reason_chips=reason_chips[:2],
+                    reason_chips=reason_chips[:3],
                     tryon_supported=s.item.tryon_supported,
                 )
             )

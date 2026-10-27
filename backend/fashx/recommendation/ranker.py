@@ -1,5 +1,5 @@
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .compatibility import CompatibilityScore
 from .filters import CandidateItem
@@ -35,6 +35,7 @@ class ScoredItem:
     item: CandidateItem
     compatibility: CompatibilityScore
     relevance_score: float
+    reason_chips: list[str] = field(default_factory=list)
 
 
 class PersonalizedRanker:
