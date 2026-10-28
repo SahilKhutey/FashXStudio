@@ -107,6 +107,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Consents */
+        get: operations["get_my_consents_api_v1_me_consents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/consents/{data_type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update My Consent Alias */
+        put: operations["update_my_consent_alias_api_v1_me_consents__data_type__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/onboarding/style-quiz": {
         parameters: {
             query?: never;
@@ -284,6 +318,74 @@ export interface paths {
          * @description Delete a single photo, cascading try-on jobs and queuing derived result media storage purge via outbox.
          */
         delete: operations["delete_photo_endpoint_api_v1_profile__user_id__photos__photo_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Profile */
+        get: operations["get_my_profile_api_v1_profile_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update My Preferences */
+        put: operations["update_my_preferences_api_v1_profile_preferences_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List My Consents */
+        get: operations["list_my_consents_api_v1_profile_consents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/consents/{data_type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update My Consent */
+        put: operations["update_my_consent_api_v1_profile_consents__data_type__put"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -540,6 +642,7 @@ export interface paths {
          * @description Record a user signal (like, hide, not_interested) on a feed garment.
          *
          *     Owned-resource rule: the signal's user is always the authenticated principal.
+         *     Fail-closed and transactional.
          */
         post: operations["record_feed_signal_api_v1_feed_signals_post"];
         delete?: never;
@@ -618,7 +721,7 @@ export interface paths {
         };
         /**
          * Get Tryon Artifact
-         * @description Retrieve rendered try-on artifact by composite cache key.
+         * @description Retrieve rendered try-on artifact by composite cache key (authenticated and owner-verified).
          */
         get: operations["get_tryon_artifact_api_v1_tryon_artifacts__artifact_key__get"];
         put?: never;
@@ -636,7 +739,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List My Wardrobe
+         * @description Retrieve saved items in current user's virtual closet with signed image URLs.
+         */
+        get: operations["list_my_wardrobe_api_v1_wardrobe_items_get"];
         put?: never;
         /**
          * Save To Wardrobe
@@ -658,7 +765,7 @@ export interface paths {
         };
         /**
          * List User Wardrobe
-         * @description Retrieve items in user's virtual closet.
+         * @description Retrieve items in user's virtual closet (legacy route).
          */
         get: operations["list_user_wardrobe_api_v1_wardrobe_users__user_id__get"];
         put?: never;
@@ -684,6 +791,26 @@ export interface paths {
          * @description Remove item from virtual closet.
          */
         delete: operations["remove_from_wardrobe_api_v1_wardrobe_items__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/wardrobe/users/{user_id}/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove From User Wardrobe
+         * @description Remove item from virtual closet (legacy route).
+         */
+        delete: operations["remove_from_user_wardrobe_api_v1_wardrobe_users__user_id__items__item_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4042,7 +4169,7 @@ export interface paths {
         put?: never;
         /**
          * Record Session Events
-         * @description Record a batch of client session events (e.g. viewable impression batches).
+         * @description Record a batch of client session events and persist them to durable domain storage.
          */
         post: operations["record_session_events_api_v1_analytics_session_events_post"];
         delete?: never;
@@ -5027,6 +5154,11 @@ export interface components {
             status: string;
             /** Count */
             count: number;
+            /**
+             * Duplicates Skipped
+             * @default 0
+             */
+            duplicates_skipped: number;
         };
         /**
          * BorderWidthTokens
@@ -5770,6 +5902,32 @@ export interface components {
             accepts_terms: boolean;
             /** Accepts Body Photo */
             accepts_body_photo: boolean;
+        };
+        /** ConsentItemResponse */
+        ConsentItemResponse: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Data Type */
+            data_type: string;
+            /** Granted */
+            granted: boolean;
+            /** Consent Version */
+            consent_version: string;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /**
+             * Consented At
+             * Format: date-time
+             */
+            consented_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** ConsentResponse */
         ConsentResponse: {
@@ -7544,6 +7702,11 @@ export interface components {
              * Format: uuid
              */
             merchant_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
             /** Source Product Id */
             source_product_id: string;
             /** Title */
@@ -8036,6 +8199,32 @@ export interface components {
          * @enum {string}
          */
         MarketplaceStatus: "draft" | "active" | "suspended" | "closed";
+        /** MeConsentItem */
+        MeConsentItem: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Data Type */
+            data_type: string;
+            /** Granted */
+            granted: boolean;
+            /** Consent Version */
+            consent_version: string;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /**
+             * Consented At
+             * Format: date-time
+             */
+            consented_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** MeResponse */
         MeResponse: {
             /** User Id */
@@ -10113,11 +10302,8 @@ export interface components {
         };
         /** RecordMeasurementRequest */
         RecordMeasurementRequest: {
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
+            /** User Id */
+            user_id?: string | null;
             /** Measurement */
             measurement: string;
             /** Value */
@@ -10767,15 +10953,12 @@ export interface components {
         /** SaveWardrobeRequest */
         SaveWardrobeRequest: {
             /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
-            /**
              * Garment Id
              * Format: uuid
              */
             garment_id: string;
+            /** User Id */
+            user_id?: string | null;
             /** Offer Id */
             offer_id?: string | null;
             /** Tryon Artifact Id */
@@ -10806,8 +10989,10 @@ export interface components {
             snapshot_currency: string;
             /** Snapshot Image Key */
             snapshot_image_key: string;
+            /** Image Url */
+            image_url?: string | null;
             /** Tryon Artifact Id */
-            tryon_artifact_id: string | null;
+            tryon_artifact_id?: string | null;
         };
         /**
          * SavedFashionContentType
@@ -11465,6 +11650,8 @@ export interface components {
         };
         /** SessionEventItem */
         SessionEventItem: {
+            /** Event Id */
+            event_id?: string | null;
             /** @default impression */
             event_type: components["schemas"]["SessionEventType"];
             /** Garment Id */
@@ -11478,7 +11665,7 @@ export interface components {
          * SessionEventType
          * @enum {string}
          */
-        SessionEventType: "impression" | "click";
+        SessionEventType: "impression" | "click" | "onboarding_completed" | "feed_viewed" | "garment_opened" | "garment_saved" | "tryon_submitted" | "tryon_completed" | "tryon_failed" | "retailer_opened" | "feedback_submitted";
         /**
          * ShellLayoutMode
          * @description Active layout mode resolved from breakpoint (Section 3.29).
@@ -12559,6 +12746,28 @@ export interface components {
             /** Activity History Retention */
             activity_history_retention?: string | null;
         };
+        /** UpdateConsentBody */
+        UpdateConsentBody: {
+            /** Granted */
+            granted: boolean;
+            /** Consent Version */
+            consent_version?: string | null;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /** Policy Url */
+            policy_url?: string | null;
+        };
+        /** UpdateConsentRequest */
+        UpdateConsentRequest: {
+            /** Granted */
+            granted: boolean;
+            /** Consent Version */
+            consent_version?: string | null;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /** Policy Url */
+            policy_url?: string | null;
+        };
         /**
          * UpdateExplicitPreferencesRequestContract
          * @description Payload for updating explicit style preferences.
@@ -13036,6 +13245,8 @@ export interface components {
             tryon_artifact_id: string | null;
             /** Saved At */
             saved_at: string;
+            /** Image Url */
+            image_url?: string | null;
         };
         /**
          * WishlistItemContract
@@ -13478,6 +13689,61 @@ export interface operations {
             };
         };
     };
+    get_my_consents_api_v1_me_consents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeConsentItem"][];
+                };
+            };
+        };
+    };
+    update_my_consent_alias_api_v1_me_consents__data_type__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                data_type: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateConsentBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeConsentItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_style_quiz_api_v1_onboarding_style_quiz_get: {
         parameters: {
             query?: never;
@@ -13749,6 +14015,114 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_profile_api_v1_profile_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DerivedProfileResponse"];
+                };
+            };
+        };
+    };
+    update_my_preferences_api_v1_profile_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePreferencesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdatePreferencesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_my_consents_api_v1_profile_consents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentItemResponse"][];
+                };
+            };
+        };
+    };
+    update_my_consent_api_v1_profile_consents__data_type__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                data_type: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentItemResponse"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -14395,6 +14769,38 @@ export interface operations {
             };
         };
     };
+    list_my_wardrobe_api_v1_wardrobe_items_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WardrobeItemView"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     save_to_wardrobe_api_v1_wardrobe_items_post: {
         parameters: {
             query?: never;
@@ -14469,6 +14875,36 @@ export interface operations {
             };
             header?: never;
             path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_from_user_wardrobe_api_v1_wardrobe_users__user_id__items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
                 item_id: string;
             };
             cookie?: never;
