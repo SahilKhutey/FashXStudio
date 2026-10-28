@@ -118,7 +118,9 @@ class Settings(BaseSettings):
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
         if self.tryon_provider == "fashn_api" and not self.fashn_api_key:
             raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
-        if self.env == "prod":
+        if self.is_production:
+            if self.env != "prod":
+                raise ValueError("Production requires ENV=prod")
             if self.repo_backend != "sql":
                 raise ValueError("prod requires REPO_BACKEND=sql")
             if self.storage_backend != "s3":

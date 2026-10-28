@@ -67,6 +67,10 @@ def get_tryon_adapter() -> TryOnAdapter:
             mode=s.fashn_mode,
             cost_usd_est=s.tryon_est_cost_usd,
         )
+    elif s.tryon_provider == "fashn_selfhost":
+        raise NotImplementedError(
+            "fashn_selfhost try-on adapter is not implemented; mock fallback is forbidden"
+        )
     else:
         adapter = MockAdapter()
 
