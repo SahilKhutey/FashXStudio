@@ -702,13 +702,12 @@ async def test_worker_bootstrap_run_tryon_job(
     tmp_path,
 ) -> None:
     """MVP 4.3: Worker entrypoint run_tryon_job executes successfully."""
-    import fashx.core.database as core_db
-    import fashx.core.dependencies as core_deps
+    import fashx.workers.app as workers_app
     from fashx.workers.app import run_tryon_job
 
     storage = LocalStorage(tmp_path)
-    monkeypatch.setattr(core_db, "get_session_factory", lambda: session_factory)
-    monkeypatch.setattr(core_deps, "get_storage", lambda: storage)
+    monkeypatch.setattr(workers_app, "get_session_factory", lambda: session_factory)
+    monkeypatch.setattr(workers_app, "get_storage", lambda: storage)
 
     tryon_uow = TryOnUnitOfWork(session_factory)
     profile_uow = ProfileUnitOfWork(session_factory)

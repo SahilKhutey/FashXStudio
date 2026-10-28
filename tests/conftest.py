@@ -170,10 +170,12 @@ def setup_test_identity_override():
     main_app.dependency_overrides[get_wardrobe_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
 
     from fashx.api.v1.analytics import get_analytics_session_factory
+    from fashx.core.database import get_session_factory
 
     main_app.dependency_overrides[get_commerce_uow] = lambda: CommerceWardrobeUnitOfWork(session_factory)
     main_app.dependency_overrides[get_tryon_uow] = lambda: TryOnUnitOfWork(session_factory)
     main_app.dependency_overrides[get_analytics_session_factory] = lambda: session_factory
+    main_app.dependency_overrides[get_session_factory] = lambda: session_factory
     yield
     for fn in (
         get_identity_repo,
@@ -189,6 +191,7 @@ def setup_test_identity_override():
         get_commerce_uow,
         get_tryon_uow,
         get_analytics_session_factory,
+        get_session_factory,
     ):
         main_app.dependency_overrides.pop(fn, None)
     asyncio.run(engine.dispose())
