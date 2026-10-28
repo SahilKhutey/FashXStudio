@@ -2,7 +2,10 @@ import logging
 from typing import Any
 from uuid import UUID
 
-from celery import Celery
+try:
+    from celery import Celery
+except ImportError:
+    Celery = None  # type: ignore[assignment,misc]
 
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
@@ -11,34 +14,76 @@ from fashx.core.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-app = Celery("fashx", broker=settings.redis_url, backend=settings.redis_url)
 
-app.conf.update(
-    task_serializer="json",
-    accept_content=["json"],
-    result_serializer="json",
-    timezone="Asia/Kolkata",
-    enable_utc=True,
-    task_routes={
-        "fashx.workers.app.process_tryon_job": {"queue": "tryon"},
-        "fashx.workers.app.ingest_catalog_feed": {"queue": "ingest"},
-        "fashx.workers.app.enrich_garment_task": {"queue": "ingest"},
-    },
-    beat_schedule={
-        "outbox-relay-30s": {
-            "task": "fashx.workers.app.relay_outbox_events",
-            "schedule": 30.0,
+class _DummyTask:
+    def __init__(self, func: Any, bind: bool = False, max_retries: int = 3) -> None:
+        self.func = func
+        self.bind = bind
+        self.max_retries = max_retries
+        self.request = type("Req", (), {"retries": 0})()
+
+    def run(self, *args: Any, **kwargs: Any) -> Any:
+        if self.bind:
+            return self.func(self, *args, **kwargs)
+        return self.func(*args, **kwargs)
+
+    def retry(self, exc: Exception | None = None, countdown: int = 0) -> None:
+        if exc:
+            raise exc
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        return self.run(*args, **kwargs)
+
+    def delay(self, *args: Any, **kwargs: Any) -> Any:
+        return self.run(*args, **kwargs)
+
+
+class _DummyCelery:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.conf = type("Conf", (), {"update": lambda *a, **k: None})()
+
+    def task(self, *dargs: Any, **dkwargs: Any) -> Any:
+        def decorator(fn: Any) -> Any:
+            return _DummyTask(
+                fn,
+                bind=dkwargs.get("bind", False),
+                max_retries=dkwargs.get("max_retries", 3),
+            )
+
+        return decorator
+
+
+app: Any
+if Celery is not None:
+    app = Celery("fashx", broker=settings.redis_url, backend=settings.redis_url)
+    app.conf.update(
+        task_serializer="json",
+        accept_content=["json"],
+        result_serializer="json",
+        timezone="Asia/Kolkata",
+        enable_utc=True,
+        task_routes={
+            "fashx.workers.app.process_tryon_job": {"queue": "tryon"},
+            "fashx.workers.app.ingest_catalog_feed": {"queue": "ingest"},
+            "fashx.workers.app.enrich_garment_task": {"queue": "ingest"},
         },
-        "storage-erasure-sweep-5m": {
-            "task": "fashx.workers.app.sweep_storage_erasure",
-            "schedule": 300.0,
+        beat_schedule={
+            "outbox-relay-30s": {
+                "task": "fashx.workers.app.relay_outbox_events",
+                "schedule": 30.0,
+            },
+            "storage-erasure-sweep-5m": {
+                "task": "fashx.workers.app.sweep_storage_erasure",
+                "schedule": 300.0,
+            },
+            "nightly-retention-cleanup": {
+                "task": "fashx.workers.app.run_retention_jobs",
+                "schedule": 86400.0,
+            },
         },
-        "nightly-retention-cleanup": {
-            "task": "fashx.workers.app.run_retention_jobs",
-            "schedule": 86400.0,
-        },
-    },
-)
+    )
+else:
+    app = _DummyCelery("fashx")
 
 
 def _run_sync(coro: Any) -> Any:

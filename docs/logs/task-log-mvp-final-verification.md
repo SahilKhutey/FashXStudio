@@ -61,6 +61,10 @@ Execute the release verification checklist across MVP 0 through MVP 8 to establi
    - Corrected test mock patching in `tests/unit/test_mvp4_virtual_tryon.py` to point to `workers_app.get_session_factory` instead of `core_db`.
 4. **Session Factory Test Override**:
    - Bound `get_session_factory` in `tests/conftest.py` SQLite test fixture override to prevent endpoints using `Depends(get_session_factory)` from defaulting to Postgres.
+5. **Gitleaks Secret Scan Cleanliness**:
+   - Gitleaks flagged synthetic token secret keyword in `test_demo_user_journey.py` from commit `a9f91b0`. Added `.gitleaksignore` fingerprint ignore for test fixture commit and removed explicit parameter literal from test invocation.
+6. **Worker Celery Import Fallback**:
+   - Added `_DummyCelery` and `_DummyTask` in `backend/fashx/workers/app.py` for environments lacking the optional `celery` dependency, allowing test discovery and unit test execution without Celery installed.
 
 ---
 

@@ -32,12 +32,7 @@ async def test_complete_demo_user_journey() -> None:
     8. Save item to wardrobe closet.
     9. Request account erasure and verify clean deletion.
     """
-    token = create_demo_token(
-        subject="demo-journey-user",
-        secret="test-secret-key-at-least-32-chars-long",
-        issuer="fashx-test",
-        audience="fashx-api",
-    )
+    token = create_demo_token(subject="demo-journey-user")
     headers = {"Authorization": f"Bearer {token}"}
     client = TestClient(app, headers=headers)
 

@@ -1,0 +1,3 @@
+# Gitleaks ignore file
+# Test fixture secret in demo user journey test
+a9f91b0dce043d97bde9c65ca8a35313c4f68a94:tests/integration/test_demo_user_journey.py:generic-api-key:37
