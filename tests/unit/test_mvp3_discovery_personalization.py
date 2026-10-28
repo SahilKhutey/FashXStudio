@@ -242,7 +242,7 @@ def test_explainable_scoring_bounds_and_grounded_chips() -> None:
         color_reason="Blue complements undertone",
         silhouette_reason="Tailored cut matches build",
     )
-    taste_vector = [0.1] * 64
+    taste_vector = [0.1] * 512
 
     # Scoring with taste signal
     breakdown = compute_explainable_score(

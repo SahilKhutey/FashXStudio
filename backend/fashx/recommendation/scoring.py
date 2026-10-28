@@ -17,7 +17,7 @@ from fashx.recommendation.ranker import cosine_similarity
 @dataclass(frozen=True)
 class ScoringBreakdown:
     relevance_score: float
-    taste_similarity: float
+    taste_similarity: float | None
     compatibility_score: float
     color_score: float
     silhouette_score: float
@@ -42,37 +42,45 @@ def compute_explainable_score(
     weight_taste: float = 0.5,
     weight_compat: float = 0.5,
 ) -> ScoringBreakdown:
-    """Compute normalized relevance score and grounded, non-hallucinated reason chips."""
-    # 1. Taste similarity
-    taste_sim = 0.5  # Neutral default when no taste vector available
+    """Compute normalized relevance score and grounded, non-hallucinated reason chips with dynamic reweighting."""
+    # 1. Taste similarity - missing vectors are represented as None rather than neutral 0.5
+    taste_sim: float | None = None
     if has_taste_signal and taste_vector is not None:
         emb = item.embedding
         if not emb:
             emb = fallback_text_embedding(item.title, item.category, item.subcategory)
-        taste_sim = float(cosine_similarity(taste_vector, emb))
-        # Bound to [0.0, 1.0]
-        taste_sim = max(0.0, min(1.0, taste_sim))
+        raw_sim = cosine_similarity(taste_vector, emb)
+        if raw_sim is not None:
+            # Bound cosine similarity to [0.0, 1.0] for relevance scoring
+            taste_sim = max(0.0, min(1.0, raw_sim))
 
     # 2. Compatibility score from compatibility matrix
     compat_score = max(0.0, min(1.0, compatibility.total_score))
     color_score = max(0.0, min(1.0, compatibility.color_score))
     silhouette_score = max(0.0, min(1.0, compatibility.silhouette_score))
 
-    # 3. Weighted relevance score
-    if has_taste_signal and taste_vector is not None:
-        total_weight = weight_taste + weight_compat
-        w_taste = weight_taste / total_weight
-        w_compat = weight_compat / total_weight
-        relevance = round(w_taste * taste_sim + w_compat * compat_score, 3)
-    else:
-        relevance = round(compat_score, 3)
+    # 3. Dynamic weighted relevance score
+    # S(u,g) = sum_{j in A} w_j s_j / sum_{j in A} w_j
+    available_weights: list[tuple[float, float]] = [(weight_compat, compat_score)]
+    if taste_sim is not None:
+        available_weights.append((weight_taste, taste_sim))
 
-    relevance = max(0.0, min(1.0, relevance))
+    total_weight = sum(w for w, _ in available_weights)
+    if total_weight > 0.0:
+        relevance = sum(w * s for w, s in available_weights) / total_weight
+    else:
+        relevance = 0.5
+
+    relevance = round(max(0.0, min(1.0, relevance)), 3)
 
     # 4. Feature contributions
     feature_contributions = {
-        "taste_similarity": round(taste_sim * (weight_taste if has_taste_signal else 0.0), 3),
-        "compatibility": round(compat_score * (weight_compat if has_taste_signal else 1.0), 3),
+        "taste_similarity": (
+            round(taste_sim * (weight_taste / total_weight), 3)
+            if taste_sim is not None
+            else 0.0
+        ),
+        "compatibility": round(compat_score * (weight_compat / total_weight), 3),
         "color_harmony": round(color_score, 3),
         "silhouette_fit": round(silhouette_score, 3),
     }
@@ -85,7 +93,7 @@ def compute_explainable_score(
         chips.append(f"{item.dominant_color.capitalize()} Harmony")
     elif silhouette_score >= 0.85 and item.silhouette:
         chips.append(f"{item.silhouette.replace('_', ' ').capitalize()} Cut")
-    if has_taste_signal and taste_sim >= 0.70:
+    if taste_sim is not None and taste_sim >= 0.70:
         chips.append("Style Match")
 
     if not chips:

@@ -24,10 +24,20 @@ class MarqoFashionClipEmbedder:
         with self._torch.no_grad():
             f = self._model.encode_image(batch)
             f = f / f.norm(dim=-1, keepdim=True)
-        return f.tolist()
+        vectors = f.tolist()
+        from .ports import validate_embedding_vector
+
+        for vec in vectors:
+            validate_embedding_vector(vec, expected_dim=self.dim)
+        return vectors
 
     def embed_text(self, texts: list[str]) -> list[list[float]]:
         with self._torch.no_grad():
             f = self._model.encode_text(self._tok(texts))
             f = f / f.norm(dim=-1, keepdim=True)
-        return f.tolist()
+        vectors = f.tolist()
+        from .ports import validate_embedding_vector
+
+        for vec in vectors:
+            validate_embedding_vector(vec, expected_dim=self.dim)
+        return vectors

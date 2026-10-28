@@ -16,6 +16,20 @@ from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from fashx.tryon.watermarker import SyntheticWatermarker
 
 
+def _validate_image_bytes(data: bytes | None, label: str) -> None:
+    if not data or len(data) < 16:
+        raise ValueError(f"Validated {label} bytes are required and cannot be empty")
+    from io import BytesIO
+
+    from PIL import Image
+
+    try:
+        with Image.open(BytesIO(data)) as im:
+            im.verify()
+    except Exception as exc:
+        raise ValueError(f"Undecodable or corrupt {label} bytes: {exc}") from exc
+
+
 @dataclass(frozen=True)
 class ProcessJobResult:
     job_id: UUID
@@ -262,6 +276,37 @@ class ProcessTryOnJobUseCase:
                     artifact_key=job.artifact_key,
                     failure_reason="missing_garment_image_bytes",
                 )
+
+        # Validate that image inputs are decodable and non-corrupt
+        try:
+            _validate_image_bytes(photo_bytes, "person photo")
+        except ValueError as exc:
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.update_status(
+                    job_id, "failed", failure_reason="invalid_photo_bytes"
+                )
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job_id,
+                status="failed",
+                artifact_key=job.artifact_key,
+                failure_reason=f"invalid_photo_bytes: {exc}",
+            )
+
+        try:
+            _validate_image_bytes(garment_bytes, "garment image")
+        except ValueError as exc:
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.update_status(
+                    job_id, "failed", failure_reason="invalid_garment_image_bytes"
+                )
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job_id,
+                status="failed",
+                artifact_key=job.artifact_key,
+                failure_reason=f"invalid_garment_image_bytes: {exc}",
+            )
 
         # Pre-inference consent revalidation
         async with self.profile_uow:

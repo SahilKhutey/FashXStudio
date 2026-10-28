@@ -1,15 +1,5 @@
 from __future__ import annotations
 
-from typing import Protocol, runtime_checkable
+from .ports import ImageEmbedder, ImageTextEmbedder, validate_embedding_vector
 
-
-@runtime_checkable
-class ImageEmbedder(Protocol):
-    model_id: str
-    dim: int
-
-    def embed_images(self, images: list[bytes]) -> list[list[float]]:
-        ...
-
-    def embed_text(self, texts: list[str]) -> list[list[float]]:
-        ...
+__all__ = ["ImageEmbedder", "ImageTextEmbedder", "validate_embedding_vector"]

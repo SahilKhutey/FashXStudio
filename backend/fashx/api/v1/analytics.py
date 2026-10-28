@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -49,6 +49,7 @@ class SessionEventType(str, Enum):
 class SessionEventItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    event_id: UUID | None = None
     event_type: SessionEventType = SessionEventType.IMPRESSION
     garment_id: UUID | None = None
     session_id: str | None = None
@@ -64,6 +65,46 @@ class BatchSessionEventsRequest(BaseModel):
 class BatchSessionEventsResponse(BaseModel):
     status: str = "recorded"
     count: int
+    duplicates_skipped: int = 0
+
+
+JourneyEventName = Literal[
+    "feed_viewed",
+    "garment_opened",
+    "garment_saved",
+    "garment_hidden",
+    "tryon_submitted",
+    "tryon_completed",
+    "tryon_failed",
+    "tryon_result_viewed",
+    "retailer_opened",
+    "feedback_submitted",
+]
+
+
+class ProductJourneyEvent(BaseModel):
+    """Standardized, versioned product journey event contract (MVP 8 Workstream C)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: UUID
+    event_name: JourneyEventName
+    occurred_at: datetime
+    garment_id: UUID | None = None
+    tryon_job_id: UUID | None = None
+    schema_version: Literal[1] = 1
+
+
+class BatchJourneyEventsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    events: list[ProductJourneyEvent] = Field(..., max_length=100)
+
+
+class BatchJourneyEventsResponse(BaseModel):
+    status: str = "recorded"
+    count: int
+    duplicates_skipped: int = 0
 
 
 def get_analytics_session_factory() -> Any:
@@ -94,9 +135,18 @@ async def record_session_events(
             user_uuid = None
 
     now = datetime.now(UTC)
+    recorded_count = 0
+    duplicates_skipped = 0
     async with session_factory() as session:
         for item in payload.events:
+            if item.event_id is not None:
+                existing = await session.get(DomainEvent, item.event_id)
+                if existing is not None:
+                    duplicates_skipped += 1
+                    continue
+
             rec = DomainEvent(
+                id=item.event_id,
                 event_type=f"session_{item.event_type.value}",
                 schema_version=1,
                 user_id=user_uuid,
@@ -110,9 +160,72 @@ async def record_session_events(
                 },
             )
             session.add(rec)
+            recorded_count += 1
         await session.commit()
 
-    return BatchSessionEventsResponse(status="recorded", count=len(payload.events))
+    return BatchSessionEventsResponse(
+        status="recorded",
+        count=recorded_count,
+        duplicates_skipped=duplicates_skipped,
+    )
+
+
+@router.post(
+    "/journey-events",
+    response_model=BatchJourneyEventsResponse,
+    status_code=201,
+    dependencies=[Depends(rate_limit(max_requests=120, window_seconds=60, scope="analytics"))],
+)
+async def record_journey_events(
+    payload: BatchJourneyEventsRequest,
+    principal: Principal = Depends(get_principal),
+    session_factory: Any = Depends(get_analytics_session_factory),
+) -> BatchJourneyEventsResponse:
+    """Record standardized product journey events with exact-once deduplication."""
+    from database.models.commerce_feedback import DomainEvent
+
+    user_uuid = None
+    if principal and principal.user_id:
+        try:
+            user_uuid = UUID(str(principal.user_id))
+        except (ValueError, TypeError):
+            user_uuid = None
+
+    recorded_count = 0
+    duplicates_skipped = 0
+    async with session_factory() as session:
+        for ev in payload.events:
+            existing = await session.get(DomainEvent, ev.event_id)
+            if existing is not None:
+                duplicates_skipped += 1
+                continue
+
+            obj_type = "garment" if ev.garment_id else ("tryon_job" if ev.tryon_job_id else None)
+            obj_id = ev.garment_id or ev.tryon_job_id
+
+            rec = DomainEvent(
+                id=ev.event_id,
+                event_type=f"journey_{ev.event_name}",
+                schema_version=ev.schema_version,
+                user_id=user_uuid,
+                object_type=obj_type,
+                object_id=obj_id,
+                occurred_at=ev.occurred_at,
+                payload={
+                    "event_name": ev.event_name,
+                    "garment_id": str(ev.garment_id) if ev.garment_id else None,
+                    "tryon_job_id": str(ev.tryon_job_id) if ev.tryon_job_id else None,
+                },
+            )
+            session.add(rec)
+            recorded_count += 1
+        await session.commit()
+
+    return BatchJourneyEventsResponse(
+        status="recorded",
+        count=recorded_count,
+        duplicates_skipped=duplicates_skipped,
+    )
 
 
 def get_analytics_service() -> AnalyticsService:

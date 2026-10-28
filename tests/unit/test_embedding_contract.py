@@ -23,12 +23,14 @@ from fashx.recommendation.ranker import cosine_similarity
 
 def test_missing_embeddings_are_not_treated_as_real_similarity():
     """Missing vectors must not be mistaken for meaningful semantic matches."""
-    assert cosine_similarity(None, [0.1, 0.2]) == 0.5
+    assert cosine_similarity(None, [0.1, 0.2]) is None
+    assert cosine_similarity([1.0, 0.0], None) is None
 
 
 def test_incompatible_embedding_dimensions_use_existing_fallback():
-    """The current cosine helper retains its compatibility fallback."""
-    assert cosine_similarity([0.1, 0.2], [0.1, 0.2, 0.3]) == 0.5
+    """The cosine helper returns None for dimension mismatches."""
+    assert cosine_similarity([0.1, 0.2], [0.1, 0.2, 0.3]) is None
+    assert cosine_similarity([1.0, 0.0], [1.0]) is None
 
 
 def test_identical_nonzero_vectors_have_unit_similarity():
@@ -40,7 +42,7 @@ def test_orthogonal_vectors_have_zero_similarity():
 
 
 def test_zero_vectors_do_not_produce_nan():
-    assert cosine_similarity([0.0, 0.0], [1.0, 0.0]) == 0.0
+    assert cosine_similarity([0.0, 0.0], [1.0, 0.0]) is None
 
 
 @pytest.mark.asyncio
