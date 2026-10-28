@@ -21,6 +21,11 @@ class WardrobeItem(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "wardrobe_items"
     __table_args__ = (
         Index("ix_wardrobe_items_saved_at", "saved_at"),
+        UniqueConstraint(
+            "user_id",
+            "garment_id",
+            name="uq_wardrobe_user_garment",
+        ),
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)

@@ -9,7 +9,7 @@ import {
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { useUserWardrobe, UserWardrobeItem } from "../../src/features/wardrobe/hooks";
+import { useUserWardrobe, useRemoveFromWardrobe, UserWardrobeItem } from "../../src/features/wardrobe/hooks";
 import { useDesignTokens, AppText, spacing, radius } from "../../src/design-system";
 import { LoadingState, ErrorState, EmptyState } from "../../src/components/states";
 
@@ -18,8 +18,11 @@ export default function ClosetScreen() {
   const router = useRouter();
   const { colors } = useDesignTokens();
   const { data: wardrobeItems, isLoading, isError, refetch, isRefetching } = useUserWardrobe();
+  const { mutate: removeItem } = useRemoveFromWardrobe();
 
   const renderItem = ({ item }: { item: UserWardrobeItem }) => {
+    const imageUri = item.image_url || item.snapshot_image_key;
+
     return (
       <TouchableOpacity
         style={[styles.card, { backgroundColor: colors.surface }]}
@@ -29,9 +32,9 @@ export default function ClosetScreen() {
         accessibilityLabel={`Wardrobe item ${item.garment_id}`}
       >
         <View style={[styles.thumbnailContainer, { backgroundColor: colors.surfaceSecondary }]}>
-          {item.snapshot_image_key ? (
+          {imageUri ? (
             <Image
-              source={{ uri: item.snapshot_image_key }}
+              source={{ uri: imageUri }}
               style={styles.thumbnail}
               contentFit="cover"
             />
@@ -57,6 +60,18 @@ export default function ClosetScreen() {
             </View>
           )}
         </View>
+        <TouchableOpacity
+          style={styles.removeButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            removeItem(item.item_id);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Remove from closet"
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Text style={[styles.removeIcon, { color: colors.textMuted }]}>✕</Text>
+        </TouchableOpacity>
         <Text style={[styles.chevron, { color: colors.borderStrong }]}>›</Text>
       </TouchableOpacity>
     );
@@ -152,6 +167,15 @@ const styles = StyleSheet.create({
   renderedBadgeText: {
     fontSize: 11,
     fontWeight: "600",
+  },
+  removeButton: {
+    padding: spacing[2],
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  removeIcon: {
+    fontSize: 14,
+    fontWeight: "bold",
   },
   chevron: {
     fontSize: 22,

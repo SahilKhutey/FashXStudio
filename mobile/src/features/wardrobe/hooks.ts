@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUserWardrobe,
+  removeGarmentFromWardrobe,
   saveGarmentToWardrobe,
   type SaveWardrobeResponse,
   type UserWardrobeItem,
@@ -23,14 +24,11 @@ export function useSaveToWardrobe() {
       offerId?: string | null;
       tryonArtifactId?: string | null;
     }) => {
-      if (!me?.user_id) {
-        throw new Error("User session required to save to wardrobe");
-      }
       return saveGarmentToWardrobe({
-        userId: me.user_id,
         garmentId,
         offerId,
         tryonArtifactId,
+        userId: me?.user_id,
       });
     },
     onSuccess: () => {
@@ -39,16 +37,28 @@ export function useSaveToWardrobe() {
   });
 }
 
-export function useUserWardrobe() {
+export function useRemoveFromWardrobe() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      return removeGarmentFromWardrobe(itemId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wardrobe"] });
+    },
+  });
+}
+
+export function useUserWardrobe(limit = 50, offset = 0) {
   const me = useAuthStore((s) => s.me);
 
   return useQuery<UserWardrobeItem[], Error>({
-    queryKey: ["wardrobe", me?.user_id],
+    queryKey: ["wardrobe", me?.user_id, limit, offset],
     queryFn: async () => {
-      if (!me?.user_id) return [];
-      return fetchUserWardrobe(me.user_id);
+      return fetchUserWardrobe(limit, offset);
     },
-    enabled: !!me?.user_id,
+    enabled: Boolean(me?.user_id),
     staleTime: 30 * 1000,
   });
 }

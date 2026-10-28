@@ -7,8 +7,39 @@ from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
 )
-from fashx.core.errors import EntityNotFoundError
+from fashx.core.errors import EntityNotFoundError, ValidationError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+
+
+def validate_retailer_url(
+    raw_url: str,
+    allowed_hosts: set[str] | None = None,
+) -> str:
+    """Validates that a retailer destination uses HTTPS, has no credentials, and belongs to an approved host."""
+    if not raw_url:
+        raise ValidationError("Retailer URL must not be empty", field="redirect_url")
+
+    parsed = urlparse(raw_url)
+    if parsed.scheme != "https":
+        raise ValidationError("Retailer URL must use HTTPS", field="redirect_url")
+
+    if not parsed.hostname:
+        raise ValidationError("Retailer URL has no valid hostname", field="redirect_url")
+
+    hostname = parsed.hostname.lower()
+    if parsed.username or parsed.password:
+        raise ValidationError("Credentials are not permitted in retailer URLs", field="redirect_url")
+
+    if allowed_hosts:
+        normalized_allowed = {h.lower() for h in allowed_hosts}
+        matched = any(
+            hostname == h or hostname.endswith("." + h)
+            for h in normalized_allowed
+        )
+        if not matched:
+            raise ValidationError(f"Retailer host '{hostname}' is not approved", field="redirect_url")
+
+    return raw_url
 
 
 @dataclass(frozen=True)
@@ -33,10 +64,12 @@ class CreateBuyClickUseCase:
         commerce_uow: CommerceWardrobeUnitOfWork,
         profile_uow: ProfileUnitOfWork,
         catalog_uow: CatalogUnitOfWork,
+        allowed_hosts: set[str] | None = None,
     ) -> None:
         self.commerce_uow = commerce_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
+        self.allowed_hosts = allowed_hosts
 
     async def execute(self, cmd: CreateBuyClickCommand) -> CreateBuyClickResult:
         # 1. Validate User
@@ -51,10 +84,35 @@ class CreateBuyClickUseCase:
             if offer is None:
                 raise EntityNotFoundError("MerchantOffer", cmd.offer_id)
 
+            offer_garment_id = getattr(offer, "garment_id", getattr(offer, "canonical_garment_id", None))
+            if offer_garment_id and offer_garment_id != cmd.garment_id:
+                raise ValidationError(
+                    f"Offer {cmd.offer_id} does not belong to garment {cmd.garment_id}",
+                    field="offer_id",
+                )
+
             product = await self.catalog_uow.merchant_products.get_by_source_id(
                 offer.merchant_id, offer.source_product_id
             )
-            raw_destination_url = product.source_url if product else "https://fashx.studio/shop"
+            if product is None or not getattr(product, "source_url", None):
+                raise ValidationError(
+                    "Merchant product has no verified purchase destination URL",
+                    field="source_url",
+                )
+
+            # Check cleared status if product has an associated catalog source
+            if getattr(product, "source_id", None) and hasattr(self.catalog_uow, "sources"):
+                src = await self.catalog_uow.sources.get_by_id(product.source_id)
+                if src and src.status != "cleared":
+                    raise ValidationError(
+                        f"Catalog source '{src.name}' is not cleared for commerce handoff",
+                        field="source_id",
+                    )
+
+            raw_destination_url = product.source_url
+
+        # Validate URL scheme, credentials, and allowed hosts
+        validate_retailer_url(raw_destination_url, self.allowed_hosts)
 
         # 3. Generate Tracking ID & Record Click
         tracking_id = f"fashx_{cmd.user_id.hex[:8]}_{uuid4().hex[:10]}"
