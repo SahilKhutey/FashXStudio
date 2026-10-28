@@ -1,0 +1,4 @@
+source_product_id,title,source_url,category,price_minor,currency,in_stock,sizes_in_stock,subcategory,description,brand_id,item_group_id
+partner-tee-001,Classic Cotton T-Shirt,https://partner.example/products/tee-001,tops,79900,INR,true,S|M|L|XL,t-shirt,Cotton crew-neck shirt,,tee-group-001
+partner-trouser-002,Straight Fit Trousers,https://partner.example/products/trouser-002,bottoms,149900,INR,true,30|32|34|36,trousers,Straight fit trousers,,trouser-group-002
+partner-dress-003,Printed Midi Dress,https://partner.example/products/dress-003,dresses,219900,INR,false,,midi-dress,Printed midi dress,,dress-group-003

@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import Merchant
+from database.models.catalog import CatalogSource, Merchant
 from fashx.catalog.application.enrich_garment import (
     EnrichGarmentCommand,
     EnrichGarmentUseCase,
@@ -27,12 +27,25 @@ async def test_enrich_garment_and_size_chart_use_cases(
     async with uow:
         merchant = Merchant(name="Uniqlo Direct", merchant_type="retailer")
         uow.merchants.add(merchant)
+        await uow.flush()
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        uow.sources.add(source)
         await uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(uow)
     ingest_cmd = IngestProductCommand(
         merchant_id=merchant_id,
+        source_id=source_id,
         source_product_id="UQ-9812",
         title="Uniqlo Men Slim Fit Button-Down Oxford Long Sleeve Shirt Navy",
         source_url="https://uniqlo.com/shirts/9812",

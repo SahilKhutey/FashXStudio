@@ -23,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from database.models.catalog import CanonicalGarment, GarmentEnrichment, GarmentImage
 from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.catalog.embeddings.marqo_fashionclip import MarqoFashionClipEmbedder
+from fashx.catalog.embeddings.ports import validate_embedding_vector
 from fashx.catalog.embeddings.protocol import ImageEmbedder
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
@@ -112,6 +113,7 @@ async def embed_garments(
             if apply:
                 vectors = embedder.embed_images(images_bytes)
                 for item, vec in zip(valid_chunk, vectors, strict=True):
+                    validate_embedding_vector(vec, expected_dim=embedder.dim)
                     g = item["garment"]
                     enr = item["enrichment"]
                     img = item["image"]

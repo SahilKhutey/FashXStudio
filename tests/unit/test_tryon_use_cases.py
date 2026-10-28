@@ -137,13 +137,27 @@ async def test_tryon_full_async_lifecycle_and_caching(
     async with catalog_uow:
         merchant = Merchant(name="TryOn Boutique", merchant_type="retailer")
         catalog_uow.merchants.add(merchant)
+        await catalog_uow.flush()
+        from database.models.catalog import CatalogSource
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     product_res = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="TRYON-TEE-01",
             title="Premium Cotton Graphic Tee White",
             source_url="https://boutique.com/tee01",
@@ -240,13 +254,27 @@ async def test_tryon_post_inference_quality_failure(
     async with catalog_uow:
         merchant = Merchant(name="Shop", merchant_type="retailer")
         catalog_uow.merchants.add(merchant)
+        await catalog_uow.flush()
+        from database.models.catalog import CatalogSource
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     product_res = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             source_product_id="ITEM-FAIL-01",
             title="Linen Shirt",
             source_url="https://shop.com/1",
@@ -273,7 +301,12 @@ async def test_tryon_post_inference_quality_failure(
         catalog_uow,
         adapter=FailingQualityAdapter(),
     )
-    proc_res = await process_uc.execute(job_id=sub_res.job_id)
+    valid_img = _create_valid_portrait_bytes()
+    proc_res = await process_uc.execute(
+        job_id=sub_res.job_id,
+        user_photo_bytes=valid_img,
+        garment_image_bytes=valid_img,
+    )
 
     assert proc_res.status == "failed"
     assert proc_res.failure_reason == "quality_rejected"

@@ -37,6 +37,7 @@ class SubmitTryOnJobUseCase:
         profile_uow: ProfileUnitOfWork,
         catalog_uow: CatalogUnitOfWork,
         adapter: TryOnModelAdapterPort | None = None,
+        dispatcher: Any | None = None,
     ) -> None:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
@@ -47,6 +48,7 @@ class SubmitTryOnJobUseCase:
             from fashx.core.dependencies import get_tryon_adapter
 
             self.adapter = get_tryon_adapter()
+        self.dispatcher = dispatcher
 
     async def execute(self, cmd: SubmitTryOnJobCommand) -> SubmitTryOnJobResult:
         # 1. Pre-Inference Consent & Quality Gate (Rule I07)
@@ -174,10 +176,16 @@ class SubmitTryOnJobUseCase:
             self.tryon_uow.jobs.add(job)
             await self.tryon_uow.commit()
 
-            return SubmitTryOnJobResult(
-                job_id=job.id,
-                status="queued",
-                artifact_key=artifact_key,
-                is_cached=False,
-                result_url=None,
-            )
+        if self.dispatcher:
+            try:
+                await self.dispatcher.dispatch(job.id)
+            except Exception:
+                pass
+
+        return SubmitTryOnJobResult(
+            job_id=job.id,
+            status="queued",
+            artifact_key=artifact_key,
+            is_cached=False,
+            result_url=None,
+        )

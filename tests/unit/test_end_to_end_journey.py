@@ -139,14 +139,28 @@ async def test_full_system_journey_end_to_end(
         catalog_uow.merchants.add(merchant)
         brand = Brand(name="Apex Fashion Studio", normalized_name="apex_fashion_studio")
         catalog_uow.session.add(brand)
+        await catalog_uow.flush()
+        from database.models.catalog import CatalogSource
+        source = CatalogSource(
+            slug=f"merchant-{merchant.id}",
+            name=merchant.name,
+            kind="manual",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        catalog_uow.sources.add(source)
         await catalog_uow.commit()
         merchant_id = merchant.id
         brand_id = brand.id
+        source_id = source.id
 
     ingest_uc = IngestMerchantProductUseCase(catalog_uow)
     product_res = await ingest_uc.execute(
         IngestProductCommand(
             merchant_id=merchant_id,
+            source_id=source_id,
             brand_id=brand_id,
             source_product_id="APEX-SHIRT-01",
             title="Slim Fit Olive Oxford Shirt",

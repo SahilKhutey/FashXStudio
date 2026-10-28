@@ -1,19 +1,25 @@
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .compatibility import CompatibilityScore
 from .filters import CandidateItem
 
 
-def cosine_similarity(v1: list[float] | None, v2: list[float] | None) -> float:
+def cosine_similarity(
+    v1: list[float] | None,
+    v2: list[float] | None,
+) -> float | None:
+    """Return cosine similarity in [-1.0, 1.0], or None when it is not computable."""
     if not v1 or not v2 or len(v1) != len(v2):
-        return 0.5
-    dot = sum(a * b for a, b in zip(v1, v2, strict=False))
+        return None
+    if not all(math.isfinite(x) for x in v1 + v2):
+        return None
+    dot = sum(a * b for a, b in zip(v1, v2, strict=True))
     norm1 = math.sqrt(sum(a * a for a in v1))
     norm2 = math.sqrt(sum(b * b for b in v2))
-    if norm1 == 0 or norm2 == 0:
-        return 0.0
-    return max(0.0, min(1.0, dot / (norm1 * norm2)))
+    if norm1 == 0.0 or norm2 == 0.0:
+        return None
+    return max(-1.0, min(1.0, dot / (norm1 * norm2)))
 
 
 def item_redundancy(item1: CandidateItem, item2: CandidateItem) -> float:
@@ -35,6 +41,7 @@ class ScoredItem:
     item: CandidateItem
     compatibility: CompatibilityScore
     relevance_score: float
+    reason_chips: list[str] = field(default_factory=list)
 
 
 class PersonalizedRanker:

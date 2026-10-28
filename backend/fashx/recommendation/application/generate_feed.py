@@ -1,12 +1,16 @@
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
+
+import numpy as np
+from sqlalchemy import select
 
 from database.models.catalog import Brand
 from fashx.catalog.embeddings.fake import FakeEmbedder
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
-from fashx.discovery.taste import compute_taste_vector
+from fashx.discovery.taste import SignalEvent, compute_taste_vector
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.recommendation.compatibility import CompatibilityMatrix
 from fashx.recommendation.filters import (
@@ -17,7 +21,6 @@ from fashx.recommendation.filters import (
 from fashx.recommendation.ranker import (
     PersonalizedRanker,
     ScoredItem,
-    cosine_similarity,
 )
 from fashx.recommendation.stylist_explainer import StylistExplainer
 
@@ -69,7 +72,11 @@ class GenerateFeedUseCase:
         self.catalog_uow = catalog_uow
 
     async def execute(self, cmd: GenerateFeedCommand) -> GenerateFeedResult:
-        # 1. Fetch User Profile & Preferences
+        # 1. Fetch User Profile, Preferences & Interaction Signals
+        user_styles: list[str] | None = None
+        raw_signals: list[tuple[UUID, str, datetime | None]] = []
+        now = datetime.now(UTC)
+
         async with self.profile_uow:
             user = await self.profile_uow.users.get_by_id(cmd.user_id)
             if user is None:
@@ -77,21 +84,72 @@ class GenerateFeedUseCase:
 
             body = await self.profile_uow.body_profiles.get_by_user_id(cmd.user_id)
             pref = await self.profile_uow.preferences.get_by_user_id(cmd.user_id)
-            onboarding_profile = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
-            user_styles = (
-                list(onboarding_profile.styles)
-                if onboarding_profile and onboarding_profile.styles
-                else []
-            )
             active_photo = await self.profile_uow.photos.get_active_photo(
                 cmd.user_id, "tryon_reference"
             )
 
+            # Style quiz archetype preferences
+            try:
+                onboarding = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
+                if onboarding and onboarding.styles:
+                    user_styles = list(onboarding.styles)
+            except Exception:
+                pass
+
+            # Feed interaction signals (likes, hides, not_interested)
+            try:
+                from database.models.feed import FeedSignal
+
+                res_sig = await self.profile_uow.session.scalars(
+                    select(FeedSignal).where(FeedSignal.user_id == cmd.user_id)
+                )
+                for s in res_sig.all():
+                    raw_signals.append((s.garment_id, s.action, s.created_at))
+            except Exception:
+                pass
+
+            # Saved wardrobe items (positive interaction signal)
+            try:
+                from database.models.commerce_feedback import WardrobeItem
+
+                res_w = await self.profile_uow.session.scalars(
+                    select(WardrobeItem).where(WardrobeItem.user_id == cmd.user_id)
+                )
+                for w in res_w.all():
+                    raw_signals.append((w.garment_id, "like", w.saved_at))
+            except Exception:
+                pass
+
+            # Style quiz picks (positive and negative customer preference signals)
+            try:
+                from database.models.catalog import StyleQuizPick
+
+                res_quiz = await self.profile_uow.session.scalars(
+                    select(StyleQuizPick).where(StyleQuizPick.user_id == cmd.user_id)
+                )
+                for q in res_quiz.all():
+                    action = "like" if q.liked else "not_interested"
+                    raw_signals.append((q.garment_id, action, q.created_at))
+            except Exception:
+                pass
+
+            # User exclusions (Rule I06 / Feed Exclusions)
+            feed_exclusions: set[UUID] = set()
+            try:
+                from database.models.commerce_feedback import FeedExclusion
+
+                res_ex = await self.profile_uow.session.scalars(
+                    select(FeedExclusion).where(FeedExclusion.user_id == cmd.user_id)
+                )
+                for ex in res_ex.all():
+                    feed_exclusions.add(ex.garment_id)
+            except Exception:
+                pass
+
             user_build = body.build if body else "regular"
             undertone = "neutral"
-            # If user has an active portrait photo with skin tone, calibrate undertone
             if active_photo:
-                undertone = "warm"  # calibrated baseline
+                undertone = "warm"
 
             budget_min = pref.budget_min if pref else None
             budget_max = pref.budget_max if pref else None
@@ -100,7 +158,34 @@ class GenerateFeedUseCase:
             allowed_categories = list(pref.categories) if pref and pref.categories else None
 
         # 2. Fetch Catalog Candidates (Gated: cleared sources + active products)
+        embedder = FakeEmbedder()
         async with self.catalog_uow:
+            # Resolve garment embeddings for raw interaction signals
+            signal_events: list[SignalEvent] = []
+            for g_id, action, dt in raw_signals:
+                try:
+                    enrichment = await self.catalog_uow.enrichments.get_by_garment_id(g_id)
+                    if enrichment and enrichment.embedding:
+                        emb = enrichment.embedding
+                    else:
+                        g_obj = await self.catalog_uow.canonical_garments.get_by_id(g_id)
+                        title = g_obj.display_name if g_obj else "garment"
+                        emb = embedder.embed_text([title])[0]
+                    signal_events.append(
+                        SignalEvent(
+                            garment_id=str(g_id),
+                            action=action,
+                            timestamp=dt or now,
+                            embedding=np.array(emb, dtype=np.float32),
+                        )
+                    )
+                except Exception:
+                    continue
+
+            # Compute taste vector blending cold-start archetypes with interaction signals
+            taste_vector = compute_taste_vector(signal_events, user_styles=user_styles, now=now)
+            taste_vector_list = taste_vector.tolist()
+
             garments = await self.catalog_uow.canonical_garments.list_feed_candidates(limit=200)
             candidates: list[CandidateItem] = []
 
@@ -147,12 +232,18 @@ class GenerateFeedUseCase:
 
         total_candidates = len(candidates)
 
+        # Collect negative interaction signals (hide, not_interested, dislike) and feed exclusions
+        excluded_ids = feed_exclusions | {
+            s[0] for s in raw_signals if s[1] in ("hide", "not_interested", "dislike")
+        }
+
         # 3. Stage 1: Deterministic Filtering
         criteria = FilterCriteria(
             budget_min=budget_min,
             budget_max=budget_max,
             allowed_categories=allowed_categories,
             avoided_colors=avoided_colors,
+            excluded_garment_ids=excluded_ids,
         )
         surviving = DeterministicFilter.filter_candidates(candidates, criteria)
         filtered_count = len(surviving)
@@ -165,11 +256,11 @@ class GenerateFeedUseCase:
                 filtered_candidates=0,
             )
 
-        # 4. Stage 2: Multimodal Compatibility Scoring
+        # 4. Stage 2: Explicit preference, compatibility, and taste vector scoring
+        from fashx.recommendation.scoring import compute_explainable_score
+
         scored_items: list[ScoredItem] = []
-        user_taste = compute_taste_vector([], user_styles=user_styles if user_styles else None)
-        user_emb = user_taste.tolist()
-        embedder = FakeEmbedder()
+        has_taste_signal = bool(user_styles or signal_events)
 
         for cand in surviving:
             compat = CompatibilityMatrix.evaluate(
@@ -182,20 +273,19 @@ class GenerateFeedUseCase:
                 category=cand.category,
             )
 
-            cand_emb = cand.embedding
-            if cand_emb is None:
-                garment_text = f"{cand.title} {cand.category} {cand.subcategory or ''} {cand.dominant_color or ''} {cand.silhouette or ''}"
-                cand_emb = embedder.embed_text([garment_text])[0]
-
-            # Stage 3 Relevance: Combine compatibility + embedding similarity
-            emb_sim = cosine_similarity(user_emb, cand_emb)
-            relevance = round(0.70 * compat.total_score + 0.30 * emb_sim, 3)
+            scoring = compute_explainable_score(
+                item=cand,
+                compatibility=compat,
+                taste_vector=taste_vector_list,
+                has_taste_signal=has_taste_signal,
+            )
 
             scored_items.append(
                 ScoredItem(
                     item=cand,
                     compatibility=compat,
-                    relevance_score=relevance,
+                    relevance_score=scoring.relevance_score,
+                    reason_chips=scoring.reason_chips,
                 )
             )
 
@@ -215,13 +305,14 @@ class GenerateFeedUseCase:
                 user_build=user_build,
                 user_undertone=undertone,
             )
-            reason_chips = []
-            if s.item.category:
-                reason_chips.append(s.item.category.capitalize())
-            if s.item.dominant_color:
-                reason_chips.append(s.item.dominant_color.capitalize())
-            elif s.item.silhouette:
-                reason_chips.append(s.item.silhouette.replace("_", " ").capitalize())
+            reason_chips = list(s.reason_chips) if s.reason_chips else []
+            if not reason_chips:
+                if s.item.category:
+                    reason_chips.append(s.item.category.capitalize())
+                if s.item.dominant_color:
+                    reason_chips.append(s.item.dominant_color.capitalize())
+                elif s.item.silhouette:
+                    reason_chips.append(s.item.silhouette.replace("_", " ").capitalize())
 
             feed_items.append(
                 FeedItemResult(
@@ -237,7 +328,7 @@ class GenerateFeedUseCase:
                     brand=s.item.brand,
                     image_url=s.item.image_url,
                     price_updated_at=s.item.price_updated_at,
-                    reason_chips=reason_chips[:2],
+                    reason_chips=reason_chips[:3],
                     tryon_supported=s.item.tryon_supported,
                 )
             )

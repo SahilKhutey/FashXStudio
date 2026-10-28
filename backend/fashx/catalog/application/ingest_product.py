@@ -1,11 +1,103 @@
+import hashlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from urllib.parse import urlparse
 from uuid import UUID
 
-from database.models.catalog import CanonicalGarment, CatalogSource, MerchantProduct
+from database.models.catalog import CanonicalGarment, CatalogSource, GarmentImage, MerchantProduct
 from fashx.catalog.eligibility import compute_tryon_eligibility
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError, ValidationError
+
+VALID_TAXONOMY_CATEGORIES: set[str] = {
+    "top",
+    "tops",
+    "shirt",
+    "shirts",
+    "tshirt",
+    "tshirts",
+    "bottom",
+    "bottoms",
+    "pants",
+    "trousers",
+    "jeans",
+    "skirts",
+    "one_piece",
+    "one-piece",
+    "one-pieces",
+    "dress",
+    "dresses",
+    "jumpsuit",
+    "outerwear",
+    "jacket",
+    "jackets",
+    "coat",
+    "coats",
+    "sweater",
+    "sweaters",
+    "hoodie",
+    "hoodies",
+    "kurta",
+    "kurtas",
+    "ethnic",
+    "accessories",
+    "footwear",
+}
+
+
+def validate_product_input(
+    *,
+    source_product_id: str,
+    title: str,
+    source_url: str,
+    category: str,
+    price_minor: int,
+    currency: str = "INR",
+) -> None:
+    """Validate required merchant-product fields before database writes."""
+    if not source_product_id or not source_product_id.strip():
+        raise ValidationError(
+            "Source product ID cannot be empty",
+            field="source_product_id",
+        )
+    if not title or not title.strip():
+        raise ValidationError("Title cannot be empty", field="title")
+    if not category or not category.strip():
+        raise ValidationError("Category cannot be empty", field="category")
+    cat_normalized = category.strip().lower()
+    if cat_normalized not in VALID_TAXONOMY_CATEGORIES:
+        raise ValidationError(
+            f"Unknown category '{category}' not in approved taxonomy",
+            field="category",
+        )
+    if price_minor < 0:
+        raise ValidationError("Price cannot be negative", field="price_minor")
+    if currency.upper() != "INR":
+        raise ValidationError(
+            "Only INR pricing is supported by the current catalog",
+            field="currency",
+        )
+    parsed = urlparse(source_url)
+    if parsed.scheme.lower() != "https" or not parsed.netloc:
+        raise ValidationError(
+            "Invalid or malformed product destination URL (must be HTTPS)",
+            field="source_url",
+        )
+
+
+def validate_catalog_source(source: CatalogSource) -> CatalogSource:
+    """Validate catalog source status and display rights before product ingestion."""
+    if source.status != "cleared":
+        raise ValidationError(
+            f"Catalog source '{source.slug}' is not cleared (status='{source.status}')",
+            field="source_id",
+        )
+    if not source.rights_display:
+        raise ValidationError(
+            f"Catalog source '{source.slug}' does not have display rights",
+            field="source_id",
+        )
+    return source
 
 
 @dataclass
@@ -16,16 +108,21 @@ class IngestProductCommand:
     source_url: str
     category: str
     price_minor: int
+    brand_id: UUID | None = None
     subcategory: str | None = None
     description: str | None = None
+    color: str | None = None
+    gender: str = "unisex"
     currency: str = "INR"
     in_stock: bool = True
     sizes_in_stock: list[str] = field(default_factory=list)
-    brand_id: UUID | None = None
     source_id: UUID | None = None
     item_group_id: str | None = None
     content_hash: str | None = None
     status: str = "active"
+    image_url: str | None = None
+    image_rights: str | None = None
+    tryon_rights: bool | None = None
 
 
 @dataclass
@@ -37,6 +134,8 @@ class IngestProductResult:
     category: str
     price_minor: int
     currency: str
+    image_id: UUID | None = None
+    tryon_supported: bool = False
 
 
 class IngestMerchantProductUseCase:
@@ -46,41 +145,60 @@ class IngestMerchantProductUseCase:
         self.uow = uow
 
     async def execute(self, cmd: IngestProductCommand) -> IngestProductResult:
-        if cmd.price_minor < 0:
-            raise ValidationError("Price cannot be negative", field="price_minor")
+        validate_product_input(
+            source_product_id=cmd.source_product_id,
+            title=cmd.title,
+            source_url=cmd.source_url,
+            category=cmd.category,
+            price_minor=cmd.price_minor,
+            currency=cmd.currency,
+        )
+
+        if cmd.source_id is None:
+            raise ValidationError(
+                "A registered catalog source is required",
+                field="source_id",
+            )
+
+        if cmd.image_url:
+            parsed_img = urlparse(cmd.image_url)
+            if parsed_img.scheme.lower() not in ("http", "https") or not parsed_img.netloc:
+                raise ValidationError(
+                    "Invalid or malformed product image URL",
+                    field="image_url",
+                )
 
         async with self.uow:
             merchant = await self.uow.merchants.get_by_id(cmd.merchant_id)
             if merchant is None:
                 raise EntityNotFoundError("Merchant", cmd.merchant_id)
 
-            # Determine source_id (fallback to merchant default cleared source)
-            source_id = cmd.source_id
-            if source_id is None:
-                default_slug = f"merchant-{cmd.merchant_id}"
-                source = await self.uow.sources.get_by_slug(default_slug)
-                if source is None:
-                    source = CatalogSource(
-                        slug=default_slug,
-                        name=merchant.name,
-                        kind="manual",
-                        status="cleared",
-                        rights_display=True,
-                        rights_tryon=True,
-                        image_policy="mirror",
-                    )
-                    self.uow.sources.add(source)
-                    await self.uow.sources.flush()
-                source_id = source.id
+            source = await self.uow.sources.get_by_id(cmd.source_id)
+            if source is None:
+                raise EntityNotFoundError("CatalogSource", cmd.source_id)
 
+            source = validate_catalog_source(source)
+            source_id = source.id
             now = datetime.now(UTC)
+
+            can_tryon = bool(source.rights_tryon)
+            if cmd.tryon_rights is not None:
+                can_tryon = can_tryon and cmd.tryon_rights
+
+            # Calculate try-on eligibility
+            is_eligible = compute_tryon_eligibility(
+                source_rights_tryon=can_tryon,
+                source_image_policy=source.image_policy,
+                category=cmd.category,
+            )
 
             # 1. Upsert MerchantProduct
             product = await self.uow.merchant_products.get_by_source_id(
                 cmd.merchant_id, cmd.source_product_id
             )
+            title = cmd.title.strip()
             if product is not None:
-                product.title = cmd.title
+                product.title = title
                 product.description = cmd.description
                 product.source_url = cmd.source_url
                 product.brand_id = cmd.brand_id
@@ -99,7 +217,7 @@ class IngestMerchantProductUseCase:
                     item_group_id=cmd.item_group_id,
                     content_hash=cmd.content_hash,
                     status=cmd.status,
-                    title=cmd.title,
+                    title=title,
                     description=cmd.description,
                     source_url=cmd.source_url,
                     last_seen_at=now,
@@ -108,41 +226,42 @@ class IngestMerchantProductUseCase:
                 self.uow.merchant_products.add(product)
             await self.uow.merchant_products.flush()
 
-            # 2. Link or create CanonicalGarment
-            existing_offer = await self.uow.offers.get_by_merchant_and_product(
-                cmd.merchant_id, cmd.source_product_id
-            )
-            if existing_offer is not None:
-                garment_id = existing_offer.garment_id
+            # 2. Upsert CanonicalGarment
+            garment_id = product.canonical_garment_id
+            if not garment_id:
+                existing_offer = await self.uow.offers.get_by_merchant_and_product(
+                    cmd.merchant_id, cmd.source_product_id
+                )
+                if existing_offer is not None:
+                    garment_id = existing_offer.garment_id
+
+            if garment_id:
                 existing_garment = await self.uow.canonical_garments.get_by_id(garment_id)
                 if existing_garment is not None:
                     existing_garment.price_updated_at = now
+                    existing_garment.price_minor = cmd.price_minor
+                    existing_garment.in_stock = cmd.in_stock
+                    existing_garment.tryon_supported = is_eligible
+                    existing_garment.display_name = title
                     if cmd.sizes_in_stock:
                         existing_garment.sizes_in_stock = cmd.sizes_in_stock
             else:
-                if source_id is not None and "source" not in locals():
-                    source = await self.uow.sources.get_by_id(source_id)
-                rights_tryon = source.rights_tryon if source else False
-                image_policy = source.image_policy if source else "hotlink"
-                is_eligible = compute_tryon_eligibility(
-                    source_rights_tryon=rights_tryon,
-                    source_image_policy=image_policy,
-                    category=cmd.category,
-                )
                 garment = CanonicalGarment(
                     brand_id=cmd.brand_id,
                     category=cmd.category,
                     subcategory=cmd.subcategory,
-                    display_name=cmd.title or cmd.subcategory or cmd.category or "",
+                    display_name=title,
                     price_minor=cmd.price_minor,
                     sizes_in_stock=cmd.sizes_in_stock,
                     price_updated_at=now,
                     version=1,
+                    in_stock=cmd.in_stock,
                     tryon_supported=is_eligible,
                 )
                 self.uow.canonical_garments.add(garment)
                 await self.uow.canonical_garments.flush()
                 garment_id = garment.id
+                product.canonical_garment_id = garment_id
 
             # 3. Upsert MerchantOffer
             offer = await self.uow.offers.upsert_offer(
@@ -157,6 +276,24 @@ class IngestMerchantProductUseCase:
             offer.last_synced_at = now
             await self.uow.offers.flush()
 
+            # 4. Optional Image Ingestion
+            image_id = None
+            if cmd.image_url:
+                img_hash = cmd.content_hash or hashlib.sha256(cmd.image_url.encode("utf-8")).hexdigest()
+                existing_img = await self.uow.images.get_by_hash(img_hash)
+                if existing_img is None:
+                    g_img = GarmentImage(
+                        garment_id=garment_id,
+                        storage_key=cmd.image_url,
+                        content_hash=img_hash,
+                        image_type="catalog",
+                    )
+                    self.uow.images.add(g_img)
+                    await self.uow.images.flush()
+                    image_id = g_img.id
+                else:
+                    image_id = existing_img.id
+
             await self.uow.commit()
 
             return IngestProductResult(
@@ -167,4 +304,6 @@ class IngestMerchantProductUseCase:
                 category=cmd.category,
                 price_minor=offer.price_minor,
                 currency=offer.currency,
+                image_id=image_id,
+                tryon_supported=is_eligible,
             )

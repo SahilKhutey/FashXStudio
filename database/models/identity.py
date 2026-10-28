@@ -33,6 +33,9 @@ class User(Base, UUIDPrimaryKeyMixin):
     consents: Mapped[list["ConsentRecord"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    consent_events: Mapped[list["ConsentEvent"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class ConsentRecord(Base):
@@ -56,6 +59,30 @@ class ConsentRecord(Base):
             name="ck_consent_granted_requires_adult",
         ),
         Index("ix_consent_records_user_policy", "user_id", "consent_version"),
+    )
+
+
+class ConsentEvent(Base, UUIDPrimaryKeyMixin):
+    """Append-only audit record of every consent grant, update, or revocation decision."""
+
+    __tablename__ = "consent_events"
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    data_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    granted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    consent_version: Mapped[str] = mapped_column(String(16), default="2026.1", nullable=False)
+    policy_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    decision_source: Mapped[str] = mapped_column(String(64), default="api", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    user: Mapped[User] = relationship(back_populates="consent_events")
+
+    __table_args__ = (
+        Index("ix_consent_events_user_created", "user_id", "created_at"),
     )
 
 

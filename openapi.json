@@ -150,6 +150,83 @@
         }
       }
     },
+    "/api/v1/me/consents": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Get My Consents",
+        "operationId": "get_my_consents_api_v1_me_consents_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MeConsentItem"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Consents Api V1 Me Consents Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/consents/{data_type}": {
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Update My Consent Alias",
+        "operationId": "update_my_consent_alias_api_v1_me_consents__data_type__put",
+        "parameters": [
+          {
+            "name": "data_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Data Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsentBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeConsentItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/onboarding/style-quiz": {
       "get": {
         "tags": [
@@ -518,6 +595,145 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/me": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Get My Profile",
+        "operationId": "get_my_profile_api_v1_profile_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DerivedProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/preferences": {
+      "put": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Update My Preferences",
+        "operationId": "update_my_preferences_api_v1_profile_preferences_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePreferencesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePreferencesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/consents": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "List My Consents",
+        "operationId": "list_my_consents_api_v1_profile_consents_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConsentItemResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List My Consents Api V1 Profile Consents Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/consents/{data_type}": {
+      "put": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Update My Consent",
+        "operationId": "update_my_consent_api_v1_profile_consents__data_type__put",
+        "parameters": [
+          {
+            "name": "data_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Data Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConsentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentItemResponse"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1170,7 +1386,7 @@
           "feed"
         ],
         "summary": "Record Feed Signal",
-        "description": "Record a user signal (like, hide, not_interested) on a feed garment.\n\nOwned-resource rule: the signal's user is always the authenticated principal.",
+        "description": "Record a user signal (like, hide, not_interested) on a feed garment.\n\nOwned-resource rule: the signal's user is always the authenticated principal.\nFail-closed and transactional.",
         "operationId": "record_feed_signal_api_v1_feed_signals_post",
         "requestBody": {
           "content": {
@@ -1430,7 +1646,7 @@
           "try-on"
         ],
         "summary": "Get Tryon Artifact",
-        "description": "Retrieve rendered try-on artifact by composite cache key.",
+        "description": "Retrieve rendered try-on artifact by composite cache key (authenticated and owner-verified).",
         "operationId": "get_tryon_artifact_api_v1_tryon_artifacts__artifact_key__get",
         "parameters": [
           {
@@ -1476,14 +1692,14 @@
         "description": "Save a garment to virtual closet with immutable snapshot metadata (Rule I11).",
         "operationId": "save_to_wardrobe_api_v1_wardrobe_items_post",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SaveWardrobeRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -1507,6 +1723,65 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "commerce-wardrobe-feedback"
+        ],
+        "summary": "List My Wardrobe",
+        "description": "Retrieve saved items in current user's virtual closet with signed image URLs.",
+        "operationId": "list_my_wardrobe_api_v1_wardrobe_items_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WardrobeItemView"
+                  },
+                  "title": "Response List My Wardrobe Api V1 Wardrobe Items Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/wardrobe/users/{user_id}": {
@@ -1515,7 +1790,7 @@
           "commerce-wardrobe-feedback"
         ],
         "summary": "List User Wardrobe",
-        "description": "Retrieve items in user's virtual closet.",
+        "description": "Retrieve items in user's virtual closet (legacy route).",
         "operationId": "list_user_wardrobe_api_v1_wardrobe_users__user_id__get",
         "parameters": [
           {
@@ -1614,6 +1889,53 @@
                 }
               ],
               "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wardrobe/users/{user_id}/items/{item_id}": {
+      "delete": {
+        "tags": [
+          "commerce-wardrobe-feedback"
+        ],
+        "summary": "Remove From User Wardrobe",
+        "description": "Remove item from virtual closet (legacy route).",
+        "operationId": "remove_from_user_wardrobe_api_v1_wardrobe_users__user_id__items__item_id__delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
             }
           }
         ],
@@ -9624,7 +9946,7 @@
           "analytics"
         ],
         "summary": "Record Session Events",
-        "description": "Record a batch of client session events (e.g. viewable impression batches).",
+        "description": "Record a batch of client session events and persist them to durable domain storage.",
         "operationId": "record_session_events_api_v1_analytics_session_events_post",
         "requestBody": {
           "content": {
@@ -11744,6 +12066,11 @@
           "count": {
             "type": "integer",
             "title": "Count"
+          },
+          "duplicates_skipped": {
+            "type": "integer",
+            "title": "Duplicates Skipped",
+            "default": 0
           }
         },
         "type": "object",
@@ -13206,6 +13533,58 @@
           "accepts_body_photo"
         ],
         "title": "ConsentGrantIn"
+      },
+      "ConsentItemResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "data_type": {
+            "type": "string",
+            "title": "Data Type"
+          },
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "consent_version": {
+            "type": "string",
+            "title": "Consent Version"
+          },
+          "is_18_or_older": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is 18 Or Older"
+          },
+          "consented_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Consented At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "data_type",
+          "granted",
+          "consent_version",
+          "consented_at",
+          "updated_at"
+        ],
+        "title": "ConsentItemResponse"
       },
       "ConsentResponse": {
         "properties": {
@@ -16921,12 +17300,20 @@
             "format": "uuid",
             "title": "Merchant Id"
           },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
           "source_product_id": {
             "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
             "title": "Source Product Id"
           },
           "title": {
             "type": "string",
+            "minLength": 1,
             "title": "Title"
           },
           "source_url": {
@@ -16935,6 +17322,8 @@
           },
           "category": {
             "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
             "title": "Category"
           },
           "price_minor": {
@@ -16990,6 +17379,7 @@
         "type": "object",
         "required": [
           "merchant_id",
+          "source_id",
           "source_product_id",
           "title",
           "source_url",
@@ -18021,6 +18411,58 @@
           "closed"
         ],
         "title": "MarketplaceStatus"
+      },
+      "MeConsentItem": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "data_type": {
+            "type": "string",
+            "title": "Data Type"
+          },
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "consent_version": {
+            "type": "string",
+            "title": "Consent Version"
+          },
+          "is_18_or_older": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is 18 Or Older"
+          },
+          "consented_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Consented At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "data_type",
+          "granted",
+          "consent_version",
+          "consented_at",
+          "updated_at"
+        ],
+        "title": "MeConsentItem"
       },
       "MeResponse": {
         "properties": {
@@ -22169,8 +22611,15 @@
       "RecordMeasurementRequest": {
         "properties": {
           "user_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id"
           },
           "measurement": {
@@ -22206,7 +22655,6 @@
         },
         "type": "object",
         "required": [
-          "user_id",
           "measurement",
           "value",
           "unit"
@@ -23542,15 +23990,22 @@
       },
       "SaveWardrobeRequest": {
         "properties": {
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
           "garment_id": {
             "type": "string",
             "format": "uuid",
             "title": "Garment Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
           },
           "offer_id": {
             "anyOf": [
@@ -23579,7 +24034,6 @@
         },
         "type": "object",
         "required": [
-          "user_id",
           "garment_id"
         ],
         "title": "SaveWardrobeRequest"
@@ -23617,6 +24071,17 @@
             "type": "string",
             "title": "Snapshot Image Key"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "tryon_artifact_id": {
             "anyOf": [
               {
@@ -23638,8 +24103,7 @@
           "snapshot_title",
           "snapshot_price_minor",
           "snapshot_currency",
-          "snapshot_image_key",
-          "tryon_artifact_id"
+          "snapshot_image_key"
         ],
         "title": "SaveWardrobeResponse"
       },
@@ -24796,6 +25260,18 @@
       },
       "SessionEventItem": {
         "properties": {
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Id"
+          },
           "event_type": {
             "$ref": "#/components/schemas/SessionEventType",
             "default": "impression"
@@ -24844,7 +25320,16 @@
         "type": "string",
         "enum": [
           "impression",
-          "click"
+          "click",
+          "onboarding_completed",
+          "feed_viewed",
+          "garment_opened",
+          "garment_saved",
+          "tryon_submitted",
+          "tryon_completed",
+          "tryon_failed",
+          "retailer_opened",
+          "feedback_submitted"
         ],
         "title": "SessionEventType"
       },
@@ -27095,6 +27580,98 @@
         "title": "UpdateAccountSettingsRequestContract",
         "description": "Payload for updating account details and notifications."
       },
+      "UpdateConsentBody": {
+        "properties": {
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Version"
+          },
+          "is_18_or_older": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is 18 Or Older"
+          },
+          "policy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "granted"
+        ],
+        "title": "UpdateConsentBody"
+      },
+      "UpdateConsentRequest": {
+        "properties": {
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consent Version"
+          },
+          "is_18_or_older": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is 18 Or Older"
+          },
+          "policy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "granted"
+        ],
+        "title": "UpdateConsentRequest"
+      },
       "UpdateExplicitPreferencesRequestContract": {
         "properties": {
           "styles": {
@@ -28162,6 +28739,17 @@
           "saved_at": {
             "type": "string",
             "title": "Saved At"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
           }
         },
         "type": "object",

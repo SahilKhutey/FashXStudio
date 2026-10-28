@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import "../src/i18n";
 import { supabase } from "../src/lib/supabase";
@@ -14,21 +13,9 @@ import {
   getAppVersion,
   RemoteConfig,
 } from "../src/lib/config";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error: any) => {
-        // Automatically retry up to 2 times for network or 5xx errors on idempotent GETs
-        if (failureCount >= 2) return false;
-        if (error?.status && error.status >= 400 && error.status < 500) {
-          return false;
-        }
-        return true;
-      },
-    },
-  },
-});
+import { getRouteDecision } from "../src/navigation/route-policy";
+import { AppProviders } from "../src/app-shell";
+import { LoadingState } from "../src/components/states";
 
 function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -126,57 +113,18 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
     };
   }, [setSession, setMe, setIsLoading, setHasSession]);
 
-  // 3. Navigation routing based on auth state and onboarding gate
+  // 3. Centralized route policy decision
   useEffect(() => {
-    if (isLoading || configLoading) return;
+    const decision = getRouteDecision({
+      authLoading: isLoading,
+      configLoading,
+      hasSession,
+      segments: segments as string[],
+      onboarding: me?.onboarding,
+    });
 
-    const segs = segments as unknown as string[];
-    const inAuthGroup = segs[0] === "(auth)";
-    const inOnboardingGroup = segs[0] === "onboarding";
-
-    if (!hasSession && !inAuthGroup) {
-      // Redirect to sign in if unauthenticated
-      router.replace("/(auth)/sign-in");
-      return;
-    }
-
-    if (hasSession && inAuthGroup) {
-      // Redirect to feed if authenticated
-      router.replace("/(tabs)/feed");
-      return;
-    }
-
-    // Onboarding Gate: ensure missing steps cannot access the feed
-    if (hasSession && me?.onboarding) {
-      if (!me.onboarding.complete) {
-        const missing = me.onboarding.missing || [];
-        if (missing.includes("consent") && segs[1] !== "consent") {
-          router.replace("/onboarding/consent");
-        } else if (
-          missing.includes("profile") &&
-          segs[1] !== "profile" &&
-          !missing.includes("consent")
-        ) {
-          router.replace("/onboarding/profile");
-        } else if (
-          missing.includes("style_quiz") &&
-          segs[1] !== "quiz" &&
-          !missing.includes("consent") &&
-          !missing.includes("profile")
-        ) {
-          router.replace("/onboarding/quiz");
-        } else if (
-          missing.includes("photo") &&
-          segs[1] !== "capture" &&
-          !missing.includes("consent") &&
-          !missing.includes("profile") &&
-          !missing.includes("style_quiz")
-        ) {
-          router.replace("/onboarding/capture");
-        }
-      } else if (inOnboardingGroup) {
-        router.replace("/(tabs)/feed");
-      }
+    if (decision.type === "replace") {
+      router.replace(decision.href as any);
     }
   }, [hasSession, segments, isLoading, configLoading, me?.onboarding, router]);
 
@@ -218,11 +166,7 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
 
   // Loading spinner while checking initial auth and remote config
   if (isLoading || configLoading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
-      </View>
-    );
+    return <LoadingState />;
   }
 
   return <>{children}</>;
@@ -230,11 +174,11 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <AppProviders>
       <AuthAndConfigGate>
         <Slot />
       </AuthAndConfigGate>
-    </QueryClientProvider>
+    </AppProviders>
   );
 }
 

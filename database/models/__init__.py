@@ -24,7 +24,7 @@ from .erasure import ErasureTombstone
 from .experiment import ExperimentExposure
 from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
-from .identity import ConsentRecord, User, UserPhoto
+from .identity import ConsentEvent, ConsentRecord, User, UserPhoto
 from .media import MediaObject
 from .operations import IdempotencyRecord, OutboxMessageRecord
 from .pilot import (
@@ -72,6 +72,7 @@ __all__ = [
     "FitFeedback",
     "TryOnFeedback",
     "WardrobeItem",
+    "ConsentEvent",
     "ConsentRecord",
     "AuthIdentity",
     "User",

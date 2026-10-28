@@ -67,3 +67,34 @@ class JWKSVerifier:
         except jwt.PyJWTError as e:
             raise unauthorized("Invalid token") from e
         return Claims(str(d["sub"]), str(d["iss"]))
+
+
+def create_demo_token(
+    subject: str = "demo-evaluator-1",
+    secret: str | None = None,
+    issuer: str | None = None,
+    audience: str | None = None,
+    exp_seconds: int = 86400 * 7,
+) -> str:
+    """Generate a signed HS256 JWT for invite-only/demo walkthroughs."""
+    import time
+
+    from fashx.core.settings import get_settings
+
+    settings = get_settings()
+    now = int(time.time())
+    signing_secret = (
+        secret
+        or (settings.auth_jwt_secret.get_secret_value() if settings.auth_jwt_secret else None)
+        or "test-secret-key-at-least-32-chars-long"
+    )
+    iss = issuer or settings.auth_issuer or "fashx-test"
+    aud = audience or settings.auth_audience or "fashx-api"
+    payload = {
+        "sub": subject,
+        "iss": iss,
+        "aud": aud,
+        "exp": now + exp_seconds,
+        "iat": now,
+    }
+    return jwt.encode(payload, signing_secret, algorithm="HS256")

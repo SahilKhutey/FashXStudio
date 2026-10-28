@@ -126,6 +126,18 @@ def setup_test_identity_override():
 
     from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
     from fashx.catalog.router import get_catalog_uow
+    from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
+        CommerceWardrobeUnitOfWork,
+    )
+    from fashx.commerce_wardrobe.router import (
+        get_catalog_uow as get_wardrobe_catalog_uow,
+    )
+    from fashx.commerce_wardrobe.router import (
+        get_commerce_uow,
+    )
+    from fashx.commerce_wardrobe.router import (
+        get_profile_uow as get_wardrobe_profile_uow,
+    )
     from fashx.profile.router import get_profile_uow as get_router_profile_uow
     from fashx.recommendation.router import (
         get_catalog_uow as get_rec_catalog_uow,
@@ -150,12 +162,20 @@ def setup_test_identity_override():
     main_app.dependency_overrides[get_router_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
     main_app.dependency_overrides[get_rec_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
     main_app.dependency_overrides[get_tryon_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_wardrobe_profile_uow] = lambda: ProfileUnitOfWork(session_factory)
 
     main_app.dependency_overrides[get_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
     main_app.dependency_overrides[get_rec_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
     main_app.dependency_overrides[get_tryon_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_wardrobe_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
 
+    from fashx.api.v1.analytics import get_analytics_session_factory
+    from fashx.core.database import get_session_factory
+
+    main_app.dependency_overrides[get_commerce_uow] = lambda: CommerceWardrobeUnitOfWork(session_factory)
     main_app.dependency_overrides[get_tryon_uow] = lambda: TryOnUnitOfWork(session_factory)
+    main_app.dependency_overrides[get_analytics_session_factory] = lambda: session_factory
+    main_app.dependency_overrides[get_session_factory] = lambda: session_factory
     yield
     for fn in (
         get_identity_repo,
@@ -163,10 +183,15 @@ def setup_test_identity_override():
         get_router_profile_uow,
         get_rec_profile_uow,
         get_tryon_profile_uow,
+        get_wardrobe_profile_uow,
         get_catalog_uow,
         get_rec_catalog_uow,
         get_tryon_catalog_uow,
+        get_wardrobe_catalog_uow,
+        get_commerce_uow,
         get_tryon_uow,
+        get_analytics_session_factory,
+        get_session_factory,
     ):
         main_app.dependency_overrides.pop(fn, None)
     asyncio.run(engine.dispose())

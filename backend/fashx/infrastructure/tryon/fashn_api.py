@@ -46,6 +46,8 @@ class FashnApiAdapter:
         self._mode = mode
         self._cost = cost_usd_est
         self._sleep = sleep
+        if client is not None and "Authorization" not in client.headers:
+            client.headers["Authorization"] = f"Bearer {api_key}"
         self._http = client or httpx.Client(
             base_url=base_url,
             headers={"Authorization": f"Bearer {api_key}"},

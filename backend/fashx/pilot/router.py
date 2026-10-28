@@ -63,6 +63,18 @@ async def join_pilot(
                 detail="Invalid or expired invite code",
             )
 
+        # Prevent duplicate enrollment from inflating participant counts
+        existing_part = (
+            await session.execute(
+                select(PilotParticipant).where(PilotParticipant.user_id == user_id)
+            )
+        ).scalar_one_or_none()
+        if existing_part is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="User has already joined a pilot cohort",
+            )
+
         now = datetime.now(UTC)
         invite.used_at = now
         invite.user_id = user_id

@@ -4,6 +4,7 @@ DELETE /api/v1/visual/personal/saved/{item_type}/{item_id}
 DELETE /api/v1/visual/styling/builder/{outfit_id}/slot/{slot_id}
 DELETE /api/v1/visual/styling/saved-looks/{look_id}
 DELETE /api/v1/wardrobe/items/{item_id}
+DELETE /api/v1/wardrobe/users/{user_id}/items/{item_id}
 GET /
 GET /api/v1/admin/feature-flags
 GET /api/v1/catalog/garments/{garment_id}
@@ -25,8 +26,11 @@ GET /api/v1/feed
 GET /api/v1/feedback/brands/{brand_id}/calibration
 GET /api/v1/garments/{garment_id}
 GET /api/v1/me
+GET /api/v1/me/consents
 GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
+GET /api/v1/profile/consents
+GET /api/v1/profile/me
 GET /api/v1/profile/{user_id}/derived
 GET /api/v1/profile/{user_id}/photos/{media_id}/url
 GET /api/v1/recommendations/feed/{user_id}
@@ -143,6 +147,7 @@ GET /api/v1/visual/tokens/components/{component_name}
 GET /api/v1/visual/tokens/grid-calculator
 GET /api/v1/visual/tokens/skin-tones
 GET /api/v1/visual/tokens/theme
+GET /api/v1/wardrobe/items
 GET /api/v1/wardrobe/users/{user_id}
 GET /healthz/live
 GET /healthz/ready
@@ -221,6 +226,9 @@ POST /pilot/survey
 PUT /api/v1/commerce/products/{product_id}/brand
 PUT /api/v1/customers/{customer_id}/preferences
 PUT /api/v1/fashion/products/{product_id}/classification
+PUT /api/v1/me/consents/{data_type}
+PUT /api/v1/profile/consents/{data_type}
+PUT /api/v1/profile/preferences
 PUT /api/v1/profile/{user_id}/preferences
 PUT /api/v1/visual/ai/preferences
 PUT /api/v1/visual/personal/preferences

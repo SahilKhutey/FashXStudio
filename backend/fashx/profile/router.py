@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import base64
 from datetime import datetime
 from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request, status
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
@@ -28,7 +30,7 @@ from fashx.profile.application.upload_photo import (
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
-from fashx.security.errors import ApiError, forbidden
+from fashx.security.errors import ApiError, forbidden, unauthorized
 from schemas.common.enums import BuildType, MeasurementSource, PhotoType
 from schemas.identity.consent import ConsentUpdate
 
@@ -55,7 +57,7 @@ class CreateProfileResponse(BaseModel):
 
 
 class RecordMeasurementRequest(BaseModel):
-    user_id: UUID
+    user_id: UUID | None = None
     measurement: str
     value: float = Field(gt=0)
     unit: str
@@ -95,6 +97,13 @@ class UpdatePreferencesRequest(BaseModel):
     budget_min: int | None = Field(default=None, ge=0)
     budget_max: int | None = Field(default=None, ge=0)
 
+    @model_validator(mode="after")
+    def validate_budget_range(self) -> UpdatePreferencesRequest:
+        if self.budget_min is not None and self.budget_max is not None:
+            if self.budget_min > self.budget_max:
+                raise ValueError("budget_min cannot be greater than budget_max")
+        return self
+
 
 class UpdatePreferencesResponse(BaseModel):
     user_id: UUID
@@ -128,10 +137,17 @@ class DerivedProfileResponse(BaseModel):
 @router.post("/users", status_code=status.HTTP_201_CREATED, response_model=CreateProfileResponse)
 async def create_user_profile(
     req: CreateProfileRequest,
+    principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> CreateProfileResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
     use_case = CreateProfileUseCase(uow)
     cmd = CreateProfileCommand(
+        user_id=user_uuid,
         height_cm=req.height_cm,
         weight_kg=req.weight_kg,
         build=req.build.value if req.build else None,
@@ -155,12 +171,17 @@ async def record_measurement(
     principal: Principal = Depends(get_principal),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
 ) -> MeasurementResponse:
-    if str(req.user_id) != principal.user_id:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    if req.user_id is not None and req.user_id != user_uuid:
         raise forbidden("Forbidden: user_id mismatch")
 
     use_case = RecordMeasurementUseCase(uow)
     cmd = RecordMeasurementCommand(
-        user_id=req.user_id,
+        user_id=user_uuid,
         measurement=req.measurement,
         value=req.value,
         unit=req.unit,
@@ -298,6 +319,112 @@ async def delete_photo_endpoint(
     async with uow:
         await delete_user_photo(uow, user_id=user_id, photo_id=photo_id)
         await uow.commit()
+
+
+class ConsentItemResponse(BaseModel):
+    user_id: UUID
+    data_type: str
+    granted: bool
+    consent_version: str
+    is_18_or_older: bool | None = None
+    consented_at: datetime
+    updated_at: datetime
+
+
+class UpdateConsentRequest(BaseModel):
+    granted: bool
+    consent_version: str | None = None
+    is_18_or_older: bool | None = None
+    policy_url: str | None = None
+
+
+@router.get("/me", response_model=DerivedProfileResponse)
+async def get_my_profile(
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> DerivedProfileResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await get_derived_profile(user_id=user_uuid, principal=principal, uow=uow)
+
+
+@router.put("/preferences", response_model=UpdatePreferencesResponse)
+async def update_my_preferences(
+    req: UpdatePreferencesRequest,
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> UpdatePreferencesResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await update_preferences(user_id=user_uuid, req=req, principal=principal, uow=uow)
+
+
+@router.get("/consents", response_model=list[ConsentItemResponse])
+async def list_my_consents(
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> list[ConsentItemResponse]:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    async with uow:
+        consents = await uow.consents.list_for_user(user_uuid)
+        return [
+            ConsentItemResponse(
+                user_id=c.user_id,
+                data_type=c.data_type,
+                granted=c.granted,
+                consent_version=c.consent_version,
+                is_18_or_older=c.is_18_or_older,
+                consented_at=c.consented_at,
+                updated_at=c.updated_at,
+            )
+            for c in consents
+        ]
+
+
+@router.put("/consents/{data_type}", response_model=ConsentItemResponse)
+async def update_my_consent(
+    data_type: str,
+    req: UpdateConsentRequest,
+    principal: Principal = Depends(get_principal),
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> ConsentItemResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    version = req.consent_version or get_settings().consent_version
+    async with uow:
+        rec = await uow.consents.upsert(
+            user_id=user_uuid,
+            data_type=data_type,
+            granted=req.granted,
+            is_18_or_older=req.is_18_or_older,
+            consent_version=version,
+            decision_source="profile_api",
+            policy_url=req.policy_url,
+        )
+        await uow.commit()
+
+        return ConsentItemResponse(
+            user_id=rec.user_id,
+            data_type=rec.data_type,
+            granted=rec.granted,
+            consent_version=rec.consent_version,
+            is_18_or_older=rec.is_18_or_older,
+            consented_at=rec.consented_at,
+            updated_at=rec.updated_at,
+        )
 
 
 @router.put("/{user_id}/preferences", response_model=UpdatePreferencesResponse)

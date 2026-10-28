@@ -1,4 +1,5 @@
 from decimal import Decimal
+from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError as PydanticValidationError
@@ -10,6 +11,7 @@ from fashx.catalog.application.ingest_product import (
     IngestProductCommand,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
+from fashx.core.errors import ValidationError
 from fashx.ingest.model import CanonicalProduct, parse_price
 
 
@@ -138,21 +140,39 @@ async def test_feed_excludes_products_from_suspended_or_pending_sources(
             )
         )
 
-        # Item 2: Suspended source, active -> MUST BE EXCLUDED
-        item_suspended = await ingest_uc.execute(
-            IngestProductCommand(
-                merchant_id=merchant_id,
-                source_id=suspended_source.id,
-                source_product_id="ITEM-SUSPENDED",
-                title="Suspended Source Product",
-                source_url="https://brand.com/p2",
-                category="tops",
-                price_minor=199900,
-                status="active",
+        # Item 2: Ingestion under suspended source MUST be rejected with ValidationError
+        with pytest.raises(ValidationError) as exc_info_susp:
+            await ingest_uc.execute(
+                IngestProductCommand(
+                    merchant_id=merchant_id,
+                    source_id=suspended_source.id,
+                    source_product_id="ITEM-SUSPENDED",
+                    title="Suspended Source Product",
+                    source_url="https://brand.com/p2",
+                    category="tops",
+                    price_minor=199900,
+                    status="active",
+                )
             )
-        )
+        assert "not cleared" in str(exc_info_susp.value)
 
-        # Item 3: Cleared source, stale -> MUST BE EXCLUDED
+        # Item 3: Ingestion under pending source MUST be rejected with ValidationError
+        with pytest.raises(ValidationError) as exc_info_pend:
+            await ingest_uc.execute(
+                IngestProductCommand(
+                    merchant_id=merchant_id,
+                    source_id=pending_source.id,
+                    source_product_id="ITEM-PENDING",
+                    title="Pending Source Product",
+                    source_url="https://brand.com/p4",
+                    category="tops",
+                    price_minor=99900,
+                    status="active",
+                )
+            )
+        assert "not cleared" in str(exc_info_pend.value)
+
+        # Item 4: Cleared source, stale -> MUST BE EXCLUDED from feed
         item_cleared_stale = await ingest_uc.execute(
             IngestProductCommand(
                 merchant_id=merchant_id,
@@ -166,29 +186,52 @@ async def test_feed_excludes_products_from_suspended_or_pending_sources(
             )
         )
 
-        # Item 4: Pending source, active -> MUST BE EXCLUDED
-        item_pending = await ingest_uc.execute(
+        # Item 5: Source was cleared at ingestion time, but later becomes suspended
+        source_id = uuid4()
+        source_to_suspend = CatalogSource(
+            id=source_id,
+            slug="brand-will-suspend",
+            name="Will Suspend Brand",
+            kind="feed_url",
+            status="cleared",
+            rights_display=True,
+            rights_tryon=True,
+            image_policy="mirror",
+        )
+        async with catalog_uow:
+            catalog_uow.sources.add(source_to_suspend)
+            await catalog_uow.commit()
+
+        item_suspended = await ingest_uc.execute(
             IngestProductCommand(
                 merchant_id=merchant_id,
-                source_id=pending_source.id,
-                source_product_id="ITEM-PENDING",
-                title="Pending Source Product",
-                source_url="https://brand.com/p4",
+                source_id=source_id,
+                source_product_id="ITEM-SUSPENDED-LATER",
+                title="Later Suspended Product",
+                source_url="https://brand.com/p-susp",
                 category="tops",
-                price_minor=99900,
+                price_minor=199900,
                 status="active",
             )
         )
 
+        # Now suspend the source
+        async with catalog_uow:
+            src_in_db = await catalog_uow.sources.get_by_id(source_id)
+            assert src_in_db is not None
+            src_in_db.status = "suspended"
+            src_in_db.rights_display = False
+            await catalog_uow.commit()
+
         # 4. Fetch feed candidates
-        feed_candidates = await catalog_uow.canonical_garments.list_feed_candidates(limit=100)
-        feed_garment_ids = {g.id for g in feed_candidates}
+        async with catalog_uow:
+            feed_candidates = await catalog_uow.canonical_garments.list_feed_candidates(limit=100)
+            feed_garment_ids = {g.id for g in feed_candidates}
 
         # Assertions: ONLY cleared + active product is returned
         assert item_cleared_active.canonical_garment_id in feed_garment_ids
         assert item_suspended.canonical_garment_id not in feed_garment_ids
         assert item_cleared_stale.canonical_garment_id not in feed_garment_ids
-        assert item_pending.canonical_garment_id not in feed_garment_ids
 
 
 @pytest.mark.asyncio

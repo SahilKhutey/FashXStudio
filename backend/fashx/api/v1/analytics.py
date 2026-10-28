@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from enum import Enum
+from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -34,11 +35,21 @@ router = APIRouter(
 class SessionEventType(str, Enum):
     IMPRESSION = "impression"
     CLICK = "click"
+    ONBOARDING_COMPLETED = "onboarding_completed"
+    FEED_VIEWED = "feed_viewed"
+    GARMENT_OPENED = "garment_opened"
+    GARMENT_SAVED = "garment_saved"
+    TRYON_SUBMITTED = "tryon_submitted"
+    TRYON_COMPLETED = "tryon_completed"
+    TRYON_FAILED = "tryon_failed"
+    RETAILER_OPENED = "retailer_opened"
+    FEEDBACK_SUBMITTED = "feedback_submitted"
 
 
 class SessionEventItem(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    event_id: UUID | None = None
     event_type: SessionEventType = SessionEventType.IMPRESSION
     garment_id: UUID | None = None
     session_id: str | None = None
@@ -54,6 +65,52 @@ class BatchSessionEventsRequest(BaseModel):
 class BatchSessionEventsResponse(BaseModel):
     status: str = "recorded"
     count: int
+    duplicates_skipped: int = 0
+
+
+JourneyEventName = Literal[
+    "feed_viewed",
+    "garment_opened",
+    "garment_saved",
+    "garment_hidden",
+    "tryon_submitted",
+    "tryon_completed",
+    "tryon_failed",
+    "tryon_result_viewed",
+    "retailer_opened",
+    "feedback_submitted",
+]
+
+
+class ProductJourneyEvent(BaseModel):
+    """Standardized, versioned product journey event contract (MVP 8 Workstream C)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    event_id: UUID
+    event_name: JourneyEventName
+    occurred_at: datetime
+    garment_id: UUID | None = None
+    tryon_job_id: UUID | None = None
+    schema_version: Literal[1] = 1
+
+
+class BatchJourneyEventsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    events: list[ProductJourneyEvent] = Field(..., max_length=100)
+
+
+class BatchJourneyEventsResponse(BaseModel):
+    status: str = "recorded"
+    count: int
+    duplicates_skipped: int = 0
+
+
+def get_analytics_session_factory() -> Any:
+    from fashx.core.database import get_session_factory
+
+    return get_session_factory()
 
 
 @router.post(
@@ -65,9 +122,52 @@ class BatchSessionEventsResponse(BaseModel):
 async def record_session_events(
     payload: BatchSessionEventsRequest,
     principal: Principal = Depends(get_principal),
+    session_factory: Any = Depends(get_analytics_session_factory),
 ) -> BatchSessionEventsResponse:
-    """Record a batch of client session events (e.g. viewable impression batches)."""
-    return BatchSessionEventsResponse(status="recorded", count=len(payload.events))
+    """Record a batch of client session events and persist them to durable domain storage."""
+    from database.models.commerce_feedback import DomainEvent
+
+    user_uuid = None
+    if principal and principal.user_id:
+        try:
+            user_uuid = UUID(str(principal.user_id))
+        except (ValueError, TypeError):
+            user_uuid = None
+
+    now = datetime.now(UTC)
+    recorded_count = 0
+    duplicates_skipped = 0
+    async with session_factory() as session:
+        for item in payload.events:
+            if item.event_id is not None:
+                existing = await session.get(DomainEvent, item.event_id)
+                if existing is not None:
+                    duplicates_skipped += 1
+                    continue
+
+            rec = DomainEvent(
+                id=item.event_id,
+                event_type=f"session_{item.event_type.value}",
+                schema_version=1,
+                user_id=user_uuid,
+                object_type="garment" if item.garment_id else None,
+                object_id=item.garment_id,
+                occurred_at=item.timestamp or now,
+                payload={
+                    "session_id": item.session_id,
+                    "event_type": item.event_type.value,
+                    "garment_id": str(item.garment_id) if item.garment_id else None,
+                },
+            )
+            session.add(rec)
+            recorded_count += 1
+        await session.commit()
+
+    return BatchSessionEventsResponse(
+        status="recorded",
+        count=recorded_count,
+        duplicates_skipped=duplicates_skipped,
+    )
 
 
 def get_analytics_service() -> AnalyticsService:

@@ -1,5 +1,8 @@
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID
+
+from sqlalchemy.exc import IntegrityError
 
 from database.models.commerce_feedback import WardrobeItem
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
@@ -28,6 +31,7 @@ class SaveToWardrobeResult:
     snapshot_currency: str
     snapshot_image_key: str
     tryon_artifact_id: UUID | None
+    image_url: str | None = None
 
 
 class SaveToWardrobeUseCase:
@@ -38,10 +42,24 @@ class SaveToWardrobeUseCase:
         wardrobe_uow: CommerceWardrobeUnitOfWork,
         profile_uow: ProfileUnitOfWork,
         catalog_uow: CatalogUnitOfWork,
+        storage: Any | None = None,
     ) -> None:
         self.wardrobe_uow = wardrobe_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
+        self.storage = storage
+
+    def _resolve_image_url(self, key: str | None) -> str | None:
+        if not key:
+            return None
+        if key.startswith("http://") or key.startswith("https://"):
+            return key
+        if self.storage and hasattr(self.storage, "signed_get_url"):
+            try:
+                return self.storage.signed_get_url(key, ttl_s=900)
+            except Exception:
+                return None
+        return None
 
     async def execute(self, cmd: SaveToWardrobeCommand) -> SaveToWardrobeResult:
         # 1. Validate User
@@ -89,7 +107,12 @@ class SaveToWardrobeUseCase:
 
             # Determine snapshot image
             images = await self.catalog_uow.images.list_for_garment(garment.id)
-            snapshot_image_key = images[0].s3_key if images else f"garments/{garment.id}/front.png"
+            snapshot_image_key = (
+                getattr(images[0], "storage_key", None)
+                or getattr(images[0], "s3_key", None)
+                if images
+                else f"garments/{garment.id}/front.png"
+            )
 
         # 3. Save or Update in Wardrobe
         async with self.wardrobe_uow:
@@ -115,6 +138,7 @@ class SaveToWardrobeUseCase:
                     snapshot_currency=existing.snapshot_currency,
                     snapshot_image_key=existing.snapshot_image_key,
                     tryon_artifact_id=existing.tryon_artifact_id,
+                    image_url=self._resolve_image_url(existing.snapshot_image_key),
                 )
 
             item = WardrobeItem(
@@ -128,7 +152,27 @@ class SaveToWardrobeUseCase:
                 tryon_artifact_id=cmd.tryon_artifact_id,
             )
             self.wardrobe_uow.wardrobe.add(item)
-            await self.wardrobe_uow.commit()
+            try:
+                await self.wardrobe_uow.commit()
+            except IntegrityError:
+                await self.wardrobe_uow.rollback()
+                # Concurrent save: fetch existing item and return idempotently
+                existing = await self.wardrobe_uow.wardrobe.get_by_user_and_garment(
+                    cmd.user_id, cmd.garment_id
+                )
+                if existing:
+                    return SaveToWardrobeResult(
+                        item_id=existing.id,
+                        user_id=existing.user_id,
+                        garment_id=existing.garment_id,
+                        snapshot_title=existing.snapshot_title,
+                        snapshot_price_minor=existing.snapshot_price_minor,
+                        snapshot_currency=existing.snapshot_currency,
+                        snapshot_image_key=existing.snapshot_image_key,
+                        tryon_artifact_id=existing.tryon_artifact_id,
+                        image_url=self._resolve_image_url(existing.snapshot_image_key),
+                    )
+                raise
 
             return SaveToWardrobeResult(
                 item_id=item.id,
@@ -139,4 +183,5 @@ class SaveToWardrobeUseCase:
                 snapshot_currency=item.snapshot_currency,
                 snapshot_image_key=item.snapshot_image_key,
                 tryon_artifact_id=item.tryon_artifact_id,
+                image_url=self._resolve_image_url(item.snapshot_image_key),
             )

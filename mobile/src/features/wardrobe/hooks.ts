@@ -1,10 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../api/client";
-import { components } from "../../api/schema";
+import {
+  fetchUserWardrobe,
+  removeGarmentFromWardrobe,
+  saveGarmentToWardrobe,
+  type SaveWardrobeResponse,
+  type UserWardrobeItem,
+} from "./api";
 import { useAuthStore } from "../auth/authStore";
 
-export type SaveWardrobeResponse = components["schemas"]["SaveWardrobeResponse"];
-export type UserWardrobeItem = components["schemas"]["WardrobeItemView"];
+export type { SaveWardrobeResponse, UserWardrobeItem };
 
 export function useSaveToWardrobe() {
   const queryClient = useQueryClient();
@@ -20,17 +24,11 @@ export function useSaveToWardrobe() {
       offerId?: string | null;
       tryonArtifactId?: string | null;
     }) => {
-      if (!me?.user_id) {
-        throw new Error("User session required to save to wardrobe");
-      }
-      return api<SaveWardrobeResponse>("/wardrobe/items", {
-        method: "POST",
-        body: JSON.stringify({
-          user_id: me.user_id,
-          garment_id: garmentId,
-          offer_id: offerId ?? null,
-          tryon_artifact_id: tryonArtifactId ?? null,
-        }),
+      return saveGarmentToWardrobe({
+        garmentId,
+        offerId,
+        tryonArtifactId,
+        userId: me?.user_id,
       });
     },
     onSuccess: () => {
@@ -39,16 +37,28 @@ export function useSaveToWardrobe() {
   });
 }
 
-export function useUserWardrobe() {
+export function useRemoveFromWardrobe() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      return removeGarmentFromWardrobe(itemId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wardrobe"] });
+    },
+  });
+}
+
+export function useUserWardrobe(limit = 50, offset = 0) {
   const me = useAuthStore((s) => s.me);
 
   return useQuery<UserWardrobeItem[], Error>({
-    queryKey: ["wardrobe", me?.user_id],
+    queryKey: ["wardrobe", me?.user_id, limit, offset],
     queryFn: async () => {
-      if (!me?.user_id) return [];
-      return api<UserWardrobeItem[]>(`/wardrobe/users/${me.user_id}`);
+      return fetchUserWardrobe(limit, offset);
     },
-    enabled: !!me?.user_id,
+    enabled: Boolean(me?.user_id),
     staleTime: 30 * 1000,
   });
 }

@@ -10,11 +10,24 @@ from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
 from fashx.ml.prep import prepare_for_provider
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from fashx.tryon.adapters.mock_adapter import MockTryOnAdapter
 from fashx.tryon.ports import InferenceInput
 from fashx.tryon.quality_validator import PostInferenceQualityValidator
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from fashx.tryon.watermarker import SyntheticWatermarker
+
+
+def _validate_image_bytes(data: bytes | None, label: str) -> None:
+    if not data or len(data) < 16:
+        raise ValueError(f"Validated {label} bytes are required and cannot be empty")
+    from io import BytesIO
+
+    from PIL import Image
+
+    try:
+        with Image.open(BytesIO(data)) as im:
+            im.verify()
+    except Exception as exc:
+        raise ValueError(f"Undecodable or corrupt {label} bytes: {exc}") from exc
 
 
 @dataclass(frozen=True)
@@ -41,8 +54,21 @@ class ProcessTryOnJobUseCase:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
-        self.adapter = adapter or MockTryOnAdapter()
-        self.storage = storage
+        if adapter is not None:
+            self.adapter = adapter
+        else:
+            from fashx.core.dependencies import get_tryon_adapter
+
+            self.adapter = get_tryon_adapter()
+        if storage is not None:
+            self.storage = storage
+        else:
+            try:
+                from fashx.core.dependencies import get_storage
+
+                self.storage = get_storage()
+            except Exception:
+                self.storage = None
         self.breaker = breaker
 
     async def execute(
@@ -86,7 +112,7 @@ class ProcessTryOnJobUseCase:
                 failure_reason="consent_revoked",
             )
 
-        # 3. Retrieve Garment Details
+        # 3. Retrieve Garment Details and recheck current source clearance and try-on rights
         async with self.catalog_uow:
             garment = await self.catalog_uow.canonical_garments.get_by_id(job.garment_id)
             if garment is None:
@@ -101,11 +127,202 @@ class ProcessTryOnJobUseCase:
                     artifact_key=job.artifact_key,
                     failure_reason="unsupported_garment",
                 )
+
+            # Recheck live source clearance and try-on rights at job execution time
+            if hasattr(self.catalog_uow, "merchant_products") and hasattr(
+                self.catalog_uow.merchant_products, "get_by_canonical_garment_id"
+            ):
+                products = await self.catalog_uow.merchant_products.get_by_canonical_garment_id(garment.id)
+                if products:
+                    for prod in products:
+                        if prod.source_id and hasattr(self.catalog_uow, "sources"):
+                            src = await self.catalog_uow.sources.get_by_id(prod.source_id)
+                            if src and (src.status != "cleared" or not src.rights_display or not src.rights_tryon):
+                                async with self.tryon_uow:
+                                    await self.tryon_uow.jobs.update_status(
+                                        job_id, "failed", failure_reason="tryon_rights_revoked"
+                                    )
+                                    await self.tryon_uow.commit()
+                                return ProcessJobResult(
+                                    job_id=job_id,
+                                    status="failed",
+                                    artifact_key=job.artifact_key,
+                                    failure_reason="tryon_rights_revoked",
+                                )
+
+            garment_id = garment.id
             garment_category = garment.category
             garment_version = garment.version
 
-        photo_bytes = user_photo_bytes or b"SYNTHETIC_USER_PHOTO_BYTES_512x768"
-        garment_bytes = garment_image_bytes or b"SYNTHETIC_GARMENT_BYTES_256x256"
+        # Resolve storage
+        storage = self.storage
+        if storage is None:
+            try:
+                from fashx.core.dependencies import get_storage
+
+                storage = get_storage()
+            except Exception:
+                storage = None
+
+        photo_bytes = user_photo_bytes
+        if photo_bytes is None:
+            photo_err = None
+            photo_storage_key = None
+            async with self.profile_uow:
+                photo = None
+                if getattr(job, "profile_photo_id", None):
+                    photo = await self.profile_uow.photos.get_by_id(job.profile_photo_id)
+                if photo is None:
+                    photo = await self.profile_uow.photos.get_active_photo(job.user_id, "tryon_reference")
+
+                if photo is None:
+                    photo_err = "missing_photo"
+                elif photo.user_id != job.user_id:
+                    photo_err = "unauthorized_photo"
+                elif getattr(photo, "status", None) != "accepted":
+                    photo_err = "photo_not_accepted"
+                elif not getattr(photo, "storage_key", None):
+                    photo_err = "missing_photo_bytes"
+                else:
+                    photo_storage_key = photo.storage_key
+
+            if photo_err:
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.update_status(job_id, "failed", failure_reason=photo_err)
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason=photo_err,
+                )
+
+            if not photo_storage_key or storage is None:
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.update_status(job_id, "failed", failure_reason="missing_photo_bytes")
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason="missing_photo_bytes",
+                )
+
+            try:
+                res = storage.get(photo_storage_key)
+                if inspect.isawaitable(res):
+                    res = await res
+                photo_bytes = res
+            except Exception:
+                photo_bytes = None
+
+            if not photo_bytes:
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.update_status(job_id, "failed", failure_reason="missing_photo_bytes")
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason="missing_photo_bytes",
+                )
+
+        garment_bytes = garment_image_bytes
+        if garment_bytes is None:
+            garment_storage_key = None
+            async with self.catalog_uow:
+                if hasattr(self.catalog_uow, "images"):
+                    images = await self.catalog_uow.images.list_for_garment(garment_id)
+                    target_img = None
+                    for img in images:
+                        if getattr(img, "image_type", None) == "primary":
+                            target_img = img
+                            break
+                    if not target_img and images:
+                        target_img = images[0]
+                    if target_img:
+                        garment_storage_key = getattr(target_img, "storage_key", None)
+
+            if not garment_storage_key or storage is None:
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.update_status(
+                        job_id, "failed", failure_reason="missing_garment_image_bytes"
+                    )
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason="missing_garment_image_bytes",
+                )
+
+            try:
+                res = storage.get(garment_storage_key)
+                if inspect.isawaitable(res):
+                    res = await res
+                garment_bytes = res
+            except Exception:
+                garment_bytes = None
+
+            if not garment_bytes:
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.update_status(
+                        job_id, "failed", failure_reason="missing_garment_image_bytes"
+                    )
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason="missing_garment_image_bytes",
+                )
+
+        # Validate that image inputs are decodable and non-corrupt
+        try:
+            _validate_image_bytes(photo_bytes, "person photo")
+        except ValueError as exc:
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.update_status(
+                    job_id, "failed", failure_reason="invalid_photo_bytes"
+                )
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job_id,
+                status="failed",
+                artifact_key=job.artifact_key,
+                failure_reason=f"invalid_photo_bytes: {exc}",
+            )
+
+        try:
+            _validate_image_bytes(garment_bytes, "garment image")
+        except ValueError as exc:
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.update_status(
+                    job_id, "failed", failure_reason="invalid_garment_image_bytes"
+                )
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job_id,
+                status="failed",
+                artifact_key=job.artifact_key,
+                failure_reason=f"invalid_garment_image_bytes: {exc}",
+            )
+
+        # Pre-inference consent revalidation
+        async with self.profile_uow:
+            has_consent_before_inference = await self.profile_uow.consents.has_consent(job.user_id, "body_photo")
+        if not has_consent_before_inference:
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.cancel(job.id, "consent_revoked")
+                if hasattr(self.tryon_uow, "usage"):
+                    await self.tryon_uow.usage.record("cancelled", error_code="consent_revoked")
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job.id,
+                status="cancelled",
+                artifact_key=job.artifact_key,
+                failure_reason="consent_revoked",
+            )
 
         # 4. Model Inference with Circuit Breaker and Two-Phase Provider (Rule I06 & Rule I08)
         async with self.tryon_uow:
@@ -290,6 +507,25 @@ class ProcessTryOnJobUseCase:
                 await put_res
 
         # 9. Success: Persist Artifact & Complete Job
+        async with self.profile_uow:
+            has_consent_final = await self.profile_uow.consents.has_consent(job.user_id, "body_photo")
+        if not has_consent_final:
+            if self.storage and hasattr(self.storage, "delete"):
+                del_res = self.storage.delete(key)
+                if inspect.isawaitable(del_res):
+                    await del_res
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.cancel(job.id, "consent_revoked")
+                if hasattr(self.tryon_uow, "usage"):
+                    await self.tryon_uow.usage.record("cancelled", error_code="consent_revoked")
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job.id,
+                status="cancelled",
+                artifact_key=job.artifact_key,
+                failure_reason="consent_revoked",
+            )
+
         async with self.tryon_uow:
             # Re-verify job was not deleted while storing file
             job_record = await self.tryon_uow.jobs.get_by_id(job_id)

@@ -30,10 +30,11 @@ def get_catalog_uow() -> CatalogUnitOfWork:
 
 class IngestProductRequest(BaseModel):
     merchant_id: UUID
-    source_product_id: str
-    title: str
+    source_id: UUID
+    source_product_id: str = Field(min_length=1, max_length=255)
+    title: str = Field(min_length=1)
     source_url: str
-    category: str
+    category: str = Field(min_length=1, max_length=64)
     price_minor: int = Field(ge=0)
     subcategory: str | None = None
     description: str | None = None
@@ -111,6 +112,7 @@ async def ingest_product(
     use_case = IngestMerchantProductUseCase(uow)
     cmd = IngestProductCommand(
         merchant_id=req.merchant_id,
+        source_id=req.source_id,
         source_product_id=req.source_product_id,
         title=req.title,
         source_url=req.source_url,

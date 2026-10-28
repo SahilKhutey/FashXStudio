@@ -1,8 +1,9 @@
-"""Try-on eligibility evaluation logic (Phase 6 / Step 6.25 multi-factor gate)."""
+"""Try-on eligibility evaluation logic and multi-factor catalog capability gates."""
 
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 TRYON_SUPPORTED_CATEGORIES: list[str] = [
     "tops",
@@ -12,6 +13,61 @@ TRYON_SUPPORTED_CATEGORIES: list[str] = [
     "bottom",
     "one_piece",
 ]
+
+
+@dataclass(frozen=True)
+class CatalogEligibility:
+    """Multi-factor eligibility assessment determining customer surface capabilities."""
+
+    discoverable: bool
+    image_displayable: bool
+    tryon_allowed: bool
+    purchasable: bool
+    reasons: tuple[str, ...]
+
+
+def evaluate_eligibility(
+    *,
+    source_cleared: bool,
+    display_rights: bool,
+    image_validated: bool,
+    tryon_rights: bool,
+    stock_known: bool,
+    in_stock: bool,
+    product_url_valid: bool,
+    category_valid: bool,
+    price_valid: bool = True,
+) -> CatalogEligibility:
+    """Evaluate discrete item capabilities across discovery, image display, try-on, and checkout."""
+    reasons: list[str] = []
+    if not source_cleared:
+        reasons.append("Source is not approved for ingestion")
+    if not product_url_valid:
+        reasons.append("Invalid or missing product destination URL")
+    if not category_valid:
+        reasons.append("Invalid product category")
+    if not price_valid:
+        reasons.append("Invalid or non-positive price")
+
+    discoverable = bool(source_cleared and product_url_valid and category_valid and price_valid)
+    image_displayable = bool(discoverable and display_rights and image_validated)
+    tryon_allowed = bool(image_displayable and tryon_rights)
+    purchasable = bool(discoverable and stock_known and in_stock)
+
+    if discoverable and not image_displayable:
+        reasons.append("Image display rights or byte validation missing")
+    if image_displayable and not tryon_allowed:
+        reasons.append("Virtual try-on rights not granted")
+    if discoverable and not purchasable:
+        reasons.append("Item is out of stock or inventory status unknown")
+
+    return CatalogEligibility(
+        discoverable=discoverable,
+        image_displayable=image_displayable,
+        tryon_allowed=tryon_allowed,
+        purchasable=purchasable,
+        reasons=tuple(reasons),
+    )
 
 
 def compute_tryon_eligibility(
