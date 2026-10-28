@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -34,6 +35,15 @@ router = APIRouter(
 class SessionEventType(str, Enum):
     IMPRESSION = "impression"
     CLICK = "click"
+    ONBOARDING_COMPLETED = "onboarding_completed"
+    FEED_VIEWED = "feed_viewed"
+    GARMENT_OPENED = "garment_opened"
+    GARMENT_SAVED = "garment_saved"
+    TRYON_SUBMITTED = "tryon_submitted"
+    TRYON_COMPLETED = "tryon_completed"
+    TRYON_FAILED = "tryon_failed"
+    RETAILER_OPENED = "retailer_opened"
+    FEEDBACK_SUBMITTED = "feedback_submitted"
 
 
 class SessionEventItem(BaseModel):
@@ -56,6 +66,12 @@ class BatchSessionEventsResponse(BaseModel):
     count: int
 
 
+def get_analytics_session_factory() -> Any:
+    from fashx.core.database import get_session_factory
+
+    return get_session_factory()
+
+
 @router.post(
     "/session-events",
     response_model=BatchSessionEventsResponse,
@@ -65,8 +81,37 @@ class BatchSessionEventsResponse(BaseModel):
 async def record_session_events(
     payload: BatchSessionEventsRequest,
     principal: Principal = Depends(get_principal),
+    session_factory: Any = Depends(get_analytics_session_factory),
 ) -> BatchSessionEventsResponse:
-    """Record a batch of client session events (e.g. viewable impression batches)."""
+    """Record a batch of client session events and persist them to durable domain storage."""
+    from database.models.commerce_feedback import DomainEvent
+
+    user_uuid = None
+    if principal and principal.user_id:
+        try:
+            user_uuid = UUID(str(principal.user_id))
+        except (ValueError, TypeError):
+            user_uuid = None
+
+    now = datetime.now(UTC)
+    async with session_factory() as session:
+        for item in payload.events:
+            rec = DomainEvent(
+                event_type=f"session_{item.event_type.value}",
+                schema_version=1,
+                user_id=user_uuid,
+                object_type="garment" if item.garment_id else None,
+                object_id=item.garment_id,
+                occurred_at=item.timestamp or now,
+                payload={
+                    "session_id": item.session_id,
+                    "event_type": item.event_type.value,
+                    "garment_id": str(item.garment_id) if item.garment_id else None,
+                },
+            )
+            session.add(rec)
+        await session.commit()
+
     return BatchSessionEventsResponse(status="recorded", count=len(payload.events))
 
 
