@@ -46,6 +46,7 @@ Across the MVP lifecycle, FashXStudio progressed from a static mock catalog into
 | 8 | `tests/conftest.py` | Endpoints depending on `Depends(get_session_factory)` defaulted to Postgres connection in test runs. | Added `main_app.dependency_overrides[get_session_factory] = lambda: session_factory`. |
 | 9 | `.gitleaksignore` | Gitleaks scan flagged synthetic test token secret in historical commit `a9f91b0` for `test_demo_user_journey.py`. | Created `.gitleaksignore` fingerprint ignore and cleaned parameter literal in test. |
 | 10 | `backend/fashx/workers/app.py` | Pytest collection in CI runners without Celery crashed on `from celery import Celery`. | Implemented `_DummyCelery` and `_DummyTask` fallback for worker module imports. |
+| 11 | `backend/fashx/security/tokens.py` | `create_demo_token` used static secret and issuer while CI configured runtime `AUTH_JWT_SECRET`, causing 401 in `test_demo_user_journey`. | Made `create_demo_token` dynamically resolve signing secret and issuer from runtime `get_settings()`, and added `AUTH_ISSUER`/`AUTH_AUDIENCE` to `ci.yml`. |
 
 ---
 

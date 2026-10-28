@@ -39,6 +39,8 @@ jobs:
       TEST_DATABASE_URL: postgresql+psycopg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
       AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
+      AUTH_ISSUER: "fashx-test"
+      AUTH_AUDIENCE: "fashx-api"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -78,6 +80,8 @@ jobs:
       TEST_DATABASE_URL: postgresql+psycopg://fashx:fashx@localhost:5432/fashx_test
       REDIS_URL: redis://localhost:6379/0
       AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
+      AUTH_ISSUER: "fashx-test"
+      AUTH_AUDIENCE: "fashx-api"
       FASHX_ENABLE_FROZEN: "1"
     steps:
       - uses: actions/checkout@v4

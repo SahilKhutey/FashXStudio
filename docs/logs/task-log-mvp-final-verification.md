@@ -65,6 +65,8 @@ Execute the release verification checklist across MVP 0 through MVP 8 to establi
    - Gitleaks flagged synthetic token secret keyword in `test_demo_user_journey.py` from commit `a9f91b0`. Added `.gitleaksignore` fingerprint ignore for test fixture commit and removed explicit parameter literal from test invocation.
 6. **Worker Celery Import Fallback**:
    - Added `_DummyCelery` and `_DummyTask` in `backend/fashx/workers/app.py` for environments lacking the optional `celery` dependency, allowing test discovery and unit test execution without Celery installed.
+7. **Demo JWT Verifier Runtime Alignment**:
+   - `create_demo_token` previously signed tokens with a static fallback secret, causing a mismatch against CI's `AUTH_JWT_SECRET` in `test_complete_demo_user_journey` (assert 401 == 200). Updated `create_demo_token` in `backend/fashx/security/tokens.py` to retrieve `auth_jwt_secret`, `auth_issuer`, and `auth_audience` directly from runtime `get_settings()`, and added `AUTH_ISSUER` and `AUTH_AUDIENCE` to `ci.yml`.
 
 ---
 
