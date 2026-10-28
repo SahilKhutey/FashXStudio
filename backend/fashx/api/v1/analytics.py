@@ -170,64 +170,6 @@ async def record_session_events(
     )
 
 
-@router.post(
-    "/journey-events",
-    response_model=BatchJourneyEventsResponse,
-    status_code=201,
-    dependencies=[Depends(rate_limit(max_requests=120, window_seconds=60, scope="analytics"))],
-)
-async def record_journey_events(
-    payload: BatchJourneyEventsRequest,
-    principal: Principal = Depends(get_principal),
-    session_factory: Any = Depends(get_analytics_session_factory),
-) -> BatchJourneyEventsResponse:
-    """Record standardized product journey events with exact-once deduplication."""
-    from database.models.commerce_feedback import DomainEvent
-
-    user_uuid = None
-    if principal and principal.user_id:
-        try:
-            user_uuid = UUID(str(principal.user_id))
-        except (ValueError, TypeError):
-            user_uuid = None
-
-    recorded_count = 0
-    duplicates_skipped = 0
-    async with session_factory() as session:
-        for ev in payload.events:
-            existing = await session.get(DomainEvent, ev.event_id)
-            if existing is not None:
-                duplicates_skipped += 1
-                continue
-
-            obj_type = "garment" if ev.garment_id else ("tryon_job" if ev.tryon_job_id else None)
-            obj_id = ev.garment_id or ev.tryon_job_id
-
-            rec = DomainEvent(
-                id=ev.event_id,
-                event_type=f"journey_{ev.event_name}",
-                schema_version=ev.schema_version,
-                user_id=user_uuid,
-                object_type=obj_type,
-                object_id=obj_id,
-                occurred_at=ev.occurred_at,
-                payload={
-                    "event_name": ev.event_name,
-                    "garment_id": str(ev.garment_id) if ev.garment_id else None,
-                    "tryon_job_id": str(ev.tryon_job_id) if ev.tryon_job_id else None,
-                },
-            )
-            session.add(rec)
-            recorded_count += 1
-        await session.commit()
-
-    return BatchJourneyEventsResponse(
-        status="recorded",
-        count=recorded_count,
-        duplicates_skipped=duplicates_skipped,
-    )
-
-
 def get_analytics_service() -> AnalyticsService:
     return get_core_runtime().registry.get(
         "analytics_service"

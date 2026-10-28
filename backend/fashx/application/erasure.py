@@ -37,6 +37,7 @@ ACCOUNT_TABLES: list[str] = [
     "user_preferences",
     "onboarding_profiles",
     "consent_records",
+    "consent_events",
     "style_quiz_picks",
     "idempotency_records",
     "pilot_participants",

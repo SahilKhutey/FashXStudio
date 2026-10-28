@@ -254,17 +254,16 @@ async def test_analytics_journey_events_idempotent_deduplication() -> None:
                 "events": [
                     {
                         "event_id": str(event_id),
-                        "event_name": "garment_opened",
-                        "occurred_at": datetime.now(UTC).isoformat(),
+                        "event_type": "garment_opened",
+                        "session_id": "sess-mvp8-test",
                         "garment_id": str(garment_id),
-                        "tryon_job_id": None,
-                        "schema_version": 1,
+                        "timestamp": datetime.now(UTC).isoformat(),
                     }
                 ]
             }
 
             # First request -> recorded: 1, duplicates_skipped: 0
-            resp1 = await client.post("/api/v1/analytics/journey-events", json=payload)
+            resp1 = await client.post("/api/v1/analytics/session-events", json=payload)
             assert resp1.status_code == 201
             data1 = resp1.json()
             assert data1["status"] == "recorded"
@@ -272,7 +271,7 @@ async def test_analytics_journey_events_idempotent_deduplication() -> None:
             assert data1["duplicates_skipped"] == 0
 
             # Duplicate retry -> recorded: 0, duplicates_skipped: 1
-            resp2 = await client.post("/api/v1/analytics/journey-events", json=payload)
+            resp2 = await client.post("/api/v1/analytics/session-events", json=payload)
             assert resp2.status_code == 201
             data2 = resp2.json()
             assert data2["count"] == 0
@@ -282,7 +281,7 @@ async def test_analytics_journey_events_idempotent_deduplication() -> None:
             async with app_session_factory() as session:
                 ev = await session.get(DomainEvent, event_id)
                 assert ev is not None
-                assert ev.event_type == "journey_garment_opened"
+                assert ev.event_type == "session_garment_opened"
                 assert ev.user_id == user_id
     finally:
         main_app.dependency_overrides.pop(get_principal, None)
