@@ -1,0 +1,4 @@
+source_product_id,title,category,price_minor,currency,source_url,image_url,in_stock,size_values,image_rights,tryon_rights
+SKU-001,Classic Cotton Shirt,tops,149900,INR,https://brand.example/products/SKU-001,https://images.example/shirt-001.jpg,true,S|M|L|XL,partner_authorized,true
+SKU-002,Relaxed Oxford Shirt,tops,189900,INR,https://brand.example/products/SKU-002,https://images.example/shirt-002.jpg,true,M|L|XL,partner_authorized,true
+SKU-003,Slim Linen Shirt,tops,219900,INR,https://brand.example/products/SKU-003,https://images.example/shirt-003.jpg,true,S|M|L,partner_authorized,true

@@ -58,7 +58,9 @@ class PartnerFeedAdapter(BaseSourceAdapter):
                             description=r.get("description", "").strip() or None,
                             price_minor=int(r["price_minor"].strip()),
                             currency=r.get("currency", "INR").strip(),
-                            product_url=r.get("product_url", "").strip(),
+                            product_url=(
+                                r.get("product_url", "").strip() or r.get("source_url", "").strip()
+                            ),
                             image_url=r.get("image_url", "").strip() or None,
                             in_stock=r.get("in_stock", "true").strip().lower() in {"true", "1", "yes"},
                             sizes=sizes,

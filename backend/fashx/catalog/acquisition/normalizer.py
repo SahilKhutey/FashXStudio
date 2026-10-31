@@ -184,5 +184,7 @@ class CatalogNormalizer:
             source_updated_at=raw.source_updated_at,
             image_rights=raw.image_rights,
             tryon_rights=raw.tryon_rights,
+            prepared_image_key=raw.prepared_image_key,
+            prepared_image_hash=raw.prepared_image_hash,
             raw_attributes=raw.raw_attributes,
         )
