@@ -4,9 +4,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ViewToken,
 } from "react-native";
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, ViewToken } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -86,7 +85,7 @@ export default function FeedScreen() {
 
   // Viewable items tracker for impression analytics
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    ({ viewableItems }: { viewableItems: ViewToken<FeedItem>[] }) => {
       viewableItems.forEach((viewItem) => {
         if (viewItem.isViewable && viewItem.item?.garment_id) {
           recordImpression(viewItem.item.garment_id);

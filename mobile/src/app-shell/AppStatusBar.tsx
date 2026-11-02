@@ -1,15 +1,14 @@
 import React from "react";
-import { StatusBar } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { useDesignTokens } from "../design-system";
 
 export function AppStatusBar() {
-  const { theme, colors } = useDesignTokens();
+  const { theme } = useDesignTokens();
   const isDark = theme.mode === "dark";
 
   return (
     <StatusBar
-      barStyle={isDark ? "light-content" : "dark-content"}
-      backgroundColor={colors.surface}
+      style={isDark ? "light" : "dark"}
       animated
     />
   );

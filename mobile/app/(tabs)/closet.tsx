@@ -159,7 +159,7 @@ export default function ClosetScreen() {
             title="Your closet is empty"
             message="Save garments or try-on renders from your feed to build your collection."
             actionLabel="Explore styles"
-            onAction={() => router.push("/(tabs)/explore")}
+            onAction={() => router.push("/(tabs)/feed")}
           />
         }
       />
