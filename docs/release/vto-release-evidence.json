@@ -1,0 +1,55 @@
+{
+  "release": "fashx-vto-mvp-1.0",
+  "environment": "staging",
+  "commit": "REPLACE_WITH_GIT_SHA",
+  "measured_at": null,
+  "gates": {
+    "G1": {
+      "status": "not_measured",
+      "evidence": [],
+      "notes": "Physical-device end-to-end journey not yet verified."
+    },
+    "G2": {
+      "status": "not_measured",
+      "evidence": [],
+      "metrics": {
+        "vlm_accuracy": null,
+        "ranker_ndcg_at_10": null
+      }
+    },
+    "G3": {
+      "status": "not_measured",
+      "evidence": [],
+      "metrics": {
+        "human_realism_mean": null,
+        "p95_tryon_latency_seconds": null,
+        "load_test_rps": null
+      }
+    },
+    "G4": {
+      "status": "not_measured",
+      "evidence": [],
+      "metrics": {
+        "restore_rto_hours": null,
+        "privacy_counsel_approval": false
+      }
+    },
+    "G5": {
+      "status": "not_measured",
+      "evidence": [],
+      "metrics": {
+        "catalog_rights_coverage": null,
+        "vendor_dpa_executed": false
+      }
+    },
+    "G6": {
+      "status": "not_measured",
+      "evidence": [],
+      "metrics": {
+        "participant_count": null,
+        "acceptable_realism_rate": null,
+        "unresolved_stop_rules": null
+      }
+    }
+  }
+}
