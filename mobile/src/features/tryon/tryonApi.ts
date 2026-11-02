@@ -58,14 +58,26 @@ export async function listTryOnJobs(limit = 50): Promise<TryOnJobListItem[]> {
   return api<TryOnJobListItem[]>(`/tryon/jobs?limit=${limit}`);
 }
 
+export interface TryOnArtifactResponse {
+  artifact_key: string;
+  result_key: string;
+  model_version: string;
+  pipeline_version: string;
+  photo_version: number;
+  garment_version: number;
+  quality_reasons: string[];
+}
+
 /**
- * Fetches an artifact by its deterministic composite key.
+ * Fetches an artifact metadata by its deterministic composite key.
  * Enforces ownership and active consent on the backend (403 forbidden if not owner).
  */
-export async function getTryOnArtifact(artifactKey: string): Promise<Response> {
-  return fetch(`/tryon/artifacts/${artifactKey}`, {
-    method: "GET",
-  });
+export async function getTryOnArtifact(
+  artifactKey: string
+): Promise<TryOnArtifactResponse> {
+  return api<TryOnArtifactResponse>(
+    `/tryon/artifacts/${encodeURIComponent(artifactKey)}`
+  );
 }
 
 /**

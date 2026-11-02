@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,9 +9,13 @@ import {
   Dimensions,
 } from "react-native";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { useJob, useTryOnFeedback } from "../../src/features/tryon/useTryOn";
+import {
+  useJob,
+  useTryOnFeedback,
+  useRetryTryOn,
+} from "../../src/features/tryon/useTryOn";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
 import { Chip } from "../../src/components/Chip";
 
@@ -28,6 +32,16 @@ export default function TryOnJobScreen() {
   const { jobId } = useLocalSearchParams<{ jobId: string }>();
   const { t } = useTranslation();
   const router = useRouter();
+  const [isFocused, setIsFocused] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
 
   const {
     data: job,
@@ -35,16 +49,23 @@ export default function TryOnJobScreen() {
     isError,
     refetch,
     isTakingLongerThanUsual,
-  } = useJob(jobId || null);
+  } = useJob(jobId || null, isFocused);
 
   const { mutate: submitFeedback, isPending: isSubmittingFeedback } = useTryOnFeedback();
   const { mutate: saveToWardrobe, isPending: isSavingWardrobe } = useSaveToWardrobe();
+  const { mutateAsync: retryTryOn, isPending: isRetrying } = useRetryTryOn();
 
   const [showingBefore, setShowingBefore] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setImageLoadFailed(false);
+  }, [job?.result_url]);
 
   const handleRating = (rating: number) => {
     if (!jobId || feedbackSent) return;
@@ -66,17 +87,36 @@ export default function TryOnJobScreen() {
   };
 
   const handleSaveLook = () => {
-    if (!job) return;
-    // Save to wardrobe with try-on artifact key
+    if (!job?.garment_id || !job?.artifact_key) return;
+
     saveToWardrobe(
       {
-        garmentId: job.artifact_key ? job.artifact_key.split(":")[0] || job.job_id : job.job_id,
+        garmentId: job.garment_id,
         tryonArtifactId: job.artifact_key,
       },
       {
         onSuccess: () => setSavedSuccess(true),
       }
     );
+  };
+
+  const handleRetry = async () => {
+    if (!job?.garment_id || isRetrying) return;
+    setRetryError(null);
+    try {
+      const result = await retryTryOn({
+        garmentId: job.garment_id,
+      });
+      if (result.job_id) {
+        router.replace(`/tryon/${result.job_id}`);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unable to retry virtual try-on. Please try again.";
+      setRetryError(message);
+    }
   };
 
   if (isLoading) {
@@ -102,6 +142,9 @@ export default function TryOnJobScreen() {
   const isCompleted = job.status === "completed";
   const isFailed = job.status === "failed" || job.status === "cancelled";
   const isInProgress = !isCompleted && !isFailed;
+
+  const provider = job.provider ?? "unknown";
+  const isMockProvider = provider === "mock";
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -143,6 +186,20 @@ export default function TryOnJobScreen() {
           {job.failure_reason && (
             <Text style={styles.failedReason}>Reason: {job.failure_reason}</Text>
           )}
+          {retryError && <Text style={styles.errorText}>{retryError}</Text>}
+          {job.garment_id && (
+            <TouchableOpacity
+              style={styles.retryActionButton}
+              onPress={handleRetry}
+              disabled={isRetrying}
+            >
+              {isRetrying ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.retryButtonText}>Try again</Text>
+              )}
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -156,7 +213,7 @@ export default function TryOnJobScreen() {
       {isCompleted && (
         <View style={styles.completedSection}>
           {/* Label mock results */}
-          {((job as any).provider === "mock" || !(job as any).provider) && (
+          {isMockProvider && (
             <View style={styles.mockBanner}>
               <Text style={styles.mockBannerText}>
                 ⚠️ Preview only: not a real try-on
@@ -196,22 +253,34 @@ export default function TryOnJobScreen() {
 
           <View style={styles.imageWrapper}>
             {showingBefore ? (
-              <View style={styles.beforePlaceholder}>
-                <Text style={styles.beforeIcon}>👤</Text>
-                <Text style={styles.beforeLabel}>Original Profile Reference</Text>
-              </View>
-            ) : job.result_url ? (
+              job.reference_photo_url ? (
+                <View style={styles.resultContainer}>
+                  <Image
+                    source={{ uri: job.reference_photo_url }}
+                    style={styles.resultImage}
+                    contentFit="contain"
+                    transition={200}
+                  />
+                </View>
+              ) : (
+                <View style={styles.beforePlaceholder}>
+                  <Text style={styles.beforeIcon}>👤</Text>
+                  <Text style={styles.beforeLabel}>Original photo is unavailable</Text>
+                </View>
+              )
+            ) : job.result_url && !imageLoadFailed ? (
               <View style={styles.resultContainer}>
                 <Image
                   source={{
                     uri: job.result_url,
-                    cacheKey: job.result_url.split("?")[0],
                   }}
                   style={styles.resultImage}
-                  contentFit="cover"
+                  contentFit="contain"
                   transition={200}
+                  cachePolicy="none"
+                  onError={() => setImageLoadFailed(true)}
                 />
-                {((job as any).provider === "mock" || !(job as any).provider) && (
+                {isMockProvider && (
                   <View style={styles.watermarkOverlay}>
                     <Text style={styles.watermarkText}>PREVIEW ONLY</Text>
                   </View>
@@ -220,7 +289,20 @@ export default function TryOnJobScreen() {
             ) : (
               <View style={styles.beforePlaceholder}>
                 <Text style={styles.beforeIcon}>🖼️</Text>
-                <Text style={styles.beforeLabel}>Result ready</Text>
+                <Text style={styles.beforeLabel}>
+                  {imageLoadFailed
+                    ? "Preview link expired or unavailable."
+                    : "Result is being prepared."}
+                </Text>
+                <TouchableOpacity
+                  style={styles.refreshButton}
+                  onPress={async () => {
+                    setImageLoadFailed(false);
+                    await refetch();
+                  }}
+                >
+                  <Text style={styles.refreshButtonText}>Refresh preview</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -369,7 +451,20 @@ const styles = StyleSheet.create({
   failedReason: {
     fontSize: 14,
     color: "#6B7280",
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 13,
+    color: "#EF4444",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  retryActionButton: {
+    backgroundColor: "#4F46E5",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 12,
   },
   backButton: {
     backgroundColor: "#111827",
@@ -431,6 +526,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F3F4F6",
+    padding: 16,
   },
   beforeIcon: {
     fontSize: 64,
@@ -440,6 +536,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
     fontWeight: "500",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  refreshButton: {
+    backgroundColor: "#4F46E5",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  refreshButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 14,
   },
   saveSection: {
     marginBottom: 20,

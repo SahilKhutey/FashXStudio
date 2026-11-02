@@ -732,6 +732,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tryon/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Tryon Job
+         * @description Request cancellation of a queued or running try-on job.
+         */
+        post: operations["cancel_tryon_job_api_v1_tryon_jobs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tryon/jobs/{job_id}/result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tryon Job Result
+         * @description Retrieve short-lived authorized signed result URL for a completed try-on job.
+         */
+        get: operations["get_tryon_job_result_api_v1_tryon_jobs__job_id__result_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/wardrobe/items": {
         parameters: {
             query?: never;
@@ -6132,6 +6172,8 @@ export interface components {
              * Format: uuid
              */
             garment_id: string;
+            /** Photo Id */
+            photo_id?: string | null;
             /** Render Config */
             render_config?: {
                 [key: string]: unknown;
@@ -12594,6 +12636,11 @@ export interface components {
              * Format: uuid
              */
             job_id: string;
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
             status: components["schemas"]["TryOnStatus"];
             /** Artifact Key */
             artifact_key: string;
@@ -12604,11 +12651,10 @@ export interface components {
             model_version: string;
             /** Pipeline Version */
             pipeline_version: string;
-            /**
-             * Provider
-             * @default mock
-             */
-            provider: string | null;
+            /** Provider */
+            provider?: string | null;
+            /** Reference Photo Url */
+            reference_photo_url?: string | null;
         };
         /** TryOnJobSubmissionResponse */
         TryOnJobSubmissionResponse: {
@@ -12624,6 +12670,21 @@ export interface components {
             is_cached: boolean;
             /** Result Url */
             result_url?: string | null;
+        };
+        /** TryOnResultUrlResponse */
+        TryOnResultUrlResponse: {
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Result Url */
+            result_url: string;
+            /**
+             * Expires In
+             * @default 3600
+             */
+            expires_in: number;
         };
         /**
          * TryOnStatus
@@ -14756,6 +14817,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TryOnArtifactResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_tryon_job_api_v1_tryon_jobs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TryOnJobStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tryon_job_result_api_v1_tryon_jobs__job_id__result_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TryOnResultUrlResponse"];
                 };
             };
             /** @description Validation Error */

@@ -1683,6 +1683,94 @@
         }
       }
     },
+    "/api/v1/tryon/jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "try-on"
+        ],
+        "summary": "Cancel Tryon Job",
+        "description": "Request cancellation of a queued or running try-on job.",
+        "operationId": "cancel_tryon_job_api_v1_tryon_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TryOnJobStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tryon/jobs/{job_id}/result": {
+      "get": {
+        "tags": [
+          "try-on"
+        ],
+        "summary": "Get Tryon Job Result",
+        "description": "Retrieve short-lived authorized signed result URL for a completed try-on job.",
+        "operationId": "get_tryon_job_result_api_v1_tryon_jobs__job_id__result_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TryOnResultUrlResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/wardrobe/items": {
       "post": {
         "tags": [
@@ -14036,6 +14124,18 @@
             "type": "string",
             "format": "uuid",
             "title": "Garment Id"
+          },
+          "photo_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Id"
           },
           "render_config": {
             "anyOf": [
@@ -27243,6 +27343,11 @@
             "format": "uuid",
             "title": "Job Id"
           },
+          "garment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Garment Id"
+          },
           "status": {
             "$ref": "#/components/schemas/TryOnStatus"
           },
@@ -27288,13 +27393,24 @@
                 "type": "null"
               }
             ],
-            "title": "Provider",
-            "default": "mock"
+            "title": "Provider"
+          },
+          "reference_photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Photo Url"
           }
         },
         "type": "object",
         "required": [
           "job_id",
+          "garment_id",
           "status",
           "artifact_key",
           "model_version",
@@ -27340,6 +27456,30 @@
           "is_cached"
         ],
         "title": "TryOnJobSubmissionResponse"
+      },
+      "TryOnResultUrlResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Job Id"
+          },
+          "result_url": {
+            "type": "string",
+            "title": "Result Url"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "default": 3600
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "result_url"
+        ],
+        "title": "TryOnResultUrlResponse"
       },
       "TryOnStatus": {
         "type": "string",

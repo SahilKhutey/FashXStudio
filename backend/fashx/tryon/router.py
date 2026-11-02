@@ -52,13 +52,15 @@ class TryOnJobSubmissionResponse(BaseModel):
 
 class TryOnJobStatusResponse(BaseModel):
     job_id: UUID
+    garment_id: UUID
     status: TryOnStatus
     artifact_key: str
     result_url: str | None = None
     failure_reason: TryOnFailureReason | None = None
     model_version: str
     pipeline_version: str
-    provider: str | None = "mock"
+    provider: str | None = None
+    reference_photo_url: str | None = None
 
 
 class TryOnJobListItem(BaseModel):
@@ -211,24 +213,32 @@ async def get_tryon_job_status(
     job_id: UUID,
     principal: Principal = Depends(get_principal),
     tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
+    profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     storage: Any = Depends(get_storage),
 ) -> TryOnJobStatusResponse:
     """Retrieve asynchronous try-on job status and artifact URL."""
-    use_case = GetTryOnJobStatusUseCase(tryon_uow=tryon_uow)
+    use_case = GetTryOnJobStatusUseCase(tryon_uow=tryon_uow, profile_uow=profile_uow)
     res = await use_case.execute(job_id, user_id=principal.user_id)
     fail_reason = _parse_failure_reason(res.failure_reason)
     result_url = None
     if res.result_url:
         result_url = storage.signed_get_url(res.result_url, ttl_s=300)
+
+    reference_photo_url = None
+    if getattr(res, "reference_photo_key", None):
+        reference_photo_url = storage.signed_get_url(res.reference_photo_key, ttl_s=300)
+
     return TryOnJobStatusResponse(
         job_id=res.job_id,
+        garment_id=res.garment_id,
         status=TryOnStatus(res.status),
         artifact_key=res.artifact_key,
         result_url=result_url,
         failure_reason=fail_reason,
         model_version=res.model_version,
         pipeline_version=res.pipeline_version,
-        provider=res.provider or "mock",
+        provider=res.provider,
+        reference_photo_url=reference_photo_url,
     )
 
 
@@ -299,13 +309,14 @@ async def cancel_tryon_job(
         fail_reason = _parse_failure_reason(job.failure_reason)
         return TryOnJobStatusResponse(
             job_id=job.id,
+            garment_id=job.garment_id,
             status=TryOnStatus(job.status),
             artifact_key=job.artifact_key,
             result_url=None,
             failure_reason=fail_reason,
             model_version=job.model_version,
             pipeline_version=job.pipeline_version,
-            provider=getattr(job, "provider", None) or "mock",
+            provider=getattr(job, "provider", None),
         )
 
 
