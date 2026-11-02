@@ -31,6 +31,8 @@ class MockJob:
         self.provider_job_id = None
         self.attempts = 1
         self.failure_reason = None
+        self.photo_version = 1
+        self.garment_version = 1
 
 
 class MockGarment:
@@ -199,7 +201,7 @@ async def test_worker_resumes_crashed_job_without_re_submitting(uow_context, tmp
     assert res.status == "completed"
     # Key check: adapter.submit was NOT called again because provider_job_id was already present!
     assert adapter.submit_count == 0
-    assert storage.exists(f"u/{user_id}/tryon/{job_id}.jpg")
+    assert storage.exists(res.result_url or f"u/{user_id}/tryon/{job_id}.png")
 
 
 @pytest.mark.asyncio

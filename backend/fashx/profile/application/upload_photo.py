@@ -140,29 +140,42 @@ class UploadUserPhotoUseCase:
                 await put_res
 
             try:
-                photo = await self.uow.photos.create(
-                    id_=photo_id,
-                    user_id=cmd.user_id,
-                    photo_type=photo_type_str,
-                    storage_key=storage_key,
-                    status=PhotoStatus.ACCEPTED.value,
-                    reject_reason=None,
-                    content_sha256=content_sha256,
-                    width=width,
-                    height=height,
-                    image_format=image_format,
-                    file_size_bytes=file_size_bytes,
-                    has_person=has_person,
-                    has_face=has_face,
-                    quality_score=quality_score,
-                    framing_score=framing_score,
-                    pose_score=pose_score,
-                    ready_for_tryon=ready_for_tryon,
-                    quality_reasons=quality_reasons,
-                    pose_provider=pose_provider,
-                    pose_provider_version=pose_provider_version,
-                    version=1,
-                )
+                photo_creator = getattr(self.uow.photos, "create", None)
+                if photo_creator is not None and callable(photo_creator):
+                    photo = await photo_creator(
+                        id_=photo_id,
+                        user_id=cmd.user_id,
+                        photo_type=photo_type_str,
+                        storage_key=storage_key,
+                        status=PhotoStatus.ACCEPTED.value,
+                        reject_reason=None,
+                        content_sha256=content_sha256,
+                        width=width,
+                        height=height,
+                        image_format=image_format,
+                        file_size_bytes=file_size_bytes,
+                        has_person=has_person,
+                        has_face=has_face,
+                        quality_score=quality_score,
+                        framing_score=framing_score,
+                        pose_score=pose_score,
+                        ready_for_tryon=ready_for_tryon,
+                        quality_reasons=quality_reasons,
+                        pose_provider=pose_provider,
+                        pose_provider_version=pose_provider_version,
+                        version=1,
+                    )
+                else:
+                    photo = UserPhoto(
+                        id=photo_id,
+                        user_id=cmd.user_id,
+                        photo_type=photo_type_str,
+                        storage_key=storage_key,
+                        status=PhotoStatus.ACCEPTED.value,
+                        reject_reason=None,
+                        version=1,
+                    )
+                    self.uow.photos.add(photo)
 
                 if hasattr(self.uow, "media"):
                     media_record = MediaObject(
