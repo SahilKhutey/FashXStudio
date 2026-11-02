@@ -8,4 +8,7 @@ paths = [
   '''tests/security/.*''',
   '''scripts/release/seed_staging_users\.py''',
   '''docs/architecture/auth\.md''',
+  '''\.env\.example''',
+  '''mobile/\.env\.example''',
+  '''docs/archive/.*/\.env\.example''',
 ]
