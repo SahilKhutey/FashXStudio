@@ -87,12 +87,12 @@ export default function TryOnJobScreen() {
   };
 
   const handleSaveLook = () => {
-    if (!job?.garment_id || !job?.artifact_key) return;
+    if (!job || job.status !== "completed" || !job.garment_id) return;
 
     saveToWardrobe(
       {
         garmentId: job.garment_id,
-        tryonArtifactId: job.artifact_key,
+        tryonArtifactId: job.artifact_id ?? null,
       },
       {
         onSuccess: () => setSavedSuccess(true),

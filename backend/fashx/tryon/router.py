@@ -61,6 +61,7 @@ class TryOnJobStatusResponse(BaseModel):
     pipeline_version: str
     provider: str | None = None
     reference_photo_url: str | None = None
+    artifact_id: UUID | None = None
 
 
 class TryOnJobListItem(BaseModel):
@@ -239,6 +240,7 @@ async def get_tryon_job_status(
         pipeline_version=res.pipeline_version,
         provider=res.provider,
         reference_photo_url=reference_photo_url,
+        artifact_id=res.artifact_id,
     )
 
 

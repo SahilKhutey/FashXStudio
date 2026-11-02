@@ -14372,6 +14372,14 @@
             "type": "array",
             "title": "Images",
             "default": []
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerOfferDetail"
+            },
+            "type": "array",
+            "title": "Offers",
+            "default": []
           }
         },
         "additionalProperties": false,
@@ -14382,6 +14390,52 @@
           "category"
         ],
         "title": "CustomerGarmentDetailResponse"
+      },
+      "CustomerOfferDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "source_product_id": {
+            "type": "string",
+            "title": "Source Product Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "price_minor": {
+            "type": "integer",
+            "title": "Price Minor"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "in_stock": {
+            "type": "boolean",
+            "title": "In Stock"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "merchant_id",
+          "source_product_id",
+          "url",
+          "price_minor",
+          "currency",
+          "in_stock"
+        ],
+        "title": "CustomerOfferDetail"
       },
       "CustomerResponse": {
         "properties": {
@@ -27405,6 +27459,18 @@
               }
             ],
             "title": "Reference Photo Url"
+          },
+          "artifact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Id"
           }
         },
         "type": "object",

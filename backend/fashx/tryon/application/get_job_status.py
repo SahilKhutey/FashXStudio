@@ -20,6 +20,7 @@ class GetJobStatusResult:
     pipeline_version: str
     provider: str | None = None
     reference_photo_key: str | None = None
+    artifact_id: UUID | None = None
 
 
 class GetTryOnJobStatusUseCase:
@@ -40,10 +41,12 @@ class GetTryOnJobStatusUseCase:
                 raise EntityNotFoundError("TryOnJob", job_id)
 
             result_url: str | None = None
+            artifact_id_val: UUID | None = None
             if job.status == "completed":
                 artifact = await self.tryon_uow.artifacts.get_by_job_id(job.id)
                 if artifact:
                     result_url = artifact.result_key
+                    artifact_id_val = artifact.id
 
             job_id_val = job.id
             garment_id_val = job.garment_id
@@ -76,4 +79,5 @@ class GetTryOnJobStatusUseCase:
             pipeline_version=pipeline_version_val,
             provider=provider_val,
             reference_photo_key=reference_photo_key,
+            artifact_id=artifact_id_val,
         )

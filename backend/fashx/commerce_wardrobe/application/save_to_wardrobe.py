@@ -11,6 +11,8 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
 )
 from fashx.core.errors import EntityNotFoundError
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.security.errors import forbidden
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 
 
 @dataclass(frozen=True)
@@ -42,11 +44,13 @@ class SaveToWardrobeUseCase:
         wardrobe_uow: CommerceWardrobeUnitOfWork,
         profile_uow: ProfileUnitOfWork,
         catalog_uow: CatalogUnitOfWork,
+        tryon_uow: TryOnUnitOfWork | None = None,
         storage: Any | None = None,
     ) -> None:
         self.wardrobe_uow = wardrobe_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
+        self.tryon_uow = tryon_uow
         self.storage = storage
 
     def _resolve_image_url(self, key: str | None) -> str | None:
@@ -67,6 +71,23 @@ class SaveToWardrobeUseCase:
             user = await self.profile_uow.users.get_by_id(cmd.user_id)
             if user is None:
                 raise EntityNotFoundError("User", cmd.user_id)
+
+        # 1b. Validate TryOn Artifact if provided and tryon_uow configured
+        if cmd.tryon_artifact_id is not None and self.tryon_uow is not None:
+            async with self.tryon_uow:
+                artifact = await self.tryon_uow.artifacts.get_by_id(cmd.tryon_artifact_id)
+                if artifact is None:
+                    raise EntityNotFoundError("TryOnArtifact", cmd.tryon_artifact_id)
+                job = await self.tryon_uow.jobs.get_by_id(artifact.job_id)
+                if (
+                    job is None
+                    or job.user_id != cmd.user_id
+                    or job.garment_id != cmd.garment_id
+                    or job.status != "completed"
+                ):
+                    raise forbidden(
+                        "Forbidden: Try-on artifact does not belong to this user and garment"
+                    )
 
         # 2. Retrieve Garment & Snapshot Context
         async with self.catalog_uow:
@@ -108,8 +129,7 @@ class SaveToWardrobeUseCase:
             # Determine snapshot image
             images = await self.catalog_uow.images.list_for_garment(garment.id)
             snapshot_image_key = (
-                getattr(images[0], "storage_key", None)
-                or getattr(images[0], "s3_key", None)
+                getattr(images[0], "storage_key", None) or getattr(images[0], "s3_key", None)
                 if images
                 else f"garments/{garment.id}/front.png"
             )

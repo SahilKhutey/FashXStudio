@@ -6308,6 +6308,34 @@ export interface components {
              * @default []
              */
             images: string[];
+            /**
+             * Offers
+             * @default []
+             */
+            offers: components["schemas"]["CustomerOfferDetail"][];
+        };
+        /** CustomerOfferDetail */
+        CustomerOfferDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Source Product Id */
+            source_product_id: string;
+            /** Url */
+            url: string;
+            /** Price Minor */
+            price_minor: number;
+            /** Currency */
+            currency: string;
+            /** In Stock */
+            in_stock: boolean;
         };
         /** CustomerResponse */
         CustomerResponse: {
@@ -12655,6 +12683,8 @@ export interface components {
             provider?: string | null;
             /** Reference Photo Url */
             reference_photo_url?: string | null;
+            /** Artifact Id */
+            artifact_id?: string | null;
         };
         /** TryOnJobSubmissionResponse */
         TryOnJobSubmissionResponse: {

@@ -28,16 +28,17 @@ def validate_retailer_url(
 
     hostname = parsed.hostname.lower()
     if parsed.username or parsed.password:
-        raise ValidationError("Credentials are not permitted in retailer URLs", field="redirect_url")
+        raise ValidationError(
+            "Credentials are not permitted in retailer URLs", field="redirect_url"
+        )
 
     if allowed_hosts:
         normalized_allowed = {h.lower() for h in allowed_hosts}
-        matched = any(
-            hostname == h or hostname.endswith("." + h)
-            for h in normalized_allowed
-        )
+        matched = any(hostname == h or hostname.endswith("." + h) for h in normalized_allowed)
         if not matched:
-            raise ValidationError(f"Retailer host '{hostname}' is not approved", field="redirect_url")
+            raise ValidationError(
+                f"Retailer host '{hostname}' is not approved", field="redirect_url"
+            )
 
     return raw_url
 
@@ -84,7 +85,15 @@ class CreateBuyClickUseCase:
             if offer is None:
                 raise EntityNotFoundError("MerchantOffer", cmd.offer_id)
 
-            offer_garment_id = getattr(offer, "garment_id", getattr(offer, "canonical_garment_id", None))
+            if not getattr(offer, "in_stock", True):
+                raise ValidationError(
+                    "This merchant offer is currently out of stock",
+                    field="offer_id",
+                )
+
+            offer_garment_id = getattr(
+                offer, "garment_id", getattr(offer, "canonical_garment_id", None)
+            )
             if offer_garment_id and offer_garment_id != cmd.garment_id:
                 raise ValidationError(
                     f"Offer {cmd.offer_id} does not belong to garment {cmd.garment_id}",

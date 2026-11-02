@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useGarmentDetail } from "../../src/features/catalog/hooks";
 import { useStartTryOn } from "../../src/features/tryon/useTryOn";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
+import { RetailerOffers } from "../../src/features/wardrobe/RetailerOffers";
 import { useBuy } from "../../src/features/commerce/useBuy";
 import { Chip } from "../../src/components/Chip";
 
@@ -171,6 +172,11 @@ export default function GarmentDetailScreen() {
               <Text style={styles.detailValue}>{garment.gender}</Text>
             </View>
           </View>
+
+          {/* Retailer Offers */}
+          {garment.offers && garment.offers.length > 0 && (
+            <RetailerOffers garmentId={garment.id} offers={garment.offers} />
+          )}
 
           {/* Affiliate Disclosure */}
           <View style={styles.disclosureBox}>

@@ -107,6 +107,26 @@ class Settings(BaseSettings):
     supabase_secret_key: SecretStr | None = Field(
         default=None, validation_alias="SUPABASE_SECRET_KEY"
     )
+    retailer_allowed_hosts: str | list[str] = Field(
+        default_factory=lambda: [
+            "myntra.com",
+            "amazon.in",
+            "flipkart.com",
+            "merchant.com",
+            "shop.example.com",
+            "example.com",
+        ],
+        validation_alias="FASHX_RETAILER_ALLOWED_HOSTS",
+    )
+
+    @property
+    def parsed_retailer_allowed_hosts(self) -> set[str] | None:
+        if not self.retailer_allowed_hosts:
+            return None
+        if isinstance(self.retailer_allowed_hosts, str):
+            hosts = [h.strip() for h in self.retailer_allowed_hosts.split(",") if h.strip()]
+            return set(hosts) if hosts else None
+        return set(self.retailer_allowed_hosts)
 
     @property
     def is_production(self) -> bool:
