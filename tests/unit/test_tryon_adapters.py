@@ -1,6 +1,8 @@
+import io
 from uuid import uuid4
 
 import pytest
+from PIL import Image
 
 from fashx.infrastructure.tryon.fashn_api import FashnApiAdapter
 from fashx.ml.licenses import ALLOWED_LICENSE_IDS, assert_production_license
@@ -100,13 +102,13 @@ def test_get_tryon_adapter_fail_closed_without_key(monkeypatch: pytest.MonkeyPat
     get_settings.cache_clear()
 
 
-def make_test_jpeg() -> bytes:
+def make_test_jpeg(size: tuple[int, int] = (512, 768)) -> bytes:
     import io
 
     from PIL import Image
 
     buf = io.BytesIO()
-    Image.new("RGB", (100, 100), color="blue").save(buf, format="JPEG")
+    Image.new("RGB", size, color="blue").save(buf, format="JPEG")
     return buf.getvalue()
 
 
@@ -236,3 +238,124 @@ def test_process_job_use_case_dynamic_adapter_resolution(
     assert uc.adapter.provider == "fashn_api"
 
     get_settings.cache_clear()
+
+
+def test_normalize_result_returns_jpeg() -> None:
+    from fashx.infrastructure.tryon.fashn_api import _normalize_result_image
+
+    output = io.BytesIO()
+    Image.new("RGB", (512, 768), "blue").save(output, format="PNG")
+    png_bytes = output.getvalue()
+
+    result = _normalize_result_image(png_bytes)
+    with Image.open(io.BytesIO(result)) as image:
+        assert image.format == "JPEG"
+        assert image.mode == "RGB"
+        assert image.size == (512, 768)
+
+
+def test_normalize_result_rejects_empty_bytes() -> None:
+    from fashx.infrastructure.tryon.fashn_api import _normalize_result_image
+
+    with pytest.raises(ValueError, match="empty"):
+        _normalize_result_image(b"")
+
+
+def test_normalize_result_rejects_unsupported_format() -> None:
+    from fashx.infrastructure.tryon.fashn_api import _normalize_result_image
+
+    with pytest.raises(ValueError, match="Unsupported"):
+        _normalize_result_image(b"not-an-image-payload-header")
+
+    output = io.BytesIO()
+    Image.new("RGB", (300, 300), "red").save(output, format="GIF")
+    with pytest.raises(ValueError, match="Unsupported"):
+        _normalize_result_image(output.getvalue())
+
+
+def test_normalize_result_rejects_resolution_too_small() -> None:
+    from fashx.infrastructure.tryon.fashn_api import _normalize_result_image
+
+    tiny = make_test_jpeg(size=(100, 100))
+    with pytest.raises(ValueError, match="too small"):
+        _normalize_result_image(tiny)
+
+
+def test_normalize_result_downscales_oversized_side() -> None:
+    from fashx.infrastructure.tryon.fashn_api import _normalize_result_image
+
+    large = make_test_jpeg(size=(5000, 2500))
+    normalized = _normalize_result_image(large, max_side=4096)
+    with Image.open(io.BytesIO(normalized)) as image:
+        assert image.format == "JPEG"
+        assert max(image.size) <= 4096
+
+
+def test_unknown_provider_status_is_rejected() -> None:
+    import httpx
+
+    from fashx.application.ports.tryon import TryOnError
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "POST":
+            return httpx.Response(200, json={"id": "job-unknown"})
+        return httpx.Response(
+            200,
+            json={"status": "unexpected_status"},
+        )
+
+    client = httpx.Client(
+        base_url="https://api.fashn.ai/v1",
+        transport=httpx.MockTransport(handler),
+    )
+    adapter = FashnApiAdapter(
+        api_key="test-key",
+        client=client,
+        sleep=lambda _: None,
+    )
+    with pytest.raises(TryOnError) as error:
+        adapter.collect("job-unknown", deadline_s=5)
+    assert error.value.code == "provider_invalid_status"
+    assert error.value.retryable is False
+
+
+@pytest.mark.asyncio
+async def test_execute_tryon_runs_sync_provider_call_off_event_loop(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asyncio
+
+    from fashx.application.ports.tryon import TryOnOutput
+
+    adapter = FashnApiAdapter(api_key="test-key", timeout_s=45.0)
+    assert adapter.timeout_s == 45.0
+
+    thread_called = False
+
+    async def fake_to_thread(func, *args, **kwargs):
+        nonlocal thread_called
+        thread_called = True
+        assert func == adapter.run
+        assert kwargs.get("deadline_s") == 45.0
+        return TryOnOutput(
+            image_bytes=make_test_jpeg(),
+            provider="fashn_api",
+            model="tryon-v1.6",
+            provider_job_id="test-job-999",
+            latency_ms=100,
+            cost_usd_est=0.075,
+        )
+
+    monkeypatch.setattr(asyncio, "to_thread", fake_to_thread)
+    payload = InferenceInput(
+        job_id=uuid4(),
+        user_id=uuid4(),
+        garment_id=uuid4(),
+        user_photo_bytes=make_test_jpeg(),
+        garment_image_bytes=make_test_jpeg(),
+        garment_category="tops",
+    )
+    res = await adapter.execute_tryon(payload)
+    assert thread_called is True
+    assert res.raw_metadata["provider_job_id"] == "test-job-999"
+    assert res.inference_latency_ms == 100.0

@@ -1,5 +1,6 @@
 """FASHN Hosted Virtual Try-On API Adapter (tryon-v1.6 / Max)."""
 
+import asyncio
 import base64
 import io
 import logging
@@ -20,6 +21,44 @@ _PENDING = {"starting", "in_queue", "processing"}
 MAX_RESULT_BYTES = 15 * 1024 * 1024
 
 
+def _normalize_result_image(
+    data: bytes,
+    *,
+    max_bytes: int = MAX_RESULT_BYTES,
+    max_pixels: int = 25_000_000,
+    max_side: int = 4096,
+) -> bytes:
+    if not data or len(data) > max_bytes:
+        raise ValueError("Provider result is empty or exceeds size limit")
+    try:
+        with Image.open(io.BytesIO(data)) as image:
+            if image.format not in {"JPEG", "PNG", "WEBP"}:
+                raise ValueError("Unsupported provider image format")
+            width, height = image.size
+            if width < 256 or height < 256:
+                raise ValueError("Provider result resolution is too small")
+            if width * height > max_pixels:
+                raise ValueError("Provider result exceeds pixel limit")
+            image.load()
+            image = image.convert("RGB")
+            scale = min(1.0, max_side / max(image.size))
+            if scale < 1.0:
+                image = image.resize(
+                    (
+                        round(image.width * scale),
+                        round(image.height * scale),
+                    ),
+                    Image.Resampling.LANCZOS,
+                )
+            output = io.BytesIO()
+            image.save(output, format="JPEG", quality=95)
+            return output.getvalue()
+    except Exception as exc:
+        if isinstance(exc, ValueError):
+            raise
+        raise ValueError(f"Unsupported or corrupt provider image: {exc}") from exc
+
+
 def _b64(jpeg: bytes) -> str:
     return "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()
 
@@ -38,6 +77,7 @@ class FashnApiAdapter:
         mode: str | None = None,
         *,
         cost_usd_est: float | None = 0.075,
+        timeout_s: float = 90.0,
         client: httpx.Client | None = None,
         download_client: httpx.Client | None = None,
         sleep: Callable[[float], None] = time.sleep,
@@ -45,6 +85,7 @@ class FashnApiAdapter:
         self._model = model
         self._mode = mode
         self._cost = cost_usd_est
+        self._timeout_s = timeout_s
         self._sleep = sleep
         if client is not None and "Authorization" not in client.headers:
             client.headers["Authorization"] = f"Bearer {api_key}"
@@ -54,9 +95,11 @@ class FashnApiAdapter:
             timeout=httpx.Timeout(20.0, connect=5.0),
         )
         # Dedicated client for downloading CDN outputs without Authorization header
-        self._dl = download_client or httpx.Client(
-            timeout=httpx.Timeout(30.0, connect=5.0)
-        )
+        self._dl = download_client or httpx.Client(timeout=httpx.Timeout(30.0, connect=5.0))
+
+    @property
+    def timeout_s(self) -> float:
+        return self._timeout_s
 
     @property
     def model_version(self) -> str:
@@ -198,37 +241,50 @@ class FashnApiAdapter:
                     detail=provider_job_id,
                 )
 
-            # failed / canceled
-            err = d.get("error") or {}
-            name = (err.get("name") if isinstance(err, dict) else str(err)) or "unknown"
-            log.warning("fashn failed job=%s error=%s", provider_job_id, name)
+            if st in {"failed", "canceled", "cancelled"}:
+                err = d.get("error") or {}
+                name = (err.get("name") if isinstance(err, dict) else str(err)) or "unknown"
+                log.warning("fashn failed job=%s error=%s", provider_job_id, name)
+                raise TryOnError(
+                    "provider_failed",
+                    "We couldn't generate this try-on. Try another photo or garment.",
+                    retryable=False,
+                    detail=str(name)[:160],
+                )
+
             raise TryOnError(
-                f"provider_{name}".lower()[:60],
-                "We couldn't fit this garment on that photo. Try another photo or garment.",
+                "provider_invalid_status",
+                "Try-on is temporarily unavailable.",
                 retryable=False,
-                detail=name,
+                detail=f"Unexpected provider status: {str(st)[:60]}",
             )
 
     def run(self, req: TryOnRequest, *, deadline_s: float = 90.0) -> TryOnOutput:
         return self.collect(self.submit(req), deadline_s=deadline_s)
 
     async def execute_tryon(self, payload: InferenceInput) -> InferenceOutput:
-        start_time = time.perf_counter()
-        category = "auto"
-        if payload.garment_category in ("tops", "bottoms", "one-pieces"):
-            category = payload.garment_category
+        category = (
+            payload.garment_category
+            if payload.garment_category in ("tops", "bottoms", "one-pieces")
+            else "auto"
+        )
         req = TryOnRequest(
             person_jpeg=payload.user_photo_bytes,
             garment_jpeg=payload.garment_image_bytes,
-            category=category,  # type: ignore[arg-type]
+            category=category,
         )
-        out = self.run(req)
-        latency_ms = (time.perf_counter() - start_time) * 1000.0
+        # httpx.Client and the polling/sleep logic are synchronous.
+        # Run them outside the application's event loop.
+        out = await asyncio.to_thread(
+            self.run,
+            req,
+            deadline_s=self._timeout_s,
+        )
         return InferenceOutput(
             rendered_image_bytes=out.image_bytes,
             model_version=self.model_version,
             pipeline_version=self.pipeline_version,
-            inference_latency_ms=round(latency_ms, 2),
+            inference_latency_ms=float(out.latency_ms),
             raw_metadata={
                 "category": payload.garment_category,
                 "provider": self.provider,
@@ -267,13 +323,11 @@ class FashnApiAdapter:
             )
 
         try:
-            Image.open(io.BytesIO(r.content)).verify()
-        except Exception as e:
+            return _normalize_result_image(r.content)
+        except ValueError as exc:
             raise TryOnError(
                 "provider_bad_image",
-                "Try-on failed. We'll retry.",
-                retryable=True,
-                detail="undecodable result",
-            ) from e
-
-        return r.content
+                "Try-on returned an invalid image. Please retry.",
+                retryable=False,
+                detail=str(exc),
+            ) from exc
