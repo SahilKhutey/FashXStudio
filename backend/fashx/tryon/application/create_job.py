@@ -79,11 +79,11 @@ class CreateTryOnJobUseCase:
             if cmd.photo_id is not None:
                 photo = await self.profile_uow.photos.get_owned(cmd.photo_id, cmd.user_id)
                 if photo is None:
-                    raise ValidationError(
-                        "Photo not found or not owned by user", field="photo_id"
-                    )
+                    raise ValidationError("Photo not found or not owned by user", field="photo_id")
             else:
-                photo = await self.profile_uow.photos.get_active_photo(cmd.user_id, "tryon_reference")
+                photo = await self.profile_uow.photos.get_active_photo(
+                    cmd.user_id, "tryon_reference"
+                )
                 if photo is None:
                     raise ValidationError(
                         "User does not have an active portrait photo uploaded.", field="photo"
@@ -106,7 +106,9 @@ class CreateTryOnJobUseCase:
                 raise EntityNotFoundError("CanonicalGarment", cmd.garment_id)
 
             if getattr(garment, "tryon_supported", True) is False:
-                raise ApiError(422, "unsupported_garment", "Try-on is not supported for this garment type")
+                raise ApiError(
+                    422, "unsupported_garment", "Try-on is not supported for this garment type"
+                )
 
             if (
                 settings.tryon_supported_categories
@@ -119,8 +121,12 @@ class CreateTryOnJobUseCase:
                 )
 
             # Check live source rights
-            if hasattr(self.catalog_uow, "merchant_products") and hasattr(self.catalog_uow, "sources"):
-                products = await self.catalog_uow.merchant_products.get_by_canonical_garment_id(garment.id)
+            if hasattr(self.catalog_uow, "merchant_products") and hasattr(
+                self.catalog_uow, "sources"
+            ):
+                products = await self.catalog_uow.merchant_products.get_by_canonical_garment_id(
+                    garment.id
+                )
                 if products:
                     for prod in products:
                         if prod.source_id:
@@ -151,7 +157,9 @@ class CreateTryOnJobUseCase:
                 cmd.user_id, cmd.idempotency_key
             )
             if existing_job is not None:
-                artifact = await self.tryon_uow.artifacts.get_by_artifact_key(existing_job.artifact_key)
+                artifact = await self.tryon_uow.artifacts.get_by_artifact_key(
+                    existing_job.artifact_key
+                )
                 return CreateTryOnResult(
                     job_id=existing_job.id,
                     status=existing_job.status,
@@ -177,7 +185,9 @@ class CreateTryOnJobUseCase:
             from fashx.ml.breaker import check_daily_budget_exceeded, check_user_daily_cap_exceeded
 
             if hasattr(self.tryon_uow, "session") and self.tryon_uow.session:
-                if await check_daily_budget_exceeded(self.tryon_uow.session, settings.tryon_daily_budget_usd):
+                if await check_daily_budget_exceeded(
+                    self.tryon_uow.session, settings.tryon_daily_budget_usd
+                ):
                     raise ApiError(503, "service_unavailable", "Try-on is at capacity today")
                 if await check_user_daily_cap_exceeded(
                     self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap
@@ -206,7 +216,9 @@ class CreateTryOnJobUseCase:
                     cmd.user_id, cmd.idempotency_key
                 )
                 if winning_job is not None:
-                    artifact = await self.tryon_uow.artifacts.get_by_artifact_key(winning_job.artifact_key)
+                    artifact = await self.tryon_uow.artifacts.get_by_artifact_key(
+                        winning_job.artifact_key
+                    )
                     return CreateTryOnResult(
                         job_id=winning_job.id,
                         status=winning_job.status,

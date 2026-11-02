@@ -75,7 +75,6 @@ class TryOnJobListItem(BaseModel):
     provider: str | None = "mock"
 
 
-
 class TryOnArtifactResponse(BaseModel):
     artifact_key: str
     result_key: str
@@ -335,7 +334,9 @@ async def get_tryon_job_result(
         if job.status != "completed":
             from fashx.security.errors import ApiError
 
-            raise ApiError(409, "job_not_completed", f"Job status is '{job.status}'; result not available.")
+            raise ApiError(
+                409, "job_not_completed", f"Job status is '{job.status}'; result not available."
+            )
 
         artifact = await tryon_uow.artifacts.get_by_artifact_key(job.artifact_key)
         if artifact is None:

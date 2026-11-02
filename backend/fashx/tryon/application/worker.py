@@ -40,9 +40,7 @@ class TryOnWorker:
     async def claim_job(self) -> UUID | None:
         """Atomically claims the next eligible job inside a short transaction."""
         async with self.uow_factory() as uow:
-            job = await uow.jobs.claim_next_job(
-                self.worker_id, lease_seconds=self.lease_seconds
-            )
+            job = await uow.jobs.claim_next_job(self.worker_id, lease_seconds=self.lease_seconds)
             if job is None:
                 return None
             job_id = job.id

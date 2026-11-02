@@ -70,7 +70,9 @@ class SubmitTryOnJobUseCase:
                         field="photo_id",
                     )
             else:
-                photo = await self.profile_uow.photos.get_active_photo(cmd.user_id, "tryon_reference")
+                photo = await self.profile_uow.photos.get_active_photo(
+                    cmd.user_id, "tryon_reference"
+                )
                 if photo is None:
                     raise ValidationError(
                         "User does not have an active portrait photo uploaded.",
@@ -102,7 +104,10 @@ class SubmitTryOnJobUseCase:
                     "Try-on is not supported for this garment type",
                 )
 
-            if cfg.tryon_supported_categories and garment.category not in cfg.tryon_supported_categories:
+            if (
+                cfg.tryon_supported_categories
+                and garment.category not in cfg.tryon_supported_categories
+            ):
                 raise ApiError(
                     422,
                     "unsupported_garment",
@@ -158,13 +163,17 @@ class SubmitTryOnJobUseCase:
 
             settings = get_settings()
             if hasattr(self.tryon_uow, "session") and self.tryon_uow.session:
-                if await check_daily_budget_exceeded(self.tryon_uow.session, settings.tryon_daily_budget_usd):
+                if await check_daily_budget_exceeded(
+                    self.tryon_uow.session, settings.tryon_daily_budget_usd
+                ):
                     raise ApiError(
                         503,
                         "service_unavailable",
                         "Try-on is at capacity today",
                     )
-                if await check_user_daily_cap_exceeded(self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap):
+                if await check_user_daily_cap_exceeded(
+                    self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap
+                ):
                     raise ApiError(
                         429,
                         "rate_limit_exceeded",

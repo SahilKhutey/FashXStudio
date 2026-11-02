@@ -175,9 +175,7 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
     ) -> TryOnJob | None:
         return await self.update_status(job_id, "completed")
 
-    async def claim_next_job(
-        self, worker_id: str, lease_seconds: int = 180
-    ) -> TryOnJob | None:
+    async def claim_next_job(self, worker_id: str, lease_seconds: int = 180) -> TryOnJob | None:
         now = datetime.now(UTC)
         expired_before = now - timedelta(seconds=lease_seconds)
         stmt = (
