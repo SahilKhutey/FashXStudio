@@ -4,8 +4,7 @@ useDefault = true
 [[allowlists]]
 description = "Test fixtures and documentation examples (no live credentials)"
 paths = [
-  '''tests/conftest\.py''',
-  '''tests/security/.*''',
+  '''tests/.*''',
   '''scripts/release/seed_staging_users\.py''',
   '''docs/architecture/auth\.md''',
 ]

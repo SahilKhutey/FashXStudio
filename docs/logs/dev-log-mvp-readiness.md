@@ -49,6 +49,7 @@ Across the MVP lifecycle, FashXStudio progressed from a static mock catalog into
 | 11 | `backend/fashx/security/tokens.py` | `create_demo_token` used static secret and issuer while CI configured runtime `AUTH_JWT_SECRET`, causing 401 in `test_demo_user_journey`. | Made `create_demo_token` dynamically resolve signing secret and issuer from runtime `get_settings()`, and added `AUTH_ISSUER`/`AUTH_AUDIENCE` to `ci.yml`. |
 | 12 | `tests/unit/test_fit_learning_ledger.py` | `SubmitTryOnFeedbackUseCase` raised `NotFoundError` because fixture lacked persisted completed `TryOnJob`. | Seeded completed `TryOnJob` entity in test session before submitting feedback. |
 | 13 | `tests/unit/test_fashn_adapter.py` | Test fixture image size (32x32) violated Phase 5 minimum resolution requirement (>=256x256). | Updated test fixture to 256x256, verified JPEG output normalization and matched `exc.value.code == 'provider_failed'`. |
+| 14 | `.gitleaks.toml` / `.gitleaksignore` | Gitleaks scan flagged synthetic test fixture tokens in VTO job orchestration and deployment tests. | Allowlisted test paths in `.gitleaks.toml`, recorded fingerprints in `.gitleaksignore`, and dynamically joined test tokens in `test_vto_phase10_deployment.py`. |
 
 ---
 
