@@ -9,6 +9,17 @@ export type TryOnJobStatusResponse = components["schemas"]["TryOnJobStatusRespon
 export type TryOnJobSubmissionResponse = components["schemas"]["TryOnJobSubmissionResponse"];
 export type TryOnJobListItem = components["schemas"]["TryOnJobListItem"];
 export type VisualAccuracy = components["schemas"]["VisualAccuracy"];
+export type TryOnFeedbackResponse = components["schemas"]["TryOnFeedbackResponse"];
+export type TryOnFeedbackRequest = components["schemas"]["TryOnFeedbackRequest"];
+
+export type TryOnIssueTag =
+  | "unnatural_fit"
+  | "garment_distorted"
+  | "color_inaccurate"
+  | "blurry_artifacts"
+  | "person_appearance_changed"
+  | "wrong_garment"
+  | "occlusion_error";
 
 export function ratingToVisualAccuracy(rating: number): VisualAccuracy {
   if (rating <= 1) return "very_inaccurate";
@@ -112,26 +123,26 @@ export function useTryOnJobs(limit = 50) {
 }
 
 export function useTryOnFeedback() {
-  const me = useAuthStore((s) => s.me);
-
   return useMutation({
     mutationFn: async ({
       jobId,
       rating,
       purchaseConfidence,
+      issueTags = [],
     }: {
       jobId: string;
       rating: number;
       purchaseConfidence?: number;
+      issueTags?: (TryOnIssueTag | string)[];
     }) => {
       const visualAccuracy = ratingToVisualAccuracy(rating);
-      return api<{ status: string }>("/feedback/tryon", {
+      return api<TryOnFeedbackResponse>("/feedback/tryon", {
         method: "POST",
         body: JSON.stringify({
-          user_id: me?.user_id,
           tryon_job_id: jobId,
           visual_accuracy: visualAccuracy,
           purchase_confidence: purchaseConfidence ?? null,
+          issue_tags: issueTags,
         }),
       });
     },

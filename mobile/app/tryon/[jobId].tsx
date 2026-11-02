@@ -21,11 +21,14 @@ import { Chip } from "../../src/components/Chip";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const LOOKS_WRONG_CHIPS = [
-  "Fit looks unnatural",
-  "Garment distorted",
-  "Color inaccurate",
-  "Blurry or artifacts",
+const ISSUE_CHIP_OPTIONS: { id: string; label: string }[] = [
+  { id: "unnatural_fit", label: "Fit looks unnatural" },
+  { id: "garment_distorted", label: "Garment distorted" },
+  { id: "color_inaccurate", label: "Color inaccurate" },
+  { id: "blurry_artifacts", label: "Blurry or artifacts" },
+  { id: "person_appearance_changed", label: "Person altered" },
+  { id: "wrong_garment", label: "Wrong garment" },
+  { id: "occlusion_error", label: "Occlusion error" },
 ];
 
 export default function TryOnJobScreen() {
@@ -57,8 +60,9 @@ export default function TryOnJobScreen() {
 
   const [showingBefore, setShowingBefore] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
-  const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [selectedIssueTags, setSelectedIssueTags] = useState<string[]>([]);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
@@ -67,23 +71,39 @@ export default function TryOnJobScreen() {
     setImageLoadFailed(false);
   }, [job?.result_url]);
 
-  const handleRating = (rating: number) => {
-    if (!jobId || feedbackSent) return;
+  const handleSelectRating = (rating: number) => {
+    if (feedbackSent) return;
     setSelectedRating(rating);
-    submitFeedback(
-      { jobId, rating },
-      {
-        onSuccess: () => setFeedbackSent(true),
-      }
-    );
+    setFeedbackError(null);
   };
 
-  const toggleChip = (chip: string) => {
-    if (selectedChips.includes(chip)) {
-      setSelectedChips(selectedChips.filter((c) => c !== chip));
+  const toggleIssueTag = (tagId: string) => {
+    if (feedbackSent) return;
+    if (selectedIssueTags.includes(tagId)) {
+      setSelectedIssueTags(selectedIssueTags.filter((t) => t !== tagId));
     } else {
-      setSelectedChips([...selectedChips, chip]);
+      setSelectedIssueTags([...selectedIssueTags, tagId]);
     }
+  };
+
+  const handleSubmitFeedback = () => {
+    if (!jobId || selectedRating === null || feedbackSent || isSubmittingFeedback) return;
+    setFeedbackError(null);
+    submitFeedback(
+      {
+        jobId,
+        rating: selectedRating,
+        issueTags: selectedIssueTags,
+      },
+      {
+        onSuccess: () => setFeedbackSent(true),
+        onError: (err: unknown) => {
+          const msg =
+            err instanceof Error ? err.message : "Unable to submit feedback.";
+          setFeedbackError(msg);
+        },
+      }
+    );
   };
 
   const handleSaveLook = () => {
@@ -333,8 +353,9 @@ export default function TryOnJobScreen() {
                       ? styles.starSelected
                       : null,
                   ]}
-                  onPress={() => handleRating(star)}
+                  onPress={() => handleSelectRating(star)}
                   disabled={isSubmittingFeedback || feedbackSent}
+                  testID={`star-rating-${star}`}
                 >
                   <Text style={styles.starText}>★</Text>
                 </TouchableOpacity>
@@ -345,21 +366,44 @@ export default function TryOnJobScreen() {
               <Text style={styles.thanksText}>✓ {t("tryon.feedbackThanks")}</Text>
             )}
 
+            {feedbackError && (
+              <Text style={styles.feedbackErrorText}>{feedbackError}</Text>
+            )}
+
             {/* "Looks wrong" feedback chips */}
-            {selectedRating !== null && selectedRating <= 3 && (
+            {!feedbackSent && selectedRating !== null && selectedRating <= 3 && (
               <View style={styles.chipsSection}>
                 <Text style={styles.chipsLabel}>What looks off?</Text>
                 <View style={styles.chipsContainer}>
-                  {LOOKS_WRONG_CHIPS.map((chip) => (
+                  {ISSUE_CHIP_OPTIONS.map((chip) => (
                     <Chip
-                      key={chip}
-                      label={chip}
-                      selected={selectedChips.includes(chip)}
-                      onPress={() => toggleChip(chip)}
+                      key={chip.id}
+                      label={chip.label}
+                      selected={selectedIssueTags.includes(chip.id)}
+                      onPress={() => toggleIssueTag(chip.id)}
                     />
                   ))}
                 </View>
               </View>
+            )}
+
+            {/* Explicit feedback submit button */}
+            {!feedbackSent && selectedRating !== null && (
+              <TouchableOpacity
+                style={[
+                  styles.submitFeedbackButton,
+                  isSubmittingFeedback ? styles.submitFeedbackDisabled : null,
+                ]}
+                onPress={handleSubmitFeedback}
+                disabled={isSubmittingFeedback}
+                testID="submit-feedback-btn"
+              >
+                {isSubmittingFeedback ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.submitFeedbackButtonText}>Submit feedback</Text>
+                )}
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -628,6 +672,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
+  },
+  submitFeedbackButton: {
+    backgroundColor: "#111827",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 14,
+  },
+  submitFeedbackDisabled: {
+    opacity: 0.6,
+  },
+  submitFeedbackButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  feedbackErrorText: {
+    color: "#EF4444",
+    fontSize: 13,
+    textAlign: "center",
+    marginTop: 8,
   },
   errorTitle: {
     fontSize: 16,

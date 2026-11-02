@@ -12586,11 +12586,8 @@ export interface components {
         TryOnFailureReason: "bad_input_photo" | "unsupported_garment" | "model_error" | "gpu_unavailable" | "timeout" | "storage_error" | "quality_rejected" | "internal_error";
         /** TryOnFeedbackRequest */
         TryOnFeedbackRequest: {
-            /**
-             * User Id
-             * Format: uuid
-             */
-            user_id: string;
+            /** User Id */
+            user_id?: string | null;
             /**
              * Tryon Job Id
              * Format: uuid
@@ -12599,6 +12596,8 @@ export interface components {
             visual_accuracy: components["schemas"]["VisualAccuracy"];
             /** Purchase Confidence */
             purchase_confidence?: number | null;
+            /** Issue Tags */
+            issue_tags?: string[];
         };
         /** TryOnFeedbackResponse */
         TryOnFeedbackResponse: {
@@ -12621,6 +12620,8 @@ export interface components {
             visual_accuracy: string;
             /** Purchase Confidence */
             purchase_confidence: number | null;
+            /** Issue Tags */
+            issue_tags?: string[];
         };
         /** TryOnJobListItem */
         TryOnJobListItem: {

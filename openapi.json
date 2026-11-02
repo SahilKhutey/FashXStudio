@@ -27223,8 +27223,15 @@
       "TryOnFeedbackRequest": {
         "properties": {
           "user_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "User Id"
           },
           "tryon_job_id": {
@@ -27247,11 +27254,17 @@
               }
             ],
             "title": "Purchase Confidence"
+          },
+          "issue_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue Tags"
           }
         },
         "type": "object",
         "required": [
-          "user_id",
           "tryon_job_id",
           "visual_accuracy"
         ],
@@ -27288,6 +27301,13 @@
               }
             ],
             "title": "Purchase Confidence"
+          },
+          "issue_tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue Tags"
           }
         },
         "type": "object",

@@ -11,6 +11,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -94,6 +95,9 @@ class TryOnFeedback(Base, UUIDPrimaryKeyMixin):
     visual_accuracy: Mapped[str] = mapped_column(String(32), nullable=False)
     purchase_confidence: Mapped[int | None] = mapped_column(Integer)
     provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    issue_tags: Mapped[list[str]] = mapped_column(
+        JSON, nullable=False, default=list, server_default=text("'[]'")
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

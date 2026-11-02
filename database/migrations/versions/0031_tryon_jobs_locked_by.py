@@ -6,8 +6,8 @@ Revises: 0030_wardrobe_user_garment_unique
 
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "0031_tryon_jobs_locked_by"
 down_revision: str | None = "0030_wardrobe_user_garment_unique"

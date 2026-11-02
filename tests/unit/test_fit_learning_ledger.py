@@ -3,6 +3,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from database.models.tryon import TryOnJob
 from fashx.commerce_wardrobe.application.submit_fit_feedback import (
     SubmitFitFeedbackCommand,
     SubmitFitFeedbackUseCase,
@@ -120,6 +121,24 @@ async def test_tryon_feedback_collection(
                 purchase_confidence=10,  # Range is 1..5
             )
         )
+
+    # Insert completed job for user_id
+    async with uow:
+        job = TryOnJob(
+            id=job_id,
+            user_id=user_id,
+            garment_id=uuid4(),
+            profile_photo_id=uuid4(),
+            idempotency_key=f"idemp-{job_id}",
+            artifact_key=f"artifacts/{job_id}.png",
+            status="completed",
+            model_version="v1",
+            pipeline_version="v1",
+            provider="mock",
+            photo_version=1,
+        )
+        uow.session.add(job)
+        await uow.commit()
 
     # 3. Successful recording
     res = await uc.execute(
