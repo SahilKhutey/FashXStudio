@@ -9,4 +9,5 @@ paths = [
   '''docs/architecture/.*''',
   '''\.env\.example''',
   '''mobile/\.env\.example''',
+  '''docs/archive/.*/\.env\.example''',
 ]
