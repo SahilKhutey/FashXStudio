@@ -6,5 +6,7 @@ description = "Test fixtures and documentation examples (no live credentials)"
 paths = [
   '''tests/.*''',
   '''scripts/release/seed_staging_users\.py''',
-  '''docs/architecture/auth\.md''',
+  '''docs/architecture/.*''',
+  '''\.env\.example''',
+  '''mobile/\.env\.example''',
 ]

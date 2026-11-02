@@ -56,11 +56,11 @@ class SafeImageValidator:
             addr_info = socket.getaddrinfo(clean_host, None)
             for _family, _, _, _, sockaddr in addr_info:
                 ip_str = sockaddr[0]
-                # In Linux and CI environments, unregistered test hostnames
-                # can resolve to 0.0.0.0 or :: due to NXDOMAIN sinkholing.
-                if ip_str in ("0.0.0.0", "::"):
-                    continue
                 ip = ipaddress.ip_address(ip_str)
+                # In Linux and CI environments, unregistered test hostnames
+                # can resolve to unspecified addresses (0.0.0.0 or ::) due to NXDOMAIN sinkholing.
+                if ip.is_unspecified:
+                    continue
                 if (
                     ip.is_private
                     or ip.is_loopback
