@@ -1,6 +1,7 @@
 """Unit tests for source adapters and circuit breaker mechanics."""
 
 import time
+from pathlib import Path
 
 import pytest
 
@@ -88,3 +89,28 @@ async def test_circuit_breaker_behavior() -> None:
     # Wait for cooldown
     time.sleep(0.25)
     assert adapter.circuit_state == "HALF_OPEN"
+
+
+@pytest.mark.asyncio
+async def test_partner_csv_accepts_validator_source_url_column(
+    tmp_path: Path,
+) -> None:
+    csv_path = tmp_path / "partner_products.csv"
+    csv_path.write_text(
+        "source_product_id,title,category,price_minor,currency,"
+        "source_url,image_url,in_stock,size_values,image_rights,tryon_rights\n"
+        "SKU-001,Cotton Shirt,tops,149900,INR,"
+        "https://brand.example/products/SKU-001,"
+        "https://images.example/shirt.jpg,true,M|L,"
+        "partner_authorized,true\n",
+        encoding="utf-8",
+    )
+    adapter = PartnerFeedAdapter(
+        feed_csv_path=csv_path,
+    )
+    batch = await adapter.fetch_batch(limit=10)
+    assert len(batch.products) == 1
+    product = batch.products[0]
+    assert product.source_product_id == "SKU-001"
+    assert product.product_url == "https://brand.example/products/SKU-001"
+    assert product.image_url == "https://images.example/shirt.jpg"

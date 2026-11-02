@@ -116,6 +116,15 @@ class TryOnFeedbackRepository(BaseRepository[TryOnFeedback]):
         stmt = select(TryOnFeedback).where(TryOnFeedback.tryon_job_id == job_id)
         return await self.session.scalar(stmt)
 
+    async def get_by_user_and_job(
+        self, user_id: UUID, job_id: UUID
+    ) -> TryOnFeedback | None:
+        stmt = select(TryOnFeedback).where(
+            TryOnFeedback.user_id == user_id,
+            TryOnFeedback.tryon_job_id == job_id,
+        )
+        return await self.session.scalar(stmt)
+
 
 class CommerceWardrobeUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of work managing Commerce, Wardrobe, and Feedback persistence."""

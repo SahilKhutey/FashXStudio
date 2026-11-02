@@ -1,6 +1,7 @@
 .git
 .github
 .venv
+venv
 __pycache__
 .pytest_cache
 .ruff_cache
@@ -15,6 +16,12 @@ gold
 *.log
 .env
 .env.*
+!.env.example
+.coverage
+htmlcov
+dist
+build
+*.pyc
 *.zip
 *.7z
 *.tar.gz
@@ -22,6 +29,5 @@ gold
 *.db
 .local_storage
 .jest-cache
-dist
 web-build
 docs/archive

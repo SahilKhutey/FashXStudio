@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 from .database import get_db_session
 
 
-async def db_session(session: AsyncSession = Depends(get_db_session)) -> AsyncIterator[AsyncSession]:
+async def db_session(
+    session: AsyncSession = Depends(get_db_session),
+) -> AsyncIterator[AsyncSession]:
     yield session
 
 
@@ -43,8 +45,12 @@ def get_storage() -> ObjectStorage:
             bucket=settings.s3_bucket or "fashx-media",
             endpoint_url=settings.s3_endpoint_url,
             region=settings.s3_region,
-            key_id=settings.s3_access_key_id.get_secret_value() if settings.s3_access_key_id else None,
-            secret=settings.s3_secret_access_key.get_secret_value() if settings.s3_secret_access_key else None,
+            key_id=settings.s3_access_key_id.get_secret_value()
+            if settings.s3_access_key_id
+            else None,
+            secret=settings.s3_secret_access_key.get_secret_value()
+            if settings.s3_secret_access_key
+            else None,
         )
     return LocalStorage(root_dir=settings.local_storage_dir)
 
@@ -66,6 +72,7 @@ def get_tryon_adapter() -> TryOnAdapter:
             model=s.fashn_model,
             mode=s.fashn_mode,
             cost_usd_est=s.tryon_est_cost_usd,
+            timeout_s=float(s.tryon_timeout_s),
         )
     elif s.tryon_provider == "fashn_selfhost":
         raise NotImplementedError(

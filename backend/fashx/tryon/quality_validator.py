@@ -1,33 +1,86 @@
 import io
 import math
+from typing import Any
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from .ports import PostInferenceValidationResult
 
 
 class PostInferenceQualityValidator:
-    """Rule I10: Post-Inference Quality Validation to prevent corrupted renders from reaching users."""
+    """Structural safety and basic image-quality gate for VTO artifacts.
+    This does not claim to measure garment-fit accuracy or identity similarity.
+    """
 
     MIN_LUMINANCE = 25.0
     MAX_LUMINANCE = 235.0
     MIN_CONTRAST_STD = 12.0
     MIN_DIMENSION = 256
+    MAX_SIDE = 4096
+    MAX_PIXELS = 20_000_000
+    MAX_BYTES = 15 * 1024 * 1024
+    ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
     @classmethod
     def validate(cls, rendered_image_bytes: bytes) -> PostInferenceValidationResult:
-        """Validate rendered try-on image for structural soundness and absence of render artifacts."""
+        def reject(reason: str, **diagnostics: Any) -> PostInferenceValidationResult:
+            return PostInferenceValidationResult(
+                is_acceptable=False,
+                structural_score=0.0,
+                contrast_score=0.0,
+                mean_luminance=0.0,
+                failure_reason=reason,
+                diagnostics=diagnostics,
+            )
+
+        if not rendered_image_bytes:
+            return reject("Empty image payload")
+
+        if len(rendered_image_bytes) > cls.MAX_BYTES:
+            return reject(
+                "Image payload exceeds maximum allowed size",
+                size_bytes=len(rendered_image_bytes),
+                max_bytes=cls.MAX_BYTES,
+            )
+
         try:
+            # 1. Structural integrity verification
+            with Image.open(io.BytesIO(rendered_image_bytes)) as img_verify:
+                img_verify.verify()
+
+            # 2. Re-open to read format, dimensions, pixels
             with Image.open(io.BytesIO(rendered_image_bytes)) as img:
+                img_format = img.format
+                if img_format not in cls.ALLOWED_FORMATS:
+                    return reject(
+                        f"Unsupported image format: {img_format}",
+                        format=img_format,
+                        allowed=list(cls.ALLOWED_FORMATS),
+                    )
+
                 width, height = img.size
                 if width < cls.MIN_DIMENSION or height < cls.MIN_DIMENSION:
-                    return PostInferenceValidationResult(
-                        is_acceptable=False,
-                        structural_score=0.0,
-                        contrast_score=0.0,
-                        mean_luminance=0.0,
-                        failure_reason="Rendered image resolution below minimum threshold",
-                        diagnostics={"width": width, "height": height},
+                    return reject(
+                        "Rendered image resolution below minimum threshold",
+                        width=width,
+                        height=height,
+                        min_dimension=cls.MIN_DIMENSION,
+                    )
+
+                if width > cls.MAX_SIDE or height > cls.MAX_SIDE:
+                    return reject(
+                        f"Rendered image dimension exceeds maximum allowed side ({cls.MAX_SIDE}px)",
+                        width=width,
+                        height=height,
+                        max_side=cls.MAX_SIDE,
+                    )
+
+                pixel_count = width * height
+                if pixel_count > cls.MAX_PIXELS:
+                    return reject(
+                        f"Rendered image pixel count exceeds maximum limit ({cls.MAX_PIXELS} pixels)",
+                        pixels=pixel_count,
+                        max_pixels=cls.MAX_PIXELS,
                     )
 
                 # Convert to grayscale for luminance & contrast metrics
@@ -35,19 +88,13 @@ class PostInferenceQualityValidator:
                 pixels = list(gray.tobytes())
                 n = len(pixels)
                 if n == 0:
-                    return PostInferenceValidationResult(
-                        is_acceptable=False,
-                        structural_score=0.0,
-                        contrast_score=0.0,
-                        mean_luminance=0.0,
-                        failure_reason="Empty pixel buffer",
-                    )
+                    return reject("Empty pixel buffer")
 
                 mean_lum = sum(pixels) / n
                 variance = sum((p - mean_lum) ** 2 for p in pixels) / n
                 contrast_std = math.sqrt(variance)
 
-                # Check 1: Extreme exposure / blank frames
+                # Check extreme exposure / blank frames
                 if mean_lum < cls.MIN_LUMINANCE:
                     return PostInferenceValidationResult(
                         is_acceptable=False,
@@ -68,7 +115,7 @@ class PostInferenceQualityValidator:
                         diagnostics={"mean_lum": mean_lum, "std": contrast_std},
                     )
 
-                # Check 2: Low contrast / flat degenerate frame
+                # Check low contrast / flat degenerate frame
                 if contrast_std < cls.MIN_CONTRAST_STD:
                     return PostInferenceValidationResult(
                         is_acceptable=False,
@@ -90,14 +137,18 @@ class PostInferenceQualityValidator:
                     contrast_score=round(contrast_std, 2),
                     mean_luminance=round(mean_lum, 2),
                     failure_reason=None,
-                    diagnostics={"structural_score": structural_score},
+                    diagnostics={
+                        "structural_score": structural_score,
+                        "mean_lum": round(mean_lum, 2),
+                        "contrast_std": round(contrast_std, 2),
+                        "width": width,
+                        "height": height,
+                        "format": img_format,
+                        "size_bytes": len(rendered_image_bytes),
+                    },
                 )
 
+        except (UnidentifiedImageError, OSError) as exc:
+            return reject(f"Image decoding error: {exc}", error=str(exc))
         except Exception as exc:
-            return PostInferenceValidationResult(
-                is_acceptable=False,
-                structural_score=0.0,
-                contrast_score=0.0,
-                mean_luminance=0.0,
-                failure_reason=f"Image decoding error: {exc}",
-            )
+            return reject(f"Image validation unexpected error: {exc}", error=str(exc))

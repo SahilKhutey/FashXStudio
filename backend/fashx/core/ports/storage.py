@@ -47,6 +47,9 @@ class InMemoryStorageAdapter:
     async def get_signed_url(self, key: str, expires_in_seconds: int = 900) -> str:
         return f"https://storage.local/{key}?exp={expires_in_seconds}"
 
+    def signed_get_url(self, key: str, ttl_s: int = 300) -> str:
+        return f"https://storage.local/{key}?exp={ttl_s}"
+
     async def delete(self, key: str) -> bool:
         if key in self._objects:
             del self._objects[key]

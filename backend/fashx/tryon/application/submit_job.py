@@ -16,6 +16,7 @@ class SubmitTryOnJobCommand:
     user_id: UUID
     garment_id: UUID
     idempotency_key: str
+    photo_id: UUID | None = None
     render_config: dict[str, Any] | None = None
 
 
@@ -61,18 +62,29 @@ class SubmitTryOnJobUseCase:
             if not has_consent:
                 raise ConsentRequiredError("body_photo")
 
-            photo = await self.profile_uow.photos.get_active_photo(cmd.user_id, "tryon_reference")
-            if photo is None:
-                raise ValidationError(
-                    "User does not have an active portrait photo uploaded.",
-                    field="photo",
+            if cmd.photo_id is not None:
+                photo = await self.profile_uow.photos.get_owned(cmd.photo_id, cmd.user_id)
+                if photo is None:
+                    raise ValidationError(
+                        "Photo not found or not owned by user",
+                        field="photo_id",
+                    )
+            else:
+                photo = await self.profile_uow.photos.get_active_photo(
+                    cmd.user_id, "tryon_reference"
                 )
+                if photo is None:
+                    raise ValidationError(
+                        "User does not have an active portrait photo uploaded.",
+                        field="photo",
+                    )
             if photo.status != "accepted":
                 raise ValidationError(
                     f"User portrait photo status is '{photo.status}'; must be 'accepted' to run try-on.",
                     field="photo_status",
                 )
             photo_id = photo.id
+            photo_version = getattr(photo, "version", 1)
             photo_storage_key = photo.storage_key
 
         # 2. Garment Validation & Capability Gating (Step 5.20)
@@ -92,7 +104,10 @@ class SubmitTryOnJobUseCase:
                     "Try-on is not supported for this garment type",
                 )
 
-            if cfg.tryon_supported_categories and garment.category not in cfg.tryon_supported_categories:
+            if (
+                cfg.tryon_supported_categories
+                and garment.category not in cfg.tryon_supported_categories
+            ):
                 raise ApiError(
                     422,
                     "unsupported_garment",
@@ -148,13 +163,17 @@ class SubmitTryOnJobUseCase:
 
             settings = get_settings()
             if hasattr(self.tryon_uow, "session") and self.tryon_uow.session:
-                if await check_daily_budget_exceeded(self.tryon_uow.session, settings.tryon_daily_budget_usd):
+                if await check_daily_budget_exceeded(
+                    self.tryon_uow.session, settings.tryon_daily_budget_usd
+                ):
                     raise ApiError(
                         503,
                         "service_unavailable",
                         "Try-on is at capacity today",
                     )
-                if await check_user_daily_cap_exceeded(self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap):
+                if await check_user_daily_cap_exceeded(
+                    self.tryon_uow.session, cmd.user_id, settings.tryon_user_daily_cap
+                ):
                     raise ApiError(
                         429,
                         "rate_limit_exceeded",
@@ -171,6 +190,8 @@ class SubmitTryOnJobUseCase:
                 status="queued",
                 model_version=self.adapter.model_version,
                 pipeline_version=self.adapter.pipeline_version,
+                photo_version=photo_version,
+                garment_version=garment_version,
                 provider=getattr(self.adapter, "provider", "mock"),
             )
             self.tryon_uow.jobs.add(job)

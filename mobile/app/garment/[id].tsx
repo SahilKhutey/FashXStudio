@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useGarmentDetail } from "../../src/features/catalog/hooks";
 import { useStartTryOn } from "../../src/features/tryon/useTryOn";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
+import { RetailerOffers } from "../../src/features/wardrobe/RetailerOffers";
 import { useBuy } from "../../src/features/commerce/useBuy";
 import { Chip } from "../../src/components/Chip";
 
@@ -34,13 +35,25 @@ export default function GarmentDetailScreen() {
   const [tryOnError, setTryOnError] = useState<string | null>(null);
 
   const handleTryOn = async () => {
-    if (!id || !garment?.tryon_supported) return;
+    if (!id || !garment?.tryon_supported || isStartingTryOn) return;
+
     setTryOnError(null);
+
     try {
-      const res = await startTryOn({ garmentId: id });
-      router.push(`/tryon/${res.job_id}`);
-    } catch (err: any) {
-      setTryOnError(err?.detail || err?.message || "Failed to start try-on");
+      const result = await startTryOn({ garmentId: id });
+
+      if (!result.job_id) {
+        throw new Error("The server did not return a try-on job ID.");
+      }
+
+      router.push(`/tryon/${result.job_id}`);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to start virtual try-on. Please try again.";
+
+      setTryOnError(message);
     }
   };
 
@@ -159,6 +172,11 @@ export default function GarmentDetailScreen() {
               <Text style={styles.detailValue}>{garment.gender}</Text>
             </View>
           </View>
+
+          {/* Retailer Offers */}
+          {garment.offers && garment.offers.length > 0 && (
+            <RetailerOffers garmentId={garment.id} offers={garment.offers} />
+          )}
 
           {/* Affiliate Disclosure */}
           <View style={styles.disclosureBox}>

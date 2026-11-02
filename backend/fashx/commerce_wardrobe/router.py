@@ -33,9 +33,11 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
 )
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
+from fashx.core.settings import get_settings
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
 from fashx.security.errors import forbidden
+from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from schemas.common.enums import FitVerdict, VisualAccuracy
 
 router = APIRouter(tags=["commerce-wardrobe-feedback"])
@@ -51,6 +53,10 @@ def get_profile_uow() -> ProfileUnitOfWork:
 
 def get_catalog_uow() -> CatalogUnitOfWork:
     return CatalogUnitOfWork(get_session_factory())
+
+
+def get_tryon_uow() -> TryOnUnitOfWork:
+    return TryOnUnitOfWork(get_session_factory())
 
 
 # --- Schemas ---
@@ -109,10 +115,11 @@ class FitFeedbackResponse(BaseModel):
 
 
 class TryOnFeedbackRequest(BaseModel):
-    user_id: UUID
+    user_id: UUID | None = None
     tryon_job_id: UUID
     visual_accuracy: VisualAccuracy
     purchase_confidence: int | None = Field(default=None, ge=1, le=5)
+    issue_tags: list[str] = Field(default_factory=list)
 
 
 class TryOnFeedbackResponse(BaseModel):
@@ -121,6 +128,7 @@ class TryOnFeedbackResponse(BaseModel):
     tryon_job_id: UUID
     visual_accuracy: str
     purchase_confidence: int | None
+    issue_tags: list[str] = Field(default_factory=list)
 
 
 class BrandCalibrationResponse(BaseModel):
@@ -148,6 +156,7 @@ async def save_to_wardrobe(
     wardrobe_uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
     profile_uow: ProfileUnitOfWork = Depends(get_profile_uow),
     catalog_uow: CatalogUnitOfWork = Depends(get_catalog_uow),
+    tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
     storage: Any = Depends(get_storage),
 ) -> SaveWardrobeResponse:
     """Save a garment to virtual closet with immutable snapshot metadata (Rule I11)."""
@@ -155,7 +164,13 @@ async def save_to_wardrobe(
     if request.user_id is not None and request.user_id != effective_user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
-    uc = SaveToWardrobeUseCase(wardrobe_uow, profile_uow, catalog_uow, storage=storage)
+    uc = SaveToWardrobeUseCase(
+        wardrobe_uow,
+        profile_uow,
+        catalog_uow,
+        tryon_uow=tryon_uow,
+        storage=storage,
+    )
     res = await uc.execute(
         SaveToWardrobeCommand(
             user_id=effective_user_id,
@@ -270,7 +285,13 @@ async def create_buy_click(
                 raise EntityNotFoundError("MerchantOffer", request.garment_id)
             effective_offer_id = offers[0].id
 
-    uc = CreateBuyClickUseCase(commerce_uow, profile_uow, catalog_uow)
+    settings = get_settings()
+    uc = CreateBuyClickUseCase(
+        commerce_uow,
+        profile_uow,
+        catalog_uow,
+        allowed_hosts=settings.parsed_retailer_allowed_hosts,
+    )
     res = await uc.execute(
         CreateBuyClickCommand(
             user_id=effective_user_id,
@@ -361,16 +382,18 @@ async def submit_tryon_feedback(
     uow: CommerceWardrobeUnitOfWork = Depends(get_commerce_uow),
 ) -> TryOnFeedbackResponse:
     """Record user try-on visual realism and purchase confidence (Rule I14)."""
-    if str(request.user_id) != principal.user_id:
+    effective_user_id = UUID(principal.user_id)
+    if request.user_id is not None and request.user_id != effective_user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
     uc = SubmitTryOnFeedbackUseCase(uow)
     res = await uc.execute(
         SubmitTryOnFeedbackCommand(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             tryon_job_id=request.tryon_job_id,
             visual_accuracy=request.visual_accuracy.value,
             purchase_confidence=request.purchase_confidence,
+            issue_tags=request.issue_tags,
         )
     )
     return TryOnFeedbackResponse(
@@ -379,4 +402,5 @@ async def submit_tryon_feedback(
         tryon_job_id=res.tryon_job_id,
         visual_accuracy=res.visual_accuracy,
         purchase_confidence=res.purchase_confidence,
+        issue_tags=res.issue_tags,
     )

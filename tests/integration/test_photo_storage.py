@@ -1,6 +1,6 @@
 import base64
 import io
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from PIL import Image
 
@@ -73,6 +73,14 @@ def test_photo_upload_and_signed_url_flow(client_a, tmp_path):
 
             def add(self, p):
                 self.parent.photos_store[p.id] = p
+
+            async def create(self, **kwargs):
+                pid = kwargs.get("id_") or uuid4()
+                p = MockPhoto(pid, kwargs.get("user_id"), kwargs.get("storage_key"))
+                for k, v in kwargs.items():
+                    setattr(p, k, v)
+                self.parent.photos_store[pid] = p
+                return p
 
             async def get_by_id(self, pid):
                 return self.parent.photos_store.get(pid)

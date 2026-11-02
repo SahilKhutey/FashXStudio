@@ -27,6 +27,8 @@ class SourceProduct:
     source_updated_at: str | None = None
     image_rights: str = "partner_authorized"  # owned | licensed | partner_authorized
     tryon_rights: bool = False
+    prepared_image_key: str | None = None
+    prepared_image_hash: str | None = None
     raw_attributes: dict[str, Any] = field(default_factory=dict)
 
 

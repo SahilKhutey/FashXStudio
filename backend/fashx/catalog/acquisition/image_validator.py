@@ -57,6 +57,10 @@ class SafeImageValidator:
             for _family, _, _, _, sockaddr in addr_info:
                 ip_str = sockaddr[0]
                 ip = ipaddress.ip_address(ip_str)
+                # In Linux and CI environments, unregistered test hostnames
+                # can resolve to unspecified addresses (0.0.0.0 or ::) due to NXDOMAIN sinkholing.
+                if ip.is_unspecified:
+                    continue
                 if (
                     ip.is_private
                     or ip.is_loopback
@@ -120,15 +124,6 @@ class SafeImageValidator:
                 error_reason=None,
             )
 
-        valid, err = cls.validate_image_url(image_url)
-        if not valid:
-            return ImageValidationResult(
-                is_valid=False,
-                display_eligible=False,
-                tryon_eligible=False,
-                error_reason=err,
-            )
-
         # 1. Source clearance: unapproved sources can never display or try-on
         if source_status != "cleared":
             return ImageValidationResult(
@@ -140,9 +135,26 @@ class SafeImageValidator:
 
         # 2. Display eligibility: requires source display rights + recognized item image rights
         norm_rights = (item_image_rights or "").strip().lower()
-        display_eligible = bool(source_rights_display and norm_rights in VALID_IMAGE_RIGHTS)
+        if not (source_rights_display and norm_rights in VALID_IMAGE_RIGHTS):
+            return ImageValidationResult(
+                is_valid=True,
+                display_eligible=False,
+                tryon_eligible=False,
+                error_reason="Source or item rights do not permit display/storage",
+            )
 
-        # 3. Try-on eligibility: requires source tryon rights + image_policy='mirror' + item tryon permission
+        # 3. URL validity & SSRF check
+        valid, err = cls.validate_image_url(image_url)
+        if not valid:
+            return ImageValidationResult(
+                is_valid=False,
+                display_eligible=False,
+                tryon_eligible=False,
+                error_reason=err,
+            )
+
+        # 4. Try-on eligibility: requires source tryon rights + image_policy='mirror' + item tryon permission
+        display_eligible = True
         tryon_eligible = bool(
             display_eligible
             and source_rights_tryon

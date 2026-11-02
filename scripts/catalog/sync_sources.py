@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -49,15 +50,30 @@ async def build_session_factory(db_url: str | None = None) -> async_sessionmaker
 def build_default_registry() -> AdapterRegistry:
     registry = AdapterRegistry()
 
-    # 1. Partner feed adapter with canonical seed
+    # 1. Partner feed: configured path and source slug.
+    # The source must already be registered and cleared in the real database.
+    partner_slug = os.getenv(
+        "FASHX_PARTNER_FEED_SLUG",
+        "manual-demo",
+    ).strip()
+    partner_name = os.getenv(
+        "FASHX_PARTNER_FEED_NAME",
+        "Manual Demo Wardrobe",
+    ).strip()
+    partner_csv = Path(
+        os.getenv(
+            "FASHX_PARTNER_FEED_CSV",
+            "data/catalog/catalog_seed.csv",
+        )
+    )
     partner_adapter = PartnerFeedAdapter(
         config=SourceConfig(
-            source_slug="manual-demo",
-            name="Manual Demo Wardrobe",
-            kind="manual",
+            source_slug=partner_slug,
+            name=partner_name,
+            kind="feed_url",
             image_policy="mirror",
         ),
-        feed_csv_path=Path("data/catalog/catalog_seed.csv"),
+        feed_csv_path=partner_csv,
     )
     registry.register(partner_adapter)
 

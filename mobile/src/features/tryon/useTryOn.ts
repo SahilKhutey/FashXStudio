@@ -3,11 +3,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import { components } from "../../api/schema";
 import { useAuthStore } from "../auth/authStore";
+import { getTryOnPollInterval } from "./polling";
 
 export type TryOnJobStatusResponse = components["schemas"]["TryOnJobStatusResponse"];
 export type TryOnJobSubmissionResponse = components["schemas"]["TryOnJobSubmissionResponse"];
 export type TryOnJobListItem = components["schemas"]["TryOnJobListItem"];
 export type VisualAccuracy = components["schemas"]["VisualAccuracy"];
+export type TryOnFeedbackResponse = components["schemas"]["TryOnFeedbackResponse"];
+export type TryOnFeedbackRequest = components["schemas"]["TryOnFeedbackRequest"];
+
+export type TryOnIssueTag =
+  | "unnatural_fit"
+  | "garment_distorted"
+  | "color_inaccurate"
+  | "blurry_artifacts"
+  | "person_appearance_changed"
+  | "wrong_garment"
+  | "occlusion_error";
 
 export function ratingToVisualAccuracy(rating: number): VisualAccuracy {
   if (rating <= 1) return "very_inaccurate";
@@ -42,76 +54,61 @@ export function useStartTryOn() {
   });
 }
 
+export function useRetryTryOn() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ garmentId }: { garmentId: string }) => {
+      const idempotencyKey = `tryon-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+      return api<TryOnJobSubmissionResponse>("/tryon/jobs", {
+        method: "POST",
+        idempotencyKey,
+        body: JSON.stringify({
+          garment_id: garmentId,
+        }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tryon", "jobs"],
+      });
+    },
+  });
+}
+
 export function useJob(jobId: string | null, isFocused = true) {
-  const [pollCount, setPollCount] = useState(0);
-  const startTimeRef = useRef<number>(Date.now());
-  const [isTakingLongerThanUsual, setIsTakingLongerThanUsual] = useState(false);
-  const wasUnfocusedRef = useRef(false);
+  const [startedAt, setStartedAt] = useState(Date.now());
 
   useEffect(() => {
-    startTimeRef.current = Date.now();
-    setPollCount(0);
-    setIsTakingLongerThanUsual(false);
+    setStartedAt(Date.now());
   }, [jobId]);
 
   const query = useQuery<TryOnJobStatusResponse, Error>({
     queryKey: ["tryon", "job", jobId],
     queryFn: async () => {
-      const res = await api<TryOnJobStatusResponse>(`/tryon/jobs/${jobId}`);
-      setPollCount((prev) => prev + 1);
-
-      // Check if elapsed time exceeds 120 seconds (2 minutes)
-      const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      if (
-        elapsed >= 120 &&
-        res.status !== "completed" &&
-        res.status !== "failed" &&
-        res.status !== "cancelled"
-      ) {
-        setIsTakingLongerThanUsual(true);
-      }
-
-      return res;
+      if (!jobId) throw new Error("Missing try-on job ID");
+      return api<TryOnJobStatusResponse>(
+        `/tryon/jobs/${encodeURIComponent(jobId)}`
+      );
     },
-    enabled: !!jobId,
+    enabled: Boolean(jobId && isFocused),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnReconnect: true,
     refetchOnWindowFocus: true,
-    refetchInterval: (q) => {
-      if (!isFocused) return false;
-
-      const status = q.state.data?.status;
-      if (status === "completed" || status === "failed" || status === "cancelled") {
-        return false;
-      }
-
-      const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      if (elapsed >= 600) {
-        // Ceiling: stop polling after 10 minutes (600s)
-        return false;
-      }
-
-      // Exponential backoff: 1s -> 2s -> 4s -> 5s (capped at 5s)
-      const backoffMs = Math.min(1000 * Math.pow(2, pollCount), 5000);
-      return backoffMs;
-    },
+    refetchInterval: (q) =>
+      getTryOnPollInterval(Date.now() - startedAt, q.state.data?.status),
     refetchIntervalInBackground: false,
+    retry: 2,
   });
 
-  // Resume on focus: when returning from unfocused state, immediately refetch if not in terminal state
-  useEffect(() => {
-    if (!isFocused) {
-      wasUnfocusedRef.current = true;
-    } else if (wasUnfocusedRef.current && jobId) {
-      wasUnfocusedRef.current = false;
-      const status = query.data?.status;
-      if (status !== "completed" && status !== "failed" && status !== "cancelled") {
-        query.refetch();
-      }
-    }
-  }, [isFocused, jobId, query]);
+  const elapsedMs = Date.now() - startedAt;
 
   return {
     ...query,
-    isTakingLongerThanUsual,
+    isTakingLongerThanUsual: elapsedMs >= 120_000,
+    refreshJob: query.refetch,
   };
 }
 
@@ -126,26 +123,26 @@ export function useTryOnJobs(limit = 50) {
 }
 
 export function useTryOnFeedback() {
-  const me = useAuthStore((s) => s.me);
-
   return useMutation({
     mutationFn: async ({
       jobId,
       rating,
       purchaseConfidence,
+      issueTags = [],
     }: {
       jobId: string;
       rating: number;
       purchaseConfidence?: number;
+      issueTags?: (TryOnIssueTag | string)[];
     }) => {
       const visualAccuracy = ratingToVisualAccuracy(rating);
-      return api<{ status: string }>("/feedback/tryon", {
+      return api<TryOnFeedbackResponse>("/feedback/tryon", {
         method: "POST",
         body: JSON.stringify({
-          user_id: me?.user_id,
           tryon_job_id: jobId,
           visual_accuracy: visualAccuracy,
           purchase_confidence: purchaseConfidence ?? null,
+          issue_tags: issueTags,
         }),
       });
     },

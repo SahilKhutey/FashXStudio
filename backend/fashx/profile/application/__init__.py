@@ -3,6 +3,12 @@ from .create_profile import (
     CreateProfileResult,
     CreateProfileUseCase,
 )
+from .prepare_user_photo import (
+    PrepareUserPhotoCommand,
+    PrepareUserPhotoResult,
+    PrepareUserPhotoUseCase,
+    UserPhotoUploadService,
+)
 from .record_measurement import (
     RecordMeasurementCommand,
     RecordMeasurementUseCase,
@@ -21,6 +27,9 @@ __all__ = [
     "CreateProfileCommand",
     "CreateProfileResult",
     "CreateProfileUseCase",
+    "PrepareUserPhotoCommand",
+    "PrepareUserPhotoResult",
+    "PrepareUserPhotoUseCase",
     "RecordMeasurementCommand",
     "RecordMeasurementUseCase",
     "UploadPhotoCommand",
@@ -28,4 +37,5 @@ __all__ = [
     "UploadUserPhotoUseCase",
     "UpdatePreferencesCommand",
     "UpdatePreferencesUseCase",
+    "UserPhotoUploadService",
 ]

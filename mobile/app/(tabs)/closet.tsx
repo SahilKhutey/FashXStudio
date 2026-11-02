@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -19,9 +20,30 @@ export default function ClosetScreen() {
   const { colors } = useDesignTokens();
   const { data: wardrobeItems, isLoading, isError, refetch, isRefetching } = useUserWardrobe();
   const { mutate: removeItem } = useRemoveFromWardrobe();
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const handleRemove = (itemId: string) => {
+    if (removingId) return;
+    setRemovingId(itemId);
+    removeItem(itemId, {
+      onSettled: () => setRemovingId(null),
+    });
+  };
 
   const renderItem = ({ item }: { item: UserWardrobeItem }) => {
-    const imageUri = item.image_url || item.snapshot_image_key;
+    const imageUri =
+      item.image_url ||
+      (item.snapshot_image_key?.startsWith("http://") ||
+      item.snapshot_image_key?.startsWith("https://")
+        ? item.snapshot_image_key
+        : undefined);
+
+    const formattedPrice =
+      item.snapshot_price_minor && item.snapshot_price_minor > 0
+        ? `${item.snapshot_currency || "INR"} ${(
+            item.snapshot_price_minor / 100
+          ).toFixed(2)}`
+        : null;
 
     return (
       <TouchableOpacity
@@ -31,7 +53,12 @@ export default function ClosetScreen() {
         accessibilityRole="button"
         accessibilityLabel={`Wardrobe item ${item.garment_id}`}
       >
-        <View style={[styles.thumbnailContainer, { backgroundColor: colors.surfaceSecondary }]}>
+        <View
+          style={[
+            styles.thumbnailContainer,
+            { backgroundColor: colors.surfaceSecondary },
+          ]}
+        >
           {imageUri ? (
             <Image
               source={{ uri: imageUri }}
@@ -46,14 +73,39 @@ export default function ClosetScreen() {
         </View>
 
         <View style={styles.detailsContainer}>
-          <AppText variant="body" color="textPrimary" style={styles.itemTitle} numberOfLines={1}>
+          <AppText
+            variant="body"
+            color="textPrimary"
+            style={styles.itemTitle}
+            numberOfLines={1}
+          >
             {item.snapshot_title || "Saved Garment"}
           </AppText>
-          <AppText variant="caption" color="textMuted" style={styles.subText} numberOfLines={1}>
+          {formattedPrice && (
+            <AppText
+              variant="caption"
+              color="textPrimary"
+              style={[styles.priceText, { color: colors.brand }]}
+              numberOfLines={1}
+            >
+              {formattedPrice}
+            </AppText>
+          )}
+          <AppText
+            variant="caption"
+            color="textMuted"
+            style={styles.subText}
+            numberOfLines={1}
+          >
             ID: {item.garment_id.slice(0, 8)}...
           </AppText>
           {item.tryon_artifact_id && (
-            <View style={[styles.renderedBadge, { backgroundColor: colors.brandSubtle }]}>
+            <View
+              style={[
+                styles.renderedBadge,
+                { backgroundColor: colors.brandSubtle },
+              ]}
+            >
               <Text style={[styles.renderedBadgeText, { color: colors.brand }]}>
                 ✨ Try-On Saved
               </Text>
@@ -62,15 +114,22 @@ export default function ClosetScreen() {
         </View>
         <TouchableOpacity
           style={styles.removeButton}
+          disabled={removingId === item.item_id}
           onPress={(e) => {
             e.stopPropagation();
-            removeItem(item.item_id);
+            handleRemove(item.item_id);
           }}
           accessibilityRole="button"
           accessibilityLabel="Remove from closet"
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Text style={[styles.removeIcon, { color: colors.textMuted }]}>✕</Text>
+          {removingId === item.item_id ? (
+            <ActivityIndicator size="small" color={colors.textMuted} />
+          ) : (
+            <Text style={[styles.removeIcon, { color: colors.textMuted }]}>
+              ✕
+            </Text>
+          )}
         </TouchableOpacity>
         <Text style={[styles.chevron, { color: colors.borderStrong }]}>›</Text>
       </TouchableOpacity>
@@ -99,8 +158,8 @@ export default function ClosetScreen() {
             icon="👗"
             title="Your closet is empty"
             message="Save garments or try-on renders from your feed to build your collection."
-            actionLabel={t("common.retry")}
-            onAction={() => void refetch()}
+            actionLabel="Explore styles"
+            onAction={() => router.push("/(tabs)/explore")}
           />
         }
       />
@@ -154,6 +213,10 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     marginBottom: 2,
+  },
+  priceText: {
+    marginBottom: 2,
+    fontWeight: "600",
   },
   subText: {
     marginBottom: 4,

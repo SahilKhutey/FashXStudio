@@ -191,6 +191,28 @@ class AcquisitionPipeline:
                                 if p.sizes:
                                     garment.sizes_in_stock = list(p.sizes)
 
+                        # Update or add prepared image if new content hash received
+                        if (
+                            p.prepared_image_key
+                            and p.prepared_image_hash
+                            and perm_res.display_eligible
+                            and existing_prod.canonical_garment_id
+                        ):
+                            existing_imgs = await self.uow.images.list_for_garment(
+                                existing_prod.canonical_garment_id
+                            )
+                            has_img = any(
+                                img.content_hash == p.prepared_image_hash for img in existing_imgs
+                            )
+                            if not has_img:
+                                new_img = GarmentImage(
+                                    garment_id=existing_prod.canonical_garment_id,
+                                    storage_key=p.prepared_image_key,
+                                    content_hash=p.prepared_image_hash,
+                                    image_type="primary",
+                                )
+                                self.uow.images.add(new_img)
+
                         report.updated += 1
                     else:
                         # Unchanged product
@@ -242,7 +264,15 @@ class AcquisitionPipeline:
                     self.uow.offers.add(offer)
 
                     # Persist image if display eligible
-                    if p.image_url and perm_res.display_eligible:
+                    if p.prepared_image_key and p.prepared_image_hash and perm_res.display_eligible:
+                        img = GarmentImage(
+                            garment_id=garment.id,
+                            storage_key=p.prepared_image_key,
+                            content_hash=p.prepared_image_hash,
+                            image_type="primary",
+                        )
+                        self.uow.images.add(img)
+                    elif p.image_url and perm_res.display_eligible:
                         content_hash = hashlib.sha256(p.image_url.encode("utf-8")).hexdigest()
                         img = GarmentImage(
                             garment_id=garment.id,

@@ -9,7 +9,7 @@ from fashx.infrastructure.tryon.fashn_api import FashnApiAdapter
 
 
 def create_tiny_png() -> bytes:
-    img = Image.new("RGB", (32, 32), (200, 100, 50))
+    img = Image.new("RGB", (256, 256), (200, 100, 50))
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     return buf.getvalue()
@@ -62,7 +62,10 @@ def test_fashn_adapter_happy_path():
 
     assert out.provider == "fashn_api"
     assert out.provider_job_id == "job-abc-456"
-    assert out.image_bytes == TINY_PNG
+    assert len(out.image_bytes) > 0
+    with Image.open(io.BytesIO(out.image_bytes)) as decoded:
+        assert decoded.format == "JPEG"
+        assert decoded.size == (256, 256)
     assert polls == 3
 
 
@@ -121,7 +124,8 @@ def test_fashn_adapter_status_failed_is_non_retryable():
     adapter = make_adapter(handler)
     with pytest.raises(TryOnError) as exc:
         adapter.collect("job-failed", deadline_s=10.0)
-    assert "nopersonfound" in exc.value.code
+    assert exc.value.code == "provider_failed"
+    assert "NoPersonFound" in exc.value.detail
     assert exc.value.retryable is False
 
 

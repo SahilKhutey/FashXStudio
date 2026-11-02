@@ -14,6 +14,18 @@ from fashx.security.deps import Principal, get_principal
 customer_garment_router = APIRouter(tags=["customer-garments"])
 
 
+class CustomerOfferDetail(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: UUID
+    merchant_id: UUID
+    source_product_id: str
+    url: str
+    price_minor: int
+    currency: str
+    in_stock: bool
+
+
 class CustomerGarmentDetailResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -29,6 +41,7 @@ class CustomerGarmentDetailResponse(BaseModel):
     sizes_in_stock: list[str] = []
     tryon_supported: bool = True
     images: list[str] = []
+    offers: list[CustomerOfferDetail] = []
 
 
 async def _resolve_garment_detail(
@@ -52,8 +65,23 @@ async def _resolve_garment_detail(
         offers = await uow.offers.list_for_garment(garment_id)
         currency = offers[0].currency if offers else "INR"
         price_minor = offers[0].price_minor if offers else garment.price_minor
+        offers_detail = [
+            CustomerOfferDetail(
+                id=o.id,
+                merchant_id=o.merchant_id,
+                source_product_id=o.source_product_id,
+                url=o.url,
+                price_minor=o.price_minor,
+                currency=o.currency,
+                in_stock=o.in_stock,
+            )
+            for o in offers
+        ]
 
-        title = garment.display_name or f"{garment.category.capitalize()} {garment.subcategory or ''}".strip()
+        title = (
+            garment.display_name
+            or f"{garment.category.capitalize()} {garment.subcategory or ''}".strip()
+        )
 
         return CustomerGarmentDetailResponse(
             id=garment.id,
@@ -68,6 +96,7 @@ async def _resolve_garment_detail(
             sizes_in_stock=garment.sizes_in_stock or [],
             tryon_supported=garment.tryon_supported,
             images=images,
+            offers=offers_detail,
         )
 
 

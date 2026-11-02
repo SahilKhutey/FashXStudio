@@ -10,7 +10,7 @@ from fashx.tryon.adapters.mock_adapter import MockAdapter
 
 
 def create_valid_jpeg() -> bytes:
-    img = Image.new("RGB", (64, 64), (120, 150, 180))
+    img = Image.new("RGB", (256, 256), (120, 150, 180))
     buf = io.BytesIO()
     img.save(buf, format="JPEG")
     return buf.getvalue()

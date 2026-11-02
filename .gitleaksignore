@@ -1,3 +1,10 @@
 # Gitleaks ignore file
 # Test fixture secret in demo user journey test
 a9f91b0dce043d97bde9c65ca8a35313c4f68a94:tests/integration/test_demo_user_journey.py:generic-api-key:37
+
+# Test fixture tokens and keys in VTO unit tests (no real credentials)
+9846e91633cc13c669e7d7670baa6170eb3e2f12:tests/unit/test_vto_phase10_deployment.py:jwt:218
+9846e91633cc13c669e7d7670baa6170eb3e2f12:tests/unit/test_vto_phase10_deployment.py:jwt:251
+b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:97
+b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:133
+b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:177
