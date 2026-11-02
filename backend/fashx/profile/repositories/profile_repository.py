@@ -36,6 +36,22 @@ class UserConsentRepository(BaseRepository[ConsentRecord]):
         record = await self.get_by_user_and_type(user_id, data_type)
         return bool(record and record.granted)
 
+    async def has_valid_consent(
+        self,
+        user_id: UUID,
+        data_type: str,
+        expected_version: str | None = None,
+        require_adult: bool = True,
+    ) -> bool:
+        record = await self.get_by_user_and_type(user_id, data_type)
+        if not record or not record.granted:
+            return False
+        if require_adult and record.is_18_or_older is False:
+            return False
+        if expected_version is not None and record.consent_version != expected_version:
+            return False
+        return True
+
     async def record_consent_event(
         self,
         user_id: UUID,
@@ -248,6 +264,62 @@ class UserPhotoRepository(BaseRepository[UserPhoto]):
             UserPhoto.user_id == user_id,
         )
         return (await self.session.scalars(stmt)).first()
+
+    async def create(
+        self,
+        *,
+        user_id: UUID,
+        photo_type: str,
+        storage_key: str,
+        status: str,
+        id_: UUID | None = None,
+        content_sha256: str | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        image_format: str | None = None,
+        file_size_bytes: int | None = None,
+        has_person: bool | None = None,
+        has_face: bool | None = None,
+        quality_score: float | None = None,
+        pose_score: float | None = None,
+        framing_score: float | None = None,
+        landmark_confidence: float | None = None,
+        ready_for_tryon: bool | None = None,
+        quality_reasons: list[str] | None = None,
+        pose_provider: str | None = None,
+        pose_provider_version: str | None = None,
+        reject_reason: str | None = None,
+        version: int = 1,
+    ) -> UserPhoto:
+        kwargs: dict[str, Any] = {
+            "user_id": user_id,
+            "photo_type": photo_type,
+            "storage_key": storage_key,
+            "status": status,
+            "content_sha256": content_sha256,
+            "width": width,
+            "height": height,
+            "image_format": image_format,
+            "file_size_bytes": file_size_bytes,
+            "has_person": has_person,
+            "has_face": has_face,
+            "quality_score": quality_score,
+            "pose_score": pose_score,
+            "framing_score": framing_score,
+            "landmark_confidence": landmark_confidence,
+            "ready_for_tryon": ready_for_tryon,
+            "quality_reasons": quality_reasons or [],
+            "pose_provider": pose_provider,
+            "pose_provider_version": pose_provider_version,
+            "reject_reason": reject_reason,
+            "version": version,
+        }
+        if id_ is not None:
+            kwargs["id"] = id_
+        photo = UserPhoto(**kwargs)
+        self.add(photo)
+        await self.flush()
+        return photo
 
 
 class UserPreferenceRepository(BaseRepository[UserPreference]):
