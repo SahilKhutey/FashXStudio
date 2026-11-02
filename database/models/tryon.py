@@ -52,6 +52,7 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     configuration_hash: Mapped[str] = mapped_column(String(128), default="default", nullable=False)
     queue_name: Mapped[str] = mapped_column(String(128), default="tryon-jobs", nullable=False)
     locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    locked_by: Mapped[str | None] = mapped_column(String(128), nullable=True)
     cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     last_error: Mapped[str | None] = mapped_column(Text)
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)

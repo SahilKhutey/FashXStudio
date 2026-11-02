@@ -38,6 +38,7 @@ def get_catalog_uow() -> CatalogUnitOfWork:
 class CreateTryOnJobRequest(BaseModel):
     user_id: UUID | None = None
     garment_id: UUID
+    photo_id: UUID | None = None
     render_config: dict[str, Any] | None = None
 
 
@@ -140,6 +141,7 @@ async def submit_tryon_job(
     cmd = SubmitTryOnJobCommand(
         user_id=effective_user_id,
         garment_id=request.garment_id,
+        photo_id=request.photo_id,
         idempotency_key=idempotency_key,
         render_config=request.render_config,
     )
@@ -151,6 +153,15 @@ async def submit_tryon_job(
         is_cached=result.is_cached,
         result_url=result.result_url,
     )
+
+
+def _parse_failure_reason(reason: str | None) -> TryOnFailureReason | None:
+    if not reason:
+        return None
+    try:
+        return TryOnFailureReason(reason)
+    except ValueError:
+        return None
 
 
 @router.get("/jobs", response_model=list[TryOnJobListItem])
@@ -177,7 +188,7 @@ async def list_tryon_jobs(
                 if artifact:
                     result_url = storage.signed_get_url(artifact.result_key, ttl_s=3600)
                     expires_at = datetime.now(UTC) + timedelta(seconds=3600)
-            fail_reason = TryOnFailureReason(j.failure_reason) if j.failure_reason else None
+            fail_reason = _parse_failure_reason(j.failure_reason)
             items.append(
                 TryOnJobListItem(
                     job_id=j.id,
@@ -206,7 +217,7 @@ async def get_tryon_job_status(
     """Retrieve asynchronous try-on job status and artifact URL."""
     use_case = GetTryOnJobStatusUseCase(tryon_uow=tryon_uow)
     res = await use_case.execute(job_id, user_id=principal.user_id)
-    fail_reason = TryOnFailureReason(res.failure_reason) if res.failure_reason else None
+    fail_reason = _parse_failure_reason(res.failure_reason)
     result_url = None
     if res.result_url:
         result_url = storage.signed_get_url(res.result_url, ttl_s=300)
@@ -255,4 +266,86 @@ async def get_tryon_artifact(
             photo_version=artifact.photo_version,
             garment_version=artifact.garment_version,
             quality_reasons=artifact.quality_reasons or [],
+        )
+
+
+class TryOnResultUrlResponse(BaseModel):
+    job_id: UUID
+    result_url: str
+    expires_in: int = 3600
+
+
+@router.post("/jobs/{job_id}/cancel", response_model=TryOnJobStatusResponse)
+async def cancel_tryon_job(
+    job_id: UUID,
+    principal: Principal = Depends(get_principal),
+    tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
+) -> TryOnJobStatusResponse:
+    """Request cancellation of a queued or running try-on job."""
+    try:
+        user_uuid = UUID(principal.user_id)
+    except ValueError:
+        from fashx.security.errors import unauthorized
+
+        raise unauthorized("Invalid principal user ID")
+
+    async with tryon_uow:
+        job = await tryon_uow.jobs.request_cancel(job_id, user_uuid)
+        if job is None:
+            from fashx.core.errors import EntityNotFoundError
+
+            raise EntityNotFoundError("TryOnJob", job_id)
+        await tryon_uow.commit()
+
+        fail_reason = _parse_failure_reason(job.failure_reason)
+        return TryOnJobStatusResponse(
+            job_id=job.id,
+            status=TryOnStatus(job.status),
+            artifact_key=job.artifact_key,
+            result_url=None,
+            failure_reason=fail_reason,
+            model_version=job.model_version,
+            pipeline_version=job.pipeline_version,
+            provider=getattr(job, "provider", None) or "mock",
+        )
+
+
+@router.get("/jobs/{job_id}/result", response_model=TryOnResultUrlResponse)
+async def get_tryon_job_result(
+    job_id: UUID,
+    principal: Principal = Depends(get_principal),
+    tryon_uow: TryOnUnitOfWork = Depends(get_tryon_uow),
+    storage: Any = Depends(get_storage),
+) -> TryOnResultUrlResponse:
+    """Retrieve short-lived authorized signed result URL for a completed try-on job."""
+    try:
+        user_uuid = UUID(principal.user_id)
+    except ValueError:
+        from fashx.security.errors import unauthorized
+
+        raise unauthorized("Invalid principal user ID")
+
+    async with tryon_uow:
+        job = await tryon_uow.jobs.get_owned(job_id, user_uuid)
+        if job is None:
+            from fashx.core.errors import EntityNotFoundError
+
+            raise EntityNotFoundError("TryOnJob", job_id)
+
+        if job.status != "completed":
+            from fashx.security.errors import ApiError
+
+            raise ApiError(409, "job_not_completed", f"Job status is '{job.status}'; result not available.")
+
+        artifact = await tryon_uow.artifacts.get_by_artifact_key(job.artifact_key)
+        if artifact is None:
+            from fashx.core.errors import EntityNotFoundError
+
+            raise EntityNotFoundError("TryOnArtifact", job.artifact_key)
+
+        signed_url = storage.signed_get_url(artifact.result_key, ttl_s=3600)
+        return TryOnResultUrlResponse(
+            job_id=job.id,
+            result_url=signed_url,
+            expires_in=3600,
         )

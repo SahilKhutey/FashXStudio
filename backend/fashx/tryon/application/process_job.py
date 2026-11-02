@@ -152,7 +152,6 @@ class ProcessTryOnJobUseCase:
 
             garment_id = garment.id
             garment_category = garment.category
-            garment_version = garment.version
 
         # Resolve storage
         storage = self.storage
@@ -354,6 +353,8 @@ class ProcessTryOnJobUseCase:
                         await self.tryon_uow.jobs.set_provider_job(
                             job.id, provider_name, provider_job_id
                         )
+                        job.provider_job_id = provider_job_id
+                        job.provider = provider_name
                         await self.tryon_uow.commit()
 
                 out = self.adapter.collect(provider_job_id, deadline_s=90.0)
@@ -377,7 +378,7 @@ class ProcessTryOnJobUseCase:
                         await self.tryon_uow.jobs.requeue(
                             job.id,
                             delay_s=min(2**attempts * 5, 120),
-                            clear_provider_job=True,
+                            clear_provider_job=False if provider_job_id else True,
                         )
                         if hasattr(self.tryon_uow, "usage"):
                             await self.tryon_uow.usage.record("retried", error_code=err.code)
@@ -489,16 +490,18 @@ class ProcessTryOnJobUseCase:
                 failure_reason="quality_rejected",
             )
 
-        # 8. Success: Verify job still exists before storing result in bucket (discard if deleted mid-flight)
+        # 8. Success: Verify job still exists and is not cancelled before storing result in bucket
         async with self.tryon_uow:
             final_check = await self.tryon_uow.jobs.get_by_id(job_id)
-        if final_check is None:
-            return ProcessJobResult(
-                job_id=job_id,
-                status="cancelled",
-                artifact_key=job.artifact_key,
-                failure_reason="job_deleted",
-            )
+            if final_check is None or getattr(final_check, "cancel_requested", False):
+                await self.tryon_uow.jobs.cancel(job_id, "cancel_requested")
+                await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job_id,
+                    status="cancelled",
+                    artifact_key=job.artifact_key,
+                    failure_reason="cancel_requested",
+                )
 
         key = media_key(job.user_id, "tryon_result", job.id)
         if self.storage:
@@ -527,9 +530,9 @@ class ProcessTryOnJobUseCase:
             )
 
         async with self.tryon_uow:
-            # Re-verify job was not deleted while storing file
+            # Re-verify job was not deleted or cancelled while storing file
             job_record = await self.tryon_uow.jobs.get_by_id(job_id)
-            if job_record is None:
+            if job_record is None or job_record.cancel_requested:
                 if self.storage and hasattr(self.storage, "delete"):
                     del_res = self.storage.delete(key)
                     if inspect.isawaitable(del_res):
@@ -538,7 +541,7 @@ class ProcessTryOnJobUseCase:
                     job_id=job_id,
                     status="cancelled",
                     artifact_key=job.artifact_key,
-                    failure_reason="job_deleted",
+                    failure_reason="cancel_requested",
                 )
             artifact = TryOnArtifact(
                 job_id=job_id,
@@ -546,8 +549,8 @@ class ProcessTryOnJobUseCase:
                 result_key=key,
                 model_version=model_version,
                 pipeline_version=pipeline_version,
-                photo_version=1,
-                garment_version=garment_version,
+                photo_version=job.photo_version,
+                garment_version=job.garment_version,
             )
             self.tryon_uow.artifacts.add(artifact)
             await self.tryon_uow.jobs.update_status(job_id, "completed")

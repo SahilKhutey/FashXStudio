@@ -1,9 +1,9 @@
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import desc, select
+from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from database.models.tryon import TryOnArtifact, TryOnJob, TryOnUsage
@@ -28,6 +28,13 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
         stmt = select(TryOnJob).where(TryOnJob.artifact_key == artifact_key)
         return await self.session.scalar(stmt)
 
+    async def get_owned(self, job_id: UUID, user_id: UUID) -> TryOnJob | None:
+        stmt = select(TryOnJob).where(
+            TryOnJob.id == job_id,
+            TryOnJob.user_id == user_id,
+        )
+        return await self.session.scalar(stmt)
+
     async def list_by_user(self, user_id: UUID, limit: int = 50) -> Sequence[TryOnJob]:
         stmt = (
             select(TryOnJob)
@@ -37,6 +44,50 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
         )
         result = await self.session.scalars(stmt)
         return result.all()
+
+    async def create(
+        self,
+        *,
+        user_id: UUID,
+        garment_id: UUID,
+        idempotency_key: str,
+        artifact_key: str,
+        model_version: str,
+        pipeline_version: str,
+        profile_photo_id: UUID | None = None,
+        photo_version: int = 1,
+        garment_version: int = 1,
+        configuration_hash: str = "default",
+        queue_name: str = "tryon-jobs",
+        provider: str | None = None,
+        id_: UUID | None = None,
+    ) -> TryOnJob:
+        existing = await self.get_by_user_and_idempotency(user_id, idempotency_key)
+        if existing:
+            return existing
+        job = TryOnJob(
+            user_id=user_id,
+            garment_id=garment_id,
+            profile_photo_id=profile_photo_id,
+            idempotency_key=idempotency_key,
+            artifact_key=artifact_key,
+            status="queued",
+            model_version=model_version,
+            pipeline_version=pipeline_version,
+            photo_version=photo_version,
+            garment_version=garment_version,
+            configuration_hash=configuration_hash,
+            queue_name=queue_name,
+            provider=provider,
+            attempts=1,
+            attempt_count=0,
+            cancel_requested=False,
+        )
+        if id_ is not None:
+            job.id = id_
+        self.add(job)
+        await self.flush()
+        return job
 
     async def update_status(
         self,
@@ -50,6 +101,8 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
             job.failure_reason = failure_reason
             if status in ("completed", "failed", "cancelled"):
                 job.completed_at = datetime.now(UTC)
+                job.locked_at = None
+                job.locked_by = None
             await self.flush()
         return job
 
@@ -76,6 +129,8 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
         if job:
             job.status = "queued"
             job.attempts += 1
+            job.locked_at = None
+            job.locked_by = None
             if clear_provider_job:
                 job.provider_job_id = None
             await self.flush()
@@ -96,6 +151,23 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
     ) -> TryOnJob | None:
         return await self.update_status(job_id, "cancelled", failure_reason=reason)
 
+    async def request_cancel(
+        self,
+        job_id: UUID,
+        user_id: UUID,
+    ) -> TryOnJob | None:
+        job = await self.get_owned(job_id, user_id)
+        if job:
+            job.cancel_requested = True
+            if job.status == "queued":
+                job.status = "cancelled"
+                job.failure_reason = "cancelled_by_user"
+                job.completed_at = datetime.now(UTC)
+                job.locked_at = None
+                job.locked_by = None
+            await self.flush()
+        return job
+
     async def complete(
         self,
         job_id: UUID,
@@ -106,24 +178,59 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
     async def claim_next_job(
         self, worker_id: str, lease_seconds: int = 180
     ) -> TryOnJob | None:
+        now = datetime.now(UTC)
+        expired_before = now - timedelta(seconds=lease_seconds)
         stmt = (
             select(TryOnJob)
             .where(
-                (TryOnJob.status == "queued")
-                | (
-                    (TryOnJob.status == "running")
-                    & (TryOnJob.completed_at.is_(None))
+                or_(
+                    TryOnJob.status == "queued",
+                    and_(
+                        TryOnJob.status == "running",
+                        TryOnJob.completed_at.is_(None),
+                        TryOnJob.locked_at.is_not(None),
+                        TryOnJob.locked_at < expired_before,
+                    ),
                 )
             )
-            .order_by(TryOnJob.created_at)
+            .order_by(TryOnJob.created_at.asc())
             .with_for_update(skip_locked=True)
             .limit(1)
         )
         job = await self.session.scalar(stmt)
         if job:
             job.status = "running"
+            job.locked_at = now
+            job.locked_by = worker_id
+            job.attempt_count += 1
             await self.flush()
         return job
+
+    async def renew_lease(
+        self,
+        job_id: UUID,
+        worker_id: str,
+        lease_seconds: int = 180,
+    ) -> bool:
+        job = await self.get_by_id(job_id)
+        if job and job.status == "running" and job.locked_by == worker_id:
+            job.locked_at = datetime.now(UTC)
+            await self.flush()
+            return True
+        return False
+
+    async def release_lease(
+        self,
+        job_id: UUID,
+        worker_id: str,
+    ) -> bool:
+        job = await self.get_by_id(job_id)
+        if job and job.locked_by == worker_id:
+            job.locked_at = None
+            job.locked_by = None
+            await self.flush()
+            return True
+        return False
 
 
 class TryOnArtifactRepository(BaseRepository[TryOnArtifact]):
