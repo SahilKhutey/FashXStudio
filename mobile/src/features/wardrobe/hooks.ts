@@ -7,6 +7,7 @@ import {
   type UserWardrobeItem,
 } from "./api";
 import { useAuthStore } from "../auth/authStore";
+import { queryKeys } from "../../app-shell/queryKeys";
 
 export type { SaveWardrobeResponse, UserWardrobeItem };
 
@@ -54,7 +55,7 @@ export function useUserWardrobe(limit = 50, offset = 0) {
   const me = useAuthStore((s) => s.me);
 
   return useQuery<UserWardrobeItem[], Error>({
-    queryKey: ["wardrobe", me?.user_id, limit, offset],
+    queryKey: queryKeys.wardrobe(me?.user_id ?? null, limit, offset),
     queryFn: async () => {
       return fetchUserWardrobe(limit, offset);
     },

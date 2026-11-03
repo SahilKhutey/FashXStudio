@@ -3,6 +3,8 @@ import { AppState, AppStateStatus } from "react-native";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
 import { components } from "../../api/schema";
+import { useAuthStore } from "../auth/authStore";
+import { queryKeys } from "../../app-shell/queryKeys";
 
 export type FeedResponse = components["schemas"]["FeedResponse"];
 export type FeedItem = components["schemas"]["FeedItemResponse"];
@@ -10,15 +12,17 @@ export type FeedSignalResponse = components["schemas"]["FeedSignalResponse"];
 export type SignalAction = "like" | "hide" | "not_interested";
 
 export function useFeed() {
+  const userId = useAuthStore((s) => s.me?.user_id);
   return useInfiniteQuery<FeedResponse, Error>({
-    queryKey: ["feed"],
+    queryKey: queryKeys.feed(userId ?? null),
     initialPageParam: null as string | null,
     queryFn: async ({ pageParam }) => {
       const cursorParam = pageParam ? `?cursor=${encodeURIComponent(pageParam as string)}` : "";
       return api<FeedResponse>(`/feed${cursorParam}`);
     },
     getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
-    staleTime: 60 * 1000,
+    enabled: Boolean(userId),
+    staleTime: 60_000,
   });
 }
 

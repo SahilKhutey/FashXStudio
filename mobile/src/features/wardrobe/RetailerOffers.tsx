@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useCreateBuyClick } from "./commerceHooks";
+import { isSafeRetailerRedirect } from "../../lib/safeRedirect";
 
 export type RetailerOffer = {
   id: string;
@@ -36,6 +37,9 @@ export function RetailerOffers({ garmentId, offers }: Props) {
         offerId: selectedOfferId,
       });
 
+      if (!isSafeRetailerRedirect(result.redirect_url)) {
+        throw new Error("Invalid or unsafe redirect URL");
+      }
       await Linking.openURL(result.redirect_url);
     } catch {
       Alert.alert(
