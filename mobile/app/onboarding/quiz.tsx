@@ -68,7 +68,7 @@ export default function StyleQuizScreen() {
     mutationFn: () =>
       api("/onboarding/style-quiz/picks", {
         method: "POST",
-        body: JSON.stringify({ garment_ids: [...picked] }),
+        body: JSON.stringify({ picks: [...picked].map((id) => ({ garment_id: id, liked: true })) }),
       }),
     onSuccess: async () => {
       try {
@@ -79,7 +79,7 @@ export default function StyleQuizScreen() {
         // Fallback
       }
       await qc.invalidateQueries({ queryKey: ["me"] });
-      router.push("/onboarding/capture");
+      router.replace("/onboarding/capture");
     },
   });
 
@@ -133,7 +133,7 @@ export default function StyleQuizScreen() {
                 // Fallback
               }
               await qc.invalidateQueries({ queryKey: ["me"] });
-              router.push("/onboarding/capture");
+              router.replace("/onboarding/capture");
             }}
             style={styles.devSkipButton}
           >
@@ -390,3 +390,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+
