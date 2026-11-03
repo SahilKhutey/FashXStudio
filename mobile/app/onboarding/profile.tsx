@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { api } from "../../src/api/client";
 import { useMe } from "../../src/api/hooks";
+import { useAuthStore, UserMe } from "../../src/features/auth/authStore";
 import { Chip, Input, FormField } from "../../src/components";
 import {
   step1Schema,
@@ -129,6 +130,13 @@ export default function ProfileScreen() {
       if (step < 2) {
         setStep(step + 1);
       } else {
+        try {
+          const updatedMe = await api<UserMe>("/me");
+          qc.setQueryData(["me"], updatedMe);
+          useAuthStore.getState().setMe(updatedMe);
+        } catch {
+          // Fallback
+        }
         await qc.invalidateQueries({ queryKey: ["me"] });
         router.push("/onboarding/quiz");
       }

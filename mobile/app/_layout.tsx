@@ -14,6 +14,7 @@ import {
   RemoteConfig,
 } from "../src/lib/config";
 import { getRouteDecision } from "../src/navigation/route-policy";
+import { useMe } from "../src/api/hooks";
 import { AppProviders } from "../src/app-shell";
 import { LoadingState } from "../src/components/states";
 
@@ -113,6 +114,9 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
     };
   }, [setSession, setMe, setIsLoading, setHasSession]);
 
+  const { data: meQuery } = useMe(hasSession);
+  const currentMe = meQuery || me;
+
   // 3. Centralized route policy decision
   useEffect(() => {
     const decision = getRouteDecision({
@@ -120,13 +124,13 @@ function AuthAndConfigGate({ children }: { children: React.ReactNode }) {
       configLoading,
       hasSession,
       segments: segments as string[],
-      onboarding: me?.onboarding,
+      onboarding: currentMe?.onboarding,
     });
 
     if (decision.type === "replace") {
       router.replace(decision.href as any);
     }
-  }, [hasSession, segments, isLoading, configLoading, me?.onboarding, router]);
+  }, [hasSession, segments, isLoading, configLoading, currentMe?.onboarding, router]);
 
   // Handle Maintenance Mode
   if (remoteConfig?.maintenance) {

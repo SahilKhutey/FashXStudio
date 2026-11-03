@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { api } from "../../src/api/client";
+import { useAuthStore, UserMe } from "../../src/features/auth/authStore";
 import { isDevTokenEnabled } from "../../src/lib/env";
 
 export interface StyleQuizItem {
@@ -70,6 +71,13 @@ export default function StyleQuizScreen() {
         body: JSON.stringify({ garment_ids: [...picked] }),
       }),
     onSuccess: async () => {
+      try {
+        const updatedMe = await api<UserMe>("/me");
+        qc.setQueryData(["me"], updatedMe);
+        useAuthStore.getState().setMe(updatedMe);
+      } catch {
+        // Fallback
+      }
       await qc.invalidateQueries({ queryKey: ["me"] });
       router.push("/onboarding/capture");
     },
@@ -117,6 +125,13 @@ export default function StyleQuizScreen() {
             accessibilityRole="button"
             accessibilityLabel={t("quiz.skipDev")}
             onPress={async () => {
+              try {
+                const updatedMe = await api<UserMe>("/me");
+                qc.setQueryData(["me"], updatedMe);
+                useAuthStore.getState().setMe(updatedMe);
+              } catch {
+                // Fallback
+              }
               await qc.invalidateQueries({ queryKey: ["me"] });
               router.push("/onboarding/capture");
             }}

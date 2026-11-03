@@ -26,9 +26,14 @@ export function useConfig() {
 
 export function useMe(enabled = true) {
   const hasSession = useAuthStore((s) => s.hasSession);
+  const setMe = useAuthStore((s) => s.setMe);
   return useQuery({
     queryKey: ["me"],
-    queryFn: () => api<UserMe>("/me"),
+    queryFn: async () => {
+      const data = await api<UserMe>("/me");
+      setMe(data);
+      return data;
+    },
     enabled: enabled && hasSession,
     staleTime: 30 * 1000,
   });

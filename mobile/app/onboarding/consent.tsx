@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { api } from "../../src/api/client";
 import { useConfig, useMe } from "../../src/api/hooks";
 import { errorKey } from "../../src/lib/errors";
+import { useAuthStore, UserMe } from "../../src/features/auth/authStore";
 
 export default function Consent() {
   const router = useRouter();
@@ -20,8 +21,12 @@ export default function Consent() {
   const [blocked, setBlocked] = useState(false);
 
   const grant = useMutation({
-    mutationFn: () =>
-      api(`/profile/${me!.user_id}/consent`, {
+    mutationFn: async () => {
+      const userId = me?.user_id || useAuthStore.getState().me?.user_id;
+      if (!userId) {
+        throw new Error("User session not found");
+      }
+      return api(`/profile/${userId}/consent`, {
         method: "POST",
         body: JSON.stringify({
           consent_version: cfg!.consent_version,
@@ -29,8 +34,16 @@ export default function Consent() {
           accepts_body_photo: photo,
           is_18_or_older: adult,
         }),
-      }),
+      });
+    },
     onSuccess: async () => {
+      try {
+        const updatedMe = await api<UserMe>("/me");
+        qc.setQueryData(["me"], updatedMe);
+        useAuthStore.getState().setMe(updatedMe);
+      } catch {
+        // Fallback
+      }
       await qc.invalidateQueries({ queryKey: ["me"] });
       router.push("/onboarding/profile");
     },

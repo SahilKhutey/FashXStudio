@@ -15,7 +15,9 @@ import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { api } from "../../src/api/client";
 import { useMe } from "../../src/api/hooks";
+import { useAuthStore, UserMe } from "../../src/features/auth/authStore";
 import { uploadPhoto, UploadPhotoResult } from "../../src/lib/upload";
 import { rejectKey } from "../../src/lib/qualityReasons";
 import { cleanupFiles } from "../../src/lib/fileCleanup";
@@ -64,6 +66,13 @@ export default function CaptureScreen() {
 
       setUploadResult(res);
       if (res.status === "accepted") {
+        try {
+          const updatedMe = await api<UserMe>("/me");
+          qc.setQueryData(["me"], updatedMe);
+          useAuthStore.getState().setMe(updatedMe);
+        } catch {
+          // Fallback
+        }
         await qc.invalidateQueries({ queryKey: ["me"] });
       }
       setState("result");
