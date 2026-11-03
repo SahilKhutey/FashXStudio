@@ -1,11 +1,9 @@
 import React from "react";
 import { Tabs, useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { useDesignTokens } from "../../src/design-system";
 
 export default function TabLayout() {
-  const { t } = useTranslation();
   const router = useRouter();
   const { colors, spacing } = useDesignTokens();
 
@@ -27,16 +25,6 @@ export default function TabLayout() {
           fontWeight: "700",
         },
         headerTintColor: colors.textPrimary,
-        headerRight: () => (
-          <TouchableOpacity
-            style={styles.headerButton}
-            onPress={() => router.push("/settings")}
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-          >
-            <Text style={styles.headerButtonIcon}>⚙️</Text>
-          </TouchableOpacity>
-        ),
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
@@ -51,42 +39,62 @@ export default function TabLayout() {
           fontSize: 12,
           fontWeight: "600",
         },
+        headerRight: () => (
+          <Pressable
+            onPress={() => router.push("/settings")}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+            style={styles.headerButton}
+          >
+            <Text style={styles.headerButtonIcon}>⚙</Text>
+          </Pressable>
+        ),
       }}
     >
       <Tabs.Screen
         name="feed"
         options={{
-          title: t("feed.title"),
-          tabBarLabel: t("tabs.feed"),
+          title: "Discover",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color }) => (
             <Text style={{ color, fontSize: 18 }} accessible={false}>
-              ✨
+              ✦
             </Text>
           ),
         }}
       />
-
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: "Explore",
+          tabBarLabel: "Explore",
+          tabBarIcon: ({ color }) => (
+            <Text style={{ color, fontSize: 18 }} accessible={false}>
+              ⌕
+            </Text>
+          ),
+        }}
+      />
       <Tabs.Screen
         name="looks"
         options={{
-          title: t("looks.title"),
-          tabBarLabel: t("tabs.looks"),
+          title: "Your Looks",
+          tabBarLabel: "Looks",
           tabBarIcon: ({ color }) => (
             <Text style={{ color, fontSize: 18 }} accessible={false}>
-              📸
+              ▧
             </Text>
           ),
         }}
       />
-
       <Tabs.Screen
         name="closet"
         options={{
-          title: t("tabs.closet"),
-          tabBarLabel: t("tabs.closet"),
+          title: "My Closet",
+          tabBarLabel: "Closet",
           tabBarIcon: ({ color }) => (
             <Text style={{ color, fontSize: 18 }} accessible={false}>
-              👗
+              ♧
             </Text>
           ),
         }}
@@ -98,9 +106,9 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   headerButton: {
     marginRight: 16,
-    padding: 6,
+    padding: 8,
   },
   headerButtonIcon: {
-    fontSize: 18,
+    fontSize: 20,
   },
 });

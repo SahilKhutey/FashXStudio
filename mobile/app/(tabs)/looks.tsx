@@ -1,17 +1,32 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   FlatList,
+  ScrollView,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useTryOnJobs, TryOnJobListItem } from "../../src/features/tryon/useTryOn";
-import { useDesignTokens, AppText, spacing, radius } from "../../src/design-system";
+import {
+  useDesignTokens,
+  AppText,
+  CategoryChip,
+  SectionHeader,
+  spacing,
+  radius,
+} from "../../src/design-system";
 import { LoadingState, ErrorState, EmptyState } from "../../src/components/states";
+
+const STATUS_FILTERS = [
+  { id: "all", label: "All Looks" },
+  { id: "completed", label: "Completed" },
+  { id: "processing", label: "Processing" },
+  { id: "failed", label: "Failed" },
+];
 
 function formatDate(isoDate?: string | null): string {
   if (!isoDate) return "";
@@ -33,6 +48,24 @@ export default function LooksScreen() {
   const router = useRouter();
   const { colors } = useDesignTokens();
   const { data: jobs, isLoading, isError, refetch, isRefetching } = useTryOnJobs();
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  const filteredJobs = useMemo(() => {
+    if (!jobs) return [];
+    if (selectedFilter === "all") return jobs;
+    if (selectedFilter === "processing") {
+      return jobs.filter(
+        (j) =>
+          j.status === "queued" ||
+          j.status === "validating" ||
+          j.status === "preprocessing" ||
+          j.status === "inference" ||
+          j.status === "postprocessing" ||
+          j.status === "quality_check"
+      );
+    }
+    return jobs.filter((j) => j.status === selectedFilter);
+  }, [jobs, selectedFilter]);
 
   const renderItem = ({ item }: { item: TryOnJobListItem }) => {
     const isCompleted = item.status === "completed";
@@ -45,11 +78,11 @@ export default function LooksScreen() {
 
     return (
       <TouchableOpacity
-        style={[styles.card, { backgroundColor: colors.surface }]}
+        style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
         activeOpacity={0.8}
-        onPress={() => router.push(`/tryon/${item.job_id}`)}
+        onPress={() => router.push(`/tryon/${item.job_id}` as any)}
         accessibilityRole="button"
-        accessibilityLabel={`Try-on job ${item.job_id}`}
+        accessibilityLabel={`Try-on job ${item.job_id} status ${item.status}`}
       >
         <View style={[styles.thumbnailContainer, { backgroundColor: colors.surfaceSecondary }]}>
           {item.result_url ? (
@@ -61,7 +94,9 @@ export default function LooksScreen() {
             />
           ) : (
             <View style={styles.thumbnailPlaceholder}>
-              <Text style={styles.thumbnailIcon}>✨</Text>
+              <Text style={styles.thumbnailIcon}>
+                {isFailed ? "⚠️" : "✨"}
+              </Text>
             </View>
           )}
         </View>
@@ -80,6 +115,11 @@ export default function LooksScreen() {
           <AppText variant="caption" color="textMuted" style={styles.jobIdText} numberOfLines={1}>
             ID: {item.job_id.slice(0, 8)}...
           </AppText>
+          {item.status === "completed" && (
+            <AppText variant="caption" color="textPrimary" style={styles.viewResultText}>
+              View Look ›
+            </AppText>
+          )}
         </View>
 
         <Text style={[styles.chevron, { color: colors.borderStrong }]}>›</Text>
@@ -97,20 +137,48 @@ export default function LooksScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.filterArea}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScroll}
+        >
+          {STATUS_FILTERS.map((f) => (
+            <CategoryChip
+              key={f.id}
+              label={f.label}
+              selected={selectedFilter === f.id}
+              onPress={() => setSelectedFilter(f.id)}
+              style={styles.chip}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
       <FlatList
-        data={jobs || []}
+        data={filteredJobs}
         renderItem={renderItem}
         keyExtractor={(item) => item.job_id}
         refreshing={isRefetching}
         onRefresh={() => void refetch()}
         contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          jobs && jobs.length > 0 ? (
+            <SectionHeader
+              title="Virtual Try-On Edits"
+              subtitle="Renders, poses, and outfit experiments"
+              actionLabel="Try on more"
+              onAction={() => router.push("/explore" as any)}
+            />
+          ) : undefined
+        }
         ListEmptyComponent={
           <EmptyState
-            icon="📸"
-            title={t("looks.empty")}
-            message={t("looks.emptySub")}
-            actionLabel={t("common.retry")}
-            onAction={() => void refetch()}
+            icon="▧"
+            title="No Try-On Looks Yet"
+            message="Experience how clothes fit you before buying. Select any garment from Discover or Explore to start your first virtual try-on."
+            actionLabel="Discover styles"
+            onAction={() => router.push("/explore" as any)}
           />
         }
       />
@@ -122,6 +190,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  filterArea: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[3],
+    paddingBottom: spacing[1],
+  },
+  filterScroll: {
+    gap: spacing[2],
+  },
+  chip: {
+    marginRight: spacing[2],
+  },
   listContent: {
     padding: spacing[4],
     flexGrow: 1,
@@ -129,18 +208,14 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     padding: spacing[3],
+    marginBottom: spacing[3],
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing[3],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
   },
   thumbnailContainer: {
-    width: 68,
-    height: 80,
+    width: 72,
+    height: 96,
     borderRadius: radius.md,
     overflow: "hidden",
   },
@@ -149,27 +224,26 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   thumbnailPlaceholder: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   thumbnailIcon: {
-    fontSize: 24,
+    fontSize: 26,
   },
   detailsContainer: {
     flex: 1,
-    marginLeft: 14,
+    marginLeft: spacing[3],
     justifyContent: "center",
   },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    paddingHorizontal: spacing[2],
+    paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: radius.lg,
-    marginBottom: spacing[1.5],
+    borderRadius: radius.pill,
+    marginBottom: 6,
   },
   statusDot: {
     width: 6,
@@ -184,9 +258,16 @@ const styles = StyleSheet.create({
   dateText: {
     marginBottom: 2,
   },
-  jobIdText: {},
+  jobIdText: {
+    marginBottom: 4,
+  },
+  viewResultText: {
+    fontWeight: "600",
+    marginTop: 2,
+  },
   chevron: {
-    fontSize: 22,
-    paddingHorizontal: spacing[2],
+    fontSize: 20,
+    fontWeight: "700",
+    paddingHorizontal: 8,
   },
 });
