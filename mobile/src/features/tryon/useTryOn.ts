@@ -4,6 +4,7 @@ import { api } from "../../api/client";
 import { components } from "../../api/schema";
 import { useAuthStore } from "../auth/authStore";
 import { getTryOnPollInterval } from "./polling";
+import { queryKeys } from "../../app-shell/queryKeys";
 
 export type TryOnJobStatusResponse = components["schemas"]["TryOnJobStatusResponse"];
 export type TryOnJobSubmissionResponse = components["schemas"]["TryOnJobSubmissionResponse"];
@@ -31,17 +32,31 @@ export function ratingToVisualAccuracy(rating: number): VisualAccuracy {
 
 export function useStartTryOn() {
   const queryClient = useQueryClient();
+  const userId = useAuthStore((s) => s.me?.user_id);
   const idempotencyKeyRef = useRef<string>(
-    `tryon-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    `tryon-${userId || "anon"}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
   );
 
   return useMutation({
-    mutationFn: async ({ garmentId }: { garmentId: string }) => {
+    mutationFn: async ({
+      garmentId,
+      photoId,
+    }: {
+      garmentId: string;
+      photoId?: string | null;
+    }) => {
+      if (!userId) {
+        throw new Error("Authentication required.");
+      }
+      if (!garmentId) {
+        throw new Error("A garment is required for virtual try-on.");
+      }
       return api<TryOnJobSubmissionResponse>("/tryon/jobs", {
         method: "POST",
         idempotencyKey: idempotencyKeyRef.current,
         body: JSON.stringify({
           garment_id: garmentId,
+          photo_id: photoId ?? null,
         }),
       });
     },
@@ -49,17 +64,18 @@ export function useStartTryOn() {
       // Refresh the tryon jobs list
       queryClient.invalidateQueries({ queryKey: ["tryon", "jobs"] });
       // Reset idempotency key for next run
-      idempotencyKeyRef.current = `tryon-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      idempotencyKeyRef.current = `tryon-${userId || "anon"}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     },
   });
 }
 
 export function useRetryTryOn() {
   const queryClient = useQueryClient();
+  const userId = useAuthStore((s) => s.me?.user_id);
 
   return useMutation({
     mutationFn: async ({ garmentId }: { garmentId: string }) => {
-      const idempotencyKey = `tryon-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const idempotencyKey = `tryon-${userId || "anon"}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
       return api<TryOnJobSubmissionResponse>("/tryon/jobs", {
         method: "POST",
@@ -78,6 +94,7 @@ export function useRetryTryOn() {
 }
 
 export function useJob(jobId: string | null, isFocused = true) {
+  const userId = useAuthStore((s) => s.me?.user_id);
   const [startedAt, setStartedAt] = useState(Date.now());
 
   useEffect(() => {
@@ -85,18 +102,17 @@ export function useJob(jobId: string | null, isFocused = true) {
   }, [jobId]);
 
   const query = useQuery<TryOnJobStatusResponse, Error>({
-    queryKey: ["tryon", "job", jobId],
+    queryKey: queryKeys.tryOnJob(userId ?? null, jobId),
     queryFn: async () => {
       if (!jobId) throw new Error("Missing try-on job ID");
       return api<TryOnJobStatusResponse>(
         `/tryon/jobs/${encodeURIComponent(jobId)}`
       );
     },
-    enabled: Boolean(jobId && isFocused),
+    enabled: Boolean(userId && jobId && isFocused),
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnReconnect: true,
-    refetchOnWindowFocus: true,
     refetchInterval: (q) =>
       getTryOnPollInterval(Date.now() - startedAt, q.state.data?.status),
     refetchIntervalInBackground: false,
@@ -113,11 +129,13 @@ export function useJob(jobId: string | null, isFocused = true) {
 }
 
 export function useTryOnJobs(limit = 50) {
+  const userId = useAuthStore((s) => s.me?.user_id);
   return useQuery<TryOnJobListItem[], Error>({
-    queryKey: ["tryon", "jobs", limit],
+    queryKey: queryKeys.tryOnJobs(userId ?? null, limit),
     queryFn: async () => {
       return api<TryOnJobListItem[]>(`/tryon/jobs?limit=${limit}`);
     },
+    enabled: Boolean(userId),
     staleTime: 15 * 1000,
   });
 }

@@ -1,31 +1,10 @@
 import React from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { AppStatusBar } from "./AppStatusBar";
-import { ApiError } from "../api/errors";
+import { queryClient } from "./queryClient";
 
-export const queryRetry = (
-  failureCount: number,
-  error: unknown,
-): boolean => {
-  if (failureCount >= 2) return false;
-  if (error instanceof ApiError) {
-    return error.isRetryable;
-  }
-  // Unknown errors are not automatically assumed to be transient.
-  return false;
-};
-
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: queryRetry,
-      staleTime: 60_000,
-    },
-    mutations: {
-      retry: false,
-    },
-  },
-});
+export { queryClient } from "./queryClient";
+export { queryRetry } from "./queryClient";
 
 type AppProvidersProps = {
   children: React.ReactNode;

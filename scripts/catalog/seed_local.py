@@ -184,7 +184,7 @@ async def seed_local_catalog(
                     source_product_id=g_id,
                     title=title,
                     description=title,
-                    source_url=f"own-wardrobe://{g_id}",
+                    source_url=f"https://shop.example.com/products/{g_id}",
                     status="active",
                     content_hash=content_hash,
                     last_seen_at=now,
@@ -194,6 +194,7 @@ async def seed_local_catalog(
                 await session.flush()
             else:
                 product.title = title
+                product.source_url = f"https://shop.example.com/products/{g_id}"
                 product.content_hash = content_hash
                 product.last_seen_at = now
                 product.price_checked_at = now
@@ -242,7 +243,7 @@ async def seed_local_catalog(
                     garment_id=garment.id,
                     merchant_id=merchant.id,
                     source_product_id=g_id,
-                    url=f"own-wardrobe://{g_id}",
+                    url=f"https://shop.example.com/products/{g_id}",
                     price_minor=price_minor,
                     currency="INR",
                     in_stock=True,
@@ -252,6 +253,7 @@ async def seed_local_catalog(
                 await session.flush()
             else:
                 offer.price_minor = price_minor
+                offer.url = f"https://shop.example.com/products/{g_id}"
                 offer.in_stock = True
                 offer.last_synced_at = now
                 await session.flush()

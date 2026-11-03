@@ -6,28 +6,58 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { useUserWardrobe, useRemoveFromWardrobe, UserWardrobeItem } from "../../src/features/wardrobe/hooks";
-import { useDesignTokens, AppText, spacing, radius } from "../../src/design-system";
+import {
+  useUserWardrobe,
+  useRemoveFromWardrobe,
+  UserWardrobeItem,
+} from "../../src/features/wardrobe/hooks";
+import {
+  useDesignTokens,
+  AppText,
+  SectionHeader,
+  spacing,
+  radius,
+} from "../../src/design-system";
 import { LoadingState, ErrorState, EmptyState } from "../../src/components/states";
 
 export default function ClosetScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useDesignTokens();
-  const { data: wardrobeItems, isLoading, isError, refetch, isRefetching } = useUserWardrobe();
+  const {
+    data: wardrobeItems,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useUserWardrobe();
   const { mutate: removeItem } = useRemoveFromWardrobe();
   const [removingId, setRemovingId] = useState<string | null>(null);
 
-  const handleRemove = (itemId: string) => {
-    if (removingId) return;
-    setRemovingId(itemId);
-    removeItem(itemId, {
-      onSettled: () => setRemovingId(null),
-    });
+  const confirmRemove = (itemId: string, title?: string) => {
+    Alert.alert(
+      "Remove from Closet",
+      `Are you sure you want to remove ${title || "this item"} from your closet?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            if (removingId) return;
+            setRemovingId(itemId);
+            removeItem(itemId, {
+              onSettled: () => setRemovingId(null),
+            });
+          },
+        },
+      ]
+    );
   };
 
   const renderItem = ({ item }: { item: UserWardrobeItem }) => {
@@ -40,18 +70,20 @@ export default function ClosetScreen() {
 
     const formattedPrice =
       item.snapshot_price_minor && item.snapshot_price_minor > 0
-        ? `${item.snapshot_currency || "INR"} ${(
-            item.snapshot_price_minor / 100
-          ).toFixed(2)}`
+        ? new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: item.snapshot_currency || "INR",
+            maximumFractionDigits: 0,
+          }).format(item.snapshot_price_minor / 100)
         : null;
 
     return (
       <TouchableOpacity
-        style={[styles.card, { backgroundColor: colors.surface }]}
+        style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
         activeOpacity={0.8}
-        onPress={() => router.push(`/garment/${item.garment_id}`)}
+        onPress={() => router.push(`/garment/${item.garment_id}` as any)}
         accessibilityRole="button"
-        accessibilityLabel={`Wardrobe item ${item.garment_id}`}
+        accessibilityLabel={`Wardrobe item ${item.snapshot_title || item.garment_id}`}
       >
         <View
           style={[
@@ -64,6 +96,7 @@ export default function ClosetScreen() {
               source={{ uri: imageUri }}
               style={styles.thumbnail}
               contentFit="cover"
+              transition={200}
             />
           ) : (
             <View style={styles.placeholderContainer}>
@@ -81,44 +114,37 @@ export default function ClosetScreen() {
           >
             {item.snapshot_title || "Saved Garment"}
           </AppText>
+
           {formattedPrice && (
             <AppText
-              variant="caption"
+              variant="label"
               color="textPrimary"
-              style={[styles.priceText, { color: colors.brand }]}
-              numberOfLines={1}
+              style={styles.priceText}
             >
               {formattedPrice}
             </AppText>
           )}
-          <AppText
-            variant="caption"
-            color="textMuted"
-            style={styles.subText}
-            numberOfLines={1}
-          >
-            ID: {item.garment_id.slice(0, 8)}...
-          </AppText>
-          {item.tryon_artifact_id && (
-            <View
-              style={[
-                styles.renderedBadge,
-                { backgroundColor: colors.brandSubtle },
-              ]}
-            >
-              <Text style={[styles.renderedBadgeText, { color: colors.brand }]}>
-                ✨ Try-On Saved
-              </Text>
-            </View>
-          )}
+
+          <View style={styles.badgesRow}>
+            {item.tryon_artifact_id ? (
+              <View
+                style={[
+                  styles.badge,
+                  { backgroundColor: colors.brandSubtle },
+                ]}
+              >
+                <AppText variant="caption" color="textPrimary">
+                  ✦ Look Saved
+                </AppText>
+              </View>
+            ) : null}
+          </View>
         </View>
+
         <TouchableOpacity
           style={styles.removeButton}
           disabled={removingId === item.item_id}
-          onPress={(e) => {
-            e.stopPropagation();
-            handleRemove(item.item_id);
-          }}
+          onPress={() => confirmRemove(item.item_id, item.snapshot_title)}
           accessibilityRole="button"
           accessibilityLabel="Remove from closet"
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
@@ -131,7 +157,6 @@ export default function ClosetScreen() {
             </Text>
           )}
         </TouchableOpacity>
-        <Text style={[styles.chevron, { color: colors.borderStrong }]}>›</Text>
       </TouchableOpacity>
     );
   };
@@ -144,6 +169,8 @@ export default function ClosetScreen() {
     return <ErrorState onRetry={() => void refetch()} />;
   }
 
+  const count = wardrobeItems?.length || 0;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
@@ -153,13 +180,23 @@ export default function ClosetScreen() {
         refreshing={isRefetching}
         onRefresh={() => void refetch()}
         contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          count > 0 ? (
+            <SectionHeader
+              title="My Closet"
+              subtitle={`${count} ${count === 1 ? "style" : "styles"} saved`}
+              actionLabel="Add more"
+              onAction={() => router.push("/explore" as any)}
+            />
+          ) : undefined
+        }
         ListEmptyComponent={
           <EmptyState
-            icon="👗"
+            icon="♧"
             title="Your closet is empty"
-            message="Save garments or try-on renders from your feed to build your collection."
+            message="Save garments and virtual try-on looks from your feed to build your collection."
             actionLabel="Explore styles"
-            onAction={() => router.push("/(tabs)/explore")}
+            onAction={() => router.push("/explore" as any)}
           />
         }
       />
@@ -178,18 +215,14 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     padding: spacing[3],
+    marginBottom: spacing[3],
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing[3],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
   },
   thumbnailContainer: {
-    width: 68,
-    height: 80,
+    width: 72,
+    height: 96,
     borderRadius: radius.md,
     overflow: "hidden",
   },
@@ -198,50 +231,41 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   placeholderContainer: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   placeholderIcon: {
-    fontSize: 24,
+    fontSize: 28,
   },
   detailsContainer: {
     flex: 1,
-    marginLeft: 14,
+    marginLeft: spacing[3],
     justifyContent: "center",
   },
   itemTitle: {
-    marginBottom: 2,
-  },
-  priceText: {
-    marginBottom: 2,
     fontWeight: "600",
-  },
-  subText: {
     marginBottom: 4,
   },
-  renderedBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: spacing[2],
-    paddingVertical: 2,
-    borderRadius: radius.sm,
+  priceText: {
+    marginBottom: 4,
   },
-  renderedBadgeText: {
-    fontSize: 11,
-    fontWeight: "600",
+  badgesRow: {
+    flexDirection: "row",
+    gap: 6,
+    marginTop: 2,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   removeButton: {
-    padding: spacing[2],
+    padding: 8,
     justifyContent: "center",
     alignItems: "center",
   },
   removeIcon: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  chevron: {
-    fontSize: 22,
-    paddingHorizontal: spacing[2],
+    fontSize: 16,
   },
 });

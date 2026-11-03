@@ -1,13 +1,12 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  ViewToken,
+  ScrollView,
 } from "react-native";
-import { FlashList } from "@shopify/flash-list";
-import { Image } from "expo-image";
+import { FlashList, type ViewToken } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,13 +16,16 @@ import {
   FeedItem,
 } from "../../src/features/feed/hooks";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
-import { Chip } from "../../src/components/Chip";
 import {
   useDesignTokens,
   AppText,
+  ProductCard,
+  SearchBar,
+  CategoryChip,
+  SectionHeader,
+  ProductSkeleton,
   spacing,
   radius,
-  elevation,
 } from "../../src/design-system";
 import {
   LoadingState,
@@ -31,25 +33,22 @@ import {
   EmptyState,
 } from "../../src/components/states";
 
-function formatPrice(priceMinor: number): string {
-  const amount = (priceMinor / 100).toFixed(0);
-  return `₹${amount}`;
-}
-
-function formatDate(isoDate?: string | null): string {
-  if (!isoDate) return "";
-  try {
-    const d = new Date(isoDate);
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  } catch {
-    return "";
-  }
-}
+const FEED_CATEGORIES = [
+  { id: "all", label: "For You" },
+  { id: "top", label: "Tops" },
+  { id: "bottom", label: "Bottoms" },
+  { id: "one_piece", label: "Dresses & Sets" },
+  { id: "outerwear", label: "Outerwear" },
+];
 
 export default function FeedScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useDesignTokens();
+
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [savedGarmentIds, setSavedGarmentIds] = useState<Set<string>>(new Set());
+  const [savingGarmentId, setSavingGarmentId] = useState<string | null>(null);
 
   const {
     data,
@@ -62,17 +61,23 @@ export default function FeedScreen() {
     isFetchingNextPage,
   } = useFeed();
 
-  const { sendSignal, undoSignal, pendingSignal } = useSignal();
+  const { sendSignal, pendingSignal } = useSignal();
   const { recordImpression } = useImpressionTracker();
-  const { mutate: saveToWardrobe, isPending: isSaving } = useSaveToWardrobe();
+  const { mutateAsync: saveToWardrobe } = useSaveToWardrobe();
 
   // Combine items from all pages, excluding the one currently pending dismissal
   const feedItems = useMemo(() => {
     if (!data?.pages) return [];
     const all = data.pages.flatMap((page) => page.items || []);
-    if (!pendingSignal) return all;
-    return all.filter((item) => item.garment_id !== pendingSignal.garmentId);
-  }, [data?.pages, pendingSignal]);
+    const filtered = pendingSignal
+      ? all.filter((item) => item.garment_id !== pendingSignal.garmentId)
+      : all;
+
+    if (activeCategory === "all") return filtered;
+    return filtered.filter(
+      (item) => item.category?.toLowerCase() === activeCategory.toLowerCase()
+    );
+  }, [data?.pages, pendingSignal, activeCategory]);
 
   const relaxedFilters = useMemo(() => {
     if (!data?.pages || data.pages.length === 0) return [];
@@ -86,133 +91,102 @@ export default function FeedScreen() {
 
   // Viewable items tracker for impression analytics
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    ({ viewableItems }: { viewableItems: ViewToken<FeedItem>[] }) => {
       viewableItems.forEach((viewItem) => {
-        if (viewItem.isViewable && viewItem.item?.garment_id) {
-          recordImpression(viewItem.item.garment_id);
+        const garmentId = viewItem.item?.garment_id;
+        if (viewItem.isViewable && garmentId) {
+          recordImpression(garmentId);
         }
       });
     }
   ).current;
 
+  const handleSave = async (item: FeedItem) => {
+    const garmentId = item.garment_id;
+    if (savedGarmentIds.has(garmentId) || savingGarmentId === garmentId) return;
+
+    setSavingGarmentId(garmentId);
+    try {
+      await saveToWardrobe({
+        garmentId,
+      });
+      setSavedGarmentIds((prev) => new Set(prev).add(garmentId));
+    } finally {
+      setSavingGarmentId(null);
+    }
+  };
+
   const renderFeedCard = useCallback(
     ({ item }: { item: FeedItem }) => {
-      const stableCacheKey = item.image_url ? item.image_url.split("?")[0] : undefined;
-      const formattedDate = formatDate(item.price_updated_at);
+      const garmentId = item.garment_id;
+      const isSaved = savedGarmentIds.has(garmentId);
+      const isSaving = savingGarmentId === garmentId;
 
       return (
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={() => router.push(`/garment/${item.garment_id}`)}
-            accessibilityRole="button"
-            accessibilityLabel={`${item.brand} ${item.title}`}
-          >
-            <View style={[styles.imageContainer, { backgroundColor: colors.surfaceSecondary }]}>
-              {item.image_url ? (
-                <Image
-                  source={{ uri: item.image_url, cacheKey: stableCacheKey }}
-                  style={styles.garmentImage}
-                  contentFit="cover"
-                  transition={200}
-                />
-              ) : (
-                <View style={styles.placeholderImage}>
-                  <Text style={styles.placeholderText}>👗</Text>
-                </View>
-              )}
+        <View style={styles.cardContainer}>
+          <ProductCard
+            id={garmentId}
+            title={item.title}
+            brand={item.brand}
+            imageUrl={item.image_url}
+            priceMinor={item.price_minor}
+            currency="INR"
+            tryOnSupported={item.tryon_supported ?? true}
+            saved={isSaved}
+            saving={isSaving}
+            onOpen={() => router.push(`/garment/${garmentId}` as any)}
+            onSave={() => handleSave(item)}
+            onTryOn={() => router.push(`/garment/${garmentId}` as any)}
+          />
 
-              {item.tryon_supported && (
-                <View style={styles.tryonBadge}>
-                  <AppText variant="caption" color="textOnBrand" style={styles.tryonBadgeText}>
-                    ✨ {t("feed.tryonBadge")}
-                  </AppText>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.cardContent}>
-              <AppText
-                variant="label"
-                color="textMuted"
-                style={styles.brandText}
-                numberOfLines={1}
-              >
-                {item.brand.toUpperCase()}
+          {/* Quick stylist taste feedback */}
+          <View style={[styles.feedbackBar, { backgroundColor: colors.surfaceSecondary }]}>
+            {item.stylist_explanation ? (
+              <AppText variant="caption" color="textSecondary" numberOfLines={1} style={styles.explanationText}>
+                ✦ {item.stylist_explanation}
               </AppText>
-              <AppText
-                variant="body"
-                color="textPrimary"
-                style={styles.titleText}
-                numberOfLines={2}
-              >
-                {item.title}
+            ) : (
+              <AppText variant="caption" color="textMuted">
+                Curated for your style profile
               </AppText>
+            )}
 
-              <View style={styles.priceRow}>
-                <AppText variant="heading3" color="textPrimary" style={styles.priceText}>
-                  {formatPrice(item.price_minor)}
-                </AppText>
-                {formattedDate ? (
-                  <AppText variant="caption" color="textMuted" style={styles.priceFreshnessText}>
-                    {t("feed.asOf", { date: formattedDate })}
-                  </AppText>
-                ) : null}
-              </View>
-
-              {item.reason_chips && item.reason_chips.length > 0 && (
-                <View style={styles.reasonsContainer}>
-                  {item.reason_chips.slice(0, 2).map((chip, idx) => (
-                    <Chip key={idx} label={chip} selected={false} />
-                  ))}
-                </View>
-              )}
-            </View>
-          </TouchableOpacity>
-
-          <View style={[styles.actionRow, { borderTopColor: colors.border }]}>
-            <TouchableOpacity
-              style={[styles.actionButtonSecondary, { backgroundColor: colors.surfaceSecondary }]}
-              onPress={() => sendSignal(item.garment_id, "not_interested", 5000)}
-              accessibilityRole="button"
-              accessibilityLabel={t("feed.notInterested")}
-            >
-              <AppText variant="label" color="textSecondary" style={styles.actionSecondaryText}>
-                {t("feed.notInterested")}
-              </AppText>
-            </TouchableOpacity>
-
-            <View style={styles.rightActions}>
+            <View style={styles.signalButtons}>
               <TouchableOpacity
-                style={[styles.iconButton, { backgroundColor: colors.surfaceSecondary }]}
-                onPress={() => sendSignal(item.garment_id, "like", 0)}
+                onPress={() => sendSignal(garmentId, "not_interested", 5000)}
                 accessibilityRole="button"
-                accessibilityLabel={t("feed.like")}
+                accessibilityLabel="Not interested"
+                style={styles.signalButton}
               >
-                <Text style={styles.iconText}>❤️</Text>
+                <Text style={styles.signalIcon}>✕</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={[styles.actionButtonPrimary, { backgroundColor: colors.brand }]}
-                onPress={() => saveToWardrobe({ garmentId: item.garment_id })}
-                disabled={isSaving}
+                onPress={() => sendSignal(garmentId, "like", 0)}
                 accessibilityRole="button"
-                accessibilityLabel={t("feed.save")}
+                accessibilityLabel="Like look"
+                style={styles.signalButton}
               >
-                <AppText variant="label" color="textOnBrand" style={styles.actionPrimaryText}>
-                  {t("feed.save")}
-                </AppText>
+                <Text style={styles.signalIcon}>♥</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       );
     },
-    [router, t, sendSignal, saveToWardrobe, isSaving, colors]
+    [router, colors, savedGarmentIds, savingGarmentId, sendSignal]
   );
 
   if (isLoading) {
-    return <LoadingState message={t("common.loading")} />;
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.headerArea}>
+          <SectionHeader title="Discover" subtitle="Curated daily fashion edits" />
+        </View>
+        <View style={styles.skeletonContainer}>
+          <ProductSkeleton />
+        </View>
+      </View>
+    );
   }
 
   if (isError) {
@@ -221,6 +195,40 @@ export default function FeedScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header Search Shortcut & Category Chips */}
+      <View style={styles.headerArea}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => router.push("/explore" as any)}
+          accessibilityRole="button"
+          accessibilityLabel="Search catalog"
+        >
+          <SearchBar
+            value=""
+            onChangeText={() => {}}
+            onSubmit={() => router.push("/explore" as any)}
+            placeholder="Search styles, brands, garments..."
+            style={styles.searchShortcut}
+          />
+        </TouchableOpacity>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryScroll}
+        >
+          {FEED_CATEGORIES.map((cat) => (
+            <CategoryChip
+              key={cat.id}
+              label={cat.label}
+              selected={activeCategory === cat.id}
+              onPress={() => setActiveCategory(cat.id)}
+              style={styles.chip}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
       {relaxedFilters.length > 0 && (
         <View
           style={[
@@ -228,7 +236,7 @@ export default function FeedScreen() {
             { backgroundColor: colors.brandSubtle, borderBottomColor: colors.border },
           ]}
         >
-          <AppText variant="caption" color="textSecondary" style={styles.relaxedBannerText}>
+          <AppText variant="caption" color="textSecondary">
             💡 {t("feed.relaxedBanner")}
           </AppText>
         </View>
@@ -236,10 +244,19 @@ export default function FeedScreen() {
 
       {feedItems.length === 0 ? (
         <EmptyState
-          title={emptyReason || t("feed.empty")}
-          message={t("feed.emptySub")}
-          actionLabel={t("common.retry")}
-          onAction={() => void refetch()}
+          icon="✦"
+          title={
+            emptyReason === "catalog_empty"
+              ? "New styles are arriving soon"
+              : "Let's refresh your style preferences"
+          }
+          message={
+            emptyReason === "catalog_empty"
+              ? "We couldn't find eligible products in the current catalog."
+              : "Try exploring other categories or adjusting your preferences."
+          }
+          actionLabel="Explore styles"
+          onAction={() => router.push("/explore" as any)}
         />
       ) : (
         <FlashList
@@ -263,25 +280,6 @@ export default function FeedScreen() {
           contentContainerStyle={styles.listContent}
         />
       )}
-
-      {/* 5-second Undo Snackbar */}
-      {pendingSignal && (
-        <View style={styles.snackbar}>
-          <AppText variant="body" color="textOnBrand" style={styles.snackbarText}>
-            {t("feed.dismissed")}
-          </AppText>
-          <TouchableOpacity
-            style={styles.undoButton}
-            onPress={undoSignal}
-            accessibilityRole="button"
-            accessibilityLabel={t("feed.undo")}
-          >
-            <AppText variant="label" style={styles.undoButtonText}>
-              {t("feed.undo")}
-            </AppText>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }
@@ -290,149 +288,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  listContent: {
-    padding: spacing[4],
-    paddingBottom: spacing[20],
+  headerArea: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[3],
+    paddingBottom: spacing[2],
+  },
+  searchShortcut: {
+    pointerEvents: "none",
+  },
+  categoryScroll: {
+    paddingVertical: spacing[2],
+    gap: spacing[2],
+  },
+  chip: {
+    marginRight: spacing[2],
   },
   relaxedBanner: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
     borderBottomWidth: 1,
+  },
+  listContent: {
     paddingHorizontal: spacing[4],
-    paddingVertical: 10,
+    paddingBottom: spacing[6],
   },
-  relaxedBannerText: {
-    lineHeight: 18,
+  cardContainer: {
+    marginBottom: spacing[4],
   },
-  card: {
-    borderRadius: radius.xl,
-    marginBottom: spacing[5],
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: elevation.medium,
-  },
-  imageContainer: {
-    width: "100%",
-    height: 380,
-    position: "relative",
-  },
-  garmentImage: {
-    width: "100%",
-    height: "100%",
-  },
-  placeholderImage: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  placeholderText: {
-    fontSize: 64,
-  },
-  tryonBadge: {
-    position: "absolute",
-    top: 14,
-    left: 14,
-    backgroundColor: "rgba(17, 24, 39, 0.85)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
-  },
-  tryonBadgeText: {
-    color: "#FFFFFF",
-  },
-  cardContent: {
-    padding: spacing[4],
-  },
-  brandText: {
-    letterSpacing: 0.8,
-    marginBottom: spacing[1],
-  },
-  titleText: {
-    lineHeight: 22,
-    marginBottom: spacing[2],
-  },
-  priceRow: {
+  feedbackBar: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: radius.md,
+    marginTop: spacing[2],
+  },
+  explanationText: {
+    flex: 1,
+    marginRight: spacing[2],
+  },
+  signalButtons: {
+    flexDirection: "row",
     gap: spacing[2],
-    marginBottom: 10,
   },
-  priceText: {},
-  priceFreshnessText: {},
-  reasonsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing[1.5],
-    marginTop: spacing[1],
+  signalButton: {
+    padding: spacing[1],
   },
-  actionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing[4],
-    paddingBottom: spacing[4],
-    paddingTop: spacing[2],
-    borderTopWidth: 1,
-  },
-  actionButtonSecondary: {
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[3],
-    borderRadius: radius.md,
-  },
-  actionSecondaryText: {},
-  rightActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconText: {
+  signalIcon: {
     fontSize: 16,
+    color: "#6B7280",
   },
-  actionButtonPrimary: {
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: radius.md,
-  },
-  actionPrimaryText: {
-    color: "#FFFFFF",
-  },
-  snackbar: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "#1F2937",
-    borderRadius: radius.lg,
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[4],
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: elevation.high,
-  },
-  snackbarText: {
-    color: "#FFFFFF",
-  },
-  undoButton: {
-    backgroundColor: "#374151",
-    paddingVertical: 6,
-    paddingHorizontal: spacing[3],
-    borderRadius: radius.sm,
-  },
-  undoButtonText: {
-    color: "#60A5FA",
+  skeletonContainer: {
+    padding: spacing[4],
   },
 });

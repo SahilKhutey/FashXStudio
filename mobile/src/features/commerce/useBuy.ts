@@ -1,6 +1,7 @@
 import * as WebBrowser from "expo-web-browser";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "../../api/client";
+import { isSafeRetailerRedirect } from "../../lib/safeRedirect";
 
 export const useBuy = () =>
   useMutation({
@@ -10,8 +11,10 @@ export const useBuy = () =>
         body: JSON.stringify({ garment_id: garmentId }),
       }),
     onSuccess: (r) => {
-      if (r?.redirect_url) {
+      if (r?.redirect_url && isSafeRetailerRedirect(r.redirect_url)) {
         WebBrowser.openBrowserAsync(r.redirect_url);
+      } else if (r?.redirect_url) {
+        console.warn("Blocked potentially unsafe redirect URL:", r.redirect_url);
       }
     },
   });

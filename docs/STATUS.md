@@ -11,7 +11,7 @@ Legend: 🟢 code and tests pass in CI · 🟡 partial · ⬜ not started · ❄
 | Try-on (adapter, worker, mock default) | 🟢 | None: no vendor account, no real image ever generated |
 | Catalog (ingest, dedup, enrichment) | 🟢 pipeline + validator + quality gate (P5) | None: no partner feed; VLM accuracy unmeasured (mock client) |
 | Discovery (ranker, metrics) | 🟢 on synthetic personas | None: no human ratings |
-| Mobile app | 🟢 19 screens + 12 Jest suites (97 tests); Hardened API client & typed data layer (P4); App shell & route policy (P3); Design Token System | None: unverified on physical hardware |
+| Mobile app | 🟢 21 Jest suites (152 tests); Design system; 4-tab shell; User-scoped cache isolation; Safe shopping redirects; E2E integration verified | None: unverified on physical hardware |
 | Infra and deploy pipeline | 🟡 workflow exists | None: no cloud environment |
 | B2B tenant platform and widget | 🟡 code, flag off | None |
 | Operations, experiments, SLOs | 🟡 code and documents | None |
