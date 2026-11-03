@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
@@ -6,8 +7,9 @@ from uuid import UUID
 import numpy as np
 from sqlalchemy import select
 
-from database.models.catalog import Brand
-from fashx.catalog.embeddings.fake import FakeEmbedder
+from database.models.catalog import Brand, StyleQuizPick
+from database.models.commerce_feedback import FeedExclusion, WardrobeItem
+from database.models.feed import FeedSignal
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import EntityNotFoundError
 from fashx.discovery.taste import SignalEvent, compute_taste_vector
@@ -23,6 +25,8 @@ from fashx.recommendation.ranker import (
     ScoredItem,
 )
 from fashx.recommendation.stylist_explainer import StylistExplainer
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -89,62 +93,39 @@ class GenerateFeedUseCase:
             )
 
             # Style quiz archetype preferences
-            try:
-                onboarding = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
-                if onboarding and onboarding.styles:
-                    user_styles = list(onboarding.styles)
-            except Exception:
-                pass
+            onboarding = await self.profile_uow.onboarding_profiles.get_by_user_id(cmd.user_id)
+            if onboarding and onboarding.styles:
+                user_styles = list(onboarding.styles)
 
             # Feed interaction signals (likes, hides, not_interested)
-            try:
-                from database.models.feed import FeedSignal
-
-                res_sig = await self.profile_uow.session.scalars(
-                    select(FeedSignal).where(FeedSignal.user_id == cmd.user_id)
-                )
-                for s in res_sig.all():
-                    raw_signals.append((s.garment_id, s.action, s.created_at))
-            except Exception:
-                pass
+            res_sig = await self.profile_uow.session.scalars(
+                select(FeedSignal).where(FeedSignal.user_id == cmd.user_id)
+            )
+            for signal in res_sig.all():
+                raw_signals.append((signal.garment_id, signal.action, signal.created_at))
 
             # Saved wardrobe items (positive interaction signal)
-            try:
-                from database.models.commerce_feedback import WardrobeItem
-
-                res_w = await self.profile_uow.session.scalars(
-                    select(WardrobeItem).where(WardrobeItem.user_id == cmd.user_id)
-                )
-                for w in res_w.all():
-                    raw_signals.append((w.garment_id, "like", w.saved_at))
-            except Exception:
-                pass
+            res_wardrobe = await self.profile_uow.session.scalars(
+                select(WardrobeItem).where(WardrobeItem.user_id == cmd.user_id)
+            )
+            for item in res_wardrobe.all():
+                raw_signals.append((item.garment_id, "like", item.saved_at))
 
             # Style quiz picks (positive and negative customer preference signals)
-            try:
-                from database.models.catalog import StyleQuizPick
-
-                res_quiz = await self.profile_uow.session.scalars(
-                    select(StyleQuizPick).where(StyleQuizPick.user_id == cmd.user_id)
-                )
-                for q in res_quiz.all():
-                    action = "like" if q.liked else "not_interested"
-                    raw_signals.append((q.garment_id, action, q.created_at))
-            except Exception:
-                pass
+            res_quiz = await self.profile_uow.session.scalars(
+                select(StyleQuizPick).where(StyleQuizPick.user_id == cmd.user_id)
+            )
+            for q in res_quiz.all():
+                action = "like" if q.liked else "not_interested"
+                raw_signals.append((q.garment_id, action, q.created_at))
 
             # User exclusions (Rule I06 / Feed Exclusions)
             feed_exclusions: set[UUID] = set()
-            try:
-                from database.models.commerce_feedback import FeedExclusion
-
-                res_ex = await self.profile_uow.session.scalars(
-                    select(FeedExclusion).where(FeedExclusion.user_id == cmd.user_id)
-                )
-                for ex in res_ex.all():
-                    feed_exclusions.add(ex.garment_id)
-            except Exception:
-                pass
+            res_ex = await self.profile_uow.session.scalars(
+                select(FeedExclusion).where(FeedExclusion.user_id == cmd.user_id)
+            )
+            for ex in res_ex.all():
+                feed_exclusions.add(ex.garment_id)
 
             user_build = body.build if body else "regular"
             undertone = "neutral"
@@ -158,29 +139,32 @@ class GenerateFeedUseCase:
             allowed_categories = list(pref.categories) if pref and pref.categories else None
 
         # 2. Fetch Catalog Candidates (Gated: cleared sources + active products)
-        embedder = FakeEmbedder()
         async with self.catalog_uow:
-            # Resolve garment embeddings for raw interaction signals
+            # Resolve garment embeddings for raw interaction signals without FakeEmbedder fallback
             signal_events: list[SignalEvent] = []
             for g_id, action, dt in raw_signals:
-                try:
-                    enrichment = await self.catalog_uow.enrichments.get_by_garment_id(g_id)
-                    if enrichment and enrichment.embedding:
-                        emb = enrichment.embedding
-                    else:
-                        g_obj = await self.catalog_uow.canonical_garments.get_by_id(g_id)
-                        title = g_obj.display_name if g_obj else "garment"
-                        emb = embedder.embed_text([title])[0]
-                    signal_events.append(
-                        SignalEvent(
-                            garment_id=str(g_id),
-                            action=action,
-                            timestamp=dt or now,
-                            embedding=np.array(emb, dtype=np.float32),
-                        )
+                enrichment = await self.catalog_uow.enrichments.get_by_garment_id(g_id)
+                if not enrichment or enrichment.embedding is None:
+                    logger.debug(
+                        "Skipping interaction without stored embedding: garment_id=%s",
+                        g_id,
                     )
-                except Exception:
                     continue
+                emb = np.asarray(enrichment.embedding, dtype=np.float32)
+                if emb.ndim != 1 or not np.all(np.isfinite(emb)):
+                    logger.warning(
+                        "Invalid garment embedding; skipping signal: garment_id=%s",
+                        g_id,
+                    )
+                    continue
+                signal_events.append(
+                    SignalEvent(
+                        garment_id=str(g_id),
+                        action=action,
+                        timestamp=dt or now,
+                        embedding=emb,
+                    )
+                )
 
             # Compute taste vector blending cold-start archetypes with interaction signals
             taste_vector = compute_taste_vector(signal_events, user_styles=user_styles, now=now)
@@ -231,6 +215,11 @@ class GenerateFeedUseCase:
                 )
 
         total_candidates = len(candidates)
+        logger.info(
+            "Feed catalog retrieval completed: user_id=%s candidates=%s",
+            cmd.user_id,
+            total_candidates,
+        )
 
         # Collect negative interaction signals (hide, not_interested, dislike) and feed exclusions
         excluded_ids = feed_exclusions | {
@@ -248,12 +237,30 @@ class GenerateFeedUseCase:
         surviving = DeterministicFilter.filter_candidates(candidates, criteria)
         filtered_count = len(surviving)
 
+        logger.info(
+            "Feed filtering completed: user_id=%s before=%s after=%s",
+            cmd.user_id,
+            total_candidates,
+            filtered_count,
+        )
+
         if not surviving:
+            empty_reason = (
+                "catalog_empty" if total_candidates == 0 else "all_candidates_filtered"
+            )
+            logger.info(
+                "Feed returned no products: user_id=%s total_candidates=%s filtered_candidates=%s reason=%s",
+                cmd.user_id,
+                total_candidates,
+                filtered_count,
+                empty_reason,
+            )
             return GenerateFeedResult(
                 user_id=cmd.user_id,
                 items=[],
                 total_candidates=total_candidates,
-                filtered_candidates=0,
+                filtered_candidates=filtered_count,
+                empty_reason=empty_reason,
             )
 
         # 4. Stage 2: Explicit preference, compatibility, and taste vector scoring
