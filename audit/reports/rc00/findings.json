@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-11-03T04:57:24.320396+00:00",
+  "audit": "RC-00",
+  "findings": [
+    {
+      "id": "RC00-R001",
+      "severity": "P0",
+      "subsystem": "runtime",
+      "status": "CONFIRMED",
+      "title": "Mock try-on is the documented default",
+      "evidence": ".env.example",
+      "recommendation": "Verify actual runtime provider and test real inference."
+    },
+    {
+      "id": "RC00-R002",
+      "severity": "P1",
+      "subsystem": "runtime",
+      "status": "CONFIRMED",
+      "title": "Local authentication is the documented default",
+      "evidence": ".env.example",
+      "recommendation": "Verify authentication mode in the running environment."
+    },
+    {
+      "id": "FX-001",
+      "severity": "P0",
+      "subsystem": "catalog",
+      "status": "CONFIRMED",
+      "title": "Catalog is unpopulated and feed has no product candidates",
+      "evidence": "fashx_local.db has 0 canonical_garments and 0 merchant_products",
+      "root_cause": "scripts/catalog/seed_local.py halted because 'own-wardrobe' source was unregistered",
+      "recommendation": "Register and clear 'own-wardrobe' source and run seed_local.py --apply"
+    },
+    {
+      "id": "FX-003",
+      "severity": "P0",
+      "subsystem": "wardrobe",
+      "status": "CONFIRMED",
+      "title": "Closet collection is completely empty in local database",
+      "evidence": "fashx_local.db wardrobe_items row count is 0",
+      "root_cause": "No wardrobe save events occurred due to empty catalog items in feed",
+      "recommendation": "Populate catalog and verify end-to-end save-to-closet flow"
+    },
+    {
+      "id": "FX-004",
+      "severity": "P0",
+      "subsystem": "tryon",
+      "status": "CONFIRMED",
+      "title": "VTO async dispatch stalls in non-Celery development environments",
+      "evidence": "backend/fashx/tryon/ports_dispatch.py logs warning and defers dispatch silently",
+      "root_cause": "CeleryTryOnJobDispatcher has no in-process or async background worker fallback",
+      "recommendation": "Add in-process / async fallback dispatcher for local dev environments"
+    },
+    {
+      "id": "FX-009",
+      "severity": "P1",
+      "subsystem": "mobile",
+      "status": "CONFIRMED",
+      "title": "Settings screen exposes internal database UUIDs to consumers",
+      "evidence": "mobile/app/settings/index.tsx displays raw userId and photo.id",
+      "root_cause": "Diagnostic identifiers were rendered in consumer settings card without styling abstraction",
+      "recommendation": "Redesign settings into consumer account profile and privacy controls"
+    }
+  ]
+}

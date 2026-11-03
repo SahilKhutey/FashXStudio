@@ -1,0 +1,60 @@
+project:
+  name: FashXStudio
+  repository: SahilKhutey/FashXStudio
+  default_branch: main
+
+paths:
+  backend: backend/fashx
+  mobile: mobile
+  database: database
+  migrations: database/migrations
+  schemas: schemas
+  workers: workers
+  tests: tests
+  mobile_tests: mobile/__tests__
+  docs: docs
+
+backend:
+  entrypoint: backend/fashx/main.py
+  package: backend/fashx
+  migration_config: alembic.ini
+
+mobile:
+  package_json: mobile/package.json
+  app_json: mobile/app.json
+  lockfile: mobile/package-lock.json
+
+runtime:
+  env_example: .env.example
+  compose: docker-compose.yml
+  api_base_path: /api/v1
+  health_endpoints:
+    - /health
+    - /healthz
+    - /
+
+audit:
+  read_only: true
+  include_hidden: false
+  exclude:
+    - .git
+    - node_modules
+    - .expo
+    - __pycache__
+    - .pytest_cache
+    - .venv
+    - dist
+    - build
+    - .local_storage
+  sensitive_files:
+    - .env
+    - .env.local
+    - .env.production
+    - credentials.json
+    - service-account.json
+
+severity:
+  blocker: P0
+  high: P1
+  medium: P2
+  low: P3
