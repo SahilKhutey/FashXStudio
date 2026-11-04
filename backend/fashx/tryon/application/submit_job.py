@@ -27,6 +27,8 @@ class SubmitTryOnJobResult:
     artifact_key: str
     is_cached: bool
     result_url: str | None = None
+    dispatch_accepted: bool = True
+    dispatch_reason: str | None = None
 
 
 class SubmitTryOnJobUseCase:
@@ -197,11 +199,17 @@ class SubmitTryOnJobUseCase:
             self.tryon_uow.jobs.add(job)
             await self.tryon_uow.commit()
 
+        dispatch_accepted = True
+        dispatch_reason: str | None = None
         if self.dispatcher:
             try:
-                await self.dispatcher.dispatch(job.id)
-            except Exception:
-                pass
+                res = await self.dispatcher.dispatch(job.id)
+                if hasattr(res, "accepted"):
+                    dispatch_accepted = res.accepted
+                    dispatch_reason = getattr(res, "reason", None)
+            except Exception as exc:
+                dispatch_accepted = False
+                dispatch_reason = type(exc).__name__
 
         return SubmitTryOnJobResult(
             job_id=job.id,
@@ -209,4 +217,6 @@ class SubmitTryOnJobUseCase:
             artifact_key=artifact_key,
             is_cached=False,
             result_url=None,
+            dispatch_accepted=dispatch_accepted,
+            dispatch_reason=dispatch_reason,
         )
