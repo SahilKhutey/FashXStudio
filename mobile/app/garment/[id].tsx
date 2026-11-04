@@ -175,7 +175,17 @@ export default function GarmentDetailScreen() {
 
           {/* Retailer Offers */}
           {garment.offers && garment.offers.length > 0 && (
-            <RetailerOffers garmentId={garment.id} offers={garment.offers} />
+            <RetailerOffers
+              garmentId={garment.id}
+              offers={garment.offers}
+              onBuy={(offerId) =>
+                executeBuy({
+                  garment_id: garment.id,
+                  offer_id: offerId,
+                })
+              }
+              isBuying={isBuying}
+            />
           )}
 
           {/* Affiliate Disclosure */}
@@ -207,19 +217,6 @@ export default function GarmentDetailScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.buyButton}
-          onPress={() => executeBuy(garment.id)}
-          disabled={isBuying}
-          accessibilityRole="button"
-          accessibilityLabel={t("garment.buyNow")}
-        >
-          {isBuying ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <Text style={styles.buyButtonText}>{t("garment.buyNow")}</Text>
-          )}
-        </TouchableOpacity>
 
         {/* Try-On Button: STRICTLY gated on tryon_supported */}
         {garment.tryon_supported ? (

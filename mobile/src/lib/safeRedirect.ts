@@ -41,6 +41,19 @@ export function isSafeRetailerRedirect(
       return false;
     }
 
+    // Reject localhost, private/link-local addresses
+    const host = url.hostname.toLowerCase();
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "0.0.0.0" ||
+      host === "::1" ||
+      host.endsWith(".localhost") ||
+      host === "169.254.169.254"
+    ) {
+      return false;
+    }
+
     // If allowed hosts list is provided, verify match
     if (allowedHosts && allowedHosts.length > 0) {
       const host = url.hostname.toLowerCase();

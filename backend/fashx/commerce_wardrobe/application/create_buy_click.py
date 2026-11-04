@@ -14,6 +14,7 @@ from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 def validate_retailer_url(
     raw_url: str,
     allowed_hosts: set[str] | None = None,
+    is_production: bool = False,
 ) -> str:
     """Validates that a retailer destination uses HTTPS, has no credentials, and belongs to an approved host."""
     if not raw_url:
@@ -27,13 +28,21 @@ def validate_retailer_url(
         raise ValidationError("Retailer URL has no valid hostname", field="redirect_url")
 
     hostname = parsed.hostname.lower()
+    if " " in hostname or not hostname:
+        raise ValidationError("Retailer URL has an invalid hostname", field="redirect_url")
+
     if parsed.username or parsed.password:
         raise ValidationError(
             "Credentials are not permitted in retailer URLs", field="redirect_url"
         )
 
+    if is_production and not allowed_hosts:
+        raise ValidationError(
+            "Retailer host allowlist must be configured in production", field="redirect_url"
+        )
+
     if allowed_hosts:
-        normalized_allowed = {h.lower() for h in allowed_hosts}
+        normalized_allowed = {h.lower() for h in allowed_hosts if h.strip()}
         matched = any(hostname == h or hostname.endswith("." + h) for h in normalized_allowed)
         if not matched:
             raise ValidationError(
@@ -66,11 +75,13 @@ class CreateBuyClickUseCase:
         profile_uow: ProfileUnitOfWork,
         catalog_uow: CatalogUnitOfWork,
         allowed_hosts: set[str] | None = None,
+        is_production: bool = False,
     ) -> None:
         self.commerce_uow = commerce_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
         self.allowed_hosts = allowed_hosts
+        self.is_production = is_production
 
     async def execute(self, cmd: CreateBuyClickCommand) -> CreateBuyClickResult:
         # 1. Validate User
@@ -81,6 +92,16 @@ class CreateBuyClickUseCase:
 
         # 2. Retrieve Merchant Offer and Destination URL
         async with self.catalog_uow:
+            garment = await self.catalog_uow.canonical_garments.get_by_id(cmd.garment_id)
+            if garment is None:
+                raise EntityNotFoundError("CanonicalGarment", cmd.garment_id)
+
+            if not getattr(garment, "active", True):
+                raise ValidationError(
+                    f"Garment {cmd.garment_id} is inactive and not available for purchase handoff",
+                    field="garment_id",
+                )
+
             offer = await self.catalog_uow.offers.get_by_id(cmd.offer_id)
             if offer is None:
                 raise EntityNotFoundError("MerchantOffer", cmd.offer_id)
@@ -121,7 +142,11 @@ class CreateBuyClickUseCase:
             raw_destination_url = product.source_url
 
         # Validate URL scheme, credentials, and allowed hosts
-        validate_retailer_url(raw_destination_url, self.allowed_hosts)
+        validate_retailer_url(
+            raw_destination_url,
+            allowed_hosts=self.allowed_hosts,
+            is_production=self.is_production,
+        )
 
         # 3. Generate Tracking ID & Record Click
         tracking_id = f"fashx_{cmd.user_id.hex[:8]}_{uuid4().hex[:10]}"
