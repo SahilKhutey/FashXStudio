@@ -10,6 +10,7 @@ from PIL import Image, UnidentifiedImageError
 
 MAX_IMAGE_BYTES = 8 * 1024 * 1024  # 8 MB
 MAX_IMAGE_PIXELS = 20_000_000      # 20 Megapixels
+MIN_IMAGE_DIMENSION = 128          # Minimum width and height
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 
@@ -39,6 +40,10 @@ def validate_image_bytes(content: bytes) -> ValidatedImage:
                     raise ValueError(f"Unsupported image format: '{image_format}'. Must be one of {ALLOWED_FORMATS}")
 
                 width, height = image.size
+                if width < MIN_IMAGE_DIMENSION or height < MIN_IMAGE_DIMENSION:
+                    raise ValueError(
+                        f"Image dimensions ({width}x{height}) below minimum required {MIN_IMAGE_DIMENSION}x{MIN_IMAGE_DIMENSION}"
+                    )
                 if width * height > MAX_IMAGE_PIXELS:
                     raise ValueError(f"Image exceeds pixel limit of {MAX_IMAGE_PIXELS} pixels (got {width * height})")
 

@@ -160,7 +160,10 @@ async def test_feed_cold_start_does_not_use_fake_embedder(
     """
     from database.models.catalog import CatalogSource, Merchant
     from fashx.catalog.application.enrich_garment import EnrichGarmentCommand, EnrichGarmentUseCase
-    from fashx.catalog.application.ingest_product import IngestMerchantProductUseCase, IngestProductCommand
+    from fashx.catalog.application.ingest_product import (
+        IngestMerchantProductUseCase,
+        IngestProductCommand,
+    )
 
     profile_uow = ProfileUnitOfWork(session_factory)
     catalog_uow = CatalogUnitOfWork(session_factory)

@@ -9,6 +9,7 @@ class ImageTextEmbedder(Protocol):
     """Protocol for multimodal fashion image and text embedding models."""
 
     model_id: str
+    model_version: str
     dim: int
 
     def embed_images(self, images: list[bytes]) -> list[list[float]]:

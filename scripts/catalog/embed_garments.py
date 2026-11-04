@@ -56,7 +56,7 @@ async def embed_garments(
                 )
                 sys.exit(1)
 
-    target_model = embedder.model_id
+    target_model = f"{embedder.model_id}:{getattr(embedder, 'model_version', '1.0')}"
     print(f"Using embedder: {target_model} (dim={embedder.dim})")
     print(f"Mode: {'APPLY (writing to database)' if apply else 'DRY-RUN (no changes written)'}\n")
 

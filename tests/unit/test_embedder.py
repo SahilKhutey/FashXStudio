@@ -15,6 +15,7 @@ def test_fake_embedder_protocol_conformance() -> None:
     assert isinstance(embedder, ImageEmbedder)
     assert embedder.dim == 512
     assert embedder.model_id == "mock-fake-512"
+    assert embedder.model_version == "mock-v1"
 
 
 def test_fake_embedder_deterministic_and_normalized() -> None:

@@ -3,8 +3,6 @@ import re
 
 from PIL import Image
 
-from fashx.catalog.embeddings.fake import FakeEmbedder
-
 from .ports import EnrichmentResult, GarmentAttributes
 
 COLOR_MAP = {
@@ -72,7 +70,7 @@ class HeuristicGarmentEnricher:
     """Deterministic extractor parsing listing text and image data for garment attributes."""
 
     def __init__(self) -> None:
-        self.embedder = FakeEmbedder()
+        pass
 
     async def enrich(
         self,
