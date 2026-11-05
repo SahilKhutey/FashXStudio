@@ -12741,6 +12741,11 @@
             "format": "uuid",
             "title": "Garment Id"
           },
+          "offer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Offer Id"
+          },
           "user_id": {
             "anyOf": [
               {
@@ -12752,23 +12757,12 @@
               }
             ],
             "title": "User Id"
-          },
-          "offer_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Offer Id"
           }
         },
         "type": "object",
         "required": [
-          "garment_id"
+          "garment_id",
+          "offer_id"
         ],
         "title": "BuyClickRequest"
       },
@@ -14422,6 +14416,29 @@
           "in_stock": {
             "type": "boolean",
             "title": "In Stock"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "merchant_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Name"
           }
         },
         "additionalProperties": false,

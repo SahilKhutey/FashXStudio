@@ -161,6 +161,8 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires PRIVACY_URL and TERMS_URL")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
+            if not self.parsed_retailer_allowed_hosts:
+                raise ValueError("prod requires non-empty FASHX_RETAILER_ALLOWED_HOSTS")
             if self.enable_b2b:
                 raise ValueError("ENABLE_B2B must be false in prod for MVP")
         return self

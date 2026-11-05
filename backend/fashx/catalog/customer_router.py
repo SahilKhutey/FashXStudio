@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 
-from database.models.catalog import Brand
+from database.models.catalog import Brand, Merchant
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.catalog.router import get_catalog_uow
 from fashx.core.errors import EntityNotFoundError
@@ -24,6 +25,8 @@ class CustomerOfferDetail(BaseModel):
     price_minor: int
     currency: str
     in_stock: bool
+    updated_at: datetime | None = None
+    merchant_name: str | None = None
 
 
 class CustomerGarmentDetailResponse(BaseModel):
@@ -63,19 +66,45 @@ async def _resolve_garment_detail(
         images = [img.image_url for img in images_rec if img.image_url]
 
         offers = await uow.offers.list_for_garment(garment_id)
-        currency = offers[0].currency if offers else "INR"
-        price_minor = offers[0].price_minor if offers else garment.price_minor
+
+        # Collect merchant names
+        merchant_ids = {o.merchant_id for o in offers}
+        merchants_map: dict[UUID, str] = {}
+        for m_id in merchant_ids:
+            m = await uow.session.get(Merchant, m_id)
+            if m:
+                merchants_map[m_id] = m.name
+
+        # Sort offers: in-stock first, then ascending by price
+        sorted_offers = sorted(offers, key=lambda x: (not x.in_stock, x.price_minor))
+
+        # Determine display price and currency: best in-stock, else best offer, else garment price
+        in_stock_offers = [o for o in sorted_offers if o.in_stock]
+        if in_stock_offers:
+            best_offer = in_stock_offers[0]
+            price_minor = best_offer.price_minor
+            currency = best_offer.currency
+        elif sorted_offers:
+            best_offer = sorted_offers[0]
+            price_minor = best_offer.price_minor
+            currency = best_offer.currency
+        else:
+            price_minor = garment.price_minor
+            currency = "INR"
+
         offers_detail = [
             CustomerOfferDetail(
                 id=o.id,
                 merchant_id=o.merchant_id,
+                merchant_name=merchants_map.get(o.merchant_id),
                 source_product_id=o.source_product_id,
                 url=o.url,
                 price_minor=o.price_minor,
                 currency=o.currency,
                 in_stock=o.in_stock,
+                updated_at=getattr(o, "last_synced_at", None),
             )
-            for o in offers
+            for o in sorted_offers
         ]
 
         title = (

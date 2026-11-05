@@ -1,20 +1,30 @@
-import * as WebBrowser from "expo-web-browser";
 import { useMutation } from "@tanstack/react-query";
-import { api } from "../../api/client";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
+import { createBuyClick, type CreateBuyClickRequest } from "./buyClickApi";
 import { isSafeRetailerRedirect } from "../../lib/safeRedirect";
 
-export const useBuy = () =>
-  useMutation({
-    mutationFn: (garmentId: string) =>
-      api<{ redirect_url: string }>("/commerce/buy-clicks", {
-        method: "POST",
-        body: JSON.stringify({ garment_id: garmentId }),
-      }),
-    onSuccess: (r) => {
-      if (r?.redirect_url && isSafeRetailerRedirect(r.redirect_url)) {
-        WebBrowser.openBrowserAsync(r.redirect_url);
-      } else if (r?.redirect_url) {
-        console.warn("Blocked potentially unsafe redirect URL:", r.redirect_url);
+export function useBuy() {
+  return useMutation({
+    mutationFn: async (payload: CreateBuyClickRequest) => {
+      const result = await createBuyClick(payload);
+      if (!result?.redirect_url || !isSafeRetailerRedirect(result.redirect_url)) {
+        throw new Error("The retailer destination could not be verified.");
+      }
+      return result;
+    },
+    onSuccess: async (result) => {
+      const url = result.redirect_url;
+      try {
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          await WebBrowser.openBrowserAsync(url);
+        }
+      } catch {
+        await WebBrowser.openBrowserAsync(url);
       }
     },
   });
+}

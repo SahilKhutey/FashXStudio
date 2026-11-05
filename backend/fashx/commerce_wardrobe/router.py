@@ -83,8 +83,8 @@ class SaveWardrobeResponse(BaseModel):
 
 class BuyClickRequest(BaseModel):
     garment_id: UUID
+    offer_id: UUID
     user_id: UUID | None = None
-    offer_id: UUID | None = None
 
 
 class BuyClickResponse(BaseModel):
@@ -275,28 +275,19 @@ async def create_buy_click(
     if request.user_id is not None and request.user_id != effective_user_id:
         raise forbidden("Forbidden: user_id mismatch")
 
-    effective_offer_id = request.offer_id
-    if effective_offer_id is None:
-        async with catalog_uow:
-            offers = await catalog_uow.offers.list_for_garment(request.garment_id)
-            if not offers:
-                from fashx.core.errors import EntityNotFoundError
-
-                raise EntityNotFoundError("MerchantOffer", request.garment_id)
-            effective_offer_id = offers[0].id
-
     settings = get_settings()
     uc = CreateBuyClickUseCase(
         commerce_uow,
         profile_uow,
         catalog_uow,
         allowed_hosts=settings.parsed_retailer_allowed_hosts,
+        is_production=settings.is_production,
     )
     res = await uc.execute(
         CreateBuyClickCommand(
             user_id=effective_user_id,
             garment_id=request.garment_id,
-            offer_id=effective_offer_id,
+            offer_id=request.offer_id,
         )
     )
     return BuyClickResponse(

@@ -14,6 +14,8 @@ from fashx.domain.cart.entities import (
 from fashx.domain.cart.service import (
     CartService,
 )
+from fashx.security.deps import Principal, get_optional_principal
+from fashx.security.errors import forbidden
 
 from .cart_schemas import (
     CartCreateRequest,
@@ -98,6 +100,7 @@ async def create_cart(
 )
 async def get_cart(
     cart_id: UUID,
+    principal: Principal | None = Depends(get_optional_principal),
     service: CartService = Depends(
         get_cart_service
     ),
@@ -105,6 +108,10 @@ async def get_cart(
     result = await service.get_cart(
         cart_id
     )
+
+    if principal and result and result.owner_type == "customer" and result.customer_id is not None:
+        if str(result.customer_id) != principal.user_id:
+            raise forbidden("Forbidden: cart belongs to another user")
 
     return cart_response(result)
 
@@ -117,10 +124,16 @@ async def get_cart(
 async def add_line(
     cart_id: UUID,
     payload: CartLineCreateRequest,
+    principal: Principal | None = Depends(get_optional_principal),
     service: CartService = Depends(
         get_cart_service
     ),
 ):
+    cart = await service.get_cart(cart_id)
+    if principal and cart and cart.owner_type == "customer" and cart.customer_id is not None:
+        if str(cart.customer_id) != principal.user_id:
+            raise forbidden("Forbidden: cart belongs to another user")
+
     line = CartLine(
         cart_id=cart_id,
         product_id=payload.product_id,
@@ -184,10 +197,16 @@ async def remove_line(
 )
 async def clear_cart(
     cart_id: UUID,
+    principal: Principal | None = Depends(get_optional_principal),
     service: CartService = Depends(
         get_cart_service
     ),
 ):
+    cart = await service.get_cart(cart_id)
+    if principal and cart and cart.owner_type == "customer" and cart.customer_id is not None:
+        if str(cart.customer_id) != principal.user_id:
+            raise forbidden("Forbidden: cart belongs to another user")
+
     await service.clear_cart(
         context=CoreContext.create(),
         cart_id=cart_id,
@@ -202,10 +221,16 @@ async def clear_cart(
 )
 async def cart_totals(
     cart_id: UUID,
+    principal: Principal | None = Depends(get_optional_principal),
     service: CartService = Depends(
         get_cart_service
     ),
 ):
+    cart = await service.get_cart(cart_id)
+    if principal and cart and cart.owner_type == "customer" and cart.customer_id is not None:
+        if str(cart.customer_id) != principal.user_id:
+            raise forbidden("Forbidden: cart belongs to another user")
+
     result = await service.calculate_totals(
         cart_id
     )

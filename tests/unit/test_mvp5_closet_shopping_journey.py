@@ -368,6 +368,16 @@ async def test_buy_click_validates_garment_offer_relationship(
         await profile_uow.commit()
 
     async with catalog_uow:
+        garment_a = CanonicalGarment(
+            id=garment_a_id,
+            display_name="Test Garment A",
+            category="tops",
+            gender="unisex",
+            active=True,
+            price_minor=100000,
+        )
+        catalog_uow.canonical_garments.add(garment_a)
+
         merchant = Merchant(name="Test Retailer", merchant_type="retailer")
         catalog_uow.merchants.add(merchant)
         await catalog_uow.flush()

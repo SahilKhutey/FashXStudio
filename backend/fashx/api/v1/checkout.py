@@ -10,6 +10,8 @@ from fashx.domain.checkout.entities import (
     CheckoutSession,
 )
 from fashx.domain.checkout.service import CheckoutService
+from fashx.security.deps import Principal, get_optional_principal
+from fashx.security.errors import forbidden
 
 from .checkout_schemas import (
     CheckoutCreateRequest,
@@ -72,11 +74,17 @@ async def create_checkout(
 )
 async def validate_checkout(
     checkout_id: UUID,
+    principal: Principal | None = Depends(get_optional_principal),
     service: CheckoutService = Depends(
         get_checkout_service
     ),
 ):
     try:
+        existing = await service.get_checkout(checkout_id)
+        if principal and existing.customer_id is not None:
+            if str(existing.customer_id) != principal.user_id:
+                raise forbidden("Forbidden: checkout belongs to another user")
+
         result = await service.validate_checkout(
             context=CoreContext.create(),
             checkout_id=checkout_id,

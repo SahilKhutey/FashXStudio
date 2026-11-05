@@ -62,6 +62,11 @@ if Celery is not None:
         result_serializer="json",
         timezone="Asia/Kolkata",
         enable_utc=True,
+        broker_connection_max_retries=1,
+        broker_connection_retry_on_startup=False,
+        task_ignore_result=True,
+        result_backend_transport_options={"max_retries": 0},
+        broker_transport_options={"max_retries": 0},
         task_routes={
             "fashx.workers.app.process_tryon_job": {"queue": "tryon"},
             "fashx.workers.app.ingest_catalog_feed": {"queue": "ingest"},
@@ -133,7 +138,12 @@ def run_tryon_job(job_id: Any) -> Any:
     return _run_sync(_async_exec())
 
 
-@app.task(name="fashx.workers.app.process_tryon_job", bind=True, max_retries=3)
+@app.task(
+    name="fashx.workers.app.process_tryon_job",
+    bind=True,
+    max_retries=3,
+    ignore_result=True,
+)
 def process_tryon_job(self, job_id_str: str) -> dict:
     """Execute asynchronous virtual try-on processing with bounded retries."""
     logger.info("Processing tryon job: %s", job_id_str)
