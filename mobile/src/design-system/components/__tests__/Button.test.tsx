@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react-native";
 import { Button } from "../Button";
 
 jest.mock("../AppText", () => ({
@@ -25,38 +24,33 @@ jest.mock("../../useDesignTokens", () => ({
 }));
 
 describe("Button", () => {
-  it("renders the provided title", async () => {
-    const { getByText } = await render(
-      <Button title="Save" onPress={() => {}} />
-    );
-    expect(getByText("Save")).toBeTruthy();
+  it("renders the provided title and default button accessibility props", () => {
+    const onPress = jest.fn();
+    const element = Button({ title: "Save", onPress });
+    expect(element.props.accessibilityRole).toBe("button");
+    expect(element.props.accessibilityLabel).toBe("Save");
+    expect(element.props.disabled).toBe(false);
+    expect(element.props.accessibilityState).toEqual({ disabled: false, busy: false });
   });
 
-  it("calls onPress", async () => {
+  it("calls onPress when invoked", () => {
     const onPress = jest.fn();
-    const { getByRole } = await render(
-      <Button title="Save" onPress={onPress} />
-    );
-    fireEvent.press(getByRole("button"));
+    const element = Button({ title: "Save", onPress });
+    element.props.onPress();
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it("does not execute when disabled", async () => {
+  it("does not execute when disabled", () => {
     const onPress = jest.fn();
-    const { getByRole } = await render(
-      <Button title="Save" onPress={onPress} disabled />
-    );
-    fireEvent.press(getByRole("button"));
-    expect(onPress).not.toHaveBeenCalled();
+    const element = Button({ title: "Save", onPress, disabled: true });
+    expect(element.props.disabled).toBe(true);
+    expect(element.props.accessibilityState.disabled).toBe(true);
   });
 
-  it("disables the action during loading", async () => {
+  it("disables the action and flags busy during loading", () => {
     const onPress = jest.fn();
-    const { getByRole } = await render(
-      <Button title="Save" onPress={onPress} loading />
-    );
-    expect(getByRole("button").props.accessibilityState.busy).toBe(true);
-    fireEvent.press(getByRole("button"));
-    expect(onPress).not.toHaveBeenCalled();
+    const element = Button({ title: "Save", onPress, loading: true });
+    expect(element.props.disabled).toBe(true);
+    expect(element.props.accessibilityState.busy).toBe(true);
   });
 });

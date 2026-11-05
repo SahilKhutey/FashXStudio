@@ -112,9 +112,14 @@ async def test_rc03_e2e_integration_flow() -> None:
     assert "stylist_explanation" in item
 
     # 5. Outbound Commerce Tracking & Safe Redirect
+    async with catalog_uow:
+        offers = await catalog_uow.offers.list_for_garment(garment_id)
+        assert len(offers) > 0
+        offer_id = offers[0].id
+
     buy_res = client.post(
         "/api/v1/commerce/buy-clicks",
-        json={"garment_id": str(garment_id)},
+        json={"garment_id": str(garment_id), "offer_id": str(offer_id)},
     )
     assert buy_res.status_code == 201
     buy_data = buy_res.json()
