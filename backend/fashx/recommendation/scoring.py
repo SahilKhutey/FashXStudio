@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from fashx.catalog.embeddings.fake import FakeEmbedder
+from fashx.catalog.embeddings.service import get_default_embedder
 from fashx.recommendation.compatibility import CompatibilityScore
 from fashx.recommendation.filters import CandidateItem
 from fashx.recommendation.ranker import cosine_similarity
@@ -28,9 +28,9 @@ class ScoringBreakdown:
 def fallback_text_embedding(
     title: str, category: str, subcategory: str | None = None
 ) -> list[float]:
-    """Fallback text embedder when garment pre-computed embedding is missing."""
+    """Utility text embedder for testing and fallback query embedding."""
     text = f"{title} {category} {subcategory or ''}".strip()
-    embedder = FakeEmbedder()
+    embedder = get_default_embedder()
     return embedder.embed_text([text])[0]
 
 
@@ -43,7 +43,7 @@ def compute_explainable_score(
     weight_compat: float = 0.5,
 ) -> ScoringBreakdown:
     """Compute normalized relevance score and grounded, non-hallucinated reason chips with dynamic reweighting."""
-    # 1. Taste similarity - missing vectors are represented as None rather than neutral 0.5
+    # 1. Taste similarity - computed against item visual embedding or text embedding fallback
     taste_sim: float | None = None
     if has_taste_signal and taste_vector is not None:
         emb = item.embedding

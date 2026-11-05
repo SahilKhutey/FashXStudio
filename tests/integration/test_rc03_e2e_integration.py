@@ -19,8 +19,13 @@ from fashx.security.tokens import create_demo_token
 
 
 @pytest.mark.asyncio
-async def test_rc03_e2e_integration_flow() -> None:
+async def test_rc03_e2e_integration_flow(monkeypatch) -> None:
     """Verify RC-03 end-to-end integration across health, identity, feed, commerce, and wardrobe."""
+    from unittest.mock import AsyncMock
+
+    monkeypatch.setattr("fashx.health.router.check_database", AsyncMock(return_value=True))
+    monkeypatch.setattr("fashx.health.router.check_redis_dependency", AsyncMock(return_value=True))
+
     token = create_demo_token(subject="rc03-tester-user")
     headers = {"Authorization": f"Bearer {token}"}
     client = TestClient(app, headers=headers)

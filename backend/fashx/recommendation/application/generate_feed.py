@@ -140,21 +140,15 @@ class GenerateFeedUseCase:
 
         # 2. Fetch Catalog Candidates (Gated: cleared sources + active products)
         async with self.catalog_uow:
-            # Resolve garment embeddings for raw interaction signals without FakeEmbedder fallback
+            # Resolve garment embeddings for raw interaction signals without fabricating fake embeddings
             signal_events: list[SignalEvent] = []
             for g_id, action, dt in raw_signals:
                 enrichment = await self.catalog_uow.enrichments.get_by_garment_id(g_id)
-                raw_emb = enrichment.embedding if (enrichment and enrichment.embedding is not None) else None
-                if raw_emb is None:
-                    g_obj = await self.catalog_uow.canonical_garments.get_by_id(g_id)
-                    if g_obj:
-                        from fashx.recommendation.scoring import fallback_text_embedding
-
-                        raw_emb = fallback_text_embedding(
-                            g_obj.display_name or "garment",
-                            g_obj.category or "",
-                            g_obj.subcategory,
-                        )
+                raw_emb = (
+                    enrichment.embedding
+                    if (enrichment and enrichment.embedding is not None)
+                    else None
+                )
                 if raw_emb is None:
                     logger.debug(
                         "Skipping interaction without resolvable embedding: garment_id=%s",

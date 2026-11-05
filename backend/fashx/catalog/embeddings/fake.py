@@ -14,6 +14,7 @@ class FakeEmbedder:
     """
 
     model_id = "mock-fake-512"
+    model_version = "mock-v1"
     dim = 512
 
     def __init__(self) -> None:

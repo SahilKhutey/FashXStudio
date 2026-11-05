@@ -6,6 +6,7 @@ from typing import Any
 
 class MarqoFashionClipEmbedder:
     model_id = "Marqo/marqo-fashionCLIP"
+    model_version = "2026.1"
     dim = 512
 
     def __init__(self) -> None:

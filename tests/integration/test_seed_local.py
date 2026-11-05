@@ -301,7 +301,7 @@ async def test_seed_refreshes_price_freshness_after_time_advancement(
     async with sqlite_session_factory() as session:
         enrichments = (await session.scalars(select(GarmentEnrichment))).all()
         for enr in enrichments:
-            assert enr.embedding_model == "mock-fake-512"
+            assert enr.embedding_model.startswith("mock-fake-512")
             assert enr.embedding is not None
             assert len(enr.embedding) == 512
 
