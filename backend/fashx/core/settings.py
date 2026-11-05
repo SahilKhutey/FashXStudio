@@ -1,8 +1,11 @@
 from functools import lru_cache
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+if TYPE_CHECKING:
+    from fashx.core.release_config import ReleaseConfig
 
 
 class Settings(BaseSettings):
@@ -131,6 +134,20 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env.lower() in ("production", "prod") or self.env == "prod"
+
+    def to_release_config(self) -> "ReleaseConfig":
+        from fashx.core.release_config import ReleaseConfig
+
+        return ReleaseConfig(
+            app_env="production" if self.is_production else self.app_env,
+            auth_mode=self.auth_mode,
+            database_url=self.database_url,
+            redis_url=self.redis_url,
+            storage_backend=self.storage_backend,
+            tryon_provider=self.tryon_provider,
+            cors_origins=self.cors_origins,
+            debug=False if self.is_production else (self.env == "dev"),
+        )
 
     @model_validator(mode="after")
     def _fail_fast(self) -> "Settings":
