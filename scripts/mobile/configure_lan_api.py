@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import socket
-import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -80,7 +79,7 @@ def main() -> None:
     api_url = f"http://{lan_ip}:{args.port}"
     env_file = Path("mobile/.env")
 
-    print(f"=== FashXStudio Mobile LAN Configuration Utility ===")
+    print("=== FashXStudio Mobile LAN Configuration Utility ===")
     print(f"Detected LAN IPv4: {lan_ip}")
     print(f"Target Mobile API: {api_url}")
 
