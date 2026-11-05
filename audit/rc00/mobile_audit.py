@@ -29,7 +29,7 @@ def audit_mobile(root: Path) -> dict[str, Any]:
 
     package_exists = package_path.is_file()
     package = read_json(package_path) if package_exists else {}
-    app = read_json(app_path) if app_path.is_file() else {}
+    _app = read_json(app_path) if app_path.is_file() else {}  # noqa: F841
 
     dependencies = {
         **package.get("dependencies", {}),

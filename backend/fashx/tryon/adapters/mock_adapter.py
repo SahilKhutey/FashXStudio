@@ -82,6 +82,23 @@ class MockTryOnAdapter:
         result_img = user_img.copy()
         result_img.paste(garment_resized, (pos_x, pos_y), garment_resized)
 
+        # Draw unmistakable PREVIEW ONLY watermark on mock generation
+        from PIL import ImageDraw, ImageFont
+        draw = ImageDraw.Draw(result_img)
+        font = ImageFont.load_default()
+        banner_text = "PREVIEW ONLY - MOCK VTO"
+        bbox = draw.textbbox((0, 0), banner_text, font=font)
+        text_w = bbox[2] - bbox[0]
+        text_h = bbox[3] - bbox[1]
+        bx = int((result_img.width - text_w) / 2)
+        by = result_img.height - text_h - 24
+        draw.rounded_rectangle(
+            [bx - 8, by - 4, bx + text_w + 8, by + text_h + 4],
+            radius=4,
+            fill=(220, 38, 38, 200),
+        )
+        draw.text((bx, by), banner_text, font=font, fill=(255, 255, 255, 255))
+
         out_buf = io.BytesIO()
         result_img.convert("RGB").save(out_buf, format="JPEG", quality=90)
         return out_buf.getvalue()

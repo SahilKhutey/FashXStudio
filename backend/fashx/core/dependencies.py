@@ -78,8 +78,10 @@ def get_tryon_adapter() -> TryOnAdapter:
         raise NotImplementedError(
             "fashn_selfhost try-on adapter is not implemented; mock fallback is forbidden"
         )
-    else:
+    elif s.tryon_provider == "mock":
         adapter = MockAdapter()
+    else:
+        raise ValueError(f"Unknown or unsupported tryon_provider: {s.tryon_provider}")
 
     if s.env == "prod":
         assert_production_license(adapter)

@@ -8,3 +8,8 @@ a9f91b0dce043d97bde9c65ca8a35313c4f68a94:tests/integration/test_demo_user_journe
 b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:97
 b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:133
 b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:177
+
+# Documentation example artifact keys and fixture tokens in RC05 plan docs (no real credentials)
+48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/08_ARTIFACT_STORAGE.md:generic-api-key:21
+48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/04_JOB_LIFECYCLE.md:generic-api-key:44
+48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/14_ACCEPTANCE_REPORT.md:generic-api-key:100
