@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from audit.rc00.inventory import scan_repository
 
 

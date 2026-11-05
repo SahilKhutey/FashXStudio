@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -17,6 +18,8 @@ from fashx.commerce_wardrobe.router import (
     get_commerce_uow,
     get_profile_uow,
     get_tryon_uow,
+)
+from fashx.commerce_wardrobe.router import (
     router as commerce_router,
 )
 from fashx.core.dependencies import get_storage

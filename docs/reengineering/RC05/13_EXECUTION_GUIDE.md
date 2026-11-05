@@ -10,8 +10,8 @@ Configure backend environment in `.env`:
 ENV=dev
 APP_ENV=development
 AUTH_MODE=local
-AUTH_JWT_SECRET=your_jwt_secret_at_least_32_chars_long
-DATABASE_URL=postgresql+asyncpg://fashion:fashion@localhost:5432/fashion
+AUTH_JWT_SECRET=<ci-test-jwt-secret-min-32-chars>
+DATABASE_URL=postgresql+asyncpg://fashx:fashx@localhost:5432/fashx_test
 REDIS_URL=redis://localhost:6379/0
 
 # Storage Configuration
@@ -23,7 +23,7 @@ TRYON_PROVIDER=mock
 
 # Provider Configuration (Hosted Commercial Inference)
 # TRYON_PROVIDER=fashn_api
-# FASHN_API_KEY=your_fashn_secret_key
+# FASHN_API_KEY=<provider-key-placeholder>
 # FASHN_MODEL=tryon-v1.6
 ```
 

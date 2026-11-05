@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -19,14 +20,14 @@ from fashx.commerce_wardrobe.router import (
     get_commerce_uow,
     get_profile_uow,
     get_tryon_uow,
+)
+from fashx.commerce_wardrobe.router import (
     router as commerce_router,
 )
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
 from fashx.domain.cart.entities import Cart
-from fashx.domain.cart.service import CartService
 from fashx.domain.checkout.entities import CheckoutSession
-from fashx.domain.checkout.service import CheckoutService
 from fashx.gateway.errors import install_exception_handlers
 from fashx.infrastructure.storage.local import LocalStorage
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork

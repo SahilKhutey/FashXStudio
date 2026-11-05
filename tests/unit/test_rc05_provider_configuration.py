@@ -1,4 +1,5 @@
 import pytest
+
 from fashx.core.dependencies import get_tryon_adapter
 from fashx.core.settings import get_settings
 

@@ -1,8 +1,9 @@
 from uuid import UUID, uuid4
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from database.models import Base
@@ -22,9 +23,13 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
 )
 from fashx.commerce_wardrobe.router import (
     get_catalog_uow as get_commerce_catalog_uow,
+)
+from fashx.commerce_wardrobe.router import (
     get_commerce_uow,
     get_profile_uow,
     get_tryon_uow,
+)
+from fashx.commerce_wardrobe.router import (
     router as commerce_router,
 )
 from fashx.core.database import get_session_factory
@@ -32,7 +37,7 @@ from fashx.core.dependencies import get_storage
 from fashx.gateway.errors import install_exception_handlers
 from fashx.infrastructure.storage.local import LocalStorage
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-from fashx.security.deps import get_identity_repo, get_principal
+from fashx.security.deps import get_identity_repo
 from fashx.security.errors import ApiError, api_error_handler
 from fashx.security.identity import InMemoryIdentityRepo
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork

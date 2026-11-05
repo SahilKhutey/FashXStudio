@@ -1,4 +1,5 @@
 import pytest
+
 from fashx.commerce_wardrobe.application.create_buy_click import validate_retailer_url
 from fashx.core.errors import ValidationError
 

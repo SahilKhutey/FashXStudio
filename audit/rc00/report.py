@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -80,7 +80,7 @@ def write_report(data: dict[str, Any], output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     findings = build_findings(data)
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
 
     findings_payload = {
         "generated_at": now_iso,
@@ -101,7 +101,7 @@ def write_report(data: dict[str, Any], output_dir: Path) -> Path:
         "# FashXStudio — RC-00 Final Audit Report",
         "",
         f"**Generated at**: {now_iso}  ",
-        f"**Audit Status**: COMPLETED  ",
+        "**Audit Status**: COMPLETED  ",
         f"**Git Branch**: `{data.get('github', {}).get('branch', 'unknown')}`  ",
         f"**HEAD Commit**: `{data.get('github', {}).get('head', 'unknown')}`  ",
         "",

@@ -19,18 +19,17 @@ from __future__ import annotations
 import io
 import sys
 from uuid import UUID, uuid4
-from PIL import Image
+
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from database.models.catalog import CanonicalGarment, CatalogSource, Merchant
 from database.models.identity import User
 from fashx.api.v1.me import get_profile_uow
 from fashx.catalog.router import get_catalog_uow
-from fashx.core.settings import get_settings
 from fashx.main import app
 from fashx.security.tokens import create_demo_token
 from fashx.tryon.application.process_job import ProcessTryOnJobUseCase
-from fashx.tryon.application.worker import TryOnWorker
 from fashx.tryon.router import get_tryon_uow
 
 
@@ -62,7 +61,7 @@ async def setup_test_data(user_id: UUID, user_b_id: UUID) -> UUID:
         await profile_uow.consents.record_mobile_consent(user_id, "2026.1")
 
         # Create active portrait for User A
-        photo = await profile_uow.photos.create(
+        await profile_uow.photos.create(
             user_id=user_id,
             photo_type="tryon_reference",
             storage_key=f"u/{user_id}/photos/portrait.jpg",
@@ -205,7 +204,7 @@ def run_vto_smoke_test() -> None:
     assert st_data["status"] == "completed"
     assert st_data["result_url"] is not None
     assert st_data["provider"] in ("mock", "fashn_api")
-    print(f"  + Job status: completed")
+    print("  + Job status: completed")
     print(f"  + Provider: {st_data['provider']} (mock preview correctly identifiable)")
     print(f"  + Signed Result URL: {st_data['result_url'][:50]}...")
 

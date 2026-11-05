@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -6,14 +7,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from database.models import Base
-from database.models.catalog import (
-    CanonicalGarment,
-    CatalogSource,
-    Merchant,
-    MerchantOffer,
-    MerchantProduct,
-)
-from database.models.identity import User
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
     CommerceWardrobeUnitOfWork,
@@ -22,6 +15,8 @@ from fashx.commerce_wardrobe.router import (
     get_catalog_uow,
     get_commerce_uow,
     get_profile_uow,
+)
+from fashx.commerce_wardrobe.router import (
     router as commerce_router,
 )
 from fashx.gateway.errors import install_exception_handlers

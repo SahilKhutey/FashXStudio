@@ -1,7 +1,8 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
+
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 from database.models import Base
@@ -29,7 +30,7 @@ async def test_rc06_offer_sorting_and_display_price(db_session_factory):
     merchant_2 = uuid4()
     merchant_3 = uuid4()
 
-    sync_time = datetime(2026, 11, 4, 8, 30, tzinfo=timezone.utc)
+    sync_time = datetime(2026, 11, 4, 8, 30, tzinfo=UTC)
 
     async with uow:
         uow.merchants.add(Merchant(id=merchant_1, name="Amazon", merchant_type="retailer"))

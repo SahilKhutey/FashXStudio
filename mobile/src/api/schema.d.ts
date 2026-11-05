@@ -5503,10 +5503,13 @@ export interface components {
              * Format: uuid
              */
             garment_id: string;
+            /**
+             * Offer Id
+             * Format: uuid
+             */
+            offer_id: string;
             /** User Id */
             user_id?: string | null;
-            /** Offer Id */
-            offer_id?: string | null;
         };
         /** BuyClickResponse */
         BuyClickResponse: {
@@ -6336,6 +6339,10 @@ export interface components {
             currency: string;
             /** In Stock */
             in_stock: boolean;
+            /** Updated At */
+            updated_at?: string | null;
+            /** Merchant Name */
+            merchant_name?: string | null;
         };
         /** CustomerResponse */
         CustomerResponse: {

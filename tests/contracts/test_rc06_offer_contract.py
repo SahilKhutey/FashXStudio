@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
+
 import pytest
 from pydantic import ValidationError
 
@@ -7,7 +8,7 @@ from fashx.catalog.customer_router import CustomerOfferDetail
 
 
 def test_rc06_offer_contract_serialization():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     offer = CustomerOfferDetail(
         id=uuid4(),
         merchant_id=uuid4(),

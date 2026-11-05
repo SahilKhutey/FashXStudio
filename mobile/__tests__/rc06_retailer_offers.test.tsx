@@ -47,8 +47,8 @@ describe("RC06 Mobile: Retailer Offers & Buy Click Handoff", () => {
     });
 
     it("rejects URLs with user credentials (user:pass@host)", () => {
-      expect(isSafeRetailerRedirect("https://user:pass@www.myntra.com/item")).toBe(false);
-      expect(isSafeRetailerRedirect("https://attacker:secret@shop.com/")).toBe(false);
+      expect(isSafeRetailerRedirect("https://user:pass@www.myntra.com/item")).toBe(false); // gitleaks:allow
+      expect(isSafeRetailerRedirect("https://attacker:secret@shop.com/")).toBe(false); // gitleaks:allow
     });
 
     it("rejects localhost, private IPs, and loopback destinations", () => {

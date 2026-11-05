@@ -143,7 +143,7 @@ def run_smoke_verification(base_url: str = "http://localhost:8000") -> None:
     status, list_res = request_json(f"{base_url}/api/v1/wardrobe/items", token=token)
     if status != 200 or not any(it.get("item_id") == item_id for it in list_res):
         raise SmokeVerificationFailure(f"Wardrobe list did not contain item_id {item_id}: {list_res}")
-    print(f"  + Wardrobe query verified: item exists in user wardrobe")
+    print("  + Wardrobe query verified: item exists in user wardrobe")
 
     status, _ = request_json(
         f"{base_url}/api/v1/wardrobe/items/{item_id}",
@@ -152,7 +152,7 @@ def run_smoke_verification(base_url: str = "http://localhost:8000") -> None:
     )
     if status != 204:
         raise SmokeVerificationFailure(f"Wardrobe remove failed: HTTP {status}")
-    print(f"  + Wardrobe item removed cleanly (HTTP 204)")
+    print("  + Wardrobe item removed cleanly (HTTP 204)")
 
     # Step 6: Virtual Try-On Jobs
     print("\n[6/6] Verifying Virtual Try-On Jobs query...")

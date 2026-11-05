@@ -1,13 +1,14 @@
 import io
 from uuid import UUID, uuid4
+
 import pytest
 from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.catalog import CanonicalGarment, Merchant
+from database.models.catalog import CanonicalGarment
 from database.models.identity import User
 from database.models.tryon import TryOnArtifact, TryOnJob
-from fashx.application.ports.tryon import TryOnError, TryOnOutput, TryOnRequest
+from fashx.application.ports.tryon import TryOnOutput, TryOnRequest
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.errors import ConsentRequiredError, EntityNotFoundError, ValidationError
 from fashx.core.ports.storage import InMemoryStorageAdapter

@@ -14,9 +14,8 @@ Verifies end-to-end shopping journey:
 
 from __future__ import annotations
 
-import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID, uuid4
 
@@ -26,6 +25,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
+import fashx.health.router as health_router_mod
 from database.models import Base
 from database.models.catalog import (
     CanonicalGarment,
@@ -35,9 +35,12 @@ from database.models.catalog import (
     MerchantProduct,
 )
 from database.models.identity import User
-from fashx.api.v1.me import get_profile_uow, router as me_router
+from fashx.api.v1.me import get_profile_uow
+from fashx.api.v1.me import router as me_router
 from fashx.catalog.customer_router import (
     customer_garment_router,
+)
+from fashx.catalog.customer_router import (
     get_catalog_uow as get_customer_catalog_uow,
 )
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
@@ -47,24 +50,31 @@ from fashx.commerce_wardrobe.repositories.commerce_wardrobe_repository import (
 )
 from fashx.commerce_wardrobe.router import (
     get_catalog_uow as get_commerce_catalog_uow,
+)
+from fashx.commerce_wardrobe.router import (
     get_commerce_uow,
+)
+from fashx.commerce_wardrobe.router import (
     get_profile_uow as get_wardrobe_profile_uow,
+)
+from fashx.commerce_wardrobe.router import (
     router as commerce_wardrobe_router,
 )
 from fashx.gateway.errors import install_exception_handlers
-import fashx.health.router as health_router_mod
-from fashx.health.router import healthz_router, router as health_router
+from fashx.health.router import healthz_router
+from fashx.health.router import router as health_router
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import get_identity_repo, get_principal
 from fashx.security.errors import ApiError, api_error_handler
 from fashx.security.identity import InMemoryIdentityRepo
 from tests.conftest import make_token
 
+
 # Mock external service probes for hermetic test environment
-async def mock_check_db():
+async def mock_check_db() -> bool:
     return True
 
-async def mock_check_redis(url: str):
+async def mock_check_redis(redis_url: str) -> bool:
     return True
 
 health_router_mod.check_database = mock_check_db
@@ -173,7 +183,7 @@ async def test_rc06_shopping_smoke(monkeypatch):
             price_minor=179900,
             currency="INR",
             in_stock=True,
-            last_synced_at=datetime.now(timezone.utc),
+            last_synced_at=datetime.now(UTC),
         )
         offer_ajio = MerchantOffer(
             id=uuid4(),
@@ -183,7 +193,7 @@ async def test_rc06_shopping_smoke(monkeypatch):
             price_minor=199900,
             currency="INR",
             in_stock=True,
-            last_synced_at=datetime.now(timezone.utc),
+            last_synced_at=datetime.now(UTC),
         )
         offer_tatacliq = MerchantOffer(
             id=uuid4(),
@@ -193,7 +203,7 @@ async def test_rc06_shopping_smoke(monkeypatch):
             price_minor=149900,
             currency="INR",
             in_stock=False,
-            last_synced_at=datetime.now(timezone.utc),
+            last_synced_at=datetime.now(UTC),
         )
         catalog_uow.offers.add(offer_myntra)
         catalog_uow.offers.add(offer_ajio)
@@ -294,7 +304,7 @@ async def test_rc06_shopping_smoke(monkeypatch):
     redirect_url = buy_data["redirect_url"]
     tracking_id = buy_data["tracking_id"]
 
-    print(f"  + Buy Click recorded: buy_click_id={buy_click_id}")
+    print(f"  + Buy Click recorded: buy_click_id={buy_click_id}, tracking_id={tracking_id}")
     print(f"  + Redirect Destination: {redirect_url}")
 
     # Verify attribution params
