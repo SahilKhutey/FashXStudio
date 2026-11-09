@@ -325,6 +325,20 @@ async def test_feed_signals_and_wardrobe_saves_steer_feed(
     )
     await enrich_uc.execute(EnrichGarmentCommand(garment_id=item_formal.canonical_garment_id))
 
+    embedder = FakeEmbedder()
+    street_emb = embedder.embed_text(["Urban Streetwear Cargo Pants"])[0]
+    formal_emb = embedder.embed_text(["Tailored Formal Business Trousers"])[0]
+    async with catalog_uow:
+        enr_s = await catalog_uow.enrichments.get_by_garment_id(item_street.canonical_garment_id)
+        if enr_s:
+            enr_s.embedding = street_emb
+            enr_s.embedding_model = f"{embedder.model_id}:{embedder.model_version}"
+        enr_f = await catalog_uow.enrichments.get_by_garment_id(item_formal.canonical_garment_id)
+        if enr_f:
+            enr_f.embedding = formal_emb
+            enr_f.embedding_model = f"{embedder.model_id}:{embedder.model_version}"
+        await catalog_uow.commit()
+
     # User likes and saves the Streetwear item into wardrobe
     async with profile_uow:
         from database.models.commerce_feedback import WardrobeItem
