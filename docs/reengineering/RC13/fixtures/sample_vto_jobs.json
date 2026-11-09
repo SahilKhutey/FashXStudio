@@ -1,0 +1,28 @@
+[
+  {
+    "job_id": "job-rc13-001",
+    "provider": "fashx_gpu_vendor_a",
+    "status": "completed",
+    "latency_seconds": 14.2,
+    "rating": 4.5,
+    "artifacts_detected": false,
+    "body_distortion": false,
+    "garment_mismatch": false,
+    "identity_drift": false,
+    "blur_defect": false,
+    "is_synthetic": false
+  },
+  {
+    "job_id": "job-rc13-002",
+    "provider": "fashx_gpu_vendor_a",
+    "status": "completed",
+    "latency_seconds": 18.1,
+    "rating": 4.0,
+    "artifacts_detected": false,
+    "body_distortion": false,
+    "garment_mismatch": false,
+    "identity_drift": false,
+    "blur_defect": false,
+    "is_synthetic": false
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "activation_login_rate": 0.76,
+  "tryon_completion_rate": 0.65,
+  "vto_mean_rating": 4.2,
+  "crash_free_sessions": 0.998,
+  "privacy_incident_count": 0,
+  "week2_retention_rate": 0.22,
+  "retailer_clickout_rate": 0.17,
+  "is_synthetic": false
+}
