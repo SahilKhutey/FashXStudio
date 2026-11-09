@@ -59,7 +59,9 @@
         "expo-constants",
         "expo-linking",
         "expo-file-system",
-        "expo-image-picker"
+        "expo-image-picker",
+        "expo-image-manipulator",
+        "react-native-safe-area-context"
       ]
     }
   }
