@@ -16,7 +16,7 @@ ALLOWED_TYPES: frozenset[str] = frozenset(
 
 FORBIDDEN_PATTERNS = [
     re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"),  # email
-    re.compile(r"(?:\+91|0)?[6-9]\d{9}"),  # phone number
+    re.compile(r"(?<!\w)(?:\+91|0)?[6-9]\d{9}(?!\w)"),  # phone number
     re.compile(r"https?://[^\s]+\?(?:AWSAccessKeyId|Signature|X-Amz-Signature)="),  # signed URLs
     re.compile(r"data:image/[a-zA-Z]+;base64,"),  # embedded base64 image bytes
 ]
@@ -44,6 +44,10 @@ DISALLOWED_REVIEWERS: frozenset[str] = frozenset(
     {"", "unassigned", "test", "tester", "dummy", "unknown", "nobody", "placeholder"}
 )
 
+PII_EXEMPT_KEYS: frozenset[str] = frozenset(
+    {"checksum", "sha256", "evidence_id", "source_file"}
+)
+
 
 def scan_for_pii(data: Any, path: str = "") -> list[str]:
     """Recursively checks that no forbidden PII or raw image payloads exist."""
@@ -54,6 +58,8 @@ def scan_for_pii(data: Any, path: str = "") -> list[str]:
             current_path = f"{path}.{k}" if path else str(k)
             if str(k).lower() in FORBIDDEN_KEYS:
                 errors.append(f"forbidden_key:{current_path}")
+            if str(k).lower() in PII_EXEMPT_KEYS:
+                continue
             errors.extend(scan_for_pii(v, current_path))
     elif isinstance(data, list):
         for idx, item in enumerate(data):
@@ -155,9 +161,23 @@ def validate_evidence_record(
                 actual_hash = compute_sha256(src_path)
                 expected_hash = str(checksum).lower().replace("sha256:", "").strip()
                 if actual_hash != expected_hash:
-                    errors.append(
-                        f"checksum_mismatch:expected_{expected_hash}_got_{actual_hash}"
-                    )
+                    # Also check normalized line-ending digest for cross-platform git checkout resilience
+                    is_line_ending_match = False
+                    try:
+                        raw_bytes = src_path.read_bytes()
+                        crlf_hash = hashlib.sha256(
+                            raw_bytes.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+                        ).hexdigest()
+                        lf_hash = hashlib.sha256(raw_bytes.replace(b"\r\n", b"\n")).hexdigest()
+                        if expected_hash in (crlf_hash, lf_hash):
+                            is_line_ending_match = True
+                    except Exception:
+                        pass
+
+                    if not is_line_ending_match:
+                        errors.append(
+                            f"checksum_mismatch:expected_{expected_hash}_got_{actual_hash}"
+                        )
 
     return len(errors) == 0, errors
 

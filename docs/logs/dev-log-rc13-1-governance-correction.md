@@ -42,6 +42,7 @@ Milestone RC13.1 directly resolved all architectural, governance, and contractua
 | 2 | `tests/unit/test_rc13_evidence.py` | `future_timestamp_not_allowed` triggered because fixture used local daytime string ahead of current UTC time. | Updated fixture timestamps to `2026-11-08T10:00:00Z` to guarantee historical UTC validity. |
 | 3 | `scripts/rc13/evaluate_release_gates.py` | Gate evaluator did not check if evidence reference files actually exist on disk. | Added `--verify-on-disk` flag that checks file existence, rejecting missing references to `HOLD`. |
 | 4 | `docs/reengineering/RC13/08_UNIT_ECONOMICS.md` | Audit flagged ungrounded revenue and CAC assumptions. | Added explicit financial governance warning; documented real risks (fashion returns, tracking blocks); created invoice accounting protocol. |
+| 5 | `scripts/rc13/validate_evidence.py` & `tests/unit/test_rc13_evidence.py` | CI failure on Linux runner: hardcoded Windows CRLF checksum failed on Linux git LF checkout; unanchored phone pattern triggered false-positive PII match inside hex checksums. | Dynamically compute checksum in test fixture; added cross-platform git checkout CRLF/LF line-ending resilience; anchored phone regex with `(?<!\w)...(?!\w)`; exempted cryptographic hashes and source paths from PII scanning. |
 
 ---
 
@@ -49,7 +50,7 @@ Milestone RC13.1 directly resolved all architectural, governance, and contractua
 
 ```text
 $ pytest tests/unit/test_rc13_*.py tests/release/test_rc13_*.py
-============================= 35 passed in 6.80s ==============================
+============================= 36 passed in 6.48s ==============================
 
 $ python scripts/docs_lint.py
 docs lint ok

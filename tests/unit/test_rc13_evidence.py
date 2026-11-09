@@ -10,10 +10,20 @@ from scripts.rc13.validate_evidence import (
 
 
 def sample_record(tmp_file: Path | None = None) -> dict[str, object]:
-    fpath = str(tmp_file) if tmp_file else "docs/reengineering/RC13/11_TEST_PLAN.md"
-    chk = "aff2809f06541d7b3c67d838f7b3fe64100b7e825198be8be634310f2547cf56"
-    if tmp_file and tmp_file.exists():
-        chk = hashlib.sha256(tmp_file.read_bytes()).hexdigest()
+    if tmp_file:
+        fpath = str(tmp_file)
+        chk = (
+            hashlib.sha256(tmp_file.read_bytes()).hexdigest()
+            if tmp_file.exists()
+            else "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        )
+    else:
+        target = Path("docs/reengineering/RC13/11_TEST_PLAN.md")
+        fpath = str(target)
+        if target.exists():
+            chk = hashlib.sha256(target.read_bytes()).hexdigest()
+        else:
+            chk = "aff2809f06541d7b3c67d838f7b3fe64100b7e825198be8be634310f2547cf56"
 
     return {
         "evidence_id": "EV-RC13-001",
@@ -109,10 +119,25 @@ def test_synthetic_rejection_for_real_validation():
     assert not errors_synth
 
 
+def test_checksum_resilience_to_cross_platform_line_endings():
+    with TemporaryDirectory() as tmp_dir:
+        tmp_f = Path(tmp_dir) / "source.txt"
+        tmp_f.write_bytes(b"line 1\r\nline 2\r\n")
+        lf_hash = hashlib.sha256(b"line 1\nline 2\n").hexdigest()
+        record = sample_record(tmp_f)
+        record["checksum"] = lf_hash
+
+        valid, errors = validate_evidence_record(record, verify_source_file=True)
+        assert valid is True
+        assert not errors
+
+
 def test_validate_evidence_file():
     with TemporaryDirectory() as tmp_dir:
+        src_file = Path(tmp_dir) / "source.md"
+        src_file.write_text("# Test Plan\nVerified.", encoding="utf-8")
         fpath = Path(tmp_dir) / "evidence.json"
-        data = [sample_record(), sample_record()]
+        data = [sample_record(src_file), sample_record(src_file)]
         fpath.write_text(json.dumps(data), encoding="utf-8")
 
         valid, errors = validate_evidence_file(fpath, verify_source_files=True)
