@@ -1,4 +1,7 @@
-"""RC13 Release Gates Evaluator (G1–G6 Final Market Readiness)."""
+"""RC13 Release Gates Evaluator (G1–G6 Final Market Readiness).
+
+Reconciled with repository merged baseline and authentic evidence verification.
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,6 +12,10 @@ from enum import StrEnum
 from pathlib import Path
 
 REQUIRED_GATES: tuple[str, ...] = ("G1", "G2", "G3", "G4", "G5", "G6")
+
+DISALLOWED_REVIEWERS: frozenset[str] = frozenset(
+    {"", "unassigned", "test", "tester", "dummy", "unknown", "nobody", "placeholder"}
+)
 
 
 class GateStatus(StrEnum):
@@ -44,12 +51,14 @@ class ReleaseGateResult:
 
 def evaluate_release_gates(
     evidence_map: Mapping[str, GateEvidence],
+    verify_references_on_disk: bool = False,
 ) -> ReleaseGateResult:
     """Evaluates release gates G1-G6 against verified evidence records.
 
     Fail-closed:
     - Any gate failure results in FIX.
-    - Any unmeasured, missing, unverified, or synthetic gate results in HOLD.
+    - Any unmeasured, missing, placeholder, or synthetic gate results in HOLD.
+    - If verify_references_on_disk=True, checks that referenced evidence file exists on disk.
     - Only 100% verified real PASS across all six gates allows GO.
     """
     passed: list[str] = []
@@ -66,12 +75,16 @@ def evaluate_release_gates(
             failed.append(gate)
             reasons.append(f"gate_{gate}_failed")
         elif rec.status == GateStatus.PASS:
+            reviewer = str(rec.reviewed_by or "").strip().lower()
             if rec.is_synthetic:
                 unknown.append(gate)
                 reasons.append(f"gate_{gate}_synthetic_evidence_rejected")
-            elif not rec.evidence_reference or not rec.reviewed_by:
+            elif not rec.evidence_reference or reviewer in DISALLOWED_REVIEWERS:
                 unknown.append(gate)
-                reasons.append(f"gate_{gate}_missing_reviewer_or_evidence_ref")
+                reasons.append(f"gate_{gate}_missing_or_placeholder_reviewer_or_ref")
+            elif verify_references_on_disk and not Path(rec.evidence_reference).exists():
+                unknown.append(gate)
+                reasons.append(f"gate_{gate}_evidence_file_not_found:{rec.evidence_reference}")
             else:
                 passed.append(gate)
         else:
@@ -117,16 +130,18 @@ def load_gates_from_json(data: dict[str, dict[str, str | bool | None]]) -> dict[
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate RC13 Final Market Release Gates")
     parser.add_argument("--input", type=Path, help="Path to gates summary JSON file")
+    parser.add_argument(
+        "--verify-on-disk", action="store_true", help="Verify that evidence reference files exist on disk"
+    )
     args = parser.parse_args()
 
     if args.input and args.input.exists():
         raw_data = json.loads(args.input.read_text(encoding="utf-8"))
         evidence_map = load_gates_from_json(raw_data)
     else:
-        # Default empty evaluation (current baseline)
         evidence_map = {}
 
-    result = evaluate_release_gates(evidence_map)
+    result = evaluate_release_gates(evidence_map, verify_references_on_disk=args.verify_on_disk)
     print(f"RELEASE GATE DECISION: {result.decision.value.upper()}")
     print(f"Passed Gates: {list(result.passed)}")
     print(f"Failed Gates: {list(result.failed)}")

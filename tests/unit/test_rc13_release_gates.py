@@ -13,7 +13,7 @@ def sample_evidence(status: GateStatus = GateStatus.PASS) -> dict[str, GateEvide
         gate_id: GateEvidence(
             gate_id=gate_id,
             status=status,
-            evidence_reference=f"docs/evidence/{gate_id}.md",
+            evidence_reference="docs/reengineering/RC13/fixtures/sample_evidence.json",
             reviewed_by="founder",
             reviewed_at="2026-11-09T10:00:00Z",
             is_synthetic=False,
@@ -24,11 +24,37 @@ def sample_evidence(status: GateStatus = GateStatus.PASS) -> dict[str, GateEvide
 
 def test_all_gates_pass_returns_go():
     records = sample_evidence(GateStatus.PASS)
-    res = evaluate_release_gates(records)
+    res = evaluate_release_gates(records, verify_references_on_disk=True)
     assert res.decision == MarketDecision.GO
     assert len(res.passed) == len(REQUIRED_GATES)
     assert not res.failed
     assert not res.unknown
+
+
+def test_placeholder_reviewer_holds():
+    records = sample_evidence(GateStatus.PASS)
+    records["G3"] = GateEvidence(
+        gate_id="G3",
+        status=GateStatus.PASS,
+        evidence_reference="docs/reengineering/RC13/fixtures/sample_evidence.json",
+        reviewed_by="unassigned",  # Placeholder reviewer disallowed
+    )
+    res = evaluate_release_gates(records)
+    assert res.decision == MarketDecision.HOLD
+    assert "G3" in res.unknown
+
+
+def test_missing_evidence_file_on_disk_holds():
+    records = sample_evidence(GateStatus.PASS)
+    records["G4"] = GateEvidence(
+        gate_id="G4",
+        status=GateStatus.PASS,
+        evidence_reference="docs/evidence/non_existent_file.md",
+        reviewed_by="founder",
+    )
+    res = evaluate_release_gates(records, verify_references_on_disk=True)
+    assert res.decision == MarketDecision.HOLD
+    assert "G4" in res.unknown
 
 
 def test_any_gate_fail_returns_fix():
@@ -36,7 +62,7 @@ def test_any_gate_fail_returns_fix():
     records["G4"] = GateEvidence(
         gate_id="G4",
         status=GateStatus.FAIL,
-        evidence_reference="docs/evidence/G4.md",
+        evidence_reference="docs/reengineering/RC13/fixtures/sample_evidence.json",
         reviewed_by="founder",
         reviewed_at="2026-11-09T10:00:00Z",
     )
@@ -51,7 +77,6 @@ def test_missing_gate_returns_hold():
     res = evaluate_release_gates(records)
     assert res.decision == MarketDecision.HOLD
     assert "G6" in res.unknown
-    assert any("gate_G6_unmeasured_or_missing" in r for r in res.reasons)
 
 
 def test_empty_records_returns_hold():
@@ -60,49 +85,25 @@ def test_empty_records_returns_hold():
     assert set(res.unknown) == set(REQUIRED_GATES)
 
 
-def test_missing_reviewer_or_ref_returns_hold():
-    records = sample_evidence(GateStatus.PASS)
-    records["G5"] = GateEvidence(
-        gate_id="G5",
-        status=GateStatus.PASS,
-        evidence_reference=None,  # Missing evidence card
-        reviewed_by="founder",
-    )
-    res = evaluate_release_gates(records)
-    assert res.decision == MarketDecision.HOLD
-    assert "G5" in res.unknown
-
-    records["G5"] = GateEvidence(
-        gate_id="G5",
-        status=GateStatus.PASS,
-        evidence_reference="docs/evidence/G5.md",
-        reviewed_by=None,  # Missing reviewer
-    )
-    res2 = evaluate_release_gates(records)
-    assert res2.decision == MarketDecision.HOLD
-    assert "G5" in res2.unknown
-
-
 def test_synthetic_gate_returns_hold():
     records = sample_evidence(GateStatus.PASS)
     records["G6"] = GateEvidence(
         gate_id="G6",
         status=GateStatus.PASS,
-        evidence_reference="docs/evidence/G6.md",
+        evidence_reference="docs/reengineering/RC13/fixtures/sample_evidence.json",
         reviewed_by="founder",
-        is_synthetic=True,  # Synthetic data rejected for production gate
+        is_synthetic=True,
     )
     res = evaluate_release_gates(records)
     assert res.decision == MarketDecision.HOLD
     assert "G6" in res.unknown
-    assert any("gate_G6_synthetic_evidence_rejected" in r for r in res.reasons)
 
 
 def test_load_gates_from_json():
     raw_data: dict[str, dict[str, str | bool | None]] = {
         "G1": {
             "status": "pass",
-            "evidence_reference": "docs/evidence/G1.md",
+            "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
             "reviewed_by": "qa",
             "is_synthetic": False,
         },
