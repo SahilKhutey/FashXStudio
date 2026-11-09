@@ -1,0 +1,44 @@
+{
+  "G1": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  },
+  "G2": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  },
+  "G3": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  },
+  "G4": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  },
+  "G5": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  },
+  "G6": {
+    "status": "pass",
+    "evidence_reference": "docs/reengineering/RC13/fixtures/sample_evidence.json",
+    "reviewed_by": "founder",
+    "reviewed_at": "2026-11-09T12:00:00Z",
+    "is_synthetic": false
+  }
+}

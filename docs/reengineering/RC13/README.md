@@ -36,3 +36,5 @@ Establish whether FashXStudio is genuinely ready to enter the Indian market acro
 - [`12_EXECUTION_RUNBOOK.md`](file:///c:/Users/ASUS/Documents/FashXStudio/docs/reengineering/RC13/12_EXECUTION_RUNBOOK.md)
 - [`13_FINAL_DECISION.md`](file:///c:/Users/ASUS/Documents/FashXStudio/docs/reengineering/RC13/13_FINAL_DECISION.md)
 - [`tasks/RC13_TASK_LIST.md`](file:///c:/Users/ASUS/Documents/FashXStudio/docs/reengineering/RC13/tasks/RC13_TASK_LIST.md)
+- Task Log: [`docs/logs/task-log-rc13-final-market-readiness.md`](file:///c:/Users/ASUS/Documents/FashXStudio/docs/logs/task-log-rc13-final-market-readiness.md)
+- Dev Log: [`docs/logs/dev-log-rc13-final-market-readiness.md`](file:///c:/Users/ASUS/Documents/FashXStudio/docs/logs/dev-log-rc13-final-market-readiness.md)
