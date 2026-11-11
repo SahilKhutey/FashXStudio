@@ -5,7 +5,7 @@ Legend: 🟢 code and automated tests pass in CI · 🟡 partial · ⬜ not star
 
 | Area | Code & Automated CI Status | Real-World Evidence Status |
 |:---|:---|:---|
-| **Backend Platform** | 🟢 2,052 tests collected; 1,777 passed (non-frozen); 1,058 unit tests passed; Ruff passed; Mypy clean (1,168 source files) | None: Local PostgreSQL daemon unstarted; verified in CI Postgres container |
+| **Backend Platform** | 🟢 2,060 tests collected; 1,777 passed (non-frozen); 1,066 unit tests passed; Ruff passed; Mypy clean; Alembic head 0032 verified | None: Local PostgreSQL daemon unstarted (no Docker); verified in CI Postgres 16 container |
 | **Authentication & Identity** | 🟢 LocalJWTVerifier with symmetric secret; default-deny middleware; RBAC | None: No external JWKS provider or Supabase auth tenant connected |
 | **Persistence & Database** | 🟢 SQLAlchemy UOW, 32 linear Alembic revisions to head `0032_tryon_feedback_issue_tags` | None: Production cloud database unverified; local runs use CI container |
 | **Virtual Try-On (VTO)** | 🟢 FASHN API adapter implemented; MockTryOnAdapter active default with preview watermark | None: No vendor account; no live commercial AI image generation ever executed |
@@ -21,7 +21,9 @@ Legend: 🟢 code and automated tests pass in CI · 🟡 partial · ⬜ not star
 
 ## Pull request governance status
 - **PR #33 (Recovery/rc13 final market readiness):** Merged into main. Governance evaluation framework consolidated; market release held.
-- **PR #34 (Governance correction & metric reconciliation):** Open on branch `recovery/rc13.1-governance-correction`. CI workflow passed (6/6 jobs green). Human founder review and merge pending.
+- **PR #34 (Governance correction & metric reconciliation):** Open on branch `recovery/rc13.1-governance-correction`. CI workflow passed (6/6 jobs green). Includes Phase 02 audit consolidation, engineering standards (`docs/engineering/`), and baseline test reports. Human founder review and merge pending.
+- **Engineering Standards:** Adopted in `docs/engineering/` with root PR template in `.github/PULL_REQUEST_TEMPLATE.md`.
+
 
 ## Release gates
 Single source: [docs/release/gates.md](release/gates.md). All six release gates (G1–G6) remain **NOT MEASURED** and evaluated to **HOLD**. Gates cannot clear without authentic human evidence cards in `docs/evidence/`.
