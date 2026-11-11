@@ -4,6 +4,18 @@
 
 > **Status: pre-pilot (code-complete MVP foundation; unverified rehearsal results quarantined).** No real users, partners, vendors or cloud accounts exist yet. See [docs/STATUS.md](docs/STATUS.md) and [docs/provenance.md](docs/provenance.md).
 
+## Implementation reality
+
+FashXStudio currently has a code-level MVP foundation and is in the pre-pilot validation stage.
+- **Virtual try-on:** provider abstraction and mock preview are implemented. Real commercial provider execution remains unverified.
+- **Catalog:** ingestion and normalization pipelines exist. No live merchant feed is currently verified.
+- **Authentication:** local authentication exists. External identity-provider integration remains unverified.
+- **Persistence:** SQL repository and migration support exist. Production database and cloud storage deployment remain unverified.
+- **Mobile:** application and automated tests exist. Physical-device validation remains pending.
+- **Merchant platform:** code exists, but production merchant activation and real partner operations are not verified.
+
+No real-user pilot, commercial traction, or public-launch readiness is established by the current repository state.
+
 ## MVP scope
 1. **Profile:** photo quality gate, skin tone/undertone, body measurements, style preferences, consent.
 2. **Catalog:** multi-merchant ingest, normalization, dedup, attribute enrichment.
