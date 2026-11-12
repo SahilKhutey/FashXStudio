@@ -99,3 +99,8 @@ def test_invalid_database_scheme() -> None:
 def test_invalid_redis_scheme() -> None:
     with pytest.raises(ValueError, match="Invalid redis URL scheme"):
         validate_release_config(production_config(redis_url="memcached://localhost:11211"))
+
+
+def test_production_rejects_unencrypted_redis() -> None:
+    with pytest.raises(ValueError, match="requires TLS-encrypted Redis connection"):
+        validate_release_config(production_config(redis_url="redis://redis.internal:6379/0"))

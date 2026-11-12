@@ -1,0 +1,28 @@
+# ==============================================================================
+# FASHXSTUDIO — ELASTICACHE REDIS TERRAFORM VARIABLES TEMPLATE
+# ==============================================================================
+# Copy to terraform.tfvars and fill with actual VPC & Subnet IDs
+
+aws_region = "ap-south-1"
+
+vpc_id = "vpc-0123456789abcdef0"
+
+cache_subnet_ids = [
+  "subnet-0123456789abcdef1", # ap-south-1a
+  "subnet-0123456789abcdef2", # ap-south-1b
+  "subnet-0123456789abcdef3"  # ap-south-1c
+]
+
+app_security_group_ids = [
+  "sg-0123456789abcdef0" # fashx-app-sg
+]
+
+engine_version = "7.1"
+port           = 6379
+
+dev_node_type     = "cache.t4g.micro"
+staging_node_type = "cache.t4g.small"
+prod_node_type    = "cache.r6g.large"
+
+snapshot_window    = "02:00-03:00"
+maintenance_window = "sun:03:30-sun:04:30"

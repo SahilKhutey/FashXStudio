@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     db_max_overflow: int = Field(default=5, validation_alias="DB_MAX_OVERFLOW")
     db_pool_timeout: int = Field(default=20, validation_alias="DB_POOL_TIMEOUT")
     redis_url: str = Field(default="redis://localhost:6379/0", validation_alias="REDIS_URL")
+    redis_max_connections: int = Field(default=20, validation_alias="REDIS_MAX_CONNECTIONS")
+    redis_socket_timeout: float = Field(default=5.0, validation_alias="REDIS_SOCKET_TIMEOUT")
+    redis_socket_connect_timeout: float = Field(default=5.0, validation_alias="REDIS_SOCKET_CONNECT_TIMEOUT")
+    redis_ssl_cert_reqs: str = Field(default="required", validation_alias="REDIS_SSL_CERT_REQS")
     readiness_requires_database: bool = Field(
         default=False,
         validation_alias="READINESS_REQUIRES_DATABASE",

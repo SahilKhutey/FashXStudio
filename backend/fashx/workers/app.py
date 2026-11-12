@@ -55,24 +55,37 @@ class _DummyCelery:
 
 app: Any
 if Celery is not None:
+    broker_use_ssl: dict[str, Any] | None = None
+    if settings.redis_url.startswith("rediss://"):
+        import ssl
+        cert_reqs = ssl.CERT_REQUIRED if settings.redis_ssl_cert_reqs == "required" else ssl.CERT_NONE
+        broker_use_ssl = {"ssl_cert_reqs": cert_reqs}
+
     app = Celery("fashx", broker=settings.redis_url, backend=settings.redis_url)
-    app.conf.update(
-        task_serializer="json",
-        accept_content=["json"],
-        result_serializer="json",
-        timezone="Asia/Kolkata",
-        enable_utc=True,
-        broker_connection_max_retries=1,
-        broker_connection_retry_on_startup=False,
-        task_ignore_result=True,
-        result_backend_transport_options={"max_retries": 0},
-        broker_transport_options={"max_retries": 0},
-        task_routes={
+    conf_kwargs: dict[str, Any] = {
+        "task_serializer": "json",
+        "accept_content": ["json"],
+        "result_serializer": "json",
+        "timezone": "Asia/Kolkata",
+        "enable_utc": True,
+        "broker_connection_max_retries": 1,
+        "broker_connection_retry_on_startup": False,
+        "task_ignore_result": True,
+        "task_acks_late": True,
+        "task_reject_on_worker_lost": True,
+        "worker_prefetch_multiplier": 1,
+        "result_expires": 3600,
+        "result_backend_transport_options": {"max_retries": 0},
+        "broker_transport_options": {"max_retries": 0},
+        "task_routes": {
             "fashx.workers.app.process_tryon_job": {"queue": "tryon"},
             "fashx.workers.app.ingest_catalog_feed": {"queue": "ingest"},
             "fashx.workers.app.enrich_garment_task": {"queue": "ingest"},
+            "fashx.workers.app.relay_outbox_events": {"queue": "maintenance"},
+            "fashx.workers.app.sweep_storage_erasure": {"queue": "maintenance"},
+            "fashx.workers.app.run_retention_jobs": {"queue": "maintenance"},
         },
-        beat_schedule={
+        "beat_schedule": {
             "outbox-relay-30s": {
                 "task": "fashx.workers.app.relay_outbox_events",
                 "schedule": 30.0,
@@ -86,7 +99,11 @@ if Celery is not None:
                 "schedule": 86400.0,
             },
         },
-    )
+    }
+    if broker_use_ssl is not None:
+        conf_kwargs["broker_use_ssl"] = broker_use_ssl
+        conf_kwargs["redis_backend_use_ssl"] = broker_use_ssl
+    app.conf.update(**conf_kwargs)
 else:
     app = _DummyCelery("fashx")
 
