@@ -8,6 +8,10 @@ if TYPE_CHECKING:
     from fashx.core.release_config import ReleaseConfig
 
 
+Environment = Literal["dev", "test", "staging", "prod"]
+ApplicationEnvironment = Literal["development", "staging", "production"]
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -17,8 +21,10 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
-    env: Literal["dev", "test", "prod"] = Field(default="dev", validation_alias="ENV")
-    app_env: str = Field(default="development", validation_alias="APP_ENV")
+    env: Environment = Field(default="dev", validation_alias="ENV")
+    app_env: ApplicationEnvironment = Field(
+        default="development", validation_alias="APP_ENV"
+    )
     app_name: str = Field(default="AI Fashion Assistant API", validation_alias="APP_NAME")
     app_version: str = Field(default="0.1.0", validation_alias="APP_VERSION")
     log_level: str = Field(default="INFO", validation_alias="LOG_LEVEL")
@@ -133,21 +139,47 @@ class Settings(BaseSettings):
 
     @property
     def is_production(self) -> bool:
-        return self.app_env.lower() in ("production", "prod") or self.env == "prod"
+        return self.env == "prod" or self.app_env == "production"
+
+    @property
+    def is_staging(self) -> bool:
+        return self.env == "staging" or self.app_env == "staging"
+
+    @property
+    def is_hosted(self) -> bool:
+        return self.is_production or self.is_staging
 
     def to_release_config(self) -> "ReleaseConfig":
         from fashx.core.release_config import ReleaseConfig
 
         return ReleaseConfig(
-            app_env="production" if self.is_production else self.app_env,
+            app_env="production" if self.is_production else ("staging" if self.is_staging else self.app_env),
             auth_mode=self.auth_mode,
             database_url=self.database_url,
             redis_url=self.redis_url,
             storage_backend=self.storage_backend,
             tryon_provider=self.tryon_provider,
             cors_origins=self.cors_origins,
-            debug=False if self.is_production else (self.env == "dev"),
+            debug=False if self.is_hosted else (self.env == "dev"),
         )
+
+    @model_validator(mode="after")
+    def validate_environment_consistency(self) -> "Settings":
+        expected = {
+            "dev": "development",
+            "test": "development",
+            "staging": "staging",
+            "prod": "production",
+        }
+        if self.app_env == "production" and self.env != "prod":
+            raise ValueError("Production requires ENV=prod")
+        if self.env == "prod" and self.app_env != "production":
+            raise ValueError("ENV=prod requires APP_ENV=production")
+        if self.app_env != expected.get(self.env):
+            raise ValueError(
+                f"ENV={self.env} requires APP_ENV={expected.get(self.env)}"
+            )
+        return self
 
     @model_validator(mode="after")
     def _fail_fast(self) -> "Settings":
@@ -155,6 +187,27 @@ class Settings(BaseSettings):
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
         if self.tryon_provider == "fashn_api" and not self.fashn_api_key:
             raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
+        if self.is_staging:
+            if self.env != "staging":
+                raise ValueError("Staging requires ENV=staging")
+            if self.repo_backend != "sql":
+                raise ValueError("staging requires REPO_BACKEND=sql")
+            if self.storage_backend != "s3":
+                raise ValueError("staging requires STORAGE_BACKEND=s3")
+            if not self.s3_bucket:
+                raise ValueError("staging requires S3_BUCKET")
+            if not self.s3_use_iam_role and (
+                not self.s3_access_key_id or not self.s3_secret_access_key
+            ):
+                raise ValueError(
+                    "staging requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)"
+                )
+            if self.auth_mode != "jwks" or not self.auth_jwks_url:
+                raise ValueError("staging requires AUTH_MODE=jwks and AUTH_JWKS_URL")
+            if not self.cors_origins:
+                raise ValueError("staging CORS origins cannot be empty")
+            if "*" in self.cors_origins:
+                raise ValueError("wildcard CORS not allowed in staging")
         if self.is_production:
             if self.env != "prod":
                 raise ValueError("Production requires ENV=prod")
@@ -174,10 +227,19 @@ class Settings(BaseSettings):
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if self.tryon_provider == "mock":
                 raise ValueError("prod requires non-mock TRYON_PROVIDER (rule I08)")
+            if self.tryon_provider == "fashn_selfhost":
+                raise ValueError(
+                    "prod requires approved implemented tryon_provider (fashn_selfhost is not implemented)"
+                )
             if not self.privacy_url or not self.terms_url:
                 raise ValueError("prod requires PRIVACY_URL and TERMS_URL")
+            if not self.cors_origins:
+                raise ValueError("prod CORS origins cannot be empty")
             if "*" in self.cors_origins:
                 raise ValueError("wildcard CORS not allowed in prod")
+            for origin in self.cors_origins:
+                if not origin.startswith("https://"):
+                    raise ValueError(f"Production CORS origins must use HTTPS (got: {origin})")
             if not self.parsed_retailer_allowed_hosts:
                 raise ValueError("prod requires non-empty FASHX_RETAILER_ALLOWED_HOSTS")
             if self.enable_b2b:

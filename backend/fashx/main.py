@@ -24,6 +24,10 @@ from fashx.visual.router import router as visual_router
 def create_app(settings: Any | None = None) -> FastAPI:
     if settings is None:
         settings = get_settings()
+    if getattr(settings, "is_hosted", False):
+        from fashx.core.release_config import validate_release_config
+
+        validate_release_config(settings.to_release_config())
     configure_logging(settings.log_level)
     configure_sentry()
 

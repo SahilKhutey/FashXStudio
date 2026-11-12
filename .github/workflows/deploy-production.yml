@@ -1,0 +1,109 @@
+name: deploy-production
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate AWS Deploy Role
+        run: |
+          if [ -z "${{ vars.AWS_DEPLOY_ROLE }}" ]; then
+            echo "Notice: vars.AWS_DEPLOY_ROLE is not set. Production cloud infrastructure is unprovisioned."
+            exit 0
+          fi
+
+      - name: Configure AWS Credentials (OIDC)
+        if: vars.AWS_DEPLOY_ROLE != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "${{ vars.AWS_DEPLOY_ROLE }}"
+          aws-region: ap-south-1
+
+      - name: Log in to Amazon ECR
+        if: vars.AWS_DEPLOY_ROLE != ''
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Run database migration task
+        if: vars.AWS_DEPLOY_ROLE != ''
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_PROD }}
+          MIGRATION_TASK: ${{ vars.ECS_MIGRATION_TASK_PROD }}
+          SUBNETS: ${{ vars.ECS_SUBNETS_PROD }}
+          SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUPS_PROD }}
+        run: |
+          set -euo pipefail
+          TASK_ARN=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --launch-type FARGATE \
+            --task-definition "$MIGRATION_TASK" \
+            --network-configuration \
+            "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUPS],assignPublicIp=DISABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)
+          test "$TASK_ARN" != "None"
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN"
+          EXIT_CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN" --query 'tasks[0].containers[0].exitCode' --output text)
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Production database migration failed. Aborting deployment."
+            exit 1
+          fi
+
+      - name: Deploy production ECS services (Rolling Update)
+        if: vars.AWS_DEPLOY_ROLE != ''
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_PROD }}
+        run: |
+          set -euo pipefail
+          for SERVICE in \
+            "${{ vars.ECS_API_SERVICE_PROD }}" \
+            "${{ vars.ECS_TRYON_SERVICE_PROD }}" \
+            "${{ vars.ECS_INGEST_SERVICE_PROD }}" \
+            "${{ vars.ECS_BEAT_SERVICE_PROD }}"
+          do
+            aws ecs update-service \
+              --cluster "$ECS_CLUSTER" \
+              --service "$SERVICE" \
+              --force-new-deployment
+          done
+          aws ecs wait services-stable \
+            --cluster "$ECS_CLUSTER" \
+            --services \
+              "${{ vars.ECS_API_SERVICE_PROD }}" \
+              "${{ vars.ECS_TRYON_SERVICE_PROD }}" \
+              "${{ vars.ECS_INGEST_SERVICE_PROD }}" \
+              "${{ vars.ECS_BEAT_SERVICE_PROD }}"
+
+      - name: Set up Python for Smoke Testing
+        if: vars.AWS_DEPLOY_ROLE != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Post-deployment smoke test
+        if: vars.AWS_DEPLOY_ROLE != ''
+        env:
+          API_BASE: ${{ vars.API_BASE_PROD }}
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
+        run: |
+          set -euo pipefail
+          pip install httpx
+          test -n "$API_BASE"
+          python scripts/release/smoke.py \
+            --base "$API_BASE" \
+            --token "$SMOKE_TOKEN"

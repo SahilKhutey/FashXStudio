@@ -15,7 +15,8 @@ def set_prod_env(monkeypatch):
     monkeypatch.setenv("AUTH_JWKS_URL", "https://ref.supabase.co/auth/v1/.well-known/jwks.json")
     monkeypatch.setenv("AUTH_ISSUER", "https://ref.supabase.co/auth/v1")
     monkeypatch.setenv("AUTH_AUDIENCE", "authenticated")
-    monkeypatch.setenv("TRYON_PROVIDER", "fashn_selfhost")
+    monkeypatch.setenv("TRYON_PROVIDER", "fashn_api")
+    monkeypatch.setenv("FASHN_API_KEY", "test-prod-fashn-api-key")
     monkeypatch.setenv("CORS_ORIGINS", '["https://app.fashxstudio.com"]')
     monkeypatch.setenv("PRIVACY_URL", "https://app.fashxstudio.com/privacy")
     monkeypatch.setenv("TERMS_URL", "https://app.fashxstudio.com/terms")
@@ -67,4 +68,11 @@ def test_prod_refuses_wildcard_cors(monkeypatch):
     set_prod_env(monkeypatch)
     monkeypatch.setenv("CORS_ORIGINS", '["*"]')
     with pytest.raises(ValidationError, match="wildcard CORS not allowed in prod"):
+        Settings()
+
+
+def test_prod_refuses_fashn_selfhost(monkeypatch):
+    set_prod_env(monkeypatch)
+    monkeypatch.setenv("TRYON_PROVIDER", "fashn_selfhost")
+    with pytest.raises(ValidationError, match="fashn_selfhost is not implemented"):
         Settings()

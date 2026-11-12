@@ -41,16 +41,18 @@ def get_storage() -> ObjectStorage:
 
     settings = get_settings()
     if settings.storage_backend == "s3":
+        key_id = None if settings.s3_use_iam_role else (
+            settings.s3_access_key_id.get_secret_value() if settings.s3_access_key_id else None
+        )
+        secret = None if settings.s3_use_iam_role else (
+            settings.s3_secret_access_key.get_secret_value() if settings.s3_secret_access_key else None
+        )
         return S3Storage(
             bucket=settings.s3_bucket or "fashx-media",
             endpoint_url=settings.s3_endpoint_url,
             region=settings.s3_region,
-            key_id=settings.s3_access_key_id.get_secret_value()
-            if settings.s3_access_key_id
-            else None,
-            secret=settings.s3_secret_access_key.get_secret_value()
-            if settings.s3_secret_access_key
-            else None,
+            key_id=key_id,
+            secret=secret,
         )
     return LocalStorage(root_dir=settings.local_storage_dir)
 
