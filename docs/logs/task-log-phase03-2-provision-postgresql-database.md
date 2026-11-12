@@ -70,12 +70,12 @@ python -m pytest tests/core/ tests/infrastructure/ tests/unit/test_settings.py t
 ```
 Output:
 ```text
-======================== 59 passed, 2 skipped in 9.15s ========================
+======================= 78 passed, 2 skipped in 11.56s ========================
 ```
 
 ### 2.3 Code Linting & Static Typing
 ```powershell
-python -m ruff check tests/infrastructure/ backend/fashx/core/ scripts/db/
+python -m ruff check tests/core/ tests/infrastructure/ tests/unit/ backend/fashx/core/ scripts/db/
 ```
 Output:
 ```text
@@ -83,11 +83,11 @@ All checks passed!
 ```
 
 ```powershell
-python -m mypy tests/infrastructure/ backend/fashx/core/database.py backend/fashx/core/settings.py
+python -m mypy tests/core/test_s3_storage_iam.py tests/infrastructure/ backend/fashx/core/database.py backend/fashx/core/settings.py scripts/db/benchmark_postgres.py
 ```
 Output:
 ```text
-Success: no issues found in 5 source files
+Success: no issues found in 7 source files
 ```
 
 ### 2.4 Documentation Linter
@@ -99,20 +99,34 @@ Output:
 docs lint ok
 ```
 
+### 2.5 Local Environment Disclosures (AGENTS.md Rule 14)
+- **Terraform CLI**: `terraform` is not installed on this local Windows developer machine. Terraform configuration files (`infra/aws/rds/*.tf`) have been syntactically and structurally prepared according to HCL specifications.
+- **AWS CLI**: `aws` CLI is not installed on this local machine. No live AWS resources have been provisioned or modified.
+- **Unverified Cloud Status**: Live cloud instance creation, RDS parameter group application in AWS, live IAM role bootstrap against AWS Secrets Manager, and restore rehearsals against AWS RDS remain planned and unverified until execution on a provisioned runner.
+
 ---
 
 ## 3. Inventory of Delivered Deliverables
 
 | Deliverable Path | Description |
 | :--- | :--- |
-| `backend/fashx/core/settings.py` | Added configurable `db_pool_size`, `db_max_overflow`, and `db_pool_timeout` |
-| `backend/fashx/core/database.py` | Applied connection pooling parameters conditionally for PostgreSQL async engine |
+| `infra/aws/rds/versions.tf` | Terraform and AWS provider pinning with S3 remote state backend |
+| `infra/aws/rds/variables.tf` | Input variables for VPC, private subnets, app SGs, and engine version |
+| `infra/aws/rds/main.tf` | Subnet group, parameter group (`rds.force_ssl=1`), 3 SGs, and 3 RDS DB instances |
+| `infra/aws/rds/outputs.tf` | Output definitions for endpoints, security groups, and master secret ARNs |
+| `infra/aws/rds/terraform.tfvars.example` | Example deployment parameters template |
+| `infra/aws/rds/.gitignore` | Exclusion rules for local state, plan files, and secrets |
+| `scripts/db/bootstrap_rds_roles.sh` | Secrets Manager credential generator and least-privilege PostgreSQL role provisioner |
+| `scripts/db/verify_rds.sh` | AWS CLI RDS instance audit tool querying status, encryption, and backups |
 | `scripts/db/backup_postgres.sh` | Custom-format logical database dump script with SHA-256 checksum generation |
 | `scripts/db/benchmark_postgres.py` | Async connection establishment and query latency benchmark utility |
 | `scripts/db/verify_database.sh` | Preflight script inspecting identity, TLS, pgvector, tables, and Alembic revision |
-| `tests/infrastructure/test_database_environment_isolation.py` | Target URL comparison and cross-environment distinctness assertions |
+| `backend/fashx/core/settings.py` | Added configurable `db_pool_size`, `db_max_overflow`, and `db_pool_timeout` |
+| `backend/fashx/core/database.py` | Applied connection pooling parameters conditionally for PostgreSQL async engine |
+| `tests/infrastructure/test_database_environment_isolation.py` | Target URL comparison, port distinction, and RDS endpoint distinctness assertions |
 | `tests/infrastructure/test_database_permissions.py` | Role permission checks rejecting prohibited DDL operations |
 | `tests/infrastructure/test_database_persistence.py` | Multi-session persistence verification and transaction rollback tests |
+| `docs/infrastructure/AWS_RDS_ARCHITECTURE.md` | Full architecture specification for 3-instance AWS RDS deployment in `ap-south-1` |
 | `docs/infrastructure/DATABASE_SERVICE_SELECTION.md` | Comparative selection of AWS RDS for PostgreSQL in `ap-south-1` |
 | `docs/infrastructure/DATABASE_ENVIRONMENT_MATRIX.md` | Technical database matrix across all 4 environments |
 | `docs/infrastructure/DATABASE_PROVISIONING.md` | AWS RDS creation commands, parameter groups, and initial SQL bootstrap |

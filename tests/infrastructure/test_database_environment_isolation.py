@@ -36,3 +36,13 @@ def test_custom_ports_and_host_distinction():
     dev = "postgresql+asyncpg://u:p@db.internal:5432/fashx_dev"
     staging = "postgresql+asyncpg://u:p@db.internal:5433/fashx_staging"
     assert database_identity(dev) != database_identity(staging)
+
+
+def test_rds_instance_endpoint_identities_are_distinct():
+    dev_rds = "postgresql+asyncpg://fashx_dev_app:secret@fashx-pg-dev.c123456789.ap-south-1.rds.amazonaws.com:5432/fashx_dev"
+    staging_rds = "postgresql+asyncpg://fashx_staging_app:secret@fashx-pg-staging.c123456789.ap-south-1.rds.amazonaws.com:5432/fashx_staging"
+    prod_rds = "postgresql+asyncpg://fashx_prod_app:secret@fashx-pg-prod.c123456789.ap-south-1.rds.amazonaws.com:5432/fashx_prod"
+
+    assert database_identity(dev_rds) != database_identity(staging_rds)
+    assert database_identity(staging_rds) != database_identity(prod_rds)
+    assert database_identity(dev_rds) != database_identity(prod_rds)
