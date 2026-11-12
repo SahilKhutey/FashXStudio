@@ -50,3 +50,19 @@ Backup systems that are never tested inevitably fail during real emergencies. Fa
 2. **Validate Schema & Integrity**: Run Alembic check and integrity verification queries against `fashx-rehearsal-temp-db`.
 3. **Verify Row Counts & Table Health**: Verify table record counts match production metrics at the restore timestamp.
 4. **Decommission Sandbox**: Destroy `fashx-rehearsal-temp-db` immediately after logging verification evidence.
+
+---
+
+## 5. Disaster Recovery Governance Ledger
+
+| Property | Specification / Requirement |
+| :--- | :--- |
+| **Backup Schedule** | Daily full snapshots at 02:00 UTC + Continuous WAL archiving |
+| **Backup Retention** | 35 days continuous PITR; monthly compliance snapshots retained 1 year |
+| **Encryption** | AWS KMS Customer Managed Key (`aws/rds` and `aws/s3`) with automatic rotation |
+| **PITR Granularity** | 1-second point-in-time recovery window |
+| **Restore Owner** | Infrastructure Lead & Human Founder |
+| **Recovery Environment** | Temporary isolated VPC subnet (`fashx-rehearsal-temp`) |
+| **Data Integrity Check** | Alembic check + row count parity + checksum verification |
+| **Restore Rehearsal Frequency** | Monthly scheduled drill |
+| **Current Rehearsal Status** | Planned (Unprovisioned cloud infrastructure) |

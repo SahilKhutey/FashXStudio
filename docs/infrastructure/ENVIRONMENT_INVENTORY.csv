@@ -1,26 +1,16 @@
-Environment,Resource Category,Resource Name,Provider,Configuration / SKU,Status,Notes
-Local,Compute,Developer Workstation,Local Host,Python 3.12 / venv,configured,Baseline local development runtime
-Local,Database,SQLite Engine,aiosqlite,File ./fashx_local.db or :memory:,configured,Local testing database
-Local,Object Storage,Local Filesystem,Local OS,./local_storage,configured,Simulated media storage
-Local,Authentication,Local JWT Auth,PyJWT,HS256 local secret,configured,Development mock principal auth
-Local,VTO Inference,Mock Try-On Engine,In-Process Mock,TRYON_PROVIDER=mock,configured,Instant zero-cost local tryon simulation
-Shared Development,Compute,ECS Fargate Dev Cluster,AWS ECS,Fargate 0.5 vCPU / 1 GB RAM,unprovisioned,Planned shared integration cluster
-Shared Development,Database,PostgreSQL RDS Dev,AWS RDS,db.t4g.micro Single-AZ,unprovisioned,Planned shared dev PostgreSQL
-Shared Development,Cache,ElastiCache Redis Dev,AWS ElastiCache,cache.t4g.micro Single-node,unprovisioned,Planned shared dev Redis
-Shared Development,Object Storage,fashx-dev-media-private,AWS S3,Private bucket SSE-S3,unprovisioned,Planned dev private S3 bucket
-Shared Development,Authentication,Supabase Dev Project,Supabase,Free/Pro tier JWKS,unprovisioned,Planned dev identity provider
-Shared Development,VTO Inference,Dev FASHN Sandbox,FASHN.ai,API sandbox budget-capped,unprovisioned,Planned dev inference key
-Staging,Compute,ECS Fargate Staging Cluster,AWS ECS,Fargate 1.0 vCPU / 2 GB RAM,unprovisioned,Planned RC validation cluster
-Staging,Database,PostgreSQL RDS Staging,AWS RDS,db.t4g.small Multi-AZ,unprovisioned,Planned staging PostgreSQL
-Staging,Cache,ElastiCache Redis Staging,AWS ElastiCache,cache.t4g.small Replication Group,unprovisioned,Planned staging Redis
-Staging,Object Storage,fashx-staging-media-private,AWS S3,Private bucket SSE-S3,unprovisioned,Planned staging S3 bucket
-Staging,Authentication,Supabase Staging Tenant,Supabase,Dedicated project JWKS,unprovisioned,Planned staging identity provider
-Staging,VTO Inference,Staging FASHN API Key,FASHN.ai,Commercial API budget-capped,unprovisioned,Planned staging inference key
-Production,Compute,ECS Fargate Prod Cluster,AWS ECS,Fargate 2.0 vCPU / 4 GB RAM Multi-AZ,unprovisioned,Planned production cluster
-Production,Database,PostgreSQL RDS Prod,AWS RDS,db.r6g.large Multi-AZ + Read Replica,unprovisioned,Planned high-availability PostgreSQL
-Production,Cache,ElastiCache Redis Prod,AWS ElastiCache,cache.r6g.large Multi-AZ Cluster,unprovisioned,Planned high-availability Redis
-Production,Object Storage,fashx-prod-media-private,AWS S3,Private bucket SSE-KMS,unprovisioned,Planned production media bucket
-Production,Authentication,Supabase Prod Project,Supabase,Enterprise/Dedicated JWKS,unprovisioned,Planned production identity provider
-Production,VTO Inference,Production FASHN API Key,FASHN.ai,Commercial API high-throughput,unprovisioned,Planned production inference key
-Production,Secrets Management,AWS Secrets Manager Prod,AWS Secrets Manager,/fashx/prod/* with IAM rotation,unprovisioned,Planned secret store
-Production,Edge Routing,CloudFront Distribution,AWS CloudFront,TLS 1.3 / AWS WAF Shield,unprovisioned,Planned CDN and edge protection
+environment,service,resource_name,provider,region,network_visibility,secret_namespace,backup_policy,status,last_verified
+local,api,fashx-local-api,local,local,localhost,local-env,none,planned,
+local,postgres,fashx-local-db,docker,local,localhost,local-env,local-volume,planned,
+local,redis,fashx-local-redis,docker,local,localhost,local-env,local-volume,planned,
+development,api,fashx-dev-api,AWS ECS,ap-south-1,private,fashx/dev,none,unprovisioned,
+development,postgres,fashx-dev-db,AWS RDS,ap-south-1,private,fashx/dev,daily,unprovisioned,
+development,redis,fashx-dev-redis,AWS ElastiCache,ap-south-1,private,fashx/dev,provider-policy,unprovisioned,
+development,storage,fashx-dev-media-private,AWS S3,ap-south-1,private,fashx/dev,lifecycle,unprovisioned,
+staging,api,fashx-staging-api,AWS ECS,ap-south-1,private,fashx/staging,none,unprovisioned,
+staging,postgres,fashx-staging-db,AWS RDS,ap-south-1,private,fashx/staging,daily,unprovisioned,
+staging,redis,fashx-staging-redis,AWS ElastiCache,ap-south-1,private,fashx/staging,provider-policy,unprovisioned,
+staging,storage,fashx-staging-media-private,AWS S3,ap-south-1,private,fashx/staging,lifecycle,unprovisioned,
+production,api,fashx-prod-api,AWS ECS,ap-south-1,private,fashx/prod,none,unprovisioned,
+production,postgres,fashx-prod-db,AWS RDS,ap-south-1,private,fashx/prod,pitr,unprovisioned,
+production,redis,fashx-prod-redis,AWS ElastiCache,ap-south-1,private,fashx/prod,provider-policy,unprovisioned,
+production,storage,fashx-prod-media-private,AWS S3,ap-south-1,private,fashx/prod,lifecycle,unprovisioned,

@@ -70,3 +70,63 @@ The visual shopping and catalog ingestion modules allow merchants and shoppers t
    - `127.0.0.0/8` (Loopback)
    - `169.254.169.254/32` (AWS Instance Metadata Service - IMDS)
 3. **IMDSv2 Enforced**: ECS container instances enforce AWS IMDSv2 with token hops restricted to 1 (`HttpTokens=required`, `HttpPutResponseHopLimit=1`), preventing containers from reading underlying EC2/host metadata.
+
+---
+
+## 4. Declarative Egress Policy (Staging / Production Reference)
+
+```yaml
+environment: staging
+
+inbound:
+  public_api:
+    protocols:
+      - HTTPS
+    ports:
+      - 443
+
+  database:
+    public_access: false
+
+  redis:
+    public_access: false
+
+outbound:
+  allowed_services:
+    - name: postgres
+      destination: staging-private-database
+      port: 5432
+
+    - name: redis
+      destination: staging-private-redis
+      port: 6379
+
+    - name: object-storage
+      destination: staging-object-storage-endpoint
+      port: 443
+
+  external_providers:
+    - name: fashn
+      enabled: false
+      reason: "Staging provider approval pending"
+
+    - name: error-monitoring
+      enabled: true
+      destination: approved-monitoring-endpoint
+      port: 443
+
+  default_action: deny
+```
+
+---
+
+## 5. Network Acceptance Verification Checklist
+
+- [ ] Public API responds over HTTPS.
+- [ ] Database port is not publicly reachable.
+- [ ] Redis port is not publicly reachable.
+- [ ] API cannot reach another environment's private database.
+- [ ] Worker can reach only approved external providers.
+- [ ] Unapproved image URLs are rejected.
+- [ ] Redirects to private IPs are rejected.
+- [ ] Mobile application has no direct database or Redis access.

@@ -66,3 +66,31 @@ Because production updates must execute with zero downtime and allow safe rollba
 - **Trigger**: Explicit Founder Approval on GitHub (`release` gate).
 - **Rule 12 Compliance**: Never push or merge to main directly. Only the human founder merges after CI is green.
 - **Rollout Strategy**: ECS Rolling Update with minimum healthy percent = 100% and maximum percent = 200%. New tasks must pass `/healthz` checks before older tasks are drained and terminated.
+
+---
+
+## 4. Release Promotion Record Template
+
+Every release candidate promoted toward production records the following metadata ledger entry:
+
+```markdown
+# Release Promotion Record
+
+- Release ID:
+- Commit SHA:
+- Container image:
+- Container image digest:
+- Build workflow URL:
+- CI result:
+- Development deployment:
+- Development smoke-test result:
+- Staging deployment:
+- Staging smoke-test result:
+- Database migration revision:
+- Security scan:
+- Production approval:
+- Production deployment:
+- Rollback image digest:
+- Release owner:
+- Deployment timestamp:
+```

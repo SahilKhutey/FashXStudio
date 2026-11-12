@@ -113,9 +113,35 @@ tests/unit/test_rc08_release_config.py::test_invalid_redis_scheme PASSED [100%]
 ============================= 13 passed in 3.16s ==============================
 ```
 
-### 2.4 Code Linting & Static Typing
+### 2.4 Unit Test Execution: Database Isolation & S3 Storage IAM
 ```powershell
-python -m ruff check backend/fashx/core/settings.py backend/fashx/core/dependencies.py backend/fashx/main.py tests/core/test_environment_settings.py tests/unit/test_settings_prod_refusal.py
+python -m pytest tests/core/test_database_environment_isolation.py tests/core/test_s3_storage_iam.py -v
+```
+Output:
+```text
+tests/core/test_database_environment_isolation.py::test_database_identity_parsing PASSED [ 14%]
+tests/core/test_database_environment_isolation.py::test_environment_database_identities_are_distinct PASSED [ 28%]
+tests/core/test_database_environment_isolation.py::test_development_and_staging_database_are_distinct_env SKIPPED [ 42%]
+tests/core/test_database_environment_isolation.py::test_staging_and_production_database_are_distinct_env SKIPPED [ 57%]
+tests/core/test_s3_storage_iam.py::test_s3_storage_initializes_with_none_credentials_for_iam PASSED [ 71%]
+tests/core/test_s3_storage_iam.py::test_get_storage_passes_none_when_iam_role_enabled PASSED [ 85%]
+tests/core/test_s3_storage_iam.py::test_get_storage_passes_credentials_when_iam_role_disabled PASSED [100%]
+
+======================== 5 passed, 2 skipped in 3.17s =========================
+```
+
+### 2.5 Consolidated Environment & Release Verification
+```powershell
+python -m pytest tests/core/ tests/unit/test_settings.py tests/unit/test_settings_prod_refusal.py tests/unit/test_rc08_release_config.py -v
+```
+Output:
+```text
+======================== 49 passed, 2 skipped in 7.92s ========================
+```
+
+### 2.6 Code Linting & Static Typing
+```powershell
+python -m ruff check tests/core/ tests/unit/ backend/fashx/core/
 ```
 Output:
 ```text
@@ -123,14 +149,14 @@ All checks passed!
 ```
 
 ```powershell
-python -m mypy backend/fashx/core/settings.py backend/fashx/core/dependencies.py tests/core/test_environment_settings.py
+python -m mypy tests/core/test_database_environment_isolation.py tests/core/test_s3_storage_iam.py tests/core/test_environment_settings.py
 ```
 Output:
 ```text
 Success: no issues found in 3 source files
 ```
 
-### 2.5 Documentation Linter
+### 2.7 Documentation Linter
 ```powershell
 python scripts/docs_lint.py
 ```
@@ -145,10 +171,19 @@ docs lint ok
 
 | Deliverable Path | Description |
 | :--- | :--- |
+| `.env.development.example` | Local development configuration template |
+| `.env.development.cloud.example` | Shared cloud development configuration template |
+| `.env.staging.example` | Staging release candidate configuration template |
+| `.env.production.example` | Production environment release contract template |
+| `.gitignore` | Hardened environment and secrets exclusion with example whitelist |
+| `docker-compose.yml` | Container names, localhost port bindings, Redis appendonly, init mount |
+| `infra/local/postgres-init/01-test-database.sql` | Automatic PostgreSQL test database initialization script |
 | `backend/fashx/core/settings.py` | Strict Environment Literals, consistency validator, fail-fast staging & prod rules |
 | `backend/fashx/core/dependencies.py` | Keyless IAM role storage resolution (`S3_USE_IAM_ROLE`) |
 | `backend/fashx/main.py` | Hosted environment release config validation on app startup |
 | `tests/core/test_environment_settings.py` | 20 unit tests for all environment invariants & permutations |
+| `tests/core/test_database_environment_isolation.py` | Database identity parser and environment isolation tests |
+| `tests/core/test_s3_storage_iam.py` | S3Storage and get_storage IAM role vs static credentials tests |
 | `tests/unit/test_settings_prod_refusal.py` | Updated prod refusal tests including `fashn_selfhost` refusal |
 | `docs/infrastructure/ENVIRONMENT_STRATEGY.md` | Four-environment architecture, separation invariant, promotion lifecycle |
 | `docs/infrastructure/ENVIRONMENT_MATRIX.md` | 11-dimension technical comparison matrix |

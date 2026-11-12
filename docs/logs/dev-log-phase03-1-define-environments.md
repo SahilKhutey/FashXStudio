@@ -49,17 +49,35 @@ Phase 03 initiates the production infrastructure and backend integration workstr
 - Added hosted environment validation inside `create_app()`:
   - When `settings.is_hosted` is True, `validate_release_config(settings.to_release_config())` is invoked during app factory execution, halting startup if any stage invariant is violated.
 
+### D. Environment Configuration Templates & Secret Hygiene
+- Created `.env.development.example` for reproducible local development.
+- Created `.env.development.cloud.example` for shared cloud development.
+- Created `.env.staging.example` for release candidate qualification.
+- Created `.env.production.example` for production release contract.
+- Hardened `.gitignore` to strictly exclude `.env`, `.env.*`, and `secrets/` while whitelisting `.env*.example` files.
+
+### E. Local Container Topology & Database Initialization
+- Enhanced `docker-compose.yml` with explicit container names (`fashx-local-postgres`, `fashx-local-redis`), localhost port bindings (`127.0.0.1:5432:5432`, `127.0.0.1:6379:6379`), appendonly persistence for Redis, and automatic initialization mount.
+- Added `infra/local/postgres-init/01-test-database.sql` creating dedicated `fashion_test` database and granting privileges to user `fashion`.
+
+### F. Infrastructure Direction Consensus (Section 16)
+- **Target Hosting Platform**: AWS (ECS Fargate, RDS PostgreSQL, ElastiCache Redis, S3).
+- **Target Region**: India region (`ap-south-1` / Mumbai) for data sovereignty and lowest latency to domestic retail partners.
+- **Database Engine**: Managed PostgreSQL with `pgvector` extension.
+
 ---
 
 ## 3. Verification & Testing
 
-1. **New Comprehensive Test Suite (`tests/core/test_environment_settings.py`)**:
-   - 20 unit tests covering default local configurations, dev/test/staging/prod configurations, environment mismatches, staging refusal invariants, production refusal invariants, and `create_app` startup validation.
-   - Output: `20 passed in 4.33s`.
-2. **Existing Settings Test Suites**:
-   - `tests/unit/test_settings.py` and `tests/unit/test_settings_prod_refusal.py`: `11 passed in 3.20s`.
-   - `tests/unit/test_rc08_release_config.py`: `13 passed in 3.16s`.
-3. **Static Quality Gates**:
+1. **Environment Settings Invariants (`tests/core/test_environment_settings.py`)**:
+   - 20 unit tests covering local, dev, staging, prod configurations, mismatches, and refusal invariants.
+2. **Database Environment Isolation (`tests/core/test_database_environment_isolation.py`)**:
+   - Tests database identity parsing and asserts that dev, staging, and production database targets are strictly distinct.
+3. **Storage IAM Credential Chain (`tests/core/test_s3_storage_iam.py`)**:
+   - Tests that `get_storage()` and `S3Storage` correctly pass `None` for access keys when `s3_use_iam_role` is True to activate the AWS default credential chain, and pass static keys when False.
+4. **Overall Test Suite Execution**:
+   - 49 passed, 2 skipped in 7.92s across all environment, settings, and release configuration suites.
+5. **Static Quality Gates**:
    - `ruff check`: All checks passed.
    - `mypy`: Success, no issues found in source files.
    - `docs_lint.py`: docs lint ok.

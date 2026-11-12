@@ -14,7 +14,31 @@ A production rollback is immediately mandatory if any of the following operation
 
 ---
 
-## 2. Immediate Incident Mitigation: Feature Kill Switches
+## 2. Five-Phase Rollback Incident Framework
+
+1. **Trigger**: Detect metric breach (5xx > 1%, P95 > 2000ms, VTO failure > 15%, or auth breakage).
+2. **Stabilize**:
+   - Declare incident and assign incident lead.
+   - Freeze all ongoing deployments.
+   - Record current commit SHA, container image digest, and Alembic revision.
+3. **Select Rollback Mechanism**:
+   - Application defect $\to$ Redeploy previous known-good container image tag.
+   - Worker defect $\to$ Pause Celery/Redis queue consumption and restore compatible worker.
+   - Feature defect $\to$ Remote feature flag disable (`TRYON_ENABLED=false` or `MAINTENANCE_MODE=true`).
+   - Configuration defect $\to$ Restore previous approved AWS Secrets Manager parameter version.
+   - Database defect $\to$ Execute forward fix or restore from continuous WAL archive.
+4. **Verify**:
+   - Run `/healthz` and `/ready` endpoints across API and worker tasks.
+   - Execute automated smoke test suite (`scripts/release/smoke.py`).
+   - Confirm critical user journeys (catalog browsing, fit recommendation, try-on preview).
+5. **Close**:
+   - Record incident timeline and user impact.
+   - Verify zero data loss or data corruption.
+   - Author root-cause analysis (RCA) and file remediation issues.
+
+---
+
+## 3. Immediate Incident Mitigation: Feature Kill Switches
 
 Before initiating an infrastructure rollback, engineers may immediately mitigate user impact using remote feature flags without waiting for task redeployment:
 
