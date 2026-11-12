@@ -35,6 +35,9 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://fashion:fashion@localhost:5432/fashion",
         validation_alias="DATABASE_URL",
     )
+    db_pool_size: int = Field(default=5, validation_alias="DB_POOL_SIZE")
+    db_max_overflow: int = Field(default=5, validation_alias="DB_MAX_OVERFLOW")
+    db_pool_timeout: int = Field(default=20, validation_alias="DB_POOL_TIMEOUT")
     redis_url: str = Field(default="redis://localhost:6379/0", validation_alias="REDIS_URL")
     readiness_requires_database: bool = Field(
         default=False,

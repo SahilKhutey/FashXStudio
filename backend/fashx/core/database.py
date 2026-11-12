@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from typing import Any
 
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -17,11 +18,15 @@ def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
         settings = get_settings()
-        _engine = create_async_engine(
-            settings.database_url,
-            pool_pre_ping=True,
-            pool_recycle=1800,
-        )
+        kwargs: dict[str, Any] = {
+            "pool_pre_ping": True,
+            "pool_recycle": 1800,
+        }
+        if settings.database_url.startswith("postgresql") or settings.database_url.startswith("postgres"):
+            kwargs["pool_size"] = settings.db_pool_size
+            kwargs["max_overflow"] = settings.db_max_overflow
+            kwargs["pool_timeout"] = settings.db_pool_timeout
+        _engine = create_async_engine(settings.database_url, **kwargs)
     return _engine
 
 
