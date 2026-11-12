@@ -18,14 +18,22 @@ def get_engine() -> AsyncEngine:
     global _engine
     if _engine is None:
         settings = get_settings()
+        connect_args: dict[str, Any] = {}
+        if settings.db_ssl_ca_file:
+            import ssl
+
+            connect_args["ssl"] = ssl.create_default_context(
+                cafile=settings.db_ssl_ca_file
+            )
         kwargs: dict[str, Any] = {
             "pool_pre_ping": True,
             "pool_recycle": 1800,
+            "connect_args": connect_args,
         }
         if settings.database_url.startswith("postgresql") or settings.database_url.startswith("postgres"):
             kwargs["pool_size"] = settings.db_pool_size
             kwargs["max_overflow"] = settings.db_max_overflow
-            kwargs["pool_timeout"] = settings.db_pool_timeout
+            kwargs["pool_timeout"] = settings.db_pool_timeout_s or settings.db_pool_timeout
         _engine = create_async_engine(settings.database_url, **kwargs)
     return _engine
 

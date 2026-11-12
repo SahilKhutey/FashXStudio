@@ -47,7 +47,26 @@ Because production updates must execute with zero downtime and allow safe rollba
 
 ## 3. Stage-by-Stage Promotion Protocol
 
-### Step 1: Promotion to Shared Development
+### 3.1 Step-by-Step Promotion Sequence
+1. Developer creates feature branch.
+2. Pull request runs CI.
+3. Human review and merge.
+4. Build workflow (`build-release.yml`) creates one immutable image.
+5. Image is pushed to ECR with commit SHA tag (`sha-${GITHUB_SHA}`).
+6. Resolve and record immutable ECR image digest.
+7. Promote digest to development (`promote.yml`).
+8. Run development integration checks.
+9. Promote same digest to staging.
+10. Run staging migrations and E2E tests.
+11. Obtain production approval in protected GitHub Environment.
+12. Run production migration task definition.
+13. Deploy same digest to production.
+14. Verify readiness (`/healthz/ready`) and monitor metrics.
+15. Record deployment manifest.
+
+> **Rules**: Never rebuild during promotion. Never deploy using `latest`. Never automatically downgrade production schema.
+
+### 3.2 Environment Promotion Stages
 - **Trigger**: Automatic on merge of feature branches to `main` (or recovery branch).
 - **Checks**: All unit and integration tests pass; Docker build succeeds.
 - **Verification**: Service stability check (`aws ecs wait services-stable`).

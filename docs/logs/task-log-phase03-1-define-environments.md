@@ -17,131 +17,74 @@ Execute the deliverables of **Section 3.1: Define Environments**:
 1. Formulate four explicitly defined environments: Local, Shared Development, Staging, and Production.
 2. Implement code-level environment validation and fail-fast invariants in backend settings.
 3. Establish IAM role support (`S3_USE_IAM_ROLE`) for secure, keyless cloud object storage.
-4. Implement hosted startup release configuration validation in FastAPI application factory.
-5. Create comprehensive unit test coverage for all environment permutations and security boundaries.
-6. Author 10 canonical infrastructure architectural specifications in `docs/infrastructure/`:
-   - `ENVIRONMENT_STRATEGY.md`
-   - `ENVIRONMENT_MATRIX.md`
-   - `DATABASE_ISOLATION.md`
-   - `OBJECT_STORAGE_ISOLATION.md`
-   - `SECRETS_MANAGEMENT.md`
-   - `NETWORK_SECURITY.md`
-   - `RELEASE_PROMOTION.md`
-   - `PRODUCTION_ROLLBACK.md`
-   - `DISASTER_RECOVERY.md`
-   - `ENVIRONMENT_INVENTORY.csv`
-7. Author GitHub Actions deployment workflows for the multi-stage promotion pipeline:
-   - `.github/workflows/deploy-development.yml`
-   - `.github/workflows/deploy-staging.yml`
-   - `.github/workflows/deploy-production.yml`
+4. Add database connection pool and TLS settings (`db_pool_timeout_s`, `db_ssl_ca_file`) and integrate verified TLS context in `get_engine()`.
+5. Update `Dockerfile` runtime stage to install the Amazon RDS global CA bundle into `/etc/ssl/certs/aws-rds-global-bundle.pem`.
+6. Codify Terraform S3 media storage infrastructure in `infra/aws/rds/storage.tf` for private media across dev, staging, and prod.
+7. Author operational scripts:
+   - `scripts/db/publish_database_url_secret.sh`
+   - `infra/aws/ecs/bootstrap.sh`
+   - `scripts/release/promote_ecs.sh`
+8. Author immutable build and promotion workflows:
+   - `.github/workflows/build-release.yml`
+   - `.github/workflows/promote.yml`
+9. Codify parameterized ECS task definition templates in `infra/aws/ecs/task-definitions/`.
+10. Create comprehensive unit test coverage for all environment permutations and security boundaries in `tests/core/test_deployment_environments.py`.
+11. Author 10 canonical infrastructure architectural specifications in `docs/infrastructure/`:
+    - `ENVIRONMENT_STRATEGY.md`
+    - `ENVIRONMENT_MATRIX.md`
+    - `DATABASE_ISOLATION.md`
+    - `OBJECT_STORAGE_ISOLATION.md`
+    - `SECRETS_MANAGEMENT.md`
+    - `NETWORK_SECURITY.md`
+    - `RELEASE_PROMOTION.md`
+    - `PRODUCTION_ROLLBACK.md`
+    - `DISASTER_RECOVERY.md`
+    - `ENVIRONMENT_INVENTORY.csv`
 
 ---
 
 ## 2. Command Execution Evidence
 
-### 2.1 Unit Test Execution: Environment Settings
+### 2.1 Deployment Environments Test Execution
 ```powershell
-python -m pytest tests/core/test_environment_settings.py -v
+python -m pytest tests/core/test_deployment_environments.py -v
 ```
 Output:
 ```text
-tests/core/test_environment_settings.py::test_default_local_configuration_accepted PASSED [  5%]
-tests/core/test_environment_settings.py::test_dev_environment_accepted PASSED [ 10%]
-tests/core/test_environment_settings.py::test_test_environment_accepted PASSED [ 15%]
-tests/core/test_environment_settings.py::test_staging_environment_accepted_with_hosted_safe_settings PASSED [ 20%]
-tests/core/test_environment_settings.py::test_prod_environment_accepted_with_production_requirements PASSED [ 25%]
-tests/core/test_environment_settings.py::test_env_app_env_mismatch_rejected PASSED [ 30%]
-tests/core/test_environment_settings.py::test_staging_refuses_memory_repo PASSED [ 35%]
-tests/core/test_environment_settings.py::test_staging_refuses_local_storage PASSED [ 40%]
-tests/core/test_environment_settings.py::test_staging_refuses_local_auth PASSED [ 45%]
-tests/core/test_environment_settings.py::test_staging_refuses_wildcard_cors PASSED [ 50%]
-tests/core/test_environment_settings.py::test_staging_refuses_missing_s3_bucket PASSED [ 55%]
-tests/core/test_environment_settings.py::test_prod_refuses_mock_tryon PASSED [ 60%]
-tests/core/test_environment_settings.py::test_prod_refuses_selfhost_placeholder_tryon PASSED [ 65%]
-tests/core/test_environment_settings.py::test_prod_refuses_local_jwt_auth PASSED [ 70%]
-tests/core/test_environment_settings.py::test_prod_refuses_wildcard_cors PASSED [ 75%]
-tests/core/test_environment_settings.py::test_prod_refuses_http_cors PASSED [ 80%]
-tests/core/test_environment_settings.py::test_prod_refuses_missing_privacy_or_terms PASSED [ 85%]
-tests/core/test_environment_settings.py::test_prod_refuses_missing_storage_credentials_when_not_iam PASSED [ 90%]
-tests/core/test_environment_settings.py::test_prod_refuses_b2b_enabled PASSED [ 95%]
-tests/core/test_environment_settings.py::test_create_app_invokes_release_validation_in_hosted_mode PASSED [100%]
+tests/core/test_deployment_environments.py::test_staging_configuration_is_valid PASSED [ 11%]
+tests/core/test_deployment_environments.py::test_staging_release_config_validation_passes PASSED [ 22%]
+tests/core/test_deployment_environments.py::test_staging_rejects_missing_s3_bucket PASSED [ 33%]
+tests/core/test_deployment_environments.py::test_staging_rejects_static_credentials_when_using_iam_role PASSED [ 44%]
+tests/core/test_deployment_environments.py::test_production_configuration_is_valid PASSED [ 55%]
+tests/core/test_deployment_environments.py::test_production_rejects_static_credentials_when_using_iam_role PASSED [ 66%]
+tests/core/test_deployment_environments.py::test_production_release_config_rejects_unencrypted_redis PASSED [ 77%]
+tests/core/test_deployment_environments.py::test_shared_development_configuration_is_valid PASSED [ 88%]
+tests/core/test_deployment_environments.py::test_env_and_app_env_consistency_enforced PASSED [100%]
 
-============================= 20 passed in 4.33s ==============================
+============================== 9 passed in 4.00s ==============================
 ```
 
-### 2.2 Unit Test Execution: Settings & Prod Refusals
+### 2.2 Combined Environment and Settings Test Execution
 ```powershell
-python -m pytest tests/unit/test_settings.py tests/unit/test_settings_prod_refusal.py -v
+python -m pytest tests/core/test_s3_storage_iam.py tests/core/test_environment_settings.py tests/core/test_deployment_environments.py tests/unit/test_settings.py tests/unit/test_settings_prod_refusal.py tests/unit/test_rc08_release_config.py -v
 ```
 Output:
 ```text
-tests/unit/test_settings.py::test_production_settings_flag PASSED        [  9%]
-tests/unit/test_settings.py::test_production_requires_env_prod PASSED    [ 18%]
-tests/unit/test_settings.py::test_development_defaults PASSED            [ 27%]
-tests/unit/test_settings_prod_refusal.py::test_prod_accepts_valid_production_config PASSED [ 36%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_memory_repo PASSED [ 45%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_local_storage PASSED [ 54%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_missing_s3_bucket PASSED [ 63%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_local_auth_mode PASSED [ 72%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_mock_tryon_provider PASSED [ 81%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_wildcard_cors PASSED [ 90%]
-tests/unit/test_settings_prod_refusal.py::test_prod_refuses_fashn_selfhost PASSED [100%]
-
-============================= 11 passed in 3.20s ==============================
+============================= 57 passed in 8.89s ==============================
 ```
 
-### 2.3 Unit Test Execution: Release Config Security Invariants
+### 2.3 Consolidated Project Test Execution
 ```powershell
-python -m pytest tests/unit/test_rc08_release_config.py -v
+python -m pytest tests/core/ tests/infrastructure/ tests/unit/test_settings.py tests/unit/test_settings_prod_refusal.py tests/unit/test_rc08_release_config.py -v
 ```
 Output:
 ```text
-tests/unit/test_rc08_release_config.py::test_valid_production_configuration PASSED [  7%]
-tests/unit/test_rc08_release_config.py::test_production_rejects_local_auth PASSED [ 15%]
-tests/unit/test_rc08_release_config.py::test_production_rejects_debug PASSED [ 23%]
-tests/unit/test_rc08_release_config.py::test_production_rejects_local_storage PASSED [ 30%]
-tests/unit/test_rc08_release_config.py::test_production_rejects_mock_tryon PASSED [ 38%]
-tests/unit/test_rc08_release_config.py::test_production_rejects_empty_or_wildcard_cors PASSED [ 46%]
-tests/unit/test_rc08_release_config.py::test_production_requires_https_cors PASSED [ 53%]
-tests/unit/test_rc08_release_config.py::test_valid_staging_configuration PASSED [ 61%]
-tests/unit/test_rc08_release_config.py::test_staging_rejects_local_auth PASSED [ 69%]
-tests/unit/test_rc08_release_config.py::test_staging_rejects_debug PASSED [ 76%]
-tests/unit/test_rc08_release_config.py::test_invalid_app_env PASSED      [ 84%]
-tests/unit/test_rc08_release_config.py::test_invalid_database_scheme PASSED [ 92%]
-tests/unit/test_rc08_release_config.py::test_invalid_redis_scheme PASSED [100%]
-
-============================= 13 passed in 3.16s ==============================
+======================= 97 passed, 2 skipped in 21.80s ========================
 ```
 
-### 2.4 Unit Test Execution: Database Isolation & S3 Storage IAM
+### 2.4 Code Linting & Static Typing
 ```powershell
-python -m pytest tests/core/test_database_environment_isolation.py tests/core/test_s3_storage_iam.py -v
-```
-Output:
-```text
-tests/core/test_database_environment_isolation.py::test_database_identity_parsing PASSED [ 14%]
-tests/core/test_database_environment_isolation.py::test_environment_database_identities_are_distinct PASSED [ 28%]
-tests/core/test_database_environment_isolation.py::test_development_and_staging_database_are_distinct_env SKIPPED [ 42%]
-tests/core/test_database_environment_isolation.py::test_staging_and_production_database_are_distinct_env SKIPPED [ 57%]
-tests/core/test_s3_storage_iam.py::test_s3_storage_initializes_with_none_credentials_for_iam PASSED [ 71%]
-tests/core/test_s3_storage_iam.py::test_get_storage_passes_none_when_iam_role_enabled PASSED [ 85%]
-tests/core/test_s3_storage_iam.py::test_get_storage_passes_credentials_when_iam_role_disabled PASSED [100%]
-
-======================== 5 passed, 2 skipped in 3.17s =========================
-```
-
-### 2.5 Consolidated Environment & Release Verification
-```powershell
-python -m pytest tests/core/ tests/unit/test_settings.py tests/unit/test_settings_prod_refusal.py tests/unit/test_rc08_release_config.py -v
-```
-Output:
-```text
-======================== 49 passed, 2 skipped in 7.92s ========================
-```
-
-### 2.6 Code Linting & Static Typing
-```powershell
-python -m ruff check tests/core/ tests/unit/ backend/fashx/core/
+python -m ruff check backend/fashx/core/settings.py backend/fashx/core/database.py tests/core/test_deployment_environments.py tests/core/test_s3_storage_iam.py
 ```
 Output:
 ```text
@@ -149,14 +92,14 @@ All checks passed!
 ```
 
 ```powershell
-python -m mypy tests/core/test_database_environment_isolation.py tests/core/test_s3_storage_iam.py tests/core/test_environment_settings.py
+python -m mypy backend/fashx/core/settings.py backend/fashx/core/database.py tests/core/test_deployment_environments.py tests/core/test_s3_storage_iam.py
 ```
 Output:
 ```text
-Success: no issues found in 3 source files
+Success: no issues found in 4 source files
 ```
 
-### 2.7 Documentation Linter
+### 2.5 Documentation Linter
 ```powershell
 python scripts/docs_lint.py
 ```
@@ -171,32 +114,34 @@ docs lint ok
 
 | Deliverable Path | Description |
 | :--- | :--- |
-| `.env.development.example` | Local development configuration template |
-| `.env.development.cloud.example` | Shared cloud development configuration template |
-| `.env.staging.example` | Staging release candidate configuration template |
-| `.env.production.example` | Production environment release contract template |
-| `.gitignore` | Hardened environment and secrets exclusion with example whitelist |
-| `docker-compose.yml` | Container names, localhost port bindings, Redis appendonly, init mount |
-| `infra/local/postgres-init/01-test-database.sql` | Automatic PostgreSQL test database initialization script |
-| `backend/fashx/core/settings.py` | Strict Environment Literals, consistency validator, fail-fast staging & prod rules |
-| `backend/fashx/core/dependencies.py` | Keyless IAM role storage resolution (`S3_USE_IAM_ROLE`) |
-| `backend/fashx/main.py` | Hosted environment release config validation on app startup |
-| `tests/core/test_environment_settings.py` | 20 unit tests for all environment invariants & permutations |
-| `tests/core/test_database_environment_isolation.py` | Database identity parser and environment isolation tests |
-| `tests/core/test_s3_storage_iam.py` | S3Storage and get_storage IAM role vs static credentials tests |
-| `tests/unit/test_settings_prod_refusal.py` | Updated prod refusal tests including `fashn_selfhost` refusal |
-| `docs/infrastructure/ENVIRONMENT_STRATEGY.md` | Four-environment architecture, separation invariant, promotion lifecycle |
-| `docs/infrastructure/ENVIRONMENT_MATRIX.md` | 11-dimension technical comparison matrix |
-| `docs/infrastructure/DATABASE_ISOLATION.md` | Database segregation, roles (`migration`, `app`, `readonly`), PITR, 8 acceptance checks |
-| `docs/infrastructure/OBJECT_STORAGE_ISOLATION.md` | Private bucket isolation, presigned URLs (300s TTL), IAM roles, ADR-0005 |
-| `docs/infrastructure/SECRETS_MANAGEMENT.md` | Secret hierarchy (`/fashx/<env>/*`), `SecretStr` masking, rotation runbooks |
-| `docs/infrastructure/NETWORK_SECURITY.md` | Ingress ALB/CloudFront topology, egress allowlist, SSRF protection |
-| `docs/infrastructure/RELEASE_PROMOTION.md` | Immutable image promotion, expand-and-contract migrations, promotion checklist |
-| `docs/infrastructure/PRODUCTION_ROLLBACK.md` | Rollback trigger thresholds, feature flag kill switches, container rollback runbook |
-| `docs/infrastructure/DISASTER_RECOVERY.md` | Multi-AZ architecture, backup lifecycle, monthly restore rehearsal protocol |
-| `docs/infrastructure/ENVIRONMENT_INVENTORY.csv` | Full inventory across all environments; cloud resources marked unprovisioned |
-| `.github/workflows/deploy-development.yml` | Dedicated development deployment workflow |
-| `.github/workflows/deploy-staging.yml` | Dedicated staging deployment workflow with migration and health checks |
-| `.github/workflows/deploy-production.yml` | Dedicated production deployment workflow with rolling update & smoke test |
+| `backend/fashx/core/settings.py` | Environment typing, `db_pool_timeout_s`, `db_ssl_ca_file`, and hosted invariant validators |
+| `backend/fashx/core/database.py` | Integrated SSL context using `db_ssl_ca_file` and connection pooling in `get_engine()` |
+| `backend/fashx/core/dependencies.py` | S3Storage integration with IAM task roles setting explicit keys to `None` |
+| `backend/fashx/main.py` | Startup `validate_release_config` hook inside application factory for hosted environments |
+| `Dockerfile` | Installed Amazon RDS global CA bundle and configured `ENV DB_SSL_CA_FILE` |
+| `docker-compose.yml` | Hardened local PostgreSQL and Redis port bindings to loopback `127.0.0.1` |
+| `.env.development.example` | Local development environment template with loopback bindings and CORS |
+| `.env.shared-development.example` | Shared development cloud environment template with S3 and JWKS |
+| `.env.staging.example` | Staging release candidate template with S3, JWKS, pool sizes, and RDS CA |
+| `.env.production.example` | Production environment template with S3, JWKS, pool sizes, and RDS CA |
+| `infra/aws/rds/storage.tf` | Terraform module provisioning 3 private S3 buckets with TLS denial and lifecycle rules |
+| `scripts/db/publish_database_url_secret.sh` | Shell script constructing and publishing `DATABASE_URL` secrets to AWS Secrets Manager |
+| `infra/aws/ecs/bootstrap.sh` | Shell script creating ECS clusters and CloudWatch log groups with 30-day retention |
+| `scripts/release/promote_ecs.sh` | Shell script promoting immutable ECR digest, running migrations, and updating ECS services |
+| `.github/workflows/build-release.yml` | GitHub Actions workflow building and pushing immutable images tagged with git SHA |
+| `.github/workflows/promote.yml` | GitHub Actions workflow promoting image digests with environment approvals |
+| `infra/aws/ecs/task-definitions/*.json.template` | Parameterized ECS task definition templates for API, workers, Beat, and migration |
+| `tests/core/test_deployment_environments.py` | Unit test suite for multi-environment deployment configurations |
+| `tests/core/test_s3_storage_iam.py` | Unit tests for S3 storage IAM role vs static credential behavior |
+| `docs/infrastructure/ENVIRONMENT_STRATEGY.md` | Core environment philosophy, architecture diagram, and 12 platform invariants |
+| `docs/infrastructure/ENVIRONMENT_MATRIX.md` | Comprehensive environment configuration matrix across all 4 environments |
+| `docs/infrastructure/ENVIRONMENT_INVENTORY.csv` | Inventory register of all cloud resources across environments |
+| `docs/infrastructure/DATABASE_ISOLATION.md` | Database separation architecture and access control specifications |
+| `docs/infrastructure/OBJECT_STORAGE_ISOLATION.md` | S3 bucket isolation, presigned URLs, and IAM task role policies |
+| `docs/infrastructure/SECRETS_MANAGEMENT.md` | Secrets Manager namespaces, IAM read boundaries, and injection protocols |
+| `docs/infrastructure/NETWORK_SECURITY.md` | VPC layout, security group matrix, VPC endpoints, and external egress allowlists |
+| `docs/infrastructure/RELEASE_PROMOTION.md` | 15-step promotion lifecycle, immutable image digest flow, and schema migrations |
+| `docs/infrastructure/PRODUCTION_ROLLBACK.md` | Five-phase rollback framework, feature kill switches, and database recovery |
+| `docs/infrastructure/DISASTER_RECOVERY.md` | Disaster recovery runbook, RTO/RPO targets, and failover protocols |
 | `docs/logs/dev-log-phase03-1-define-environments.md` | Development log for Phase 03.1 |
-| `docs/logs/task-log-phase03-1-define-environments.md` | Task log with exact command execution evidence |
+| `docs/logs/task-log-phase03-1-define-environments.md` | Task log capturing exact execution command outputs |

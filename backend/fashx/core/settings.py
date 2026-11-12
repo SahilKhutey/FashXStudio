@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     db_pool_size: int = Field(default=5, validation_alias="DB_POOL_SIZE")
     db_max_overflow: int = Field(default=5, validation_alias="DB_MAX_OVERFLOW")
     db_pool_timeout: int = Field(default=20, validation_alias="DB_POOL_TIMEOUT")
+    db_pool_timeout_s: int = Field(default=20, validation_alias="DB_POOL_TIMEOUT_S")
+    db_ssl_ca_file: str | None = Field(default=None, validation_alias="DB_SSL_CA_FILE")
     redis_url: str = Field(default="redis://localhost:6379/0", validation_alias="REDIS_URL")
     redis_max_connections: int = Field(default=20, validation_alias="REDIS_MAX_CONNECTIONS")
     redis_socket_timeout: float = Field(default=5.0, validation_alias="REDIS_SOCKET_TIMEOUT")
@@ -209,6 +211,12 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "staging requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)"
                 )
+            if self.s3_use_iam_role and (
+                self.s3_access_key_id or self.s3_secret_access_key
+            ):
+                raise ValueError(
+                    "Do not configure static S3 credentials when using ECS task roles"
+                )
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("staging requires AUTH_MODE=jwks and AUTH_JWKS_URL")
             if not self.cors_origins:
@@ -229,6 +237,12 @@ class Settings(BaseSettings):
             ):
                 raise ValueError(
                     "prod requires S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY (or S3_USE_IAM_ROLE=true)"
+                )
+            if self.s3_use_iam_role and (
+                self.s3_access_key_id or self.s3_secret_access_key
+            ):
+                raise ValueError(
+                    "Do not configure static S3 credentials when using ECS task roles"
                 )
             if self.auth_mode != "jwks" or not self.auth_jwks_url:
                 raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")

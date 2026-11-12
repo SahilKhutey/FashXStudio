@@ -1,16 +1,4 @@
-environment,service,resource_name,provider,region,network_visibility,secret_namespace,backup_policy,status,last_verified
-local,api,fashx-local-api,local,local,localhost,local-env,none,planned,
-local,postgres,fashx-local-db,docker,local,localhost,local-env,local-volume,planned,
-local,redis,fashx-local-redis,docker,local,localhost,local-env,local-volume,planned,
-development,api,fashx-dev-api,AWS ECS,ap-south-1,private,fashx/dev,none,unprovisioned,
-development,postgres,fashx-dev-db,AWS RDS,ap-south-1,private,fashx/dev,daily,unprovisioned,
-development,redis,fashx-dev-redis,AWS ElastiCache,ap-south-1,private,fashx/dev,provider-policy,unprovisioned,
-development,storage,fashx-dev-media-private,AWS S3,ap-south-1,private,fashx/dev,lifecycle,unprovisioned,
-staging,api,fashx-staging-api,AWS ECS,ap-south-1,private,fashx/staging,none,unprovisioned,
-staging,postgres,fashx-staging-db,AWS RDS,ap-south-1,private,fashx/staging,daily,unprovisioned,
-staging,redis,fashx-staging-redis,AWS ElastiCache,ap-south-1,private,fashx/staging,provider-policy,unprovisioned,
-staging,storage,fashx-staging-media-private,AWS S3,ap-south-1,private,fashx/staging,lifecycle,unprovisioned,
-production,api,fashx-prod-api,AWS ECS,ap-south-1,private,fashx/prod,none,unprovisioned,
-production,postgres,fashx-prod-db,AWS RDS,ap-south-1,private,fashx/prod,pitr,unprovisioned,
-production,redis,fashx-prod-redis,AWS ElastiCache,ap-south-1,private,fashx/prod,provider-policy,unprovisioned,
-production,storage,fashx-prod-media-private,AWS S3,ap-south-1,private,fashx/prod,lifecycle,unprovisioned,
+environment,region,ecs_cluster,rds_instance,s3_bucket,secrets_prefix,redis_resource,public_api,status
+development,ap-south-1,fashx-dev,fashx-pg-dev,fashx-dev-private-ACCOUNTID,fashx/dev/,fashx-redis-dev,restricted,planned
+staging,ap-south-1,fashx-staging,fashx-pg-staging,fashx-staging-private-ACCOUNTID,fashx/staging/,fashx-redis-staging,https,planned
+production,ap-south-1,fashx-prod,fashx-pg-prod,fashx-prod-private-ACCOUNTID,fashx/prod/,fashx-redis-prod,https,planned

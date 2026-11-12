@@ -24,24 +24,24 @@ def test_s3_storage_initializes_with_none_credentials_for_iam():
 
 def test_get_storage_passes_none_when_iam_role_enabled():
     mock_settings = Settings(
-        ENV="staging",
-        APP_ENV="staging",
+        ENV="dev",
+        APP_ENV="development",
         REPO_BACKEND="sql",
         STORAGE_BACKEND="s3",
-        S3_BUCKET="fashx-staging-media-private",
+        S3_BUCKET="fashx-dev-media-private",
         S3_USE_IAM_ROLE=True,
         S3_ACCESS_KEY_ID=SecretStr("static-key-ignored"),
         S3_SECRET_ACCESS_KEY=SecretStr("static-secret-ignored"),
         AUTH_MODE="jwks",
-        AUTH_JWKS_URL="https://auth.staging.example.com/.well-known/jwks.json",
-        CORS_ORIGINS=["https://staging.fashx.com"],
+        AUTH_JWKS_URL="https://auth.dev.example.com/.well-known/jwks.json",
+        CORS_ORIGINS=["http://localhost:8081"],
     )
 
     with patch("fashx.core.settings.get_settings", return_value=mock_settings):
         with patch("boto3.client") as mock_client:
             storage = get_storage()
             assert isinstance(storage, S3Storage)
-            assert storage._b == "fashx-staging-media-private"
+            assert storage._b == "fashx-dev-media-private"
             _, kwargs = mock_client.call_args
             assert kwargs["aws_access_key_id"] is None
             assert kwargs["aws_secret_access_key"] is None

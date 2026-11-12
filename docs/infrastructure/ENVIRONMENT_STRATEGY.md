@@ -61,7 +61,21 @@ flowchart LR
 
 ## 3. Core Architectural Invariants
 
-The backend enforces strict configuration invariants in code via `backend/fashx/core/settings.py` and `backend/fashx/core/release_config.py`:
+### 3.1 Twelve Platform Invariants
+1. Each environment has a separate database.
+2. Each environment has a separate S3 bucket.
+3. Each environment has separate runtime secrets.
+4. Each environment has separate IAM task roles.
+5. Each environment has a separate Redis endpoint/credential.
+6. No non-production workload may access production data.
+7. Production tasks run in private subnets.
+8. Production storage is private and encrypted.
+9. Production authentication uses JWKS.
+10. Production deployments require approval.
+11. All deployments use immutable image digests.
+12. Production rollback restores application task definitions, not automatically the database schema.
+
+### 3.2 Configuration Matrix & Enforcement Layers
 
 | Invariant Area | Local / Dev | Staging | Production | Enforcement Layer |
 | :--- | :--- | :--- | :--- | :--- |
