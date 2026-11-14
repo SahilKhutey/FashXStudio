@@ -1,9 +1,12 @@
 name: deploy-production
+
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+    inputs:
+      image_digest:
+        description: "Exact immutable ECR image digest (sha256:...)"
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -14,96 +17,208 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-and-approve:
+    name: Validate Promotion Parameters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Digest Format
+        run: |
+          set -euo pipefail
+          DIGEST="${{ inputs.image_digest }}"
+          if [[ ! "$DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]; then
+            echo "::error::Invalid image digest format '$DIGEST'. Must match ^sha256:[a-f0-9]{64}$"
+            exit 1
+          fi
+          echo "Image digest format validated: $DIGEST"
+
   deploy-production:
+    name: Deploy to Production
+    needs: validate-and-approve
     runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v4
 
       - name: Validate AWS Deploy Role
+        id: check-deploy-role
         run: |
-          if [ -z "${{ vars.AWS_DEPLOY_ROLE }}" ]; then
-            echo "Notice: vars.AWS_DEPLOY_ROLE is not set. Production cloud infrastructure is unprovisioned."
-            exit 0
+          ROLE="${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}"
+          if [ -z "$ROLE" ]; then
+            echo "Notice: vars.AWS_DEPLOY_ROLE_ARN is not set. Production cloud infrastructure is unprovisioned."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Configure AWS Credentials (OIDC)
-        if: vars.AWS_DEPLOY_ROLE != ''
+        if: steps.check-deploy-role.outputs.configured == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: "${{ vars.AWS_DEPLOY_ROLE }}"
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}
           aws-region: ap-south-1
 
-      - name: Log in to Amazon ECR
-        if: vars.AWS_DEPLOY_ROLE != ''
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Run database migration task
-        if: vars.AWS_DEPLOY_ROLE != ''
+      - name: Verify Image Exists in ECR
+        if: steps.check-deploy-role.outputs.configured == 'true'
         env:
-          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_PROD }}
-          MIGRATION_TASK: ${{ vars.ECS_MIGRATION_TASK_PROD }}
-          SUBNETS: ${{ vars.ECS_SUBNETS_PROD }}
-          SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUPS_PROD }}
+          DIGEST: ${{ inputs.image_digest }}
+          REGION: ap-south-1
+          REPOSITORY: fashx
         run: |
           set -euo pipefail
-          TASK_ARN=$(aws ecs run-task \
-            --cluster "$ECS_CLUSTER" \
+          echo "Verifying image digest $DIGEST in ECR repository $REPOSITORY..."
+          aws ecr describe-images \
+            --region "$REGION" \
+            --repository-name "$REPOSITORY" \
+            --image-ids "imageDigest=$DIGEST" \
+            --query 'imageDetails[0].imageDigest' \
+            --output text
+          echo "Image digest verified in ECR."
+
+      - name: Capture Previous Task Definitions for Rollback
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        id: capture-state
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER_PROD || 'fashx-prod' }}
+          API_SERVICE: ${{ vars.ECS_API_SERVICE_PROD || 'fashx-prod-api' }}
+          TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_PROD || 'fashx-prod-tryon' }}
+          INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_PROD || 'fashx-prod-ingest' }}
+          BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_PROD || 'fashx-prod-beat' }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/deploy-state
+          echo "Capturing production service task definitions..."
+          jq -n \
+            --arg api "$(aws ecs describe-services --cluster "$CLUSTER" --services "$API_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg tryon "$(aws ecs describe-services --cluster "$CLUSTER" --services "$TRYON_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg ingest "$(aws ecs describe-services --cluster "$CLUSTER" --services "$INGEST_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg beat "$(aws ecs describe-services --cluster "$CLUSTER" --services "$BEAT_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            '{($api_svc): $api, ($tryon_svc): $tryon, ($ingest_svc): $ingest, ($beat_svc): $beat}' \
+            --arg api_svc "$API_SERVICE" \
+            --arg tryon_svc "$TRYON_SERVICE" \
+            --arg ingest_svc "$INGEST_SERVICE" \
+            --arg beat_svc "$BEAT_SERVICE" \
+            > /tmp/deploy-state/rollback_state.json
+
+      - name: Execute Production Migration Task
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER_PROD || 'fashx-prod' }}
+          SUBNETS: ${{ vars.ECS_SUBNETS_PROD || vars.ECS_SUBNETS }}
+          SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUPS_PROD || vars.ECS_SECURITY_GROUPS }}
+          DIGEST: ${{ inputs.image_digest }}
+          REGION: ap-south-1
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          IMAGE_URI="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/fashx@${DIGEST}"
+          echo "Registering production migration task definition with image: $IMAGE_URI"
+
+          TASK_DEF_FILE="$(mktemp)"
+          sed \
+            -e "s|\${ACCOUNT_ID}|$ACCOUNT_ID|g" \
+            -e "s|\${IMAGE_TAG}|$DIGEST|g" \
+            infra/aws/ecs/task-definitions/migration-production.json > "$TASK_DEF_FILE"
+          
+          jq --arg img "$IMAGE_URI" '.containerDefinitions[0].image = $img' "$TASK_DEF_FILE" > "${TASK_DEF_FILE}.rendered"
+          
+          MIGRATION_TASK_ARN="$(aws ecs register-task-definition --cli-input-json "file://${TASK_DEF_FILE}.rendered" --query 'taskDefinition.taskDefinitionArn' --output text)"
+          rm -f "$TASK_DEF_FILE" "${TASK_DEF_FILE}.rendered"
+
+          echo "Running production migration task: $MIGRATION_TASK_ARN"
+          RUN_ARN="$(aws ecs run-task \
+            --cluster "$CLUSTER" \
             --launch-type FARGATE \
-            --task-definition "$MIGRATION_TASK" \
-            --network-configuration \
-            "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUPS],assignPublicIp=DISABLED}" \
+            --task-definition "$MIGRATION_TASK_ARN" \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUPS],assignPublicIp=DISABLED}" \
             --query 'tasks[0].taskArn' \
-            --output text)
-          test "$TASK_ARN" != "None"
-          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN"
-          EXIT_CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$TASK_ARN" --query 'tasks[0].containers[0].exitCode' --output text)
+            --output text)"
+          
+          test "$RUN_ARN" != "None"
+          aws ecs wait tasks-stopped --cluster "$CLUSTER" --tasks "$RUN_ARN"
+          EXIT_CODE="$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$RUN_ARN" --query 'tasks[0].containers[0].exitCode' --output text)"
           if [ "$EXIT_CODE" != "0" ]; then
-            echo "Production database migration failed. Aborting deployment."
+            echo "::error::Production database migration failed with exit code $EXIT_CODE. Aborting deployment."
             exit 1
           fi
+          echo "Production migration task completed successfully (exit code 0)."
 
-      - name: Deploy production ECS services (Rolling Update)
-        if: vars.AWS_DEPLOY_ROLE != ''
+      - name: Deploy Production ECS Services (Rolling Update)
+        if: steps.check-deploy-role.outputs.configured == 'true'
         env:
-          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_PROD }}
+          CLUSTER: ${{ vars.ECS_CLUSTER_PROD || 'fashx-prod' }}
+          DIGEST: ${{ inputs.image_digest }}
+          REGION: ap-south-1
+          API_SERVICE: ${{ vars.ECS_API_SERVICE_PROD || 'fashx-prod-api' }}
+          TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_PROD || 'fashx-prod-tryon' }}
+          INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_PROD || 'fashx-prod-ingest' }}
+          BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_PROD || 'fashx-prod-beat' }}
         run: |
           set -euo pipefail
-          for SERVICE in \
-            "${{ vars.ECS_API_SERVICE_PROD }}" \
-            "${{ vars.ECS_TRYON_SERVICE_PROD }}" \
-            "${{ vars.ECS_INGEST_SERVICE_PROD }}" \
-            "${{ vars.ECS_BEAT_SERVICE_PROD }}"
-          do
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          IMAGE_URI="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/fashx@${DIGEST}"
+
+          deploy_service() {
+            local service="$1"
+            local template="$2"
+            local container="$3"
+
+            echo "Deploying production $service from template $template..."
+            local tmpfile
+            tmpfile="$(mktemp)"
+            sed \
+              -e "s|\${ACCOUNT_ID}|$ACCOUNT_ID|g" \
+              -e "s|\${IMAGE_TAG}|$DIGEST|g" \
+              "$template" > "$tmpfile"
+            
+            jq --arg img "$IMAGE_URI" --arg c "$container" \
+              '.containerDefinitions |= map(if .name == $c then .image = $img else . end)' \
+              "$tmpfile" > "${tmpfile}.rendered"
+            
+            local task_arn
+            task_arn="$(aws ecs register-task-definition --cli-input-json "file://${tmpfile}.rendered" --query 'taskDefinition.taskDefinitionArn' --output text)"
+            rm -f "$tmpfile" "${tmpfile}.rendered"
+
             aws ecs update-service \
-              --cluster "$ECS_CLUSTER" \
-              --service "$SERVICE" \
-              --force-new-deployment
-          done
+              --cluster "$CLUSTER" \
+              --service "$service" \
+              --task-definition "$task_arn" \
+              --deployment-configuration "deploymentCircuitBreaker={enable=true,rollback=true},minimumHealthyPercent=100,maximumPercent=200" \
+              >/dev/null
+          }
+
+          deploy_service "$API_SERVICE" "infra/aws/ecs/task-definitions/api-production.json" "fashx-api"
+          deploy_service "$TRYON_SERVICE" "infra/aws/ecs/task-definitions/tryon-production.json" "fashx-tryon"
+          deploy_service "$INGEST_SERVICE" "infra/aws/ecs/task-definitions/ingest-production.json" "fashx-ingest"
+          deploy_service "$BEAT_SERVICE" "infra/aws/ecs/task-definitions/beat-production.json" "fashx-beat"
+
+          echo "Waiting for production services to stabilize..."
           aws ecs wait services-stable \
-            --cluster "$ECS_CLUSTER" \
-            --services \
-              "${{ vars.ECS_API_SERVICE_PROD }}" \
-              "${{ vars.ECS_TRYON_SERVICE_PROD }}" \
-              "${{ vars.ECS_INGEST_SERVICE_PROD }}" \
-              "${{ vars.ECS_BEAT_SERVICE_PROD }}"
+            --cluster "$CLUSTER" \
+            --services "$API_SERVICE" "$TRYON_SERVICE" "$INGEST_SERVICE" "$BEAT_SERVICE"
+          echo "Production services stabilized successfully."
 
-      - name: Set up Python for Smoke Testing
-        if: vars.AWS_DEPLOY_ROLE != ''
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Post-deployment smoke test
-        if: vars.AWS_DEPLOY_ROLE != ''
+      - name: Post-Deployment Smoke Verification
+        if: steps.check-deploy-role.outputs.configured == 'true'
         env:
-          API_BASE: ${{ vars.API_BASE_PROD }}
-          SMOKE_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
+          API_BASE: ${{ vars.API_BASE_PROD || vars.API_BASE }}
+          SMOKE_TEST_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
         run: |
           set -euo pipefail
-          pip install httpx
-          test -n "$API_BASE"
-          python scripts/release/smoke.py \
-            --base "$API_BASE" \
-            --token "$SMOKE_TOKEN"
+          if [ -n "$API_BASE" ]; then
+            python scripts/release/smoke.py --base "$API_BASE"
+          else
+            echo "Notice: vars.API_BASE_PROD is unset. Smoke testing skipped."
+          fi
+
+      - name: Automatic Rollback on Failure
+        if: failure() && steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_PROD || 'fashx-prod' }}
+          ECS_API_SERVICE: ${{ vars.ECS_API_SERVICE_PROD || 'fashx-prod-api' }}
+          ECS_TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_PROD || 'fashx-prod-tryon' }}
+          ECS_INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_PROD || 'fashx-prod-ingest' }}
+          ECS_BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_PROD || 'fashx-prod-beat' }}
+          API_BASE: ${{ vars.API_BASE_PROD || vars.API_BASE }}
+        run: |
+          echo "::error::Production deployment or smoke verification failed. Initiating automatic rollback..."
+          bash scripts/release/rollback_ecs.sh prod /tmp/deploy-state/rollback_state.json

@@ -87,7 +87,7 @@ register_task_definition() {
     --arg image "$IMAGE_URI" \
     --arg container "$container_name" '
       .containerDefinitions |= map(
-        if .name == $container then .image = $image else . end
+        if (.name == $container or .name == ("fashx-" + $container) or ($container == "worker" and (.name == "fashx-tryon" or .name == "fashx-ingest")) or ($container == "migration" and .name == "fashx-migrate")) then .image = $image else . end
       )
       | del(
         .taskDefinitionArn,
