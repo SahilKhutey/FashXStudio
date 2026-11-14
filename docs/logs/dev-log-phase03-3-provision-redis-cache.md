@@ -67,3 +67,19 @@ Phase 03.2 established the PostgreSQL relational and vector persistence tier. Ph
 
 ### F. Architectural Documentation (`docs/infrastructure/`)
 - Published `AWS_ELASTICACHE_ARCHITECTURE.md` alongside 9 Redis specifications and cluster inventory register.
+
+### G. Phase 03.3 Detailed Worker Reliability & Dead-Letter Subsystem (Tasks 3.3.1 - 3.3.13)
+- **Queue Topology**: Standardized `tryon`, `ingest`, and `maintenance` queues on direct exchange `fashx` in `backend/fashx/workers/queue_config.py`.
+- **Worker Timeouts & Concurrency**: Configured soft/hard limits (VTO: 105s/115s, Ingest: 480s/600s, Enrich: 240s/300s, Outbox: 45s/60s, Sweep: 120s/150s, Retention: 480s/600s), concurrency 1 for heavy GPU/CPU VTO workers, and prefetch multiplier 1.
+- **Graceful Shutdown**: Added Celery warm shutdown (`worker_soft_shutdown_timeout=90.0`, `stopTimeout: 120` in ECS) with late acknowledgment (`task_acks_late=True`) and unacknowledged message requeue (`task_reject_on_worker_lost=True`).
+- **PostgreSQL Dead-Letter Queue**: Created table `worker_dead_letters` via Alembic migration `0033_add_worker_dead_letters.py`, mapped via `WorkerDeadLetter` in `database/models/operations.py`.
+- **Privacy Boundary**: Implemented `build_safe_payload` in `backend/fashx/workers/dead_letter.py` ensuring zero persistence of user photos, biometric measurements, signed URLs, or bearer tokens in dead-letter records.
+- **Automated Tests**: Added 15 automated tests in `tests/workers/` (`test_queue_configuration.py`, `test_dead_letter.py`, `test_worker_recovery.py`) all passing.
+- **Runbooks & Policies**: Published 7 canonical guides:
+  - `docs/infrastructure/REDIS_ARCHITECTURE.md`
+  - `docs/infrastructure/REDIS_ENVIRONMENT_SETUP.md`
+  - `docs/infrastructure/CELERY_QUEUE_DESIGN.md`
+  - `docs/infrastructure/WORKER_RETRY_POLICY.md`
+  - `docs/infrastructure/WORKER_DEAD_LETTER_POLICY.md`
+  - `docs/infrastructure/WORKER_SHUTDOWN_AND_RECOVERY.md`
+  - `docs/infrastructure/WORKER_OPERATIONS_RUNBOOK.md`

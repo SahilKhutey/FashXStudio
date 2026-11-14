@@ -244,5 +244,100 @@ docs lint ok
 | `docs/infrastructure/REDIS_BACKUP_AND_RESTORE.md` | Automated daily snapshot policies and point-in-time restore protocols |
 | `docs/infrastructure/REDIS_OPERATIONS_RUNBOOK.md` | CloudWatch alert thresholds, node failover drills, and memory incident response |
 | `docs/infrastructure/REDIS_CLUSTER_INVENTORY.csv` | Inventory register of Redis clusters with `planned` status |
+| `docs/infrastructure/REDIS_ARCHITECTURE.md` | Architecture specification, Valkey engine, isolation, and security |
+| `docs/infrastructure/REDIS_ENVIRONMENT_SETUP.md` | Step-by-step AWS provisioning runbook for dev, staging, prod |
+| `docs/infrastructure/CELERY_QUEUE_DESIGN.md` | Queue topology, workload mapping, and routing rules |
+| `docs/infrastructure/WORKER_RETRY_POLICY.md` | Retryable vs non-retryable errors, backoff schedule, and max retries |
+| `docs/infrastructure/WORKER_DEAD_LETTER_POLICY.md` | PostgreSQL dead-letter schema, safe payload rules, and operator replay protocol |
+| `docs/infrastructure/WORKER_SHUTDOWN_AND_RECOVERY.md` | ECS stopTimeout (120s), Celery soft shutdown (90s), and recovery procedures |
+| `docs/infrastructure/WORKER_OPERATIONS_RUNBOOK.md` | CloudWatch alarms, queue inspection commands, and incident response |
 | `docs/logs/dev-log-phase03-3-provision-redis-cache.md` | Development log for Phase 03.3 |
 | `docs/logs/task-log-phase03-3-provision-redis-cache.md` | Task log with exact command execution evidence |
+
+---
+
+## 4. Phase 03.3 Detailed Implementation & Reliability Controls (Tasks 3.3.1 - 3.3.13)
+
+### 4.1 Implementation Scope
+1. **3.3.1 - 3.3.5: Managed Hosting, Instances, Authentication & Network**
+   - Codified `infra/aws/elasticache/provision_redis.sh` supporting `dev`, `staging`, and `prod` with Valkey/Redis 7.1, in-transit TLS encryption, private subnet groups, security groups, and automated publishing of `rediss://` connection URL to AWS Secrets Manager (`fashx/${ENVIRONMENT}/redis/url`).
+2. **3.3.6: Job Queue Names & Routing**
+   - Declared explicit queues (`tryon`, `ingest`, `maintenance`) and direct exchange (`fashx`) in `backend/fashx/workers/queue_config.py`.
+3. **3.3.7 - 3.3.8: Retry Policies & Maximum Retry Count**
+   - Configured retry boundaries: VTO (3 retries, exponential backoff with jitter), Ingest (3 retries), Enrich (2 retries), Outbox relay (5 retries), Storage sweep (3 retries), Retention (2 retries).
+   - Classified transient retryable exceptions (`ConnectionError`, `TimeoutError`, `httpx.TimeoutException`, `httpx.TransportError`) vs non-retryable exceptions (`ValueError`, `TypeError`).
+4. **3.3.9: Dead-Letter Handling & Schema**
+   - Created model `WorkerDeadLetter` in `database/models/operations.py` and Alembic migration `0033_add_worker_dead_letters.py`.
+   - Created `backend/fashx/workers/dead_letter.py` with privacy boundary (`build_safe_payload`) ensuring zero storage of biometric, photo, presigned S3 URLs, or auth tokens.
+   - Implemented `FashxTask(Task)` custom Celery base class with `on_failure` callback persisting failure records into PostgreSQL.
+5. **3.3.10: Job Timeouts**
+   - Enforced task soft/hard execution time limits: VTO (105s/115s), Ingest (480s/600s), Enrich (240s/300s), Outbox (45s/60s), Sweep (120s/150s), Retention (480s/600s).
+   - Visibility timeout configured to 300 seconds to exceed task runtimes.
+6. **3.3.11 - 3.3.12: Worker Concurrency & Graceful Shutdown**
+   - Concurrency set to 1 for compute-heavy worker containers (`tryon`).
+   - Configured Celery warm shutdown (`worker_soft_shutdown_timeout=90.0`, `stopTimeout: 120` in ECS task definitions).
+7. **3.3.13: Worker Recovery & Verification**
+   - Authored automated tests in `tests/workers/`:
+     - `test_queue_configuration.py`
+     - `test_dead_letter.py`
+     - `test_worker_recovery.py`
+   - Published 7 canonical architecture, runbook, and policy guides in `docs/infrastructure/`:
+     - `REDIS_ARCHITECTURE.md`
+     - `REDIS_ENVIRONMENT_SETUP.md`
+     - `CELERY_QUEUE_DESIGN.md`
+     - `WORKER_RETRY_POLICY.md`
+     - `WORKER_DEAD_LETTER_POLICY.md`
+     - `WORKER_SHUTDOWN_AND_RECOVERY.md`
+     - `WORKER_OPERATIONS_RUNBOOK.md`
+
+### 4.2 Test Suite Execution Evidence
+```powershell
+python -m pytest tests/workers/ tests/infrastructure/test_redis_caching_and_queue.py tests/unit/test_mvp6_privacy_reliability_deployment.py -k "worker or celery" -v
+```
+Output:
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe
+hypothesis profile 'default'
+rootdir: C:\Users\ASUS\Documents\FashXStudio
+configfile: pytest.ini
+plugins: anyio-4.12.1, hypothesis-6.156.6, langsmith-0.14.4, asyncio-1.4.0, cov-7.1.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 28 items / 6 deselected / 22 selected
+
+tests/workers/test_dead_letter.py::test_build_safe_payload_extracts_approved_identifiers PASSED [  4%]
+tests/workers/test_dead_letter.py::test_build_safe_payload_filters_sensitive_urls_and_tokens PASSED [  9%]
+tests/workers/test_dead_letter.py::test_build_safe_payload_unknown_task_returns_empty PASSED [ 13%]
+tests/workers/test_dead_letter.py::test_persist_dead_letter_async_inserts_new_record PASSED [ 18%]
+tests/workers/test_dead_letter.py::test_persist_dead_letter_async_updates_existing_record PASSED [ 22%]
+tests/workers/test_dead_letter.py::test_persist_dead_letter_sync_catches_and_logs_database_error PASSED [ 27%]
+tests/workers/test_queue_configuration.py::test_exchange_configuration PASSED [ 31%]
+tests/workers/test_queue_configuration.py::test_queue_definitions PASSED [ 36%]
+tests/workers/test_queue_configuration.py::test_task_routes_mapping PASSED [ 40%]
+tests/workers/test_queue_configuration.py::test_celery_broker_reliability_settings PASSED [ 45%]
+tests/workers/test_worker_recovery.py::test_task_timeout_configurations PASSED [ 50%]
+tests/workers/test_worker_recovery.py::test_task_max_retries_configurations PASSED [ 54%]
+tests/workers/test_worker_recovery.py::test_worker_graceful_shutdown_configuration PASSED [ 59%]
+tests/workers/test_worker_recovery.py::test_fashx_task_on_failure_triggers_dead_letter_persistence PASSED [ 63%]
+tests/workers/test_worker_recovery.py::test_process_tryon_job_refuses_retry_on_non_retryable_value_error PASSED [ 68%]
+tests/infrastructure/test_redis_caching_and_queue.py::test_celery_task_routes_mapping PASSED [ 72%]
+tests/infrastructure/test_redis_caching_and_queue.py::test_celery_worker_reliability_policies PASSED [ 77%]
+tests/unit/test_mvp6_privacy_reliability_deployment.py::test_worker_tryon_job_retry_on_transient_error PASSED [ 81%]
+tests/unit/test_mvp6_privacy_reliability_deployment.py::test_worker_ingest_feed_verifies_source_cleared PASSED [ 86%]
+tests/unit/test_mvp6_privacy_reliability_deployment.py::test_worker_enrich_garment_task_execution PASSED [ 90%]
+tests/unit/test_mvp6_privacy_reliability_deployment.py::test_worker_outbox_relay_and_erasure_sweeps PASSED [ 95%]
+tests/unit/test_mvp6_privacy_reliability_deployment.py::test_worker_retention_job_execution PASSED [100%]
+
+====================== 22 passed, 6 deselected in 7.49s =======================
+```
+
+### 4.3 Static Type & Code Quality Checks
+```powershell
+python -m ruff check backend/fashx/workers tests/workers
+python -m mypy backend/fashx/workers tests/workers
+```
+Outputs:
+```text
+All checks passed!
+Success: no issues found in 8 source files
+```

@@ -26,7 +26,7 @@ from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
 from .identity import ConsentEvent, ConsentRecord, User, UserPhoto
 from .media import MediaObject
-from .operations import IdempotencyRecord, OutboxMessageRecord
+from .operations import IdempotencyRecord, OutboxMessageRecord, WorkerDeadLetter
 from .pilot import (
     PilotFeedback,
     PilotInvite,
@@ -90,6 +90,7 @@ __all__ = [
     "TryOnUsage",
     "IdempotencyRecord",
     "OutboxMessageRecord",
+    "WorkerDeadLetter",
     "MediaObject",
     "FeedImpression",
     "FeedSignal",
