@@ -1,0 +1,49 @@
+{
+  "family": "fashx-prod-beat",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-prod-beat-execution",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-prod-app-task",
+  "containerDefinitions": [
+    {
+      "name": "fashx-beat",
+      "image": "${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/fashx:production-latest",
+      "essential": true,
+      "user": "10001",
+      "stopTimeout": 30,
+      "command": [
+        "celery",
+        "-A",
+        "fashx.workers.app:app",
+        "beat",
+        "--loglevel=INFO"
+      ],
+      "environment": [
+        {"name": "ENV", "value": "prod"},
+        {"name": "APP_ENV", "value": "prod"},
+        {"name": "REPO_BACKEND", "value": "sql"},
+        {"name": "STORAGE_BACKEND", "value": "s3"},
+        {"name": "S3_BUCKET", "value": "fashx-prod-private-${ACCOUNT_ID}"},
+        {"name": "S3_REGION", "value": "ap-south-1"},
+        {"name": "S3_USE_IAM_ROLE", "value": "true"},
+        {"name": "DB_SSL_CA_FILE", "value": "/etc/ssl/certs/aws-rds-global-bundle.pem"}
+      ],
+      "secrets": [
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/prod/redis/url"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/fashx/prod/beat",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

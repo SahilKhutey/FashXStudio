@@ -1,0 +1,24 @@
+# infra/aws/observability/cloudwatch/sns-topics.yaml
+# Amazon SNS alert notification topics for FashXStudio
+
+sns_topics:
+  - name: fashx-alerts-dev
+    display_name: "FashX Development Alerts"
+    kms_master_key_id: "alias/aws/sns"
+    subscriptions:
+      - protocol: email
+        endpoint: dev-alerts@fashxstudio.com
+
+  - name: fashx-alerts-staging
+    display_name: "FashX Staging Alerts"
+    kms_master_key_id: "alias/aws/sns"
+    subscriptions:
+      - protocol: email
+        endpoint: staging-alerts@fashxstudio.com
+
+  - name: fashx-alerts-production
+    display_name: "FashX Production Operational Incidents"
+    kms_master_key_id: "alias/aws/sns"
+    subscriptions:
+      - protocol: email
+        endpoint: ops@fashxstudio.com

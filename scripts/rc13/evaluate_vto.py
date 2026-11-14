@@ -1,4 +1,8 @@
-"""RC13 Virtual Try-On (VTO) Quality and Latency Evaluator."""
+"""RC13 Virtual Try-On (VTO) Quality and Latency Evaluator.
+
+Reconciled with docs/pilot/pilot-plan.md (M2, M3) and docs/release/gates.md (Gate G5).
+Distinguishes between contractual release gate ceilings and internal operational targets.
+"""
 from __future__ import annotations
 
 import argparse
@@ -18,10 +22,17 @@ DEFECT_TAGS: tuple[str, ...] = (
     "blur_defect",
 )
 
-MIN_COMPLETION_RATE = 0.95
-MAX_DEFECT_RATE = 0.15
-MAX_P95_LATENCY = 30.0
-MIN_MEAN_RATING = 3.50
+# Contractual Release Gate Standards (docs/pilot/pilot-plan.md M2/M3 & docs/release/gates.md G5)
+GATE_MIN_COMPLETION_RATE = 0.90   # >= 90.0% completion rate (pilot plan M3)
+GATE_MAX_DEFECT_RATE = 0.15       # <= 15.0% distinct defective jobs (pilot plan M2)
+GATE_MAX_P95_LATENCY = 45.0       # <= 45.0s end-to-end P95 latency (pilot plan M3 & gates.md G5)
+GATE_MIN_MEAN_RATING = 3.80       # >= 3.80 / 5.0 mean user rating (pilot plan M2)
+
+# Internal Operational Excellence Targets
+TARGET_MIN_COMPLETION_RATE = 0.95
+TARGET_MAX_DEFECT_RATE = 0.10
+TARGET_MAX_P95_LATENCY = 30.0
+TARGET_MIN_MEAN_RATING = 4.00
 
 
 class VTODecision(StrEnum):
@@ -33,6 +44,7 @@ class VTODecision(StrEnum):
 @dataclass(frozen=True)
 class VTOEvaluationResult:
     decision: VTODecision
+    meets_operational_targets: bool
     total_jobs: int
     completed_jobs: int
     defective_jobs_count: int
@@ -40,8 +52,9 @@ class VTOEvaluationResult:
     defect_job_rate: float | None
     p95_latency_seconds: float | None
     mean_rating: float | None
-    passed_checks: tuple[str, ...]
-    failed_checks: tuple[str, ...]
+    passed_gate_checks: tuple[str, ...]
+    failed_gate_checks: tuple[str, ...]
+    passed_operational_targets: tuple[str, ...]
     reasons: tuple[str, ...]
 
 
@@ -60,7 +73,7 @@ def calculate_percentile(values: list[float], p: float) -> float | None:
 def evaluate_vto_jobs(
     jobs: list[dict[str, Any]], require_real_provider: bool = True
 ) -> VTOEvaluationResult:
-    """Evaluates VTO jobs against quality, defect, and latency thresholds.
+    """Evaluates VTO jobs against reconciled gate criteria and operational targets.
 
     Deduplicates defects across jobs: a job with multiple defect flags counts as 1 defective job.
     Fails closed if mock/synthetic providers are passed when real provider is required.
@@ -68,6 +81,7 @@ def evaluate_vto_jobs(
     if not jobs:
         return VTOEvaluationResult(
             decision=VTODecision.HOLD,
+            meets_operational_targets=False,
             total_jobs=0,
             completed_jobs=0,
             defective_jobs_count=0,
@@ -75,8 +89,9 @@ def evaluate_vto_jobs(
             defect_job_rate=None,
             p95_latency_seconds=None,
             mean_rating=None,
-            passed_checks=(),
-            failed_checks=("no_jobs_provided",),
+            passed_gate_checks=(),
+            failed_gate_checks=("no_jobs_provided",),
+            passed_operational_targets=(),
             reasons=("empty_vto_job_list",),
         )
 
@@ -87,6 +102,7 @@ def evaluate_vto_jobs(
             if provider in {"mock", "synthetic", "test", ""} or is_synthetic:
                 return VTOEvaluationResult(
                     decision=VTODecision.HOLD,
+                    meets_operational_targets=False,
                     total_jobs=len(jobs),
                     completed_jobs=0,
                     defective_jobs_count=0,
@@ -94,8 +110,9 @@ def evaluate_vto_jobs(
                     defect_job_rate=None,
                     p95_latency_seconds=None,
                     mean_rating=None,
-                    passed_checks=(),
-                    failed_checks=("provider_validation",),
+                    passed_gate_checks=(),
+                    failed_gate_checks=("provider_validation",),
+                    passed_operational_targets=(),
                     reasons=(f"mock_or_synthetic_provider_detected_at_job_{idx}:{provider}",),
                 )
 
@@ -129,46 +146,57 @@ def evaluate_vto_jobs(
     ]
     avg_rating = mean(ratings) if ratings else None
 
-    passed_checks: list[str] = []
-    failed_checks: list[str] = []
+    passed_gate: list[str] = []
+    failed_gate: list[str] = []
+    passed_targets: list[str] = []
     reasons: list[str] = []
 
-    # Check 1: Completion rate >= 0.95
-    if completion_rate >= MIN_COMPLETION_RATE:
-        passed_checks.append("completion_rate")
+    # 1. Completion Rate (Gate: >= 0.90, Target: >= 0.95)
+    if completion_rate >= GATE_MIN_COMPLETION_RATE:
+        passed_gate.append("completion_rate")
+        if completion_rate >= TARGET_MIN_COMPLETION_RATE:
+            passed_targets.append("completion_rate")
     else:
-        failed_checks.append("completion_rate")
-        reasons.append(f"completion_rate_below_min:{completion_rate:.3f}<{MIN_COMPLETION_RATE}")
+        failed_gate.append("completion_rate")
+        reasons.append(f"completion_rate_below_gate:{completion_rate:.3f}<{GATE_MIN_COMPLETION_RATE}")
 
-    # Check 2: Defect rate <= 0.15
-    if defect_rate <= MAX_DEFECT_RATE:
-        passed_checks.append("defect_rate")
+    # 2. Defect Rate (Gate: <= 0.15, Target: <= 0.10)
+    if defect_rate <= GATE_MAX_DEFECT_RATE:
+        passed_gate.append("defect_rate")
+        if defect_rate <= TARGET_MAX_DEFECT_RATE:
+            passed_targets.append("defect_rate")
     else:
-        failed_checks.append("defect_rate")
-        reasons.append(f"defect_rate_exceeded:{defect_rate:.3f}>{MAX_DEFECT_RATE}")
+        failed_gate.append("defect_rate")
+        reasons.append(f"defect_rate_exceeded_gate:{defect_rate:.3f}>{GATE_MAX_DEFECT_RATE}")
 
-    # Check 3: P95 latency <= 30.0s
-    if p95_latency is not None and p95_latency <= MAX_P95_LATENCY:
-        passed_checks.append("p95_latency")
+    # 3. P95 Latency (Gate: <= 45.0s, Target: <= 30.0s)
+    if p95_latency is not None and p95_latency <= GATE_MAX_P95_LATENCY:
+        passed_gate.append("p95_latency")
+        if p95_latency <= TARGET_MAX_P95_LATENCY:
+            passed_targets.append("p95_latency")
     elif p95_latency is not None:
-        failed_checks.append("p95_latency")
-        reasons.append(f"p95_latency_exceeded:{p95_latency:.2f}>{MAX_P95_LATENCY}s")
+        failed_gate.append("p95_latency")
+        reasons.append(f"p95_latency_exceeded_gate:{p95_latency:.2f}>{GATE_MAX_P95_LATENCY}s")
     else:
-        failed_checks.append("p95_latency")
+        failed_gate.append("p95_latency")
         reasons.append("p95_latency_missing")
 
-    # Check 4: Rating >= 3.50 if present
+    # 4. Rating (Gate: >= 3.80, Target: >= 4.00 if present)
     if avg_rating is not None:
-        if avg_rating >= MIN_MEAN_RATING:
-            passed_checks.append("mean_rating")
+        if avg_rating >= GATE_MIN_MEAN_RATING:
+            passed_gate.append("mean_rating")
+            if avg_rating >= TARGET_MIN_MEAN_RATING:
+                passed_targets.append("mean_rating")
         else:
-            failed_checks.append("mean_rating")
-            reasons.append(f"mean_rating_below_min:{avg_rating:.2f}<{MIN_MEAN_RATING}")
+            failed_gate.append("mean_rating")
+            reasons.append(f"mean_rating_below_gate:{avg_rating:.2f}<{GATE_MIN_MEAN_RATING}")
 
-    decision = VTODecision.FAIL if failed_checks else VTODecision.PASS
+    decision = VTODecision.FAIL if failed_gate else VTODecision.PASS
+    meets_all_targets = len(passed_targets) == len(passed_gate) and not failed_gate
 
     return VTOEvaluationResult(
         decision=decision,
+        meets_operational_targets=meets_all_targets,
         total_jobs=total_jobs,
         completed_jobs=completed_count,
         defective_jobs_count=defective_count,
@@ -176,14 +204,15 @@ def evaluate_vto_jobs(
         defect_job_rate=defect_rate,
         p95_latency_seconds=p95_latency,
         mean_rating=avg_rating,
-        passed_checks=tuple(passed_checks),
-        failed_checks=tuple(failed_checks),
+        passed_gate_checks=tuple(passed_gate),
+        failed_gate_checks=tuple(failed_gate),
+        passed_operational_targets=tuple(passed_targets),
         reasons=tuple(reasons),
     )
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate RC13 VTO Jobs")
+    parser = argparse.ArgumentParser(description="Evaluate RC13 VTO Jobs (Reconciled Standards)")
     parser.add_argument("--input", type=Path, required=True, help="Path to VTO jobs JSON")
     parser.add_argument(
         "--allow-mock", action="store_true", help="Allow mock provider for testing"
@@ -198,9 +227,11 @@ def main() -> None:
     jobs = data if isinstance(data, list) else data.get("jobs", [])
     result = evaluate_vto_jobs(jobs, require_real_provider=not args.allow_mock)
     print(f"VTO EVALUATION DECISION: {result.decision.value.upper()}")
+    print(f"Meets Operational Targets (stricter): {result.meets_operational_targets}")
     print(f"Total Jobs: {result.total_jobs}, Completed: {result.completed_jobs}, Defective: {result.defective_jobs_count}")
-    print(f"Passed Checks: {list(result.passed_checks)}")
-    print(f"Failed Checks: {list(result.failed_checks)}")
+    print(f"Passed Gate Checks: {list(result.passed_gate_checks)}")
+    print(f"Failed Gate Checks: {list(result.failed_gate_checks)}")
+    print(f"Passed Operational Targets: {list(result.passed_operational_targets)}")
     if result.reasons:
         print("Reasons:")
         for r in result.reasons:

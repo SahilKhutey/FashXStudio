@@ -1,0 +1,5 @@
+cluster_id,environment,service,region,node_type,num_nodes,multi_az,transit_tls,at_rest_encryption,auth_mechanism,status
+fashx-redis-local,local,Docker Compose,localhost,container,1,false,false,false,none,planned
+fashx-redis-dev,development,AWS ElastiCache Redis,ap-south-1,cache.t4g.micro,1,false,false,false,none,planned
+fashx-redis-staging,staging,AWS ElastiCache Redis,ap-south-1,cache.t4g.small,2,false,true,true,secrets_manager_token,planned
+fashx-redis-prod,production,AWS ElastiCache Redis,ap-south-1,cache.r6g.large,3,true,true,true,secrets_manager_token,planned

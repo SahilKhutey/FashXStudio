@@ -5,12 +5,38 @@ import sys
 from datetime import UTC, datetime
 from typing import Any
 
+SENSITIVE_KEYS = {
+    "authorization",
+    "token",
+    "password",
+    "secret",
+    "api_key",
+    "bearer",
+    "cookie",
+    "set-cookie",
+    "database_url",
+    "redis_url",
+    "access_key",
+    "secret_access_key",
+    "fashn_api_key",
+    "signed_url",
+    "presigned_url",
+    "image_bytes",
+    "photo",
+    "body_measurements",
+    "skin_tone",
+    "email",
+    "phone",
+}
+
 _PATTERNS = [
     re.compile(r"eyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]{8,}"),  # JWT tokens
     re.compile(r"X-Amz-(Signature|Credential|Security-Token)=[^&\s\"']+", re.I),  # presigned URL parts
     re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"),  # Email addresses
     re.compile(r"data:image/[a-z]+;base64,[A-Za-z0-9+/=]{20,}"),  # Inline images
     re.compile(r"[A-Za-z0-9+/]{200,}={0,2}"),  # Long base64 / blob strings
+    re.compile(r"postgres(?:ql)?(?:\+[a-z0-9]+)?://[^:\s]+:[^@\s]+@[^\s/]+", re.I),  # DB URLs with credentials
+    re.compile(r"redis(?:s)?://[^:\s]+:[^@\s]+@[^\s/]+", re.I),  # Redis URLs with credentials
 ]
 
 
@@ -25,12 +51,12 @@ def scrub(v: Any) -> Any:
         return {
             k: (
                 "[redacted]"
-                if k.lower() in {"authorization", "token", "password", "secret", "api_key", "bearer"}
+                if str(k).lower() in SENSITIVE_KEYS
                 else scrub(x)
             )
             for k, x in v.items()
         }
-    if isinstance(v, (list, tuple)):
+    if isinstance(v, (list, tuple, set)):
         return type(v)(scrub(x) for x in v)
     return v
 
@@ -54,34 +80,48 @@ class JsonFormatter(logging.Formatter):
         payload: dict[str, Any] = {
             "timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
+            "service": getattr(record, "service", "fashx-api"),
+            "environment": getattr(record, "environment", "dev"),
+            "app_version": getattr(record, "app_version", "0.2.0"),
             "logger": record.name,
+            "event": getattr(record, "event", "log_message"),
             "message": record.msg,
         }
 
         # Include structured context fields if present
         context_keys = (
             "request_id",
+            "trace_id",
             "user_id",
-            "route_template",
-            "method",
-            "status",
-            "latency",
-            "per_stage_timings",
-            "ranker_version",
             "job_id",
             "vendor_job_id",
+            "method",
+            "route",
+            "route_template",
+            "status_code",
+            "status",
+            "duration_ms",
+            "latency",
             "error_code",
-            "app_version",
-            "trace_id",
+            "per_stage_timings",
+            "ranker_version",
             "pd_access",
         )
         for key in context_keys:
             val = getattr(record, key, None)
             if val is not None:
-                payload[key] = scrub(val)
+                # Map legacy aliases to standard schema
+                if key == "status" and "status_code" not in payload:
+                    payload["status_code"] = scrub(val)
+                elif key == "latency" and "duration_ms" not in payload:
+                    payload["duration_ms"] = scrub(val)
+                elif key == "route_template" and "route" not in payload:
+                    payload["route"] = scrub(val)
+                else:
+                    payload[key] = scrub(val)
 
         if record.exc_info:
-            payload["exception"] = self.formatException(record.exc_info)
+            payload["exception"] = scrub(self.formatException(record.exc_info))
 
         return json.dumps(payload, ensure_ascii=False)
 
@@ -93,6 +133,7 @@ def log_pd_access(actor: str, user_id: str, action: str, purpose: str) -> None:
         f"personal_data_access: {action} on {user_id}",
         extra={
             "user_id": str(user_id),
+            "event": "personal_data_access",
             "pd_access": {
                 "actor": actor,
                 "user_id": str(user_id),
@@ -113,3 +154,4 @@ def configure_logging(level: str = "INFO") -> None:
     handler.addFilter(RedactFilter())
     root.handlers.clear()
     root.addHandler(handler)
+

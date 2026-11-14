@@ -44,6 +44,8 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(items):
     for item in items:
         p = pathlib.Path(str(item.fspath))
+        if "integration" in p.parts:
+            item.add_marker(pytest.mark.integration)
         if (
             FROZEN_DIRS & set(p.parts)
             or p.name in FROZEN_FILES

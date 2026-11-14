@@ -68,5 +68,9 @@ def validate_release_config(config: ReleaseConfig) -> None:
             )
 
     if config.app_env == "production":
+        if parsed_redis.scheme != "rediss":
+            raise ValueError(
+                f"Production requires TLS-encrypted Redis connection (rediss://, got: {config.redis_url})"
+            )
         if config.tryon_provider == "mock":
             raise ValueError("Production requires approved real tryon_provider (mock forbidden)")

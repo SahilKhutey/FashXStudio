@@ -1,0 +1,67 @@
+{
+  "family": "fashx-prod-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-prod-api-execution",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-prod-app-task",
+  "containerDefinitions": [
+    {
+      "name": "fashx-api",
+      "image": "${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/fashx:production-latest",
+      "essential": true,
+      "user": "10001",
+      "stopTimeout": 35,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {"name": "ENV", "value": "prod"},
+        {"name": "APP_ENV", "value": "prod"},
+        {"name": "REPO_BACKEND", "value": "sql"},
+        {"name": "STORAGE_BACKEND", "value": "s3"},
+        {"name": "S3_REGION", "value": "ap-south-1"},
+        {"name": "S3_BUCKET", "value": "fashx-prod-private-${ACCOUNT_ID}"},
+        {"name": "S3_USE_IAM_ROLE", "value": "true"},
+        {"name": "DB_SSL_CA_FILE", "value": "/etc/ssl/certs/aws-rds-global-bundle.pem"},
+        {"name": "READINESS_REQUIRES_DATABASE", "value": "true"},
+        {"name": "DB_POOL_SIZE", "value": "5"},
+        {"name": "DB_MAX_OVERFLOW", "value": "2"},
+        {"name": "DB_POOL_TIMEOUT_S", "value": "20"},
+        {"name": "AUTH_MODE", "value": "jwks"}
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/prod/postgres/database-url"
+        },
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/prod/redis/url"
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz/live')\""
+        ],
+        "interval": 20,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 30
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/fashx/prod/api",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

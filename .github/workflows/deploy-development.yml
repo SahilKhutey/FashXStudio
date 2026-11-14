@@ -1,0 +1,66 @@
+name: deploy-development
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-development
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate AWS Deploy Role
+        run: |
+          if [ -z "${{ vars.AWS_DEPLOY_ROLE }}" ]; then
+            echo "Notice: vars.AWS_DEPLOY_ROLE is not set. Cloud infrastructure is unprovisioned."
+            exit 0
+          fi
+
+      - name: Configure AWS Credentials (OIDC)
+        if: vars.AWS_DEPLOY_ROLE != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "${{ vars.AWS_DEPLOY_ROLE }}"
+          aws-region: ap-south-1
+
+      - name: Log in to Amazon ECR
+        if: vars.AWS_DEPLOY_ROLE != ''
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push container image
+        if: vars.AWS_DEPLOY_ROLE != ''
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/fashx:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/fashx:$IMAGE_TAG
+
+      - name: Deploy development ECS services
+        if: vars.AWS_DEPLOY_ROLE != ''
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_DEV }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for SERVICE in \
+            "${{ vars.ECS_API_SERVICE_DEV }}" \
+            "${{ vars.ECS_TRYON_SERVICE_DEV }}"
+          do
+            aws ecs update-service \
+              --cluster "$ECS_CLUSTER" \
+              --service "$SERVICE" \
+              --force-new-deployment
+          done

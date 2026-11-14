@@ -1,3 +1,4 @@
+import time
 from datetime import UTC, datetime
 from typing import Any
 
@@ -5,6 +6,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from fashx.core.database import check_database
+from fashx.core.metrics import emit_metric
 from fashx.core.settings import get_settings
 from schemas.common.health import HealthResponse
 
@@ -13,14 +15,34 @@ healthz_router = APIRouter(tags=["system"])
 
 
 async def check_redis_dependency(redis_url: str) -> bool:
+    settings = get_settings()
+    env = getattr(settings, "env", "dev")
+    t0 = time.perf_counter()
     try:
         import redis.asyncio as aioredis
 
         client = aioredis.from_url(redis_url, socket_timeout=1.5)
         pong = await client.ping()
         await client.aclose()
+        latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+        emit_metric(
+            "RedisPingLatency",
+            latency_ms,
+            unit="Milliseconds",
+            service="api",
+            environment=env,
+            namespace="FashX/Queues",
+        )
         return bool(pong)
     except Exception:
+        emit_metric(
+            "RedisConnectionErrors",
+            1.0,
+            unit="Count",
+            service="api",
+            environment=env,
+            namespace="FashX/Queues",
+        )
         return False
 
 
@@ -86,6 +108,15 @@ async def readiness() -> Any:
 
     db_status = "ok" if deps.get("postgres") == "ok" else "error"
     overall_status = "ok" if all_ok else "degraded"
+
+    emit_metric(
+        "ReadinessStatus",
+        1.0 if all_ok else 0.0,
+        unit="Count",
+        service="api",
+        environment=getattr(settings, "env", "dev"),
+        namespace="FashX/API",
+    )
 
     body = {
         "status": overall_status,

@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListOnlyRequiredPrefixes",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::fashx-prod-private-ACCOUNT_ID",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "users/*",
+            "tryon/*",
+            "temporary/tryon/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "ReadAuthorizedInputAndWriteResults",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::fashx-prod-private-ACCOUNT_ID/users/*",
+        "arn:aws:s3:::fashx-prod-private-ACCOUNT_ID/products/*",
+        "arn:aws:s3:::fashx-prod-private-ACCOUNT_ID/tryon/*",
+        "arn:aws:s3:::fashx-prod-private-ACCOUNT_ID/temporary/tryon/*"
+      ]
+    },
+    {
+      "Sid": "UseOnlyProductionMediaKey",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey",
+        "kms:DescribeKey"
+      ],
+      "Resource": "arn:aws:kms:ap-south-1:ACCOUNT_ID:alias/fashx-prod-s3"
+    }
+  ]
+}

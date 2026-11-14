@@ -1,0 +1,179 @@
+# infra/aws/observability/cloudwatch/alarms.yaml
+# CloudWatch Alarm definitions for FashXStudio Production Infrastructure (ap-south-1)
+
+alarms:
+  # 1. API Latency and Availability Alarms
+  - alarm_name: fashx-prod-api-high-latency
+    namespace: FashX/API
+    metric_name: RequestLatency
+    extended_statistic: p95
+    period: 60
+    evaluation_periods: 5
+    threshold: 2500.0  # ms
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "API p95 latency exceeded 2500ms for 5 consecutive minutes"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-api-5xx-rate
+    namespace: FashX/API
+    metric_name: Request5xxCount
+    statistic: Sum
+    period: 60
+    evaluation_periods: 5
+    threshold: 10.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "API 5xx error count exceeded 10 in 5 minutes"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-api-readiness-failure
+    namespace: FashX/API
+    metric_name: ReadinessStatus
+    statistic: Minimum
+    period: 60
+    evaluation_periods: 2
+    threshold: 1.0
+    comparison_operator: LessThanThreshold
+    treat_missing_data: breaching
+    alarm_description: "API /healthz/ready readiness probe failed for 2 consecutive checks"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  # 2. Database Alarms (Amazon RDS PostgreSQL)
+  - alarm_name: fashx-prod-rds-high-cpu
+    namespace: AWS/RDS
+    metric_name: CPUUtilization
+    dimensions:
+      DBInstanceIdentifier: fashx-pg-prod
+    statistic: Average
+    period: 300
+    evaluation_periods: 2
+    threshold: 80.0  # %
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: missing
+    alarm_description: "RDS PostgreSQL CPU exceeded 80% for 10 minutes"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-rds-high-connections
+    namespace: AWS/RDS
+    metric_name: DatabaseConnections
+    dimensions:
+      DBInstanceIdentifier: fashx-pg-prod
+    statistic: Maximum
+    period: 60
+    evaluation_periods: 3
+    threshold: 160.0  # 80% of max 200 connections
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "RDS PostgreSQL connection pool utilization exceeded 80%"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-rds-low-storage
+    namespace: AWS/RDS
+    metric_name: FreeStorageSpace
+    dimensions:
+      DBInstanceIdentifier: fashx-pg-prod
+    statistic: Minimum
+    period: 300
+    evaluation_periods: 1
+    threshold: 10737418240  # 10 GB in bytes
+    comparison_operator: LessThanThreshold
+    treat_missing_data: breaching
+    alarm_description: "RDS PostgreSQL free storage space dropped below 10 GB"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  # 3. Redis & Queue Alarms (Amazon ElastiCache Valkey / Redis)
+  - alarm_name: fashx-prod-redis-high-memory
+    namespace: AWS/ElastiCache
+    metric_name: DatabaseMemoryUsagePercentage
+    dimensions:
+      CacheClusterId: fashx-redis-prod-001
+    statistic: Average
+    period: 300
+    evaluation_periods: 2
+    threshold: 80.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: missing
+    alarm_description: "ElastiCache Redis memory usage exceeded 80%"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-redis-evictions
+    namespace: AWS/ElastiCache
+    metric_name: Evictions
+    dimensions:
+      CacheClusterId: fashx-redis-prod-001
+    statistic: Sum
+    period: 300
+    evaluation_periods: 1
+    threshold: 0.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "ElastiCache Redis evicted keys due to memory pressure"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  - alarm_name: fashx-prod-tryon-queue-backlog
+    namespace: FashX/Queues
+    metric_name: QueueDepth
+    dimensions:
+      Queue: tryon
+    statistic: Maximum
+    period: 60
+    evaluation_periods: 5
+    threshold: 20.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "Try-on queue depth exceeded 20 waiting tasks for 5 minutes"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  # 4. Worker Availability & Recovery Alarms
+  - alarm_name: fashx-prod-worker-heartbeat-missing
+    namespace: FashX/Workers
+    metric_name: WorkerHeartbeat
+    dimensions:
+      WorkerType: tryon
+    statistic: Sum
+    period: 60
+    evaluation_periods: 3
+    threshold: 1.0
+    comparison_operator: LessThanThreshold
+    treat_missing_data: breaching
+    alarm_description: "Try-on background worker heartbeat missing for 3 consecutive intervals"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  # 5. Object Storage Privacy & Erasure Alarms
+  - alarm_name: fashx-prod-storage-delete-errors
+    namespace: FashX/Storage
+    metric_name: StorageDeleteErrors
+    statistic: Sum
+    period: 60
+    evaluation_periods: 1
+    threshold: 0.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "S3 user media erasure/deletion failure occurred"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production
+
+  # 6. Virtual Try-On Provider Alarms
+  - alarm_name: fashx-prod-vto-provider-auth-failure
+    namespace: FashX/VTO
+    metric_name: VTOProviderAuthFailure
+    statistic: Sum
+    period: 60
+    evaluation_periods: 1
+    threshold: 0.0
+    comparison_operator: GreaterThanThreshold
+    treat_missing_data: notBreaching
+    alarm_description: "VTO provider authentication or permission failure (401/403)"
+    alarm_actions:
+      - arn:aws:sns:ap-south-1:${ACCOUNT_ID}:fashx-alerts-production

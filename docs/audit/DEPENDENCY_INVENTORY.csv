@@ -1,0 +1,21 @@
+Subsystem,Dependency Name,Category,Version or Protocol,Integration Path,Mock or Fallback Available,Operational Readiness,Security and Compliance Notes
+Backend application,FastAPI,Framework,0.115+,backend/fashx/main.py,No,Verified in CI,CORS and security headers middleware active
+Backend application,Uvicorn / Gunicorn,ASGI Server,Standard,Dockerfile,No,Verified in Docker,Non-root container user 10001
+Database,PostgreSQL,Database Engine,16 with pgvector,backend/fashx/infrastructure/database/session.py,SQLite fallback for unit tests,Verified in CI,Partitioned tables and composite B-tree indexes
+Database,SQLAlchemy,ORM,2.0.36+,database/models/,No,Verified in CI,Strict separation of persistence models and domain entities
+Database,Alembic,Database Migrations,1.14+,database/migrations/,No,Verified in CI,32 linear migrations; downgrade and check verified in CI
+Authentication,PyJWT,Cryptographic Library,2.10+,backend/fashx/security/tokens.py,Local dev token generator,Verified in CI,Supports HS256 and RS256 with JWKS rotation
+Authentication,Passlib / Bcrypt,Password Hashing,Bcrypt,backend/fashx/security/identity.py,InMemoryIdentityRepo,Verified in CI,Salted hashing for local test and admin identities
+Queue and Workers,Redis,Message Queue / Cache,7.0+,backend/fashx/infrastructure/queue/redis.py,InMemory fallback queue,Verified in CI,Job status tracking and circuit breaker state
+Image Storage,Cloudflare R2,Object Storage,S3-Compatible API,backend/fashx/infrastructure/storage/r2.py,Local filesystem storage,Verified with local adapter,Signed URL generation with TTL; auto-erasure
+Image Storage,AWS S3,Object Storage,boto3 / AWS S3 API,backend/fashx/infrastructure/storage/s3.py,Local filesystem storage,Verified with local adapter,Private bucket with presigned PUT/GET URLs
+Virtual Try-On,FASHN Hosted API,AI Inference Vendor,tryon-v1.6 / Max,backend/fashx/infrastructure/tryon/fashn_api.py,MockTryOnAdapter,Unverified in live CI,Signed DPA contract; 72h vendor auto-delete
+Catalog Ingestion,Shopify Admin API,E-Commerce Platform,GraphQL / REST,backend/fashx/catalog/acquisition/adapters/partner_feed.py,CSV file fixtures,Verified via fixtures,Direct brand partner feed integration
+Recommendations,Marqo FashionCLIP,Embedding Model,ViT-B/32 512-d,backend/fashx/catalog/embeddings/marqo_fashionclip.py,FakeEmbedder (512-d deterministic),Verified via FakeEmbedder,Requires GPU inference in production
+Worker Vision,MediaPipe,Computer Vision,0.10+,workers/profile_photo/pose/mediapipe_adapter.py,HeuristicPoseScorer,Verified in worker tests,Client-side pose checking; zero facial biometric storage
+Mobile Application,React Native / Expo,Mobile Framework,Expo SDK 58 / RN 0.76+,mobile/package.json,Mock Expo Router in Jest,Verified via 152 Jest tests,TypeScript strict mode; hermes engine enabled
+Mobile Network,TanStack Query,Client Cache / Polling,5.62+,mobile/src/app-shell/queryClient.ts,Mock responses in Jest,Verified in mobile tests,Stale-while-revalidate and exponential retry
+Mobile Network,Axios,HTTP Client,1.7+,mobile/src/api/client.ts,Mock Axios client,Verified in mobile tests,Automated Bearer token injection and request tracing
+Monitoring,Sentry,Observability SDK,2.19+,backend/fashx/core/observability.py,Disabled if DSN missing,Verified optional in test,Error capturing and context filtering
+CI / CD,GitHub Actions,Automation Platform,Ubuntu 24.04 Runners,.github/workflows/ci.yml,Local bash gate script,Verified in PRs #30-#33,Automated gitleaks ruff mypy pytest and jest
+Containerization,Docker,Container Runtime,v26+,Dockerfile,No,Verified multi-stage build,Multi-stage build with non-root app user

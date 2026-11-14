@@ -3,10 +3,10 @@
     "evidence_id": "EV-RC13-FIXTURE-001",
     "type": "technical",
     "status": "pass",
-    "collected_by": "qa-engineer",
-    "collected_at": "2026-11-09T10:00:00Z",
+    "collected_by": "qa_lead",
+    "collected_at": "2026-11-08T10:00:00Z",
     "source_file": "docs/reengineering/RC13/11_TEST_PLAN.md",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checksum": "aff2809f06541d7b3c67d838f7b3fe64100b7e825198be8be634310f2547cf56",
     "is_synthetic": false
   }
 ]

@@ -1,0 +1,19 @@
+id,title,priority,risk,affected_subsystem,owner,status,proposed_remediation,created_date,last_reviewed
+TD-001,Mock VTO is default,P0,Users may mistake preview for actual AI try-on,VTO,VTO Lead,OPEN,Keep mock visibly labelled; validate real provider,2026-11-11,2026-11-11
+TD-002,Real provider inference unverified,P0,Core product promise unproven,VTO,VTO Lead,OPEN,Complete authorized provider test in sandbox with live key,2026-11-11,2026-11-11
+TD-003,In-memory repository default requires runtime confirmation,P0,Data may not persist across restarts,Persistence,Backend Lead,OPEN,Trace bootstrap wiring and enforce PostgreSQL mode in non-test runs,2026-11-11,2026-11-11
+TD-004,Production storage unverified,P0,User image storage and privacy risk,Storage,DevOps,OPEN,Provision private S3/R2 bucket and verify access-control policies,2026-11-11,2026-11-11
+TD-005,External authentication unverified,P0,Identity integration risk,Auth,Security Lead,OPEN,Complete authorized identity provider test with Supabase/Auth0,2026-11-11,2026-11-11
+TD-006,No live merchant feed verified,P0,Product discovery lacks real supply,Catalog,Catalog Lead,OPEN,Establish one authorized brand partner feed integration,2026-11-11,2026-11-11
+TD-007,No real user pilot,P0,Product-market hypotheses unvalidated,Pilot,Founder,OPEN,Run controlled 10-person real-world pilot under approved protocol,2026-11-11,2026-11-11
+TD-008,Evidence evaluator does not fully authenticate referenced evidence,P0,Release-gate decisions may accept weak evidence,Governance,Release Lead,IN_REVIEW,Remediation implemented in PR #34; requires human review and merge,2026-11-11,2026-11-11
+TD-009,Roadmap presents rehearsal outcomes as completed milestones,P0,Misleading product and market-readiness claims,Governance,Product Lead,IN_REVIEW,Reconciled in Phase 2.5 docs; dual-track lifecycle established in PR #34,2026-11-11,2026-11-11
+TD-010,Status report is stale,P1,Engineering state may be misrepresented,Governance,Tech Lead,IN_REVIEW,Update docs/STATUS.md from verified Phase 02 audit baseline,2026-11-11,2026-11-11
+TD-011,Historical test-count discrepancies,P1,Incorrect quality reporting,QA,QA Lead,RESOLVED,Reconciled: 2060 collected; 1066 unit passed; 1777 full passed; 165 mobile passed,2026-11-11,2026-11-11
+TD-012,Fake embeddings default,P1,Personalization quality is unproven,Discovery,ML Lead,OPEN,Evaluate semantic embeddings model (FashionCLIP) with benchmark,2026-11-11,2026-11-11
+TD-013,Mock VLM default,P1,Catalog enrichment accuracy unproven,Catalog,ML Lead,OPEN,Validate real Claude/GPT-4o VLM extraction accuracy,2026-11-11,2026-11-11
+TD-014,Merchant platform is feature-flagged off,P1,Merchant workflow not operational,Merchant,B2B Lead,OPEN,Validate tenant permissions and activation before pilot phase,2026-11-11,2026-11-11
+TD-015,Physical-device validation pending,P1,Camera permissions and performance risk,Mobile,Mobile Lead,OPEN,Test supported Android and iOS devices on staging build,2026-11-11,2026-11-11
+TD-016,67 backend type-ignores reported historically,P2,Reduced type-safety,Backend,Tech Lead,OPEN,Inventory remaining type-ignores and eliminate safely,2026-11-11,2026-11-11
+TD-017,No production cloud environment,P1,Deployment and operations unproven,Infra,DevOps,OPEN,Establish isolated staging environment with managed services,2026-11-11,2026-11-11
+TD-018,Legal/privacy review incomplete,P0,Personal image and body-data processing risk,Legal,Founder,OPEN,Obtain qualified external legal counsel sign-off for DPDP compliance,2026-11-11,2026-11-11

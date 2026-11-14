@@ -1,0 +1,23 @@
+integration,component,implementation_path,configured_provider,active_provider,status,credentials_present,connection_tested,sandbox_evidence,production_evidence,approval_required,blocker,owner,last_verified
+VTO,Mock TryOn Adapter,backend/fashx/tryon/adapters/mock_adapter.py,mock,mock,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+VTO,FASHN Hosted API,backend/fashx/infrastructure/tryon/fashn_api.py,fashn_api,mock,LOCAL,NO,NO,NONE,NONE,YES,YES,Founder / Tech Lead,2026-11-11
+VTO,FASHN Self-Hosted,backend/fashx/core/dependencies.py,fashn_selfhost,none,MOCK,NO,NO,NONE,NONE,YES,NO,Tech Lead,2026-11-11
+Enrichment,Mock VLM Client,backend/fashx/catalog/enrichment/vlm.py,mock,mock,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Enrichment,Heuristic Garment Enricher,backend/fashx/catalog/enrichment/enricher.py,heuristic,heuristic,LOCAL,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Enrichment,Anthropic Claude VLM,backend/fashx/catalog/enrichment/vlm.py,anthropic,mock,LOCAL,NO,NO,NONE,NONE,YES,YES,Tech Lead,2026-11-11
+Embeddings,Fake Embedder,backend/fashx/catalog/embeddings/fake.py,fake,fake,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Embeddings,Marqo FashionCLIP Embedder,backend/fashx/catalog/embeddings/marqo_fashionclip.py,marqo,fake,LOCAL,NO,NO,NONE,NONE,YES,YES,ML Lead,2026-11-11
+Storage,Local Filesystem Storage,backend/fashx/infrastructure/storage/local.py,local,local,LOCAL,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Storage,S3 / Cloudflare R2 Storage,backend/fashx/infrastructure/storage/s3.py,s3,local,LOCAL,NO,NO,NONE,NONE,YES,YES,DevOps / Tech Lead,2026-11-11
+Auth,Local JWT Verifier,backend/fashx/security/tokens.py,local,local,LOCAL,YES,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Auth,JWKS External Verifier,backend/fashx/security/tokens.py,jwks,local,LOCAL,NO,NO,NONE,NONE,YES,YES,Tech Lead,2026-11-11
+Auth,Supabase Auth Integration,backend/fashx/core/settings.py,supabase,none,LOCAL,NO,NO,NONE,NONE,YES,YES,Tech Lead,2026-11-11
+Catalog,Partner Feed Ingestion,backend/fashx/catalog/acquisition/adapters/partner_feed.py,partner_feed,local_csv,LOCAL,NO,YES,LOCAL_TESTS,NONE,YES,YES,Founder / Business,2026-11-11
+Catalog,Local Synthetic Seed Catalogs,scripts/catalog/seed_local.py,seed_local,seed_local,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Catalog,Affiliate Syndication Adapters,backend/fashx/catalog/acquisition/adapters/amazon.py,amazon_myntra_flipkart,fixtures,LOCAL,NO,NO,NONE,NONE,YES,NO,Business,2026-11-11
+Database,PostgreSQL 16 Engine,backend/fashx/core/database.py,postgresql,postgresql,LOCAL,NO,YES,CI_CONTAINER,NONE,YES,YES,DevOps / Tech Lead,2026-11-11
+Cache,Redis 7 Connection,backend/fashx/core/settings.py,redis,redis,LOCAL,NO,YES,CI_CONTAINER,NONE,YES,YES,DevOps / Tech Lead,2026-11-11
+Persistence,In-Memory Repositories,backend/fashx/core/bootstrap.py,memory,memory,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Payments,Test Payment Provider,backend/fashx/domain/payments/provider.py,test_provider,test_provider,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Fulfillment,Test Carrier Provider,backend/fashx/domain/fulfillment/carrier.py,test_provider,test_provider,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
+Fit Recommendation,B2B Widget Mock Endpoint,backend/fashx/b2b/widget.py,mock_fit,mock_fit,MOCK,NO,YES,LOCAL_TESTS,NONE,NO,NO,Auditor,2026-11-11
