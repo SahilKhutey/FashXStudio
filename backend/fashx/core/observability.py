@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 import logging
 from contextvars import ContextVar
+from typing import Any
 from uuid import uuid4
 
+from .logging import scrub
 from .settings import get_settings
 
 _request_id: ContextVar[str] = ContextVar("request_id", default="")
@@ -31,18 +35,43 @@ def clear_request_context() -> None:
     _trace_id.set("")
 
 
-def configure_sentry() -> None:
-    settings = get_settings()
-    if not settings.sentry_dsn:
+def _sentry_before_send(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] | None:
+    """Sanitize Sentry events before dispatch to ensure zero credentials or PII leak to Sentry."""
+    if "request" in event:
+        req = event["request"]
+        # Scrub headers
+        if "headers" in req:
+            req["headers"] = scrub(req["headers"])
+        # Strip URL query parameters if they contain S3 or token patterns
+        if "url" in req:
+            req["url"] = scrub(req["url"])
+        # Strip sensitive request bodies
+        if "data" in req:
+            req["data"] = "[redacted]"
+
+    # Scrub exception values
+    if "exception" in event:
+        for ex in event.get("exception", {}).get("values", []):
+            if "value" in ex:
+                ex["value"] = scrub(ex["value"])
+
+    return event
+
+
+def configure_sentry(settings: Any | None = None) -> None:
+    if settings is None:
+        settings = get_settings()
+    if not getattr(settings, "sentry_dsn", None):
         return
     import sentry_sdk
 
     sentry_sdk.init(
         dsn=settings.sentry_dsn,
         environment=settings.sentry_environment,
-        release=settings.app_version,
-        traces_sample_rate=0.1 if settings.is_production else 1.0,
+        release=getattr(settings, "app_version", "0.2.0"),
+        traces_sample_rate=0.1 if getattr(settings, "is_production", False) else 1.0,
         send_default_pii=False,
+        before_send=_sentry_before_send,
     )
 
 

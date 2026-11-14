@@ -13,6 +13,7 @@ import httpx
 from PIL import Image
 
 from fashx.application.ports.tryon import TryOnError, TryOnOutput, TryOnRequest
+from fashx.core.metrics import emit_metric
 from fashx.tryon.ports import InferenceInput, InferenceOutput
 
 log = logging.getLogger(__name__)
@@ -81,12 +82,14 @@ class FashnApiAdapter:
         client: httpx.Client | None = None,
         download_client: httpx.Client | None = None,
         sleep: Callable[[float], None] = time.sleep,
+        environment: str = "dev",
     ) -> None:
         self._model = model
         self._mode = mode
         self._cost = cost_usd_est
         self._timeout_s = timeout_s
         self._sleep = sleep
+        self._env = environment
         if client is not None and "Authorization" not in client.headers:
             client.headers["Authorization"] = f"Bearer {api_key}"
         self._http = client or httpx.Client(
@@ -114,8 +117,36 @@ class FashnApiAdapter:
         return True
 
     # ---- error mapping -------------------------------------------------
-    @staticmethod
-    def _from_http(status: int, body: str) -> TryOnError:
+    def _from_http(self, status: int, body: str) -> TryOnError:
+        if status == 429:
+            emit_metric(
+                "VTOProviderRateLimit",
+                1.0,
+                unit="Count",
+                service="tryon",
+                environment=self._env,
+                dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                namespace="FashX/VTO",
+            )
+        elif status in (401, 403):
+            emit_metric(
+                "VTOProviderAuthFailure",
+                1.0,
+                unit="Count",
+                service="tryon",
+                environment=self._env,
+                dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                namespace="FashX/VTO",
+            )
+        emit_metric(
+            "VTOJobFailed",
+            1.0,
+            unit="Count",
+            service="tryon",
+            environment=self._env,
+            dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": f"http_{status}"},
+            namespace="FashX/VTO",
+        )
         if status in (429, 500, 502, 503, 504):
             return TryOnError(
                 "provider_unavailable",
@@ -178,7 +209,17 @@ class FashnApiAdapter:
                 retryable=False,
                 detail=str(data.get("error"))[:200],
             )
-        return str(data["id"])
+        job_id = str(data["id"])
+        emit_metric(
+            "VTOJobSubmitted",
+            1.0,
+            unit="Count",
+            service="tryon",
+            environment=self._env,
+            dimensions={"Provider": self.provider, "ModelVersion": self._model},
+            namespace="FashX/VTO",
+        )
+        return job_id
 
     def collect(self, provider_job_id: str, *, deadline_s: float) -> TryOnOutput:
         t0 = time.monotonic()
@@ -186,6 +227,24 @@ class FashnApiAdapter:
 
         while True:
             if time.monotonic() - t0 > deadline_s:
+                emit_metric(
+                    "VTOProviderTimeout",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                    namespace="FashX/VTO",
+                )
+                emit_metric(
+                    "VTOJobFailed",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": "timeout"},
+                    namespace="FashX/VTO",
+                )
                 raise TryOnError(
                     "provider_timeout",
                     "Try-on took too long. We'll retry.",
@@ -219,12 +278,41 @@ class FashnApiAdapter:
                         detail="completed without output",
                     )
                 img = self._download(url)
+                latency_ms = int((time.monotonic() - t0) * 1000)
+                emit_metric(
+                    "VTOJobSucceeded",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": "success"},
+                    namespace="FashX/VTO",
+                )
+                emit_metric(
+                    "VTOProviderLatency",
+                    float(latency_ms),
+                    unit="Milliseconds",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                    namespace="FashX/VTO",
+                )
+                if self._cost is not None:
+                    emit_metric(
+                        "VTOProviderCostEstimate",
+                        float(self._cost),
+                        unit="None",
+                        service="tryon",
+                        environment=self._env,
+                        dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                        namespace="FashX/VTO",
+                    )
                 return TryOnOutput(
                     image_bytes=img,
                     provider=self.provider,
                     model=self._model,
                     provider_job_id=provider_job_id,
-                    latency_ms=int((time.monotonic() - t0) * 1000),
+                    latency_ms=latency_ms,
                     cost_usd_est=self._cost,
                 )
 
@@ -234,6 +322,24 @@ class FashnApiAdapter:
                 continue
 
             if st == "time_out":
+                emit_metric(
+                    "VTOProviderTimeout",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                    namespace="FashX/VTO",
+                )
+                emit_metric(
+                    "VTOJobFailed",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": "timeout"},
+                    namespace="FashX/VTO",
+                )
                 raise TryOnError(
                     "provider_timeout",
                     "Try-on took too long. We'll retry.",
@@ -245,6 +351,15 @@ class FashnApiAdapter:
                 err = d.get("error") or {}
                 name = (err.get("name") if isinstance(err, dict) else str(err)) or "unknown"
                 log.warning("fashn failed job=%s error=%s", provider_job_id, name)
+                emit_metric(
+                    "VTOJobFailed",
+                    1.0,
+                    unit="Count",
+                    service="tryon",
+                    environment=self._env,
+                    dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": "provider_failed"},
+                    namespace="FashX/VTO",
+                )
                 raise TryOnError(
                     "provider_failed",
                     "We couldn't generate this try-on. Try another photo or garment.",
@@ -325,6 +440,24 @@ class FashnApiAdapter:
         try:
             return _normalize_result_image(r.content)
         except ValueError as exc:
+            emit_metric(
+                "VTOResultValidationFailure",
+                1.0,
+                unit="Count",
+                service="tryon",
+                environment=self._env,
+                dimensions={"Provider": self.provider, "ModelVersion": self._model},
+                namespace="FashX/VTO",
+            )
+            emit_metric(
+                "VTOJobFailed",
+                1.0,
+                unit="Count",
+                service="tryon",
+                environment=self._env,
+                dimensions={"Provider": self.provider, "ModelVersion": self._model, "Outcome": "validation_failure"},
+                namespace="FashX/VTO",
+            )
             raise TryOnError(
                 "provider_bad_image",
                 "Try-on returned an invalid image. Please retry.",

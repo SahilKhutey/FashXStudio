@@ -29,7 +29,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
 
         validate_release_config(settings.to_release_config())
     configure_logging(settings.log_level)
-    configure_sentry()
+    configure_sentry(settings)
 
     app = FastAPI(
         title=settings.app_name,

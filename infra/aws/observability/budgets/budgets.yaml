@@ -1,0 +1,88 @@
+# infra/aws/observability/budgets/budgets.yaml
+# AWS Budgets and cost allocation monitoring policies
+
+budgets:
+  - name: fashx-monthly-dev-budget
+    budget_type: COST
+    time_unit: MONTHLY
+    limit_amount: "150.0"
+    limit_unit: USD
+    cost_filters:
+      TagKeyValue:
+        - "Environment$dev"
+    notifications:
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 50.0
+        subscriber_email: dev-alerts@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 80.0
+        subscriber_email: dev-alerts@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 100.0
+        subscriber_email: dev-alerts@fashxstudio.com
+
+  - name: fashx-monthly-staging-budget
+    budget_type: COST
+    time_unit: MONTHLY
+    limit_amount: "250.0"
+    limit_unit: USD
+    cost_filters:
+      TagKeyValue:
+        - "Environment$staging"
+    notifications:
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 50.0
+        subscriber_email: staging-alerts@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 80.0
+        subscriber_email: staging-alerts@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 100.0
+        subscriber_email: staging-alerts@fashxstudio.com
+
+  - name: fashx-monthly-production-budget
+    budget_type: COST
+    time_unit: MONTHLY
+    limit_amount: "800.0"
+    limit_unit: USD
+    cost_filters:
+      TagKeyValue:
+        - "Environment$prod"
+    notifications:
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 50.0
+        subscriber_email: ops@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 80.0
+        subscriber_email: ops@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 100.0
+        subscriber_email: ops@fashxstudio.com
+
+  - name: fashx-total-monthly-infrastructure
+    budget_type: COST
+    time_unit: MONTHLY
+    limit_amount: "1200.0"
+    limit_unit: USD
+    notifications:
+      - notification_type: FORECASTED
+        comparison_operator: GREATER_THAN
+        threshold: 70.0
+        subscriber_email: founder@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 90.0
+        subscriber_email: founder@fashxstudio.com
+      - notification_type: ACTUAL
+        comparison_operator: GREATER_THAN
+        threshold: 100.0
+        subscriber_email: founder@fashxstudio.com

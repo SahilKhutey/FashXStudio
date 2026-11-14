@@ -10,12 +10,15 @@ except ImportError:
 
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
+from fashx.core.observability import configure_sentry
 from fashx.core.settings import get_settings
 from fashx.workers.dead_letter import build_safe_payload, persist_dead_letter_sync
 from fashx.workers.queue_config import TASK_QUEUES, TASK_ROUTES
+from fashx.workers.signals import register_celery_signals
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+configure_sentry(settings)
 
 
 class _DummyTask:
@@ -209,6 +212,7 @@ if Celery is not None:
     if broker_use_ssl is not None:
         conf_kwargs["broker_use_ssl"] = broker_use_ssl
     app.conf.update(**conf_kwargs)
+    register_celery_signals(app)
 else:
     app = _DummyCelery("fashx")
 

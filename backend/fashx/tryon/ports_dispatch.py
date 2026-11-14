@@ -25,10 +25,18 @@ class CeleryTryOnJobDispatcher:
 
     async def dispatch(self, job_id: UUID) -> DispatchResult:
         try:
+            from fashx.core.observability import get_request_id, get_trace_id
+            from fashx.core.tracing import generate_traceparent
             from fashx.workers.app import process_tryon_job
 
+            headers = {
+                "request_id": get_request_id(),
+                "trace_id": get_trace_id(),
+                "traceparent": generate_traceparent(),
+            }
             process_tryon_job.apply_async(
                 args=[str(job_id)],
+                headers=headers,
                 retry=False,
                 retry_policy={"max_retries": 0},
                 ignore_result=True,

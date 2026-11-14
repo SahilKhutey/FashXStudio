@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
+
+from fashx.core.metrics import emit_metric
 
 
 class S3Storage:
@@ -18,10 +21,12 @@ class S3Storage:
         key_id: str | None = None,
         secret: str | None = None,
         kms_key_id: str | None = None,
+        environment: str = "dev",
     ) -> None:
         self._b = bucket
         self._is_aws = endpoint_url is None
         self._kms_key_id = kms_key_id
+        self._env = environment
         self._c = boto3.client(
             "s3",
             endpoint_url=endpoint_url,
@@ -55,11 +60,35 @@ class S3Storage:
                 kwargs["SSEKMSKeyId"] = self._kms_key_id
             else:
                 kwargs["ServerSideEncryption"] = "AES256"
-        self._c.put_object(**kwargs)
+
+        started = time.perf_counter()
+        try:
+            self._c.put_object(**kwargs)
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageUploadCount", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "put", "Outcome": "success"}, namespace="FashX/Storage")
+            emit_metric("StorageBytesUploaded", float(len(data)), "Bytes", service="storage", environment=self._env, dimensions={"Operation": "put"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "put", "Outcome": "success"}, namespace="FashX/Storage")
+        except Exception:
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageUploadErrors", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "put", "Outcome": "failure"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "put", "Outcome": "failure"}, namespace="FashX/Storage")
+            raise
 
     def get(self, key: str) -> bytes:
         self._validate_key(key)
-        return self._c.get_object(Bucket=self._b, Key=key)["Body"].read()
+        started = time.perf_counter()
+        try:
+            body = self._c.get_object(Bucket=self._b, Key=key)["Body"].read()
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageDownloadCount", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "get", "Outcome": "success"}, namespace="FashX/Storage")
+            emit_metric("StorageBytesDownloaded", float(len(body)), "Bytes", service="storage", environment=self._env, dimensions={"Operation": "get"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "get", "Outcome": "success"}, namespace="FashX/Storage")
+            return body
+        except Exception:
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageDownloadErrors", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "get", "Outcome": "failure"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "get", "Outcome": "failure"}, namespace="FashX/Storage")
+            raise
 
     def head(self, key: str) -> dict[str, Any]:
         self._validate_key(key)
@@ -84,7 +113,17 @@ class S3Storage:
 
     def delete(self, key: str) -> None:
         self._validate_key(key)
-        self._c.delete_object(Bucket=self._b, Key=key)
+        started = time.perf_counter()
+        try:
+            self._c.delete_object(Bucket=self._b, Key=key)
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageDeleteCount", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "delete", "Outcome": "success"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "delete", "Outcome": "success"}, namespace="FashX/Storage")
+        except Exception:
+            duration_ms = round((time.perf_counter() - started) * 1000, 2)
+            emit_metric("StorageDeleteErrors", 1.0, "Count", service="storage", environment=self._env, dimensions={"Operation": "delete", "Outcome": "failure"}, namespace="FashX/Storage")
+            emit_metric("StorageOperationLatency", duration_ms, "Milliseconds", service="storage", environment=self._env, dimensions={"Operation": "delete", "Outcome": "failure"}, namespace="FashX/Storage")
+            raise
 
     def exists(self, key: str) -> bool:
         self._validate_key(key)

@@ -54,6 +54,7 @@ def get_storage() -> ObjectStorage:
             key_id=key_id,
             secret=secret,
             kms_key_id=settings.s3_kms_key_id,
+            environment=settings.env,
         )
     return LocalStorage(root_dir=settings.local_storage_dir)
 
@@ -76,6 +77,7 @@ def get_tryon_adapter() -> TryOnAdapter:
             mode=s.fashn_mode,
             cost_usd_est=s.tryon_est_cost_usd,
             timeout_s=float(s.tryon_timeout_s),
+            environment=s.env,
         )
     elif s.tryon_provider == "fashn_selfhost":
         raise NotImplementedError(
