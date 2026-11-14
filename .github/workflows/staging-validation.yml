@@ -1,0 +1,107 @@
+name: staging-validation
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["deploy-staging"]
+    types: [completed]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: fashx-staging-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Staging Deployment Validation Suite
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate AWS Staging Credentials
+        id: check-role
+        run: |
+          ROLE="${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}"
+          if [ -z "$ROLE" ]; then
+            echo "Notice: vars.AWS_DEPLOY_ROLE_ARN is not configured. Real cloud validation skipped."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure AWS Credentials (OIDC)
+        if: steps.check-role.outputs.configured == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}
+          aws-region: ap-south-1
+
+      - name: Verify AWS Identity
+        if: steps.check-role.outputs.configured == 'true'
+        run: aws sts get-caller-identity
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Validate API Deployment Health
+        env:
+          STAGING_API_URL: ${{ vars.API_BASE_STAGING || vars.API_BASE || 'http://127.0.0.1:8000' }}
+        run: |
+          python scripts/staging/validate_deployment.py --base-url "$STAGING_API_URL"
+
+      - name: Validate Database Connectivity & Schema
+        run: |
+          python scripts/staging/validate_database.py
+
+      - name: Validate Redis & Queue Connectivity
+        run: |
+          python scripts/staging/validate_redis.py
+
+      - name: Validate Storage Connectivity & Isolation
+        run: |
+          python scripts/staging/validate_storage.py
+
+      - name: Validate Background Worker Execution
+        run: |
+          python scripts/staging/validate_workers.py
+
+      - name: Validate Migrations State
+        run: |
+          python scripts/staging/validate_migrations.py
+
+      - name: Validate Log Formatting & Redaction
+        run: |
+          python scripts/staging/validate_logs.py
+
+      - name: Validate Restart & Recovery Configuration
+        run: |
+          python scripts/staging/validate_restart.py
+
+      - name: Validate Backup & Restore Policy
+        run: |
+          python scripts/staging/validate_backup_restore.py
+
+      - name: Validate Rollback Readiness
+        run: |
+          python scripts/staging/validate_rollback.py
+
+      - name: Upload Staging Validation Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-validation-reports
+          path: reports/staging/
+          if-no-files-found: ignore

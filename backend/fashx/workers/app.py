@@ -194,6 +194,7 @@ if Celery is not None:
         "worker_soft_shutdown_timeout": 90.0,
         "worker_enable_soft_shutdown_on_idle": True,
         "worker_cancel_long_running_tasks_on_connection_loss": True,
+        "imports": ("fashx.workers.validation_tasks",),
         "beat_schedule": {
             "outbox-relay-30s": {
                 "task": "fashx.workers.app.relay_outbox_events",

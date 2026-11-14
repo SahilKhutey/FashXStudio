@@ -54,4 +54,24 @@ TASK_ROUTES = {
         "queue": "maintenance",
         "routing_key": "maintenance",
     },
+    "fashx.validation.ping_tryon": {
+        "queue": "tryon",
+        "routing_key": "tryon",
+    },
+    "fashx.validation.ping_ingest": {
+        "queue": "ingest",
+        "routing_key": "ingest",
+    },
+    "fashx.validation.ping_maintenance": {
+        "queue": "maintenance",
+        "routing_key": "maintenance",
+    },
+    "fashx.validation.retryable": {
+        "queue": "maintenance",
+        "routing_key": "maintenance",
+    },
+    "fashx.validation.fatal": {
+        "queue": "maintenance",
+        "routing_key": "maintenance",
+    },
 }
