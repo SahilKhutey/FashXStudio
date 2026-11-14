@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
@@ -15,47 +17,86 @@ class S3Storage:
         region: str = "auto",
         key_id: str | None = None,
         secret: str | None = None,
+        kms_key_id: str | None = None,
     ) -> None:
         self._b = bucket
         self._is_aws = endpoint_url is None
+        self._kms_key_id = kms_key_id
         self._c = boto3.client(
             "s3",
             endpoint_url=endpoint_url,
             region_name=region,
             aws_access_key_id=key_id,
             aws_secret_access_key=secret,
-            config=Config(signature_version="s3v4", retries={"max_attempts": 3, "mode": "standard"}),
+            config=Config(
+                signature_version="s3v4",
+                retries={"max_attempts": 3, "mode": "standard"},
+            ),
         )
 
-    def put(self, key: str, data: bytes, content_type: str = "image/jpeg") -> None:
+    @staticmethod
+    def _validate_key(key: str) -> None:
+        if not key or key.startswith("/") or ".." in key.split("/"):
+            raise ValueError(f"Invalid object key: {key!r}")
+
+    def put(
+        self, key: str, data: bytes, content_type: str = "image/jpeg"
+    ) -> None:
+        self._validate_key(key)
+        kwargs: dict[str, Any] = {
+            "Bucket": self._b,
+            "Key": key,
+            "Body": data,
+            "ContentType": content_type,
+        }
         if self._is_aws:
-            self._c.put_object(
-                Bucket=self._b,
-                Key=key,
-                Body=data,
-                ContentType=content_type,
-                ServerSideEncryption="AES256",
-            )
-        else:
-            self._c.put_object(
-                Bucket=self._b,
-                Key=key,
-                Body=data,
-                ContentType=content_type,
-            )
+            if self._kms_key_id:
+                kwargs["ServerSideEncryption"] = "aws:kms"
+                kwargs["SSEKMSKeyId"] = self._kms_key_id
+            else:
+                kwargs["ServerSideEncryption"] = "AES256"
+        self._c.put_object(**kwargs)
 
     def get(self, key: str) -> bytes:
+        self._validate_key(key)
         return self._c.get_object(Bucket=self._b, Key=key)["Body"].read()
 
+    def head(self, key: str) -> dict[str, Any]:
+        self._validate_key(key)
+        return self._c.head_object(Bucket=self._b, Key=key)
+
+    def copy(self, src_key: str, dst_key: str) -> None:
+        self._validate_key(src_key)
+        self._validate_key(dst_key)
+        copy_source = {"Bucket": self._b, "Key": src_key}
+        kwargs: dict[str, Any] = {
+            "Bucket": self._b,
+            "CopySource": copy_source,
+            "Key": dst_key,
+        }
+        if self._is_aws:
+            if self._kms_key_id:
+                kwargs["ServerSideEncryption"] = "aws:kms"
+                kwargs["SSEKMSKeyId"] = self._kms_key_id
+            else:
+                kwargs["ServerSideEncryption"] = "AES256"
+        self._c.copy_object(**kwargs)
+
     def delete(self, key: str) -> None:
+        self._validate_key(key)
         self._c.delete_object(Bucket=self._b, Key=key)
 
     def exists(self, key: str) -> bool:
+        self._validate_key(key)
         try:
             self._c.head_object(Bucket=self._b, Key=key)
             return True
         except ClientError as e:
-            if e.response["Error"]["Code"] in ("404", "NoSuchKey", "NotFound"):
+            status = (
+                e.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+            )
+            code = e.response.get("Error", {}).get("Code", "")
+            if status == 404 or code in ("404", "NoSuchKey", "NotFound"):
                 return False
             raise
 
@@ -80,8 +121,54 @@ class S3Storage:
         return len(keys)
 
     def signed_get_url(self, key: str, ttl_s: int = 300) -> str:
+        self._validate_key(key)
         return self._c.generate_presigned_url(
             "get_object",
             Params={"Bucket": self._b, "Key": key},
+            ExpiresIn=ttl_s,
+        )
+
+    def generate_presigned_post(
+        self,
+        key: str,
+        max_bytes: int,
+        allowed_mime_types: tuple[str, ...],
+        ttl_s: int = 300,
+    ) -> dict[str, Any]:
+        self._validate_key(key)
+        fields: dict[str, str] = {}
+        conditions: list[Any] = [
+            ["content-length-range", 1, max_bytes],
+        ]
+        if allowed_mime_types:
+            if len(allowed_mime_types) == 1:
+                fields["Content-Type"] = allowed_mime_types[0]
+                conditions.append({"Content-Type": allowed_mime_types[0]})
+            else:
+                conditions.append(["starts-with", "$Content-Type", "image/"])
+
+        if self._is_aws:
+            if self._kms_key_id:
+                fields["x-amz-server-side-encryption"] = "aws:kms"
+                fields["x-amz-server-side-encryption-aws-kms-key-id"] = (
+                    self._kms_key_id
+                )
+                conditions.append({"x-amz-server-side-encryption": "aws:kms"})
+                conditions.append(
+                    {
+                        "x-amz-server-side-encryption-aws-kms-key-id": (
+                            self._kms_key_id
+                        )
+                    }
+                )
+            else:
+                fields["x-amz-server-side-encryption"] = "AES256"
+                conditions.append({"x-amz-server-side-encryption": "AES256"})
+
+        return self._c.generate_presigned_post(
+            Bucket=self._b,
+            Key=key,
+            Fields=fields,
+            Conditions=conditions,
             ExpiresIn=ttl_s,
         )

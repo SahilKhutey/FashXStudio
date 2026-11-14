@@ -53,6 +53,7 @@ def get_storage() -> ObjectStorage:
             region=settings.s3_region,
             key_id=key_id,
             secret=secret,
+            kms_key_id=settings.s3_kms_key_id,
         )
     return LocalStorage(root_dir=settings.local_storage_dir)
 

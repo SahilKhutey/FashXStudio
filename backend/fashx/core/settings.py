@@ -83,12 +83,31 @@ class Settings(BaseSettings):
     s3_endpoint_url: str | None = Field(default=None, validation_alias="S3_ENDPOINT_URL")
     s3_region: str = Field(default="auto", validation_alias="S3_REGION")
     s3_bucket: str | None = Field(default=None, validation_alias="S3_BUCKET")
+    s3_kms_key_id: str | None = Field(default=None, validation_alias="S3_KMS_KEY_ID")
     s3_access_key_id: SecretStr | None = Field(default=None, validation_alias="S3_ACCESS_KEY_ID")
     s3_secret_access_key: SecretStr | None = Field(
         default=None, validation_alias="S3_SECRET_ACCESS_KEY"
     )
     s3_use_iam_role: bool = Field(default=False, validation_alias="S3_USE_IAM_ROLE")
     signed_url_ttl_s: int = Field(default=300, validation_alias="SIGNED_URL_TTL_S")
+    s3_presigned_upload_ttl_seconds: int = Field(
+        default=300, validation_alias="S3_PRESIGNED_UPLOAD_TTL_SECONDS"
+    )
+    s3_presigned_download_ttl_seconds: int = Field(
+        default=300, validation_alias="S3_PRESIGNED_DOWNLOAD_TTL_SECONDS"
+    )
+    max_user_upload_bytes: int = Field(
+        default=10 * 1024 * 1024, validation_alias="MAX_USER_UPLOAD_BYTES"
+    )
+    max_product_image_bytes: int = Field(
+        default=15 * 1024 * 1024, validation_alias="MAX_PRODUCT_IMAGE_BYTES"
+    )
+    max_vto_result_bytes: int = Field(
+        default=15 * 1024 * 1024, validation_alias="MAX_VTO_RESULT_BYTES"
+    )
+    max_image_width: int = Field(default=4096, validation_alias="MAX_IMAGE_WIDTH")
+    max_image_height: int = Field(default=4096, validation_alias="MAX_IMAGE_HEIGHT")
+    max_image_pixels: int = Field(default=20_000_000, validation_alias="MAX_IMAGE_PIXELS")
     local_storage_dir: str = Field(default="./.local_storage", validation_alias="LOCAL_STORAGE_DIR")
 
     tryon_provider: Literal["mock", "fashn_api", "fashn_selfhost"] = Field(
