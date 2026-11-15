@@ -98,6 +98,11 @@ jobs:
         run: |
           python scripts/staging/validate_rollback.py
 
+      - name: Generate Consolidated Validation Report
+        if: always()
+        run: |
+          python scripts/staging/generate_report.py
+
       - name: Upload Staging Validation Reports
         if: always()
         uses: actions/upload-artifact@v4

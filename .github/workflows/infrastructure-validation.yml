@@ -1,0 +1,52 @@
+name: infrastructure-validation
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - ".github/workflows/infrastructure-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-terraform:
+    name: Validate Terraform & Cloud Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Check Terraform Formatting
+        run: terraform fmt -check -recursive infra/aws/terraform
+
+      - name: Validate ECS Task Definition JSON Schemas
+        run: |
+          for f in infra/aws/ecs/task-definitions/*.json; do
+            echo "Validating JSON syntax: $f"
+            jq empty "$f"
+          done
+
+      - name: Validate IAM Policy JSON Schemas
+        run: |
+          for f in infra/aws/observability/iam/*.json; do
+            if [ -f "$f" ]; then
+              echo "Validating IAM JSON: $f"
+              jq empty "$f"
+            fi
+          done
+
+      - name: Validate CloudWatch Alarms & Dashboards
+        run: |
+          echo "Validating CloudWatch Dashboard JSON"
+          jq empty infra/aws/observability/cloudwatch/dashboard.json
