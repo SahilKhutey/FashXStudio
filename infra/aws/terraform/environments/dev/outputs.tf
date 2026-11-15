@@ -22,3 +22,18 @@ output "s3_bucket" {
   value       = module.s3.bucket_name
   description = "Development S3 Bucket"
 }
+
+output "cognito_user_pool_id" {
+  value       = module.cognito.user_pool_id
+  description = "Development Cognito User Pool ID"
+}
+
+output "cognito_client_id" {
+  value       = module.cognito.user_pool_client_id
+  description = "Development Cognito Public Client ID"
+}
+
+output "cognito_jwks_url" {
+  value       = module.cognito.jwks_url
+  description = "Development Cognito Public JWKS URL"
+}

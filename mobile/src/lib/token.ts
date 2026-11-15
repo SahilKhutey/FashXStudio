@@ -1,3 +1,4 @@
+import { getValidAccessToken as getCognitoAccessToken } from "../auth/session";
 import { supabase } from "./supabase";
 
 let devToken: string | null = null;
@@ -12,6 +13,14 @@ export const getDevToken = (): string | null => {
 
 export async function getAccessToken(): Promise<string | undefined> {
   if (devToken) return devToken;
-  const { data } = await supabase.auth.getSession();
-  return data.session?.access_token;
+
+  const cognitoToken = await getCognitoAccessToken();
+  if (cognitoToken) return cognitoToken;
+
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token;
+  } catch {
+    return undefined;
+  }
 }

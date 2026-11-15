@@ -161,3 +161,23 @@ def rate_limit(
             raise too_many_requests(retry_after=result.reset_seconds)
 
     return _dependency
+
+
+# Specific Rate Limiters for Phase 04 Authentication Security
+rate_limit_auth_login = rate_limit(
+    max_requests=5,
+    window_seconds=900,
+    scope="auth:login",
+)
+
+rate_limit_auth_verification = rate_limit(
+    max_requests=3,
+    window_seconds=900,
+    scope="auth:verification",
+)
+
+rate_limit_password_reset = rate_limit(
+    max_requests=3,
+    window_seconds=900,
+    scope="auth:password_reset",
+)

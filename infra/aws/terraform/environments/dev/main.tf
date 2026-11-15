@@ -80,3 +80,11 @@ module "observability" {
   source      = "../../modules/observability"
   environment = var.environment
 }
+
+module "cognito" {
+  source         = "../../modules/cognito"
+  environment    = var.environment
+  aws_account_id = var.account_id
+  callback_urls  = ["fashx-dev://auth/callback", "fashx://auth/callback"]
+  logout_urls    = ["fashx-dev://auth/logout", "fashx://auth/logout"]
+}

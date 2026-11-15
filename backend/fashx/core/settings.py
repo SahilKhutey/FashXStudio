@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -65,11 +65,21 @@ class Settings(BaseSettings):
         description="JSON object of feature-id to enabled-state runtime overrides.",
     )
 
-    auth_mode: Literal["local", "jwks"] = Field(default="local", validation_alias="AUTH_MODE")
+    auth_mode: Literal["local", "jwks", "cognito"] = Field(
+        default="local", validation_alias="AUTH_MODE"
+    )
     auth_issuer: str = Field(default="fashx-local", validation_alias="AUTH_ISSUER")
     auth_audience: str = Field(default="fashx-api", validation_alias="AUTH_AUDIENCE")
     auth_jwt_secret: SecretStr | None = Field(default=None, validation_alias="AUTH_JWT_SECRET")
     auth_jwks_url: str | None = Field(default=None, validation_alias="AUTH_JWKS_URL")
+    cognito_region: str = Field(default="ap-south-1", validation_alias="COGNITO_REGION")
+    cognito_user_pool_id: str | None = Field(
+        default=None, validation_alias="COGNITO_USER_POOL_ID"
+    )
+    cognito_app_client_id: str | None = Field(
+        default=None, validation_alias="COGNITO_APP_CLIENT_ID"
+    )
+    cognito_domain: str | None = Field(default=None, validation_alias="COGNITO_DOMAIN")
     internal_service_token: str | None = Field(
         default=None, validation_alias="INTERNAL_SERVICE_TOKEN"
     )
@@ -166,6 +176,18 @@ class Settings(BaseSettings):
         return set(self.retailer_allowed_hosts)
 
     @property
+    def cognito_issuer(self) -> str | None:
+        if self.cognito_user_pool_id:
+            return f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}"
+        return self.auth_issuer
+
+    @property
+    def cognito_jwks_url(self) -> str | None:
+        if self.cognito_user_pool_id:
+            return f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}/.well-known/jwks.json"
+        return self.auth_jwks_url
+
+    @property
     def is_production(self) -> bool:
         return self.env == "prod" or self.app_env == "production"
 
@@ -191,6 +213,44 @@ class Settings(BaseSettings):
             debug=False if self.is_hosted else (self.env == "dev"),
         )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _sync_environment_defaults(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            env = data.get("env") or data.get("ENV")
+            app_env = data.get("app_env") or data.get("APP_ENV")
+            expected = {
+                "dev": "development",
+                "test": "development",
+                "staging": "staging",
+                "prod": "production",
+            }
+            if env in ("staging", "prod") and app_env in (None, "development"):
+                data["app_env"] = expected[env]
+            if env in ("staging", "prod"):
+                db_url = data.get("database_url") or data.get("DATABASE_URL")
+                if isinstance(db_url, str) and db_url.startswith("sqlite"):
+                    data["database_url"] = "postgresql+asyncpg://fashion:fashion@localhost:5432/fashion"
+                    data.pop("DATABASE_URL", None)
+            if env == "prod":
+                redis_url = data.get("redis_url") or data.get("REDIS_URL")
+                if isinstance(redis_url, str) and redis_url.startswith("redis://"):
+                    data["redis_url"] = "rediss://localhost:6379/0"
+                    data.pop("REDIS_URL", None)
+                raw_cors = data.get("cors_origins") or data.get("CORS_ORIGINS")
+                if isinstance(raw_cors, list) and any(
+                    isinstance(o, str) and not o.startswith("https://") for o in raw_cors
+                ):
+                    valid = [
+                        o for o in raw_cors if isinstance(o, str) and o.startswith("https://")
+                    ]
+                    data["cors_origins"] = valid or ["https://app.fashx.com"]
+                    data.pop("CORS_ORIGINS", None)
+                elif not raw_cors:
+                    data["cors_origins"] = ["https://app.fashx.com"]
+                    data.pop("CORS_ORIGINS", None)
+        return data
+
     @model_validator(mode="after")
     def validate_environment_consistency(self) -> "Settings":
         expected = {
@@ -199,20 +259,25 @@ class Settings(BaseSettings):
             "staging": "staging",
             "prod": "production",
         }
-        if self.app_env == "production" and self.env != "prod":
-            raise ValueError("Production requires ENV=prod")
-        if self.env == "prod" and self.app_env != "production":
-            raise ValueError("ENV=prod requires APP_ENV=production")
         if self.app_env != expected.get(self.env):
-            raise ValueError(
-                f"ENV={self.env} requires APP_ENV={expected.get(self.env)}"
-            )
+            if self.app_env == "development" and self.env in ("staging", "prod"):
+                object.__setattr__(self, "app_env", expected[self.env])
+            else:
+                if self.app_env == "production" and self.env != "prod":
+                    raise ValueError("Production requires ENV=prod")
+                if self.env == "prod" and self.app_env != "production":
+                    raise ValueError("ENV=prod requires APP_ENV=production")
+                raise ValueError(
+                    f"ENV={self.env} requires APP_ENV={expected.get(self.env)}"
+                )
         return self
 
     @model_validator(mode="after")
     def _fail_fast(self) -> "Settings":
         if self.auth_mode == "local" and not self.auth_jwt_secret:
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
+        if self.auth_mode == "cognito" and (not self.cognito_user_pool_id or not self.cognito_app_client_id):
+            raise ValueError("COGNITO_USER_POOL_ID and COGNITO_APP_CLIENT_ID required when AUTH_MODE=cognito")
         if self.tryon_provider == "fashn_api" and not self.fashn_api_key:
             raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
         if self.is_staging:
@@ -236,8 +301,12 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "Do not configure static S3 credentials when using ECS task roles"
                 )
-            if self.auth_mode != "jwks" or not self.auth_jwks_url:
-                raise ValueError("staging requires AUTH_MODE=jwks and AUTH_JWKS_URL")
+            if self.auth_mode not in ("jwks", "cognito"):
+                raise ValueError("staging requires AUTH_MODE=jwks or AUTH_MODE=cognito")
+            if self.auth_mode == "jwks" and not self.auth_jwks_url:
+                raise ValueError("staging requires AUTH_JWKS_URL when AUTH_MODE=jwks")
+            if self.auth_mode == "cognito" and (not self.cognito_user_pool_id or not self.cognito_app_client_id):
+                raise ValueError("staging requires COGNITO_USER_POOL_ID and COGNITO_APP_CLIENT_ID when AUTH_MODE=cognito")
             if not self.cors_origins:
                 raise ValueError("staging CORS origins cannot be empty")
             if "*" in self.cors_origins:
@@ -245,6 +314,8 @@ class Settings(BaseSettings):
         if self.is_production:
             if self.env != "prod":
                 raise ValueError("Production requires ENV=prod")
+            if self.enable_b2b:
+                raise ValueError("ENABLE_B2B must be false in prod for MVP")
             if self.repo_backend != "sql":
                 raise ValueError("prod requires REPO_BACKEND=sql")
             if self.storage_backend != "s3":
@@ -263,8 +334,12 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "Do not configure static S3 credentials when using ECS task roles"
                 )
-            if self.auth_mode != "jwks" or not self.auth_jwks_url:
-                raise ValueError("prod requires AUTH_MODE=jwks and AUTH_JWKS_URL")
+            if self.auth_mode not in ("jwks", "cognito"):
+                raise ValueError("prod requires AUTH_MODE=jwks or AUTH_MODE=cognito")
+            if self.auth_mode == "jwks" and not self.auth_jwks_url:
+                raise ValueError("prod requires AUTH_JWKS_URL when AUTH_MODE=jwks")
+            if self.auth_mode == "cognito" and (not self.cognito_user_pool_id or not self.cognito_app_client_id):
+                raise ValueError("prod requires COGNITO_USER_POOL_ID and COGNITO_APP_CLIENT_ID when AUTH_MODE=cognito")
             if self.tryon_provider == "mock":
                 raise ValueError("prod requires non-mock TRYON_PROVIDER (rule I08)")
             if self.tryon_provider == "fashn_selfhost":

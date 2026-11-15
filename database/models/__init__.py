@@ -1,4 +1,4 @@
-from .auth import AuthIdentity
+from .auth import AuthIdentity, RevokedAuthSession
 from .base import Base
 from .catalog import (
     Brand,
@@ -75,6 +75,7 @@ __all__ = [
     "ConsentEvent",
     "ConsentRecord",
     "AuthIdentity",
+    "RevokedAuthSession",
     "User",
     "UserPhoto",
     "BodyProfile",

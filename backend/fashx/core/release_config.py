@@ -38,9 +38,9 @@ def validate_release_config(config: ReleaseConfig) -> None:
         if config.debug:
             raise ValueError(f"Debug mode is strictly forbidden in {config.app_env}")
 
-        if config.auth_mode != "jwks":
+        if config.auth_mode not in ("jwks", "cognito"):
             raise ValueError(
-                f"{config.app_env.capitalize()} requires JWKS authentication (got: {config.auth_mode})"
+                f"{config.app_env.capitalize()} requires JWKS or Cognito authentication (got: {config.auth_mode})"
             )
 
         if config.storage_backend != "s3":
