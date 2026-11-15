@@ -106,10 +106,21 @@ class SqlIdentityRepo:
         record = result.scalar_one_or_none()
 
         if record is not None:
+            user_stmt = select(User).where(User.id == record.user_id)
+            user_res = await self._db.execute(user_stmt)
+            user = user_res.scalar_one_or_none()
+            is_disabled = (
+                record.disabled_at is not None
+                or (
+                    user is not None
+                    and getattr(user, "status", "ACTIVE")
+                    in ("DISABLED", "DELETION_PENDING", "DELETION_IN_PROGRESS", "DELETED")
+                )
+            )
             return Identity(
                 user_id=str(record.user_id),
                 role=record.role,
-                disabled=record.disabled_at is not None,
+                disabled=is_disabled,
             )
 
         # Create new user and linked auth identity

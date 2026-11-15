@@ -67,6 +67,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
         handler.addFilter(ContextFilter())
 
     install_exception_handlers(app)
+    from fashx.account.router import router as account_router
     from fashx.api.v1.me import router as me_router
     from fashx.api.v1.onboarding import router as onboarding_router
     from fashx.catalog.customer_router import customer_garment_router
@@ -77,6 +78,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(healthz_router)
     app.include_router(config_router, prefix="/api/v1")
+    app.include_router(account_router, prefix="/api/v1")
     app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])

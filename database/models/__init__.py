@@ -1,3 +1,4 @@
+from .account import AccountDeletionJob, AuthSession, IdentityAccount
 from .auth import AuthIdentity, RevokedAuthSession
 from .base import Base
 from .catalog import (
@@ -74,6 +75,9 @@ __all__ = [
     "WardrobeItem",
     "ConsentEvent",
     "ConsentRecord",
+    "IdentityAccount",
+    "AuthSession",
+    "AccountDeletionJob",
     "AuthIdentity",
     "RevokedAuthSession",
     "User",

@@ -91,7 +91,7 @@ def _patched_testclient_init(self, app, *args, **kwargs):
         in_security_test = False
         while frame:
             filename = frame.f_code.co_filename.replace("\\", "/")
-            if "tests/security" in filename:
+            if "tests/security" in filename or "tests/account" in filename:
                 in_security_test = True
                 break
             frame = frame.f_back
@@ -172,12 +172,17 @@ def setup_test_identity_override():
     main_app.dependency_overrides[get_wardrobe_catalog_uow] = lambda: CatalogUnitOfWork(session_factory)
 
     from fashx.api.v1.analytics import get_analytics_session_factory
-    from fashx.core.database import get_session_factory
+    from fashx.core.database import get_db_session, get_session_factory
+
+    async def _test_get_db_session():
+        async with session_factory() as session:
+            yield session
 
     main_app.dependency_overrides[get_commerce_uow] = lambda: CommerceWardrobeUnitOfWork(session_factory)
     main_app.dependency_overrides[get_tryon_uow] = lambda: TryOnUnitOfWork(session_factory)
     main_app.dependency_overrides[get_analytics_session_factory] = lambda: session_factory
     main_app.dependency_overrides[get_session_factory] = lambda: session_factory
+    main_app.dependency_overrides[get_db_session] = _test_get_db_session
     yield
     for fn in (
         get_identity_repo,
@@ -194,6 +199,7 @@ def setup_test_identity_override():
         get_tryon_uow,
         get_analytics_session_factory,
         get_session_factory,
+        get_db_session,
     ):
         main_app.dependency_overrides.pop(fn, None)
     asyncio.run(engine.dispose())

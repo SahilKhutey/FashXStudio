@@ -45,6 +45,8 @@ ACCOUNT_TABLES: list[str] = [
     "pilot_feedback",
     "experiment_exposures",
     "tenant_members",
+    "auth_sessions",
+    "identity_accounts",
 ]
 
 CORE_AUTH: list[str] = [
