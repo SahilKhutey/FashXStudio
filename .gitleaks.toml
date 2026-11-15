@@ -1,7 +1,7 @@
 [extend]
 useDefault = true
 
-[[allowlists]]
+[allowlist]
 description = "Test fixtures and documentation examples (no live credentials)"
 paths = [
   '''tests/.*''',

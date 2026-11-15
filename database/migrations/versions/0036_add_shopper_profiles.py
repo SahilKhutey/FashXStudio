@@ -25,7 +25,6 @@ def upgrade() -> None:
             sa.Uuid(),
             sa.ForeignKey("users.id", ondelete="CASCADE"),
             nullable=False,
-            unique=True,
         ),
         sa.Column("height_cm", sa.Numeric(precision=5, scale=1), nullable=True),
         sa.Column("weight_kg", sa.Numeric(precision=5, scale=1), nullable=True),
@@ -58,7 +57,12 @@ def upgrade() -> None:
         ),
         sa.CheckConstraint("version >= 1", name="ck_shopper_profiles_version"),
     )
-    op.create_index("ix_shopper_profiles_user_id", "shopper_profiles", ["user_id"])
+    op.create_index(
+        "ix_shopper_profiles_user_id",
+        "shopper_profiles",
+        ["user_id"],
+        unique=True,
+    )
     op.create_index("ix_shopper_profiles_updated_at", "shopper_profiles", ["updated_at"])
 
     # 2. Create profile_category_sizes table
