@@ -66,30 +66,30 @@ resource "random_password" "db_master" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier                  = "fashx-pg-${var.environment}"
-  engine                      = "postgres"
-  engine_version              = "16.2"
-  instance_class              = var.instance_class
-  allocated_storage           = var.allocated_storage
-  max_allocated_storage       = var.allocated_storage * 5
-  storage_type                = "gp3"
-  storage_encrypted           = true
-  db_name                     = var.database_name
-  username                    = "fashx_app"
-  password                    = random_password.db_master.result
-  db_subnet_group_name        = aws_db_subnet_group.rds.name
-  vpc_security_group_ids      = [aws_security_group.rds.id]
-  parameter_group_name        = aws_db_parameter_group.pg16.name
-  publicly_accessible         = false
-  multi_az                    = var.multi_az
-  backup_retention_period     = var.backup_retention_days
-  backup_window               = "19:00-20:00" # 00:30-01:30 IST
-  maintenance_window          = "sun:20:00-sun:21:00"
-  auto_minor_version_upgrade  = true
-  deletion_protection         = var.environment == "prod" ? true : false
-  skip_final_snapshot         = var.environment == "prod" ? false : true
-  final_snapshot_identifier   = "fashx-pg-${var.environment}-final-snapshot"
-  copy_tags_to_snapshot       = true
+  identifier                 = "fashx-pg-${var.environment}"
+  engine                     = "postgres"
+  engine_version             = "16.2"
+  instance_class             = var.instance_class
+  allocated_storage          = var.allocated_storage
+  max_allocated_storage      = var.allocated_storage * 5
+  storage_type               = "gp3"
+  storage_encrypted          = true
+  db_name                    = var.database_name
+  username                   = "fashx_app"
+  password                   = random_password.db_master.result
+  db_subnet_group_name       = aws_db_subnet_group.rds.name
+  vpc_security_group_ids     = [aws_security_group.rds.id]
+  parameter_group_name       = aws_db_parameter_group.pg16.name
+  publicly_accessible        = false
+  multi_az                   = var.multi_az
+  backup_retention_period    = var.backup_retention_days
+  backup_window              = "19:00-20:00" # 00:30-01:30 IST
+  maintenance_window         = "sun:20:00-sun:21:00"
+  auto_minor_version_upgrade = true
+  deletion_protection        = var.environment == "prod" ? true : false
+  skip_final_snapshot        = var.environment == "prod" ? false : true
+  final_snapshot_identifier  = "fashx-pg-${var.environment}-final-snapshot"
+  copy_tags_to_snapshot      = true
 
   tags = {
     Name        = "fashx-pg-${var.environment}"

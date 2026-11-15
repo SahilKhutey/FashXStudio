@@ -65,6 +65,7 @@ ANONYMIZE_TABLES: list[str] = [
 # Minimal pseudonymous tombstones to prevent resurrection on backup restore (Rule 9.8)
 RETAINED_MINIMAL: list[str] = [
     "erasure_tombstones",
+    "account_deletion_jobs",
 ]
 
 

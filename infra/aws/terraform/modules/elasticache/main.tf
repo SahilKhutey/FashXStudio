@@ -51,8 +51,8 @@ resource "aws_elasticache_parameter_group" "redis7" {
 }
 
 resource "random_password" "redis_auth" {
-  length           = 32
-  special          = false
+  length  = 32
+  special = false
 }
 
 resource "aws_elasticache_replication_group" "valkey" {
