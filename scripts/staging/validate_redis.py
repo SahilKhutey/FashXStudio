@@ -16,7 +16,7 @@ import time
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import redis
 
@@ -24,7 +24,7 @@ from fashx.core.settings import get_settings
 
 
 def validate_redis_operations(client: redis.Redis) -> dict[str, Any]:
-    step_results = []
+    step_results: list[dict[str, Any]] = []
 
     # 1. Ping
     t0 = time.time()
@@ -77,7 +77,7 @@ def validate_redis_operations(client: redis.Redis) -> dict[str, Any]:
     for q in queues:
         try:
             depth = client.llen(q)
-            queue_depths[q] = int(depth)
+            queue_depths[q] = int(cast(Any, depth))
         except Exception:
             queue_depths[q] = -1
 

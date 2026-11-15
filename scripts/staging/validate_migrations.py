@@ -17,7 +17,7 @@ from pathlib import Path
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
-from fashx.core.database import get_session_factory
+from fashx.core.database import get_engine
 
 
 def validate_migrations() -> dict[str, str | list[str]]:
@@ -37,11 +37,10 @@ def validate_migrations() -> dict[str, str | list[str]]:
 
     # 2. Database current revision
     try:
-        session_factory = get_session_factory()
-        with session_factory() as session:
-            from sqlalchemy import text
+        from sqlalchemy import text
 
-            current_rev = session.execute(text("SELECT version_num FROM alembic_version")).scalar_one_or_none()
+        with get_engine().sync_engine.connect() as conn:
+            current_rev = conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one_or_none()
     except Exception as e:
         current_rev = f"error: {type(e).__name__}"
 

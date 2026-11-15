@@ -110,6 +110,274 @@
         }
       }
     },
+    "/api/v1/account/provision": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Provision Account",
+        "operationId": "provision_account_api_v1_account_provision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountProvisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProvisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/me": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Get My Account",
+        "operationId": "get_my_account_api_v1_account_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountMeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/email-change": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Request Email Change",
+        "operationId": "request_email_change_api_v1_account_email_change_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailChangeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/email-change/confirm": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Confirm Email Change",
+        "operationId": "confirm_email_change_api_v1_account_email_change_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailChangeConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailChangeConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/disable": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Disable Account",
+        "operationId": "disable_account_api_v1_account_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDisableRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDisableResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/deletion-request": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Request Account Deletion",
+        "operationId": "request_account_deletion_api_v1_account_deletion_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeletionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/deletion-status": {
+      "get": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Get Account Deletion Status",
+        "operationId": "get_account_deletion_status_api_v1_account_deletion_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDeletionStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/sessions/revoke-all": {
+      "post": {
+        "tags": [
+          "account"
+        ],
+        "summary": "Revoke All Sessions",
+        "operationId": "revoke_all_sessions_api_v1_account_sessions_revoke_all_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevokeAllResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/me": {
       "get": {
         "tags": [
@@ -622,7 +890,174 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DerivedProfileResponse"
+                  "$ref": "#/components/schemas/ShopperProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Create Or Replace My Profile",
+        "operationId": "create_or_replace_my_profile_api_v1_profile_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopperProfileCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopperProfileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Update My Profile",
+        "operationId": "update_my_profile_api_v1_profile_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopperProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopperProfileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/me/completeness": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Get My Profile Completeness",
+        "operationId": "get_my_profile_completeness_api_v1_profile_me_completeness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureCompletenessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/profile/me/category-sizes": {
+      "get": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Get My Category Sizes",
+        "operationId": "get_my_category_sizes_api_v1_profile_me_category_sizes_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CategorySizeItem"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Category Sizes Api V1 Profile Me Category Sizes Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "profile"
+        ],
+        "summary": "Update My Category Sizes",
+        "operationId": "update_my_category_sizes_api_v1_profile_me_category_sizes_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySizesUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CategorySizeItem"
+                  },
+                  "type": "array",
+                  "title": "Response Update My Category Sizes Api V1 Profile Me Category Sizes Put"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -11297,6 +11732,270 @@
         "title": "AccessibilityAuditResult",
         "description": "Audit evaluation result across the 15 WCAG standards (Section 15.100)."
       },
+      "AccountDeletionRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "title": "AccountDeletionRequest"
+      },
+      "AccountDeletionResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "user_id",
+          "status",
+          "message"
+        ],
+        "title": "AccountDeletionResponse"
+      },
+      "AccountDeletionStatusResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "user_id",
+          "status",
+          "requested_at",
+          "attempts"
+        ],
+        "title": "AccountDeletionStatusResponse"
+      },
+      "AccountDisableRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "title": "AccountDisableRequest"
+      },
+      "AccountDisableResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          },
+          "disabled_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Disabled At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "status",
+          "disabled_at"
+        ],
+        "title": "AccountDisableResponse"
+      },
+      "AccountMeResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email_normalized": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Normalized"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email_verified",
+          "status",
+          "roles",
+          "created_at"
+        ],
+        "title": "AccountMeResponse"
+      },
+      "AccountProvisionRequest": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified",
+            "default": false
+          },
+          "device_label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Label"
+          }
+        },
+        "type": "object",
+        "title": "AccountProvisionRequest"
+      },
+      "AccountProvisionResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          },
+          "email_normalized": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Normalized"
+          },
+          "email_verified": {
+            "type": "boolean",
+            "title": "Email Verified"
+          },
+          "is_new": {
+            "type": "boolean",
+            "title": "Is New"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "status",
+          "email_verified",
+          "is_new"
+        ],
+        "title": "AccountProvisionResponse"
+      },
       "AccountSettingsContract": {
         "properties": {
           "user_id": {
@@ -11385,6 +12084,19 @@
         ],
         "title": "AccountSettingsTemplateSpecContract",
         "description": "PR11: Account, security, and notification settings (Section 13.39 - 13.44)."
+      },
+      "AccountStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_VERIFICATION",
+          "PROVISIONING",
+          "ACTIVE",
+          "DISABLED",
+          "DELETION_PENDING",
+          "DELETION_IN_PROGRESS",
+          "DELETED"
+        ],
+        "title": "AccountStatus"
       },
       "ActiveFilterContract": {
         "properties": {
@@ -13021,6 +13733,50 @@
         "title": "CardContentPruningResult",
         "description": "Pruned card metadata respecting content priority model (Section 14.28)."
       },
+      "CategorySizeItem": {
+        "properties": {
+          "category_code": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Category Code"
+          },
+          "size_system": {
+            "$ref": "#/components/schemas/SizeSystem"
+          },
+          "size_label": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Size Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "category_code",
+          "size_system",
+          "size_label"
+        ],
+        "title": "CategorySizeItem"
+      },
+      "CategorySizesUpdateRequest": {
+        "properties": {
+          "sizes": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySizeItem"
+            },
+            "type": "array",
+            "title": "Sizes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sizes"
+        ],
+        "title": "CategorySizesUpdateRequest"
+      },
       "CheckoutLayoutType": {
         "type": "string",
         "enum": [
@@ -13180,6 +13936,28 @@
         ],
         "title": "CollectionItemContract",
         "description": "Curated fashion collection representation (Section 6.13 & 6.14)."
+      },
+      "ColorPreference": {
+        "type": "string",
+        "enum": [
+          "BLACK",
+          "WHITE",
+          "GREY",
+          "NAVY",
+          "BLUE",
+          "RED",
+          "GREEN",
+          "YELLOW",
+          "ORANGE",
+          "PINK",
+          "PURPLE",
+          "BROWN",
+          "BEIGE",
+          "MAROON",
+          "MULTICOLOR",
+          "NO_PREFERENCE"
+        ],
+        "title": "ColorPreference"
       },
       "ComparisonAttributeContract": {
         "properties": {
@@ -15299,6 +16077,82 @@
         "title": "ElevationTokens",
         "description": "Elevation shadow levels (Section 2.19)."
       },
+      "EmailChangeConfirmRequest": {
+        "properties": {
+          "new_email": {
+            "type": "string",
+            "format": "email",
+            "title": "New Email"
+          },
+          "confirmation_code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 6,
+            "title": "Confirmation Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_email",
+          "confirmation_code"
+        ],
+        "title": "EmailChangeConfirmRequest"
+      },
+      "EmailChangeConfirmResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email_normalized": {
+            "type": "string",
+            "title": "Email Normalized"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "confirmed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email_normalized"
+        ],
+        "title": "EmailChangeConfirmResponse"
+      },
+      "EmailChangeRequest": {
+        "properties": {
+          "new_email": {
+            "type": "string",
+            "format": "email",
+            "title": "New Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_email"
+        ],
+        "title": "EmailChangeRequest"
+      },
+      "EmailChangeResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "verification_sent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "EmailChangeResponse"
+      },
       "EndToEndJourneySpecContract": {
         "properties": {
           "journey_id": {
@@ -16194,6 +17048,32 @@
         ],
         "title": "FeatureAvailability"
       },
+      "FeatureCompletenessResponse": {
+        "properties": {
+          "overall_status": {
+            "type": "string",
+            "title": "Overall Status"
+          },
+          "overall_percentage": {
+            "type": "integer",
+            "title": "Overall Percentage",
+            "default": 0
+          },
+          "features": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FeatureReadiness"
+            },
+            "type": "object",
+            "title": "Features"
+          }
+        },
+        "type": "object",
+        "required": [
+          "overall_status",
+          "features"
+        ],
+        "title": "FeatureCompletenessResponse"
+      },
       "FeatureDomain": {
         "type": "string",
         "enum": [
@@ -16333,6 +17213,26 @@
           "disabled"
         ],
         "title": "FeatureLifecycle"
+      },
+      "FeatureReadiness": {
+        "properties": {
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Fields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ready"
+        ],
+        "title": "FeatureReadiness"
       },
       "FeatureRuntimeSnapshot": {
         "properties": {
@@ -20963,6 +21863,17 @@
         "title": "PreferencesTemplateSpecContract",
         "description": "PR08: Modular explicit style and wardrobe preferences canvas (Section 13.26 - 13.28)."
       },
+      "PreferredFit": {
+        "type": "string",
+        "enum": [
+          "SLIM",
+          "REGULAR",
+          "RELAXED",
+          "OVERSIZED",
+          "NO_PREFERENCE"
+        ],
+        "title": "PreferredFit"
+      },
       "PriceAdjustmentResponse": {
         "properties": {
           "rule_id": {
@@ -21404,6 +22315,23 @@
         "type": "object",
         "title": "ProductCardComponentTokens",
         "description": "Concrete token mapping for ProductCard (Section 2.34)."
+      },
+      "ProductCategory": {
+        "type": "string",
+        "enum": [
+          "TOPS",
+          "SHIRTS",
+          "T_SHIRTS",
+          "BOTTOMS",
+          "JEANS",
+          "TROUSERS",
+          "DRESSES",
+          "KURTAS",
+          "ETHNIC_WEAR",
+          "FOOTWEAR",
+          "ACCESSORIES"
+        ],
+        "title": "ProductCategory"
       },
       "ProductComparisonContract": {
         "properties": {
@@ -25504,6 +26432,29 @@
         ],
         "title": "SessionEventType"
       },
+      "SessionRevokeAllResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "revoked_sessions_count": {
+            "type": "integer",
+            "title": "Revoked Sessions Count"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "revoked_sessions_count",
+          "message"
+        ],
+        "title": "SessionRevokeAllResponse"
+      },
       "ShellLayoutMode": {
         "type": "string",
         "enum": [
@@ -25576,6 +26527,477 @@
         ],
         "title": "ShopOutfitAvailabilityContract",
         "description": "Pre-purchase validation result before transferring outfit to cart (Section 10.28)."
+      },
+      "ShopperProfileCreate": {
+        "properties": {
+          "height_cm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "minimum": 80.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 400.0,
+                "minimum": 20.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          },
+          "preferred_size_system": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SizeSystem"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preferred_fit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreferredFit"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "style_preferences": {
+            "items": {
+              "$ref": "#/components/schemas/StylePreference"
+            },
+            "type": "array",
+            "title": "Style Preferences"
+          },
+          "preferred_colors": {
+            "items": {
+              "$ref": "#/components/schemas/ColorPreference"
+            },
+            "type": "array",
+            "title": "Preferred Colors"
+          },
+          "product_categories": {
+            "items": {
+              "$ref": "#/components/schemas/ProductCategory"
+            },
+            "type": "array",
+            "title": "Product Categories"
+          },
+          "shopping_preferences": {
+            "$ref": "#/components/schemas/ShoppingPreferences"
+          },
+          "category_sizes": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySizeItem"
+            },
+            "type": "array",
+            "title": "Category Sizes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ShopperProfileCreate"
+      },
+      "ShopperProfileResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "height_cm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          },
+          "preferred_size_system": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Size System"
+          },
+          "preferred_fit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Fit"
+          },
+          "style_preferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Style Preferences"
+          },
+          "preferred_colors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Colors"
+          },
+          "product_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Product Categories"
+          },
+          "shopping_preferences": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Shopping Preferences"
+          },
+          "category_sizes": {
+            "items": {
+              "$ref": "#/components/schemas/CategorySizeItem"
+            },
+            "type": "array",
+            "title": "Category Sizes"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "build": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Build"
+          },
+          "consents": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Consents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ShopperProfileResponse"
+      },
+      "ShopperProfileUpdate": {
+        "properties": {
+          "height_cm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "minimum": 80.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 400.0,
+                "minimum": 20.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          },
+          "preferred_size_system": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SizeSystem"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preferred_fit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreferredFit"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "style_preferences": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/StylePreference"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Preferences"
+          },
+          "preferred_colors": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ColorPreference"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Colors"
+          },
+          "product_categories": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ProductCategory"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Categories"
+          },
+          "shopping_preferences": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShoppingPreferences"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category_sizes": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CategorySizeItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Sizes"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ShopperProfileUpdate"
+      },
+      "ShoppingBudget": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "INR"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ShoppingBudget"
+      },
+      "ShoppingIntent": {
+        "type": "string",
+        "enum": [
+          "EVERYDAY_WEAR",
+          "WORKWEAR",
+          "COLLEGE_WEAR",
+          "OCCASION_WEAR",
+          "FESTIVE_WEAR",
+          "SPORTSWEAR",
+          "TRAVEL_WEAR"
+        ],
+        "title": "ShoppingIntent"
+      },
+      "ShoppingPreferences": {
+        "properties": {
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShoppingBudget"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shopping_intents": {
+            "items": {
+              "$ref": "#/components/schemas/ShoppingIntent"
+            },
+            "type": "array",
+            "title": "Shopping Intents"
+          },
+          "preferred_brands": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Brands"
+          },
+          "avoid_materials": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avoid Materials"
+          },
+          "sustainability_preference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sustainability Preference",
+            "default": "NO_PREFERENCE"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ShoppingPreferences"
       },
       "ShoppingProductDetailContract": {
         "properties": {
@@ -25726,6 +27148,17 @@
           "url"
         ],
         "title": "SignedImageResponse"
+      },
+      "SizeSystem": {
+        "type": "string",
+        "enum": [
+          "IN",
+          "US",
+          "UK",
+          "EU",
+          "INTL"
+        ],
+        "title": "SizeSystem"
       },
       "SizingScale": {
         "properties": {
@@ -26094,6 +27527,23 @@
         ],
         "title": "StyleHomeTemplateSpecContract",
         "description": "ST01: Style Home entry point specification (Section 10.5, 10.6)."
+      },
+      "StylePreference": {
+        "type": "string",
+        "enum": [
+          "CASUAL",
+          "FORMAL",
+          "SMART_CASUAL",
+          "MINIMAL",
+          "STREETWEAR",
+          "SPORTSWEAR",
+          "ETHNIC",
+          "TRADITIONAL",
+          "FUSION",
+          "PARTY",
+          "NO_PREFERENCE"
+        ],
+        "title": "StylePreference"
       },
       "StylePreferenceContract": {
         "properties": {

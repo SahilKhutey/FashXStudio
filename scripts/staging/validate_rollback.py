@@ -17,7 +17,7 @@ from typing import Any
 
 
 def validate_rollback_readiness() -> dict[str, Any]:
-    step_results = []
+    step_results: list[dict[str, Any]] = []
     rollback_script = Path("scripts/release/rollback_ecs.sh")
 
     # 1. Script presence and executability

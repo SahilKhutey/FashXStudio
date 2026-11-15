@@ -89,6 +89,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/provision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Provision Account */
+        post: operations["provision_account_api_v1_account_provision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Account */
+        get: operations["get_my_account_api_v1_account_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/email-change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Email Change */
+        post: operations["request_email_change_api_v1_account_email_change_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/email-change/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Email Change */
+        post: operations["confirm_email_change_api_v1_account_email_change_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Disable Account */
+        post: operations["disable_account_api_v1_account_disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/deletion-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Account Deletion */
+        post: operations["request_account_deletion_api_v1_account_deletion_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/deletion-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Account Deletion Status */
+        get: operations["get_account_deletion_status_api_v1_account_deletion_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/sessions/revoke-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke All Sessions */
+        post: operations["revoke_all_sessions_api_v1_account_sessions_revoke_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me": {
         parameters: {
             query?: never;
@@ -332,7 +468,44 @@ export interface paths {
         };
         /** Get My Profile */
         get: operations["get_my_profile_api_v1_profile_me_get"];
+        /** Create Or Replace My Profile */
+        put: operations["create_or_replace_my_profile_api_v1_profile_me_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update My Profile */
+        patch: operations["update_my_profile_api_v1_profile_me_patch"];
+        trace?: never;
+    };
+    "/api/v1/profile/me/completeness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Profile Completeness */
+        get: operations["get_my_profile_completeness_api_v1_profile_me_completeness_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/me/category-sizes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Category Sizes */
+        get: operations["get_my_category_sizes_api_v1_profile_me_category_sizes_get"];
+        /** Update My Category Sizes */
+        put: operations["update_my_category_sizes_api_v1_profile_me_category_sizes_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -4794,6 +4967,98 @@ export interface components {
             /** Reduced Motion Passed */
             reduced_motion_passed: boolean;
         };
+        /** AccountDeletionRequest */
+        AccountDeletionRequest: {
+            /** Reason */
+            reason?: string | null;
+        };
+        /** AccountDeletionResponse */
+        AccountDeletionResponse: {
+            /** Job Id */
+            job_id: string;
+            /** User Id */
+            user_id: string;
+            status: components["schemas"]["AccountStatus"];
+            /** Message */
+            message: string;
+        };
+        /** AccountDeletionStatusResponse */
+        AccountDeletionStatusResponse: {
+            /** Job Id */
+            job_id: string;
+            /** User Id */
+            user_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /** Started At */
+            started_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Attempts */
+            attempts: number;
+        };
+        /** AccountDisableRequest */
+        AccountDisableRequest: {
+            /** Reason */
+            reason?: string | null;
+        };
+        /** AccountDisableResponse */
+        AccountDisableResponse: {
+            /** User Id */
+            user_id: string;
+            status: components["schemas"]["AccountStatus"];
+            /**
+             * Disabled At
+             * Format: date-time
+             */
+            disabled_at: string;
+        };
+        /** AccountMeResponse */
+        AccountMeResponse: {
+            /** User Id */
+            user_id: string;
+            /** Email Normalized */
+            email_normalized?: string | null;
+            /** Email Verified */
+            email_verified: boolean;
+            status: components["schemas"]["AccountStatus"];
+            /** Roles */
+            roles: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AccountProvisionRequest */
+        AccountProvisionRequest: {
+            /** Email */
+            email?: string | null;
+            /**
+             * Email Verified
+             * @default false
+             */
+            email_verified: boolean;
+            /** Device Label */
+            device_label?: string | null;
+        };
+        /** AccountProvisionResponse */
+        AccountProvisionResponse: {
+            /** User Id */
+            user_id: string;
+            status: components["schemas"]["AccountStatus"];
+            /** Email Normalized */
+            email_normalized?: string | null;
+            /** Email Verified */
+            email_verified: boolean;
+            /** Is New */
+            is_new: boolean;
+        };
         /**
          * AccountSettingsContract
          * @description Account management, security, and notification settings (Section 13.39 - 13.41).
@@ -4860,6 +5125,11 @@ export interface components {
             /** @default loaded */
             state: components["schemas"]["PersonalState"];
         };
+        /**
+         * AccountStatus
+         * @enum {string}
+         */
+        AccountStatus: "PENDING_VERIFICATION" | "PROVISIONING" | "ACTIVE" | "DISABLED" | "DELETION_PENDING" | "DELETION_IN_PROGRESS" | "DELETED";
         /**
          * ActiveFilterContract
          * @description Removable active filter pill representation (Section 7.16).
@@ -5654,6 +5924,19 @@ export interface components {
              */
             display_tags: boolean;
         };
+        /** CategorySizeItem */
+        CategorySizeItem: {
+            /** Category Code */
+            category_code: string;
+            size_system: components["schemas"]["SizeSystem"];
+            /** Size Label */
+            size_label: string;
+        };
+        /** CategorySizesUpdateRequest */
+        CategorySizesUpdateRequest: {
+            /** Sizes */
+            sizes: components["schemas"]["CategorySizeItem"][];
+        };
         /**
          * CheckoutLayoutType
          * @description Commercial checkout adaptation (Section 14.44 & 14.45).
@@ -5723,6 +6006,11 @@ export interface components {
             /** @default loaded */
             state: components["schemas"]["ContentState"];
         };
+        /**
+         * ColorPreference
+         * @enum {string}
+         */
+        ColorPreference: "BLACK" | "WHITE" | "GREY" | "NAVY" | "BLUE" | "RED" | "GREEN" | "YELLOW" | "ORANGE" | "PINK" | "PURPLE" | "BROWN" | "BEIGE" | "MAROON" | "MULTICOLOR" | "NO_PREFERENCE";
         /**
          * ComparisonAttributeContract
          * @description Attribute comparison row across multiple products (Section 7.60).
@@ -6736,6 +7024,46 @@ export interface components {
              */
             elevation_4: string;
         };
+        /** EmailChangeConfirmRequest */
+        EmailChangeConfirmRequest: {
+            /**
+             * New Email
+             * Format: email
+             */
+            new_email: string;
+            /** Confirmation Code */
+            confirmation_code: string;
+        };
+        /** EmailChangeConfirmResponse */
+        EmailChangeConfirmResponse: {
+            /** User Id */
+            user_id: string;
+            /** Email Normalized */
+            email_normalized: string;
+            /**
+             * Status
+             * @default confirmed
+             */
+            status: string;
+        };
+        /** EmailChangeRequest */
+        EmailChangeRequest: {
+            /**
+             * New Email
+             * Format: email
+             */
+            new_email: string;
+        };
+        /** EmailChangeResponse */
+        EmailChangeResponse: {
+            /** Message */
+            message: string;
+            /**
+             * Status
+             * @default verification_sent
+             */
+            status: string;
+        };
         /**
          * EndToEndJourneySpecContract
          * @description Specification and verification result for Master E2E User Journeys (Section 16.36).
@@ -7147,6 +7475,20 @@ export interface components {
             /** Unavailable Reasons */
             unavailable_reasons?: string[];
         };
+        /** FeatureCompletenessResponse */
+        FeatureCompletenessResponse: {
+            /** Overall Status */
+            overall_status: string;
+            /**
+             * Overall Percentage
+             * @default 0
+             */
+            overall_percentage: number;
+            /** Features */
+            features: {
+                [key: string]: components["schemas"]["FeatureReadiness"];
+            };
+        };
         /**
          * FeatureDomain
          * @enum {string}
@@ -7195,6 +7537,13 @@ export interface components {
          * @enum {string}
          */
         FeatureLifecycle: "registered" | "discovering_dependencies" | "initializing" | "ready" | "running" | "completed" | "failed" | "recovering" | "disabled";
+        /** FeatureReadiness */
+        FeatureReadiness: {
+            /** Ready */
+            ready: boolean;
+            /** Missing Fields */
+            missing_fields?: string[];
+        };
         /** FeatureRuntimeSnapshot */
         FeatureRuntimeSnapshot: {
             /** Feature Id */
@@ -9553,6 +9902,11 @@ export interface components {
             /** @default loaded */
             state: components["schemas"]["PersonalState"];
         };
+        /**
+         * PreferredFit
+         * @enum {string}
+         */
+        PreferredFit: "SLIM" | "REGULAR" | "RELAXED" | "OVERSIZED" | "NO_PREFERENCE";
         /** PriceAdjustmentResponse */
         PriceAdjustmentResponse: {
             /** Rule Id */
@@ -9768,6 +10122,11 @@ export interface components {
              */
             focus_ring: string;
         };
+        /**
+         * ProductCategory
+         * @enum {string}
+         */
+        ProductCategory: "TOPS" | "SHIRTS" | "T_SHIRTS" | "BOTTOMS" | "JEANS" | "TROUSERS" | "DRESSES" | "KURTAS" | "ETHNIC_WEAR" | "FOOTWEAR" | "ACCESSORIES";
         /**
          * ProductComparisonContract
          * @description Data-driven side-by-side product comparison (Section 7.60).
@@ -11743,6 +12102,15 @@ export interface components {
          * @enum {string}
          */
         SessionEventType: "impression" | "click" | "onboarding_completed" | "feed_viewed" | "garment_opened" | "garment_saved" | "tryon_submitted" | "tryon_completed" | "tryon_failed" | "retailer_opened" | "feedback_submitted";
+        /** SessionRevokeAllResponse */
+        SessionRevokeAllResponse: {
+            /** User Id */
+            user_id: string;
+            /** Revoked Sessions Count */
+            revoked_sessions_count: number;
+            /** Message */
+            message: string;
+        };
         /**
          * ShellLayoutMode
          * @description Active layout mode resolved from breakpoint (Section 3.29).
@@ -11780,6 +12148,121 @@ export interface components {
              * @default 0
              */
             total_price: number;
+        };
+        /** ShopperProfileCreate */
+        ShopperProfileCreate: {
+            /** Height Cm */
+            height_cm?: number | string | null;
+            /** Weight Kg */
+            weight_kg?: number | string | null;
+            preferred_size_system?: components["schemas"]["SizeSystem"] | null;
+            preferred_fit?: components["schemas"]["PreferredFit"] | null;
+            /** Style Preferences */
+            style_preferences?: components["schemas"]["StylePreference"][];
+            /** Preferred Colors */
+            preferred_colors?: components["schemas"]["ColorPreference"][];
+            /** Product Categories */
+            product_categories?: components["schemas"]["ProductCategory"][];
+            shopping_preferences?: components["schemas"]["ShoppingPreferences"];
+            /** Category Sizes */
+            category_sizes?: components["schemas"]["CategorySizeItem"][];
+        };
+        /** ShopperProfileResponse */
+        ShopperProfileResponse: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Weight Kg */
+            weight_kg?: number | null;
+            /** Preferred Size System */
+            preferred_size_system?: string | null;
+            /** Preferred Fit */
+            preferred_fit?: string | null;
+            /** Style Preferences */
+            style_preferences?: string[];
+            /** Preferred Colors */
+            preferred_colors?: string[];
+            /** Product Categories */
+            product_categories?: string[];
+            /** Shopping Preferences */
+            shopping_preferences?: {
+                [key: string]: unknown;
+            };
+            /** Category Sizes */
+            category_sizes?: components["schemas"]["CategorySizeItem"][];
+            /** Version */
+            version: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Build */
+            build?: string | null;
+            /** Consents */
+            consents?: {
+                [key: string]: boolean;
+            };
+        };
+        /** ShopperProfileUpdate */
+        ShopperProfileUpdate: {
+            /** Height Cm */
+            height_cm?: number | string | null;
+            /** Weight Kg */
+            weight_kg?: number | string | null;
+            preferred_size_system?: components["schemas"]["SizeSystem"] | null;
+            preferred_fit?: components["schemas"]["PreferredFit"] | null;
+            /** Style Preferences */
+            style_preferences?: components["schemas"]["StylePreference"][] | null;
+            /** Preferred Colors */
+            preferred_colors?: components["schemas"]["ColorPreference"][] | null;
+            /** Product Categories */
+            product_categories?: components["schemas"]["ProductCategory"][] | null;
+            shopping_preferences?: components["schemas"]["ShoppingPreferences"] | null;
+            /** Category Sizes */
+            category_sizes?: components["schemas"]["CategorySizeItem"][] | null;
+            /** Expected Version */
+            expected_version?: number | null;
+        };
+        /** ShoppingBudget */
+        ShoppingBudget: {
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Min */
+            min?: number | string | null;
+            /** Max */
+            max?: number | string | null;
+        };
+        /**
+         * ShoppingIntent
+         * @enum {string}
+         */
+        ShoppingIntent: "EVERYDAY_WEAR" | "WORKWEAR" | "COLLEGE_WEAR" | "OCCASION_WEAR" | "FESTIVE_WEAR" | "SPORTSWEAR" | "TRAVEL_WEAR";
+        /** ShoppingPreferences */
+        ShoppingPreferences: {
+            budget?: components["schemas"]["ShoppingBudget"] | null;
+            /** Shopping Intents */
+            shopping_intents?: components["schemas"]["ShoppingIntent"][];
+            /** Preferred Brands */
+            preferred_brands?: string[];
+            /** Avoid Materials */
+            avoid_materials?: string[];
+            /**
+             * Sustainability Preference
+             * @default NO_PREFERENCE
+             */
+            sustainability_preference: string | null;
         };
         /**
          * ShoppingProductDetailContract
@@ -11832,6 +12315,11 @@ export interface components {
             /** Expires At */
             expires_at?: string | null;
         };
+        /**
+         * SizeSystem
+         * @enum {string}
+         */
+        SizeSystem: "IN" | "US" | "UK" | "EU" | "INTL";
         /**
          * SizingScale
          * @description Component standard heights/sizes (Section 2.15).
@@ -12073,6 +12561,11 @@ export interface components {
             /** Saved Looks Preview */
             saved_looks_preview?: components["schemas"]["schemas__visual__styling__SavedLookContract"][];
         };
+        /**
+         * StylePreference
+         * @enum {string}
+         */
+        StylePreference: "CASUAL" | "FORMAL" | "SMART_CASUAL" | "MINIMAL" | "STREETWEAR" | "SPORTSWEAR" | "ETHNIC" | "TRADITIONAL" | "FUSION" | "PARTY" | "NO_PREFERENCE";
         /**
          * StylePreferenceContract
          * @description User aesthetic preference settings (Section 10.33, 10.34).
@@ -13748,6 +14241,231 @@ export interface operations {
             };
         };
     };
+    provision_account_api_v1_account_provision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountProvisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountProvisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_account_api_v1_account_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountMeResponse"];
+                };
+            };
+        };
+    };
+    request_email_change_api_v1_account_email_change_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailChangeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_email_change_api_v1_account_email_change_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailChangeConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailChangeConfirmResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disable_account_api_v1_account_disable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountDisableRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDisableResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_account_deletion_api_v1_account_deletion_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountDeletionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_account_deletion_status_api_v1_account_deletion_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionStatusResponse"];
+                };
+            };
+        };
+    };
+    revoke_all_sessions_api_v1_account_sessions_revoke_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionRevokeAllResponse"];
+                };
+            };
+        };
+    };
     get_me_api_v1_me_get: {
         parameters: {
             query?: never;
@@ -14141,7 +14859,146 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DerivedProfileResponse"];
+                    "application/json": components["schemas"]["ShopperProfileResponse"];
+                };
+            };
+        };
+    };
+    create_or_replace_my_profile_api_v1_profile_me_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShopperProfileCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_my_profile_api_v1_profile_me_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShopperProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_profile_completeness_api_v1_profile_me_completeness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureCompletenessResponse"];
+                };
+            };
+        };
+    };
+    get_my_category_sizes_api_v1_profile_me_category_sizes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategorySizeItem"][];
+                };
+            };
+        };
+    };
+    update_my_category_sizes_api_v1_profile_me_category_sizes_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategorySizesUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategorySizeItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

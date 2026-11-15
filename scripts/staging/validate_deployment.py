@@ -16,11 +16,12 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
-def check_endpoint(base_url: str, path: str, timeout: int = 10) -> dict[str, str | int]:
+def check_endpoint(base_url: str, path: str, timeout: int = 10) -> dict[str, Any]:
     url = f"{base_url.rstrip('/')}{path}"
     req = Request(
         url,

@@ -1,6 +1,6 @@
 import pytest
 
-from backend.fashx.workers.validation_tasks import (
+from fashx.workers.validation_tasks import (
     staging_fatal_task,
     staging_ingest_ping,
     staging_maintenance_ping,

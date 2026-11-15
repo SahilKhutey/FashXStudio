@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -213,44 +213,6 @@ class Settings(BaseSettings):
             debug=False if self.is_hosted else (self.env == "dev"),
         )
 
-    @model_validator(mode="before")
-    @classmethod
-    def _sync_environment_defaults(cls, data: Any) -> Any:
-        if isinstance(data, dict):
-            env = data.get("env") or data.get("ENV")
-            app_env = data.get("app_env") or data.get("APP_ENV")
-            expected = {
-                "dev": "development",
-                "test": "development",
-                "staging": "staging",
-                "prod": "production",
-            }
-            if env in ("staging", "prod") and app_env in (None, "development"):
-                data["app_env"] = expected[env]
-            if env in ("staging", "prod"):
-                db_url = data.get("database_url") or data.get("DATABASE_URL")
-                if isinstance(db_url, str) and db_url.startswith("sqlite"):
-                    data["database_url"] = "postgresql+asyncpg://fashion:fashion@localhost:5432/fashion"
-                    data.pop("DATABASE_URL", None)
-            if env == "prod":
-                redis_url = data.get("redis_url") or data.get("REDIS_URL")
-                if isinstance(redis_url, str) and redis_url.startswith("redis://"):
-                    data["redis_url"] = "rediss://localhost:6379/0"
-                    data.pop("REDIS_URL", None)
-                raw_cors = data.get("cors_origins") or data.get("CORS_ORIGINS")
-                if isinstance(raw_cors, list) and any(
-                    isinstance(o, str) and not o.startswith("https://") for o in raw_cors
-                ):
-                    valid = [
-                        o for o in raw_cors if isinstance(o, str) and o.startswith("https://")
-                    ]
-                    data["cors_origins"] = valid or ["https://app.fashx.com"]
-                    data.pop("CORS_ORIGINS", None)
-                elif not raw_cors:
-                    data["cors_origins"] = ["https://app.fashx.com"]
-                    data.pop("CORS_ORIGINS", None)
-        return data
-
     @model_validator(mode="after")
     def validate_environment_consistency(self) -> "Settings":
         expected = {
@@ -259,17 +221,14 @@ class Settings(BaseSettings):
             "staging": "staging",
             "prod": "production",
         }
+        if self.app_env == "production" and self.env != "prod":
+            raise ValueError("Production requires ENV=prod")
+        if self.env == "prod" and self.app_env != "production":
+            raise ValueError("ENV=prod requires APP_ENV=production")
         if self.app_env != expected.get(self.env):
-            if self.app_env == "development" and self.env in ("staging", "prod"):
-                object.__setattr__(self, "app_env", expected[self.env])
-            else:
-                if self.app_env == "production" and self.env != "prod":
-                    raise ValueError("Production requires ENV=prod")
-                if self.env == "prod" and self.app_env != "production":
-                    raise ValueError("ENV=prod requires APP_ENV=production")
-                raise ValueError(
-                    f"ENV={self.env} requires APP_ENV={expected.get(self.env)}"
-                )
+            raise ValueError(
+                f"ENV={self.env} requires APP_ENV={expected.get(self.env)}"
+            )
         return self
 
     @model_validator(mode="after")

@@ -19,7 +19,7 @@ from fashx.core.settings import get_settings
 
 
 def validate_backup_restore_policy() -> dict[str, Any]:
-    step_results = []
+    step_results: list[dict[str, Any]] = []
     settings = get_settings()
 
     # 1. Staging configuration policy

@@ -198,7 +198,7 @@ class ProfileCategorySize(Base, UUIDPrimaryKeyMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     category_code: Mapped[str] = mapped_column(String(64), nullable=False)
     size_system: Mapped[str] = mapped_column(String(8), nullable=False)
@@ -218,7 +218,7 @@ class ProfileMeasurement(Base, UUIDPrimaryKeyMixin):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     measurement_type: Mapped[str] = mapped_column(String(32), nullable=False)
     value_cm: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
