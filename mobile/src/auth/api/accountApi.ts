@@ -28,7 +28,7 @@ export interface AccountProvisionResponse {
   status: AccountStatus;
   email_normalized: string | null;
   email_verified: boolean;
-  is_new: bool;
+  is_new: boolean;
 }
 
 export interface AccountDeletionResponse {

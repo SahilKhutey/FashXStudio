@@ -33,6 +33,8 @@ GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
 GET /api/v1/profile/consents
 GET /api/v1/profile/me
+GET /api/v1/profile/me/category-sizes
+GET /api/v1/profile/me/completeness
 GET /api/v1/profile/{user_id}/derived
 GET /api/v1/profile/{user_id}/photos/{media_id}/url
 GET /api/v1/recommendations/feed/{user_id}
@@ -156,6 +158,7 @@ GET /healthz/live
 GET /healthz/ready
 GET /pilot/surveys/pending
 PATCH /api/v1/customers/{customer_id}
+PATCH /api/v1/profile/me
 POST /api/v1/account/deletion-request
 POST /api/v1/account/disable
 POST /api/v1/account/email-change
@@ -238,6 +241,8 @@ PUT /api/v1/customers/{customer_id}/preferences
 PUT /api/v1/fashion/products/{product_id}/classification
 PUT /api/v1/me/consents/{data_type}
 PUT /api/v1/profile/consents/{data_type}
+PUT /api/v1/profile/me
+PUT /api/v1/profile/me/category-sizes
 PUT /api/v1/profile/preferences
 PUT /api/v1/profile/{user_id}/preferences
 PUT /api/v1/visual/ai/preferences

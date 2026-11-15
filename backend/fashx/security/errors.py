@@ -28,6 +28,10 @@ def not_found(detail: str = "Not found") -> ApiError:
     return ApiError(404, "not_found", detail)
 
 
+def conflict(detail: str = "Conflict") -> ApiError:
+    return ApiError(409, "conflict", detail)
+
+
 def too_many_requests(retry_after: int) -> ApiError:
     return ApiError(
         429,

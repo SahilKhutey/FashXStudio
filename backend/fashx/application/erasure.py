@@ -47,6 +47,9 @@ ACCOUNT_TABLES: list[str] = [
     "tenant_members",
     "auth_sessions",
     "identity_accounts",
+    "shopper_profiles",
+    "profile_category_sizes",
+    "profile_measurements",
 ]
 
 CORE_AUTH: list[str] = [

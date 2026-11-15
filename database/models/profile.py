@@ -4,11 +4,13 @@ from uuid import UUID
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     DateTime,
     Float,
     ForeignKey,
     Index,
     Integer,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -147,4 +149,83 @@ class ProfileArtifact(Base, UUIDPrimaryKeyMixin):
     skin_tone_result_id: Mapped[UUID | None] = mapped_column(ForeignKey("skin_tone_results.id", ondelete="SET NULL"))
     ready_for_tryon: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class ShopperProfile(Base, UUIDPrimaryKeyMixin):
+    """Structured, editable, and extensible shopper fit and style profile."""
+
+    __tablename__ = "shopper_profiles"
+    __table_args__ = (
+        CheckConstraint(
+            "height_cm IS NULL OR (height_cm >= 80 AND height_cm <= 250)",
+            name="ck_shopper_profiles_height",
+        ),
+        CheckConstraint(
+            "weight_kg IS NULL OR (weight_kg >= 20 AND weight_kg <= 400)",
+            name="ck_shopper_profiles_weight",
+        ),
+        CheckConstraint("version >= 1", name="ck_shopper_profiles_version"),
+        Index("ix_shopper_profiles_updated_at", "updated_at"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+    )
+    height_cm: Mapped[float | None] = mapped_column(Numeric(5, 1), nullable=True)
+    weight_kg: Mapped[float | None] = mapped_column(Numeric(5, 1), nullable=True)
+    preferred_size_system: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    preferred_fit: Mapped[str | None] = mapped_column(String(24), nullable=True)
+    style_preferences: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    preferred_colors: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    product_categories: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    shopping_preferences: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class ProfileCategorySize(Base, UUIDPrimaryKeyMixin):
+    """Shopper declared size preferences for specific catalog categories."""
+
+    __tablename__ = "profile_category_sizes"
+    __table_args__ = (
+        UniqueConstraint("user_id", "category_code", name="uq_profile_category_size"),
+        Index("ix_profile_category_sizes_user", "user_id"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    category_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    size_system: Mapped[str] = mapped_column(String(8), nullable=False)
+    size_label: Mapped[str] = mapped_column(String(32), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class ProfileMeasurement(Base, UUIDPrimaryKeyMixin):
+    """Optional physical measurements stored only with justified feature requirement and explicit consent."""
+
+    __tablename__ = "profile_measurements"
+    __table_args__ = (
+        CheckConstraint("value_cm > 0", name="ck_profile_measurements_value"),
+        Index("ix_profile_measurements_user_type", "user_id", "measurement_type"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    measurement_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    value_cm: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
+    source: Mapped[str] = mapped_column(String(24), default="USER_ENTERED", nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    consent_record_id: Mapped[UUID | None] = mapped_column(nullable=True)
+
 

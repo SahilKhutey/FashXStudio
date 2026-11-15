@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -8,6 +9,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Request, status
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from fashx.account.repository import AccountRepository
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage
 from fashx.core.errors import EntityNotFoundError, ValidationError
@@ -29,6 +31,16 @@ from fashx.profile.application.upload_photo import (
     UploadUserPhotoUseCase,
 )
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
+from fashx.profile.repositories.shopper_profile_repository import ShopperProfileRepository
+from fashx.profile.schemas import (
+    CategorySizeItem,
+    CategorySizesUpdateRequest,
+    FeatureCompletenessResponse,
+    ShopperProfileCreate,
+    ShopperProfileResponse,
+    ShopperProfileUpdate,
+)
+from fashx.profile.services.shopper_profile_service import ShopperProfileService
 from fashx.security.deps import Principal, get_principal
 from fashx.security.errors import ApiError, forbidden, unauthorized
 from schemas.common.enums import BuildType, MeasurementSource, PhotoType
@@ -39,6 +51,15 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 
 def get_profile_uow() -> ProfileUnitOfWork:
     return ProfileUnitOfWork(get_session_factory())
+
+
+async def get_shopper_profile_service(
+    uow: ProfileUnitOfWork = Depends(get_profile_uow),
+) -> AsyncIterator[ShopperProfileService]:
+    async with uow._session_factory() as session:
+        profile_repo = ShopperProfileRepository(session)
+        account_repo = AccountRepository(session)
+        yield ShopperProfileService(profile_repo, account_repo)
 
 
 class CreateProfileRequest(BaseModel):
@@ -338,17 +359,99 @@ class UpdateConsentRequest(BaseModel):
     policy_url: str | None = None
 
 
-@router.get("/me", response_model=DerivedProfileResponse)
+@router.get("/me", response_model=ShopperProfileResponse)
 async def get_my_profile(
     principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
     uow: ProfileUnitOfWork = Depends(get_profile_uow),
-) -> DerivedProfileResponse:
+) -> ShopperProfileResponse:
     try:
         user_uuid = UUID(principal.user_id)
     except (ValueError, TypeError, AttributeError):
         raise unauthorized("Invalid principal user ID")
 
-    return await get_derived_profile(user_id=user_uuid, principal=principal, uow=uow)
+    res = await service.get_for_user(user_uuid)
+    async with uow:
+        body = await uow.body_profiles.get_by_user_id(user_uuid)
+        if body:
+            res.build = body.build
+            if res.height_cm is None and body.height_cm is not None:
+                res.height_cm = float(body.height_cm)
+            if res.weight_kg is None and body.weight_kg is not None:
+                res.weight_kg = float(body.weight_kg)
+        consents = await uow.consents.list_for_user(user_uuid)
+        res.consents = {c.data_type: c.granted for c in consents}
+
+    return res
+
+
+@router.put("/me", response_model=ShopperProfileResponse)
+async def create_or_replace_my_profile(
+    payload: ShopperProfileCreate,
+    principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
+) -> ShopperProfileResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await service.create_or_replace_for_user(user_uuid, payload)
+
+
+@router.patch("/me", response_model=ShopperProfileResponse)
+async def update_my_profile(
+    payload: ShopperProfileUpdate,
+    principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
+) -> ShopperProfileResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await service.update_for_user(user_uuid, payload)
+
+
+@router.get("/me/completeness", response_model=FeatureCompletenessResponse)
+async def get_my_profile_completeness(
+    principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
+) -> FeatureCompletenessResponse:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await service.get_completeness_for_user(user_uuid)
+
+
+@router.get("/me/category-sizes", response_model=list[CategorySizeItem])
+async def get_my_category_sizes(
+    principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
+) -> list[CategorySizeItem]:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    profile = await service.get_for_user(user_uuid)
+    return profile.category_sizes
+
+
+@router.put("/me/category-sizes", response_model=list[CategorySizeItem])
+async def update_my_category_sizes(
+    req: CategorySizesUpdateRequest,
+    principal: Principal = Depends(get_principal),
+    service: ShopperProfileService = Depends(get_shopper_profile_service),
+) -> list[CategorySizeItem]:
+    try:
+        user_uuid = UUID(principal.user_id)
+    except (ValueError, TypeError, AttributeError):
+        raise unauthorized("Invalid principal user ID")
+
+    return await service.update_category_sizes(user_uuid, req.sizes)
 
 
 @router.put("/preferences", response_model=UpdatePreferencesResponse)
