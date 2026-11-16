@@ -29,7 +29,9 @@ def test_b2b_routes_present_when_flag_enabled() -> None:
 def test_b2b_flag_forbidden_in_production() -> None:
     with pytest.raises(ValueError, match="ENABLE_B2B must be false in prod for MVP"):
         Settings(
+            _env_file=None,
             env="prod",
+            app_env="production",
             repo_backend="sql",
             storage_backend="s3",
             enable_b2b=True,

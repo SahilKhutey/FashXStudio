@@ -4,6 +4,7 @@ from sqlalchemy import text
 from fashx.core.database import get_db_pool_metrics, get_session_factory
 
 
+@pytest.mark.db
 @pytest.mark.asyncio
 async def test_database_ping_select_1():
     session_factory = get_session_factory()
@@ -12,6 +13,7 @@ async def test_database_ping_select_1():
         assert val == 1
 
 
+@pytest.mark.db
 @pytest.mark.asyncio
 async def test_database_ephemeral_table_write_and_read():
     session_factory = get_session_factory()

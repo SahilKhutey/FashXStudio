@@ -127,10 +127,16 @@ def test_dev_files_prevents_path_traversal(tmp_path: Path) -> None:
 
 def test_dev_files_not_mounted_in_production(tmp_path: Path) -> None:
     orig_env = os.environ.get("ENV")
+    orig_app_env = os.environ.get("APP_ENV")
     try:
         os.environ["ENV"] = "prod"
+        os.environ["APP_ENV"] = "production"
         prod_settings = Settings(
+            _env_file=None,
             env="prod",
+            app_env="production",
+            cors_origins=["https://app.fashx.com"],
+            redis_url="rediss://localhost:6379/0",
             repo_backend="sql",
             storage_backend="s3",
             enable_b2b=False,
@@ -154,3 +160,7 @@ def test_dev_files_not_mounted_in_production(tmp_path: Path) -> None:
             os.environ["ENV"] = orig_env
         else:
             os.environ.pop("ENV", None)
+        if orig_app_env is not None:
+            os.environ["APP_ENV"] = orig_app_env
+        else:
+            os.environ.pop("APP_ENV", None)
