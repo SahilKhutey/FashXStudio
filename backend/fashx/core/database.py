@@ -49,6 +49,14 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _session_factory
 
 
+async def dispose_engine() -> None:
+    global _engine, _session_factory
+    if _engine is not None:
+        await _engine.dispose()
+        _engine = None
+        _session_factory = None
+
+
 async def get_db_session() -> AsyncIterator[AsyncSession]:
     async with get_session_factory()() as session:
         try:
