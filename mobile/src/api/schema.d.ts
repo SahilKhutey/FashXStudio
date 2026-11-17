@@ -638,6 +638,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initiate photo upload intent */
+        post: operations["initiate_upload_api_v1_media_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Poll photo upload validation status */
+        get: operations["get_upload_status_api_v1_media_uploads__upload_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/uploads/{upload_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complete upload and trigger validation */
+        post: operations["complete_upload_api_v1_media_uploads__upload_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve validated image metadata */
+        get: operations["get_image_metadata_api_v1_media__image_id__get"];
+        put?: never;
+        post?: never;
+        /** Request deletion of user personal image */
+        delete: operations["delete_image_api_v1_media__image_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/{image_id}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate expiring download URL for personal image */
+        post: operations["create_access_url_api_v1_media__image_id__access_url_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/feature-flags": {
         parameters: {
             query?: never;
@@ -8687,6 +8773,35 @@ export interface components {
          * @enum {string}
          */
         MeasurementSource: "user_entered" | "cv_estimated" | "manual";
+        /** MediaAccessUrlResponse */
+        MediaAccessUrlResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Url */
+            url: string;
+            /**
+             * Expires In Seconds
+             * @default 60
+             */
+            expires_in_seconds: number;
+        };
+        /** MediaDeletionResponse */
+        MediaDeletionResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /**
+             * Status
+             * @default DELETION_PENDING
+             * @constant
+             */
+            status: "DELETION_PENDING";
+        };
         /**
          * MediaItemContract
          * @description Individual media asset specification (Section 9.6).
@@ -8715,6 +8830,41 @@ export interface components {
              * @default 0
              */
             order: number;
+        };
+        /** MediaMetadataResponse */
+        MediaMetadataResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Purpose */
+            purpose: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "AVAILABLE" | "DELETION_PENDING" | "DELETED" | "QUARANTINED";
+            /** Content Type */
+            content_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Sha256 Normalized */
+            sha256_normalized: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * MediaType
@@ -13455,6 +13605,83 @@ export interface components {
             /** Delivery Region */
             delivery_region?: string | null;
         };
+        /** UploadCompleteRequest */
+        UploadCompleteRequest: {
+            /**
+             * Client Checksum Sha256
+             * @description Optional client SHA-256 checksum confirmation
+             */
+            client_checksum_sha256?: string | null;
+        };
+        /** UploadInitiateRequest */
+        UploadInitiateRequest: {
+            /**
+             * Purpose
+             * @description Declared purpose for the personal media asset
+             * @example VTO_PERSONAL_PHOTO
+             * @enum {string}
+             */
+            purpose: "PROFILE_PHOTO" | "VTO_PERSONAL_PHOTO";
+            /**
+             * Filename
+             * @description Original client filename (metadata only, not used for storage key)
+             * @example personal-photo.jpg
+             */
+            filename: string;
+            /**
+             * Content Type
+             * @description Declared MIME content type
+             * @example image/jpeg
+             */
+            content_type: string;
+            /**
+             * Declared Size Bytes
+             * @description Declared file size in bytes (10KB to 10MB)
+             * @example 2457600
+             */
+            declared_size_bytes: number;
+            /**
+             * Client Checksum Sha256
+             * @description Optional client-computed SHA-256 checksum
+             */
+            client_checksum_sha256?: string | null;
+        };
+        /** UploadInitiateResponse */
+        UploadInitiateResponse: {
+            /**
+             * Upload Id
+             * Format: uuid
+             */
+            upload_id: string;
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Upload Url */
+            upload_url: string;
+            /**
+             * Method
+             * @default PUT
+             * @constant
+             */
+            method: "PUT";
+            /** Required Headers */
+            required_headers: {
+                [key: string]: string;
+            };
+            /**
+             * Expires In Seconds
+             * @default 300
+             */
+            expires_in_seconds: number;
+            /**
+             * Status
+             * @default PENDING_UPLOAD
+             * @constant
+             */
+            status: "PENDING_UPLOAD";
+        };
         /** UploadPhotoResponse */
         UploadPhotoResponse: {
             /**
@@ -13479,6 +13706,26 @@ export interface components {
             skin_tone?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /** UploadStatusResponse */
+        UploadStatusResponse: {
+            /**
+             * Upload Id
+             * Format: uuid
+             */
+            upload_id: string;
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING_UPLOAD" | "VALIDATING" | "AVAILABLE" | "REJECTED" | "FAILED" | "EXPIRED" | "CANCELLED";
+            /** Message */
+            message?: string | null;
         };
         /** UserPhotoItem */
         UserPhotoItem: {
@@ -15214,6 +15461,198 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubmitConsentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_upload_api_v1_media_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadInitiateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadInitiateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_upload_status_api_v1_media_uploads__upload_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_upload_api_v1_media_uploads__upload_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UploadCompleteRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_metadata_api_v1_media__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaMetadataResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_image_api_v1_media__image_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaDeletionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_access_url_api_v1_media__image_id__access_url_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaAccessUrlResponse"];
                 };
             };
             /** @description Validation Error */

@@ -1,4 +1,5 @@
 DELETE /api/v1/me
+DELETE /api/v1/media/{image_id}
 DELETE /api/v1/profile/{user_id}/photos/{photo_id}
 DELETE /api/v1/visual/personal/saved/{item_type}/{item_id}
 DELETE /api/v1/visual/styling/builder/{outfit_id}/slot/{slot_id}
@@ -29,6 +30,8 @@ GET /api/v1/feedback/brands/{brand_id}/calibration
 GET /api/v1/garments/{garment_id}
 GET /api/v1/me
 GET /api/v1/me/consents
+GET /api/v1/media/uploads/{upload_id}
+GET /api/v1/media/{image_id}
 GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
 GET /api/v1/profile/consents
@@ -186,6 +189,9 @@ POST /api/v1/fashion/taxonomy
 POST /api/v1/feed/signals
 POST /api/v1/feedback/fit
 POST /api/v1/feedback/tryon
+POST /api/v1/media/uploads
+POST /api/v1/media/uploads/{upload_id}/complete
+POST /api/v1/media/{image_id}/access-url
 POST /api/v1/onboarding/style-quiz/picks
 POST /api/v1/pilot/feedback
 POST /api/v1/pilot/join

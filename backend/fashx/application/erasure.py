@@ -144,7 +144,13 @@ async def erase_biometrics(
             )
             if inspect.isawaitable(res_media):
                 res_media = await res_media
-            keys.extend([r[0] for r in res_media.fetchall() if r[0]])
+            rows = res_media.fetchall()
+            if inspect.isawaitable(rows):
+                rows = await rows
+            if hasattr(rows, "__iter__"):
+                for r in rows:
+                    if isinstance(r, (list, tuple)) and r and r[0]:
+                        keys.append(r[0])
         except Exception:
             pass
 
@@ -156,11 +162,16 @@ async def erase_biometrics(
             )
             if inspect.isawaitable(res_uploads):
                 res_uploads = await res_uploads
-            for qk, fk in res_uploads.fetchall():
-                if qk:
-                    keys.append(qk)
-                if fk:
-                    keys.append(fk)
+            rows_up = res_uploads.fetchall()
+            if inspect.isawaitable(rows_up):
+                rows_up = await rows_up
+            if hasattr(rows_up, "__iter__"):
+                for r in rows_up:
+                    if isinstance(r, (list, tuple)) and len(r) >= 2:
+                        if r[0]:
+                            keys.append(r[0])
+                        if r[1]:
+                            keys.append(r[1])
         except Exception:
             pass
 

@@ -30,7 +30,7 @@ describe('Photo Upload Mobile Pipeline', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn().mockImplementation((url: string, init?: RequestInit) => {
+    globalThis.fetch = jest.fn().mockImplementation((url: string, init?: RequestInit) => {
       if (init?.method === 'PUT') {
         return Promise.resolve({
           ok: true,
