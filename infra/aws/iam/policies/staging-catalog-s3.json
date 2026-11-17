@@ -1,0 +1,58 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListOnlyProductAndIngestPrefixes",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::fashx-staging-private-ACCOUNT_ID",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "products/*",
+            "temporary/ingest/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "ReadWriteProductsAndTemporaryIngest",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::fashx-staging-private-ACCOUNT_ID/products/*",
+        "arn:aws:s3:::fashx-staging-private-ACCOUNT_ID/temporary/ingest/*"
+      ]
+    },
+    {
+      "Sid": "ExplicitDenyUserDataAccess",
+      "Effect": "Deny",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::fashx-staging-private-ACCOUNT_ID/users/*",
+        "arn:aws:s3:::fashx-staging-private-ACCOUNT_ID/tryon/*"
+      ]
+    },
+    {
+      "Sid": "UseOnlyStagingMediaKey",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey",
+        "kms:DescribeKey"
+      ],
+      "Resource": "arn:aws:kms:ap-south-1:ACCOUNT_ID:alias/fashx-staging-s3"
+    }
+  ]
+}

@@ -45,6 +45,11 @@ ACCOUNT_TABLES: list[str] = [
     "pilot_feedback",
     "experiment_exposures",
     "tenant_members",
+    "auth_sessions",
+    "identity_accounts",
+    "shopper_profiles",
+    "profile_category_sizes",
+    "profile_measurements",
 ]
 
 CORE_AUTH: list[str] = [
@@ -60,6 +65,7 @@ ANONYMIZE_TABLES: list[str] = [
 # Minimal pseudonymous tombstones to prevent resurrection on backup restore (Rule 9.8)
 RETAINED_MINIMAL: list[str] = [
     "erasure_tombstones",
+    "account_deletion_jobs",
 ]
 
 

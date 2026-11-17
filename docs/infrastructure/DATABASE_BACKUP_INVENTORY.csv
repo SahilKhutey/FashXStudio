@@ -1,0 +1,4 @@
+environment,backup_type,frequency,retention_days,encryption,restore_test_frequency,owner,status
+development,managed,daily,7,provider_managed,quarterly,engineering,planned
+staging,managed,daily,7,provider_managed,quarterly,engineering,planned
+production,managed_pitr,continuous,35,customer_managed_kms,monthly,operations,planned

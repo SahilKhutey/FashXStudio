@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Protocol
 from uuid import NAMESPACE_DNS, uuid4, uuid5
 
@@ -18,6 +19,10 @@ class IdentityRepo(Protocol):
     async def resolve(self, issuer: str, subject: str) -> Identity: ...
     async def set_role(self, issuer: str, subject: str, role: str) -> None: ...
     async def disable(self, issuer: str, subject: str) -> None: ...
+    async def is_session_revoked(self, identity_provider: str, session_id: str) -> bool: ...
+    async def revoke_session(
+        self, identity_provider: str, subject: str, session_id: str, expires_at: datetime
+    ) -> None: ...
 
 
 class InMemoryIdentityRepo:
@@ -27,6 +32,7 @@ class InMemoryIdentityRepo:
         self._identities: dict[tuple[str, str], Identity] = {}
         self._roles: dict[tuple[str, str], str] = {}
         self._disabled: set[tuple[str, str]] = set()
+        self._revoked_sessions: dict[tuple[str, str], datetime] = {}
 
     async def resolve(self, issuer: str, subject: str) -> Identity:
         key = (issuer, subject)
@@ -63,6 +69,24 @@ class InMemoryIdentityRepo:
                 disabled=True,
             )
 
+    async def is_session_revoked(self, identity_provider: str, session_id: str) -> bool:
+        key = (identity_provider, session_id)
+        if key in self._revoked_sessions:
+            exp = self._revoked_sessions[key]
+            now = datetime.now(UTC)
+            if exp.tzinfo is None:
+                exp = exp.replace(tzinfo=UTC)
+            if exp > now:
+                return True
+            del self._revoked_sessions[key]
+        return False
+
+    async def revoke_session(
+        self, identity_provider: str, subject: str, session_id: str, expires_at: datetime
+    ) -> None:
+        key = (identity_provider, session_id)
+        self._revoked_sessions[key] = expires_at
+
 
 class SqlIdentityRepo:
     """SQL-backed identity repository using AsyncSession and AuthIdentity/User models."""
@@ -82,10 +106,21 @@ class SqlIdentityRepo:
         record = result.scalar_one_or_none()
 
         if record is not None:
+            user_stmt = select(User).where(User.id == record.user_id)
+            user_res = await self._db.execute(user_stmt)
+            user = user_res.scalar_one_or_none()
+            is_disabled = (
+                record.disabled_at is not None
+                or (
+                    user is not None
+                    and getattr(user, "status", "ACTIVE")
+                    in ("DISABLED", "DELETION_PENDING", "DELETION_IN_PROGRESS", "DELETED")
+                )
+            )
             return Identity(
                 user_id=str(record.user_id),
                 role=record.role,
-                disabled=record.disabled_at is not None,
+                disabled=is_disabled,
             )
 
         # Create new user and linked auth identity
@@ -146,3 +181,33 @@ class SqlIdentityRepo:
         )
         await self._db.execute(stmt)
         await self._db.commit()
+
+    async def is_session_revoked(self, identity_provider: str, session_id: str) -> bool:
+        from database.models.auth import RevokedAuthSession
+
+        now = datetime.now(UTC)
+        stmt = select(RevokedAuthSession).where(
+            RevokedAuthSession.identity_provider == identity_provider,
+            RevokedAuthSession.session_id == session_id,
+            RevokedAuthSession.expires_at > now,
+        )
+        result = await self._db.execute(stmt)
+        return result.scalar_one_or_none() is not None
+
+    async def revoke_session(
+        self, identity_provider: str, subject: str, session_id: str, expires_at: datetime
+    ) -> None:
+        from database.models.auth import RevokedAuthSession
+
+        record = RevokedAuthSession(
+            id=uuid4(),
+            identity_provider=identity_provider,
+            subject=subject,
+            session_id=session_id,
+            expires_at=expires_at,
+        )
+        self._db.add(record)
+        try:
+            await self._db.commit()
+        except IntegrityError:
+            await self._db.rollback()

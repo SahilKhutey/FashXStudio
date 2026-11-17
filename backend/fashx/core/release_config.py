@@ -38,9 +38,9 @@ def validate_release_config(config: ReleaseConfig) -> None:
         if config.debug:
             raise ValueError(f"Debug mode is strictly forbidden in {config.app_env}")
 
-        if config.auth_mode != "jwks":
+        if config.auth_mode not in ("jwks", "cognito"):
             raise ValueError(
-                f"{config.app_env.capitalize()} requires JWKS authentication (got: {config.auth_mode})"
+                f"{config.app_env.capitalize()} requires JWKS authentication (or cognito, got: {config.auth_mode})"
             )
 
         if config.storage_backend != "s3":
@@ -68,5 +68,9 @@ def validate_release_config(config: ReleaseConfig) -> None:
             )
 
     if config.app_env == "production":
+        if parsed_redis.scheme != "rediss":
+            raise ValueError(
+                f"Production requires TLS-encrypted Redis connection (rediss://, got: {config.redis_url})"
+            )
         if config.tryon_provider == "mock":
             raise ValueError("Production requires approved real tryon_provider (mock forbidden)")

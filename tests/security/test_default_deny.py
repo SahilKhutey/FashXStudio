@@ -99,7 +99,11 @@ def test_unauthenticated_non_401_routes_match_public_allowlist(auth_test_context
 
 def test_docs_and_openapi_gated_in_production():
     prod_settings = Settings(
+        _env_file=None,
         env="prod",
+        app_env="production",
+        cors_origins=["https://app.fashx.com"],
+        redis_url="rediss://localhost:6379/0",
         repo_backend="sql",
         storage_backend="s3",
         enable_b2b=False,

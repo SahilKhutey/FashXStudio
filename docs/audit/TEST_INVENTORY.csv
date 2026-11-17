@@ -1,0 +1,26 @@
+Suite Directory,File Count,Framework,Execution Command,Tested Subsystem,Execution Status,Environment Prerequisite,Notes and Gaps
+tests/unit,139 files,Pytest,pytest tests/unit -m 'not db',Domain rules normalizers VTO logic,PASS,None (isolated Python),Fast pure-python unit tests passing locally and in CI
+tests/integration,47 files,Pytest,pytest tests/integration -m 'not db',FastAPI routers outbox photo storage,PASS (in CI),PostgreSQL / Redis,Tests API contract and persistence semantics
+tests/security,18 files,Pytest,pytest tests/security,Auth rate-limiting token expiry,PASS,None (local JWT tokens),Verifies role gating and tamper resistance
+tests/contracts,15 files,Pytest,pytest tests/contracts,Pydantic schema parity and mobile types,PASS,None,Ensures backend schemas align with mobile app client
+tests/release,4 files,Pytest,pytest tests/release/test_rc13_final_gates.py,Contractual Release Gates G1-G6,PASS,docs/reengineering fixtures,Evaluates release readiness gate logic without live calls
+tests/catalog,4 files,Pytest,pytest tests/catalog,Catalog ingestion and quality gate,PASS,PostgreSQL,Verifies deduplication hasher and size chart parser
+tests/discovery,9 files,Pytest,pytest tests/discovery,Personalized feed and MMR ranker,PASS,pgvector extension,Evaluates recommendation diversity and cold-start fallback
+tests/analytics,7 files,Pytest,pytest tests/analytics,Event contracts and aggregation rollups,PASS,PostgreSQL 16,Validates zero-division guards and metric rollups
+tests/core,10 files,Pytest,pytest tests/core,Runtime settings logging idempotency,PASS,None,Core infrastructural primitives and error handlers
+tests/customer,11 files,Pytest,pytest tests/customer,Customer profile and address management,PASS,PostgreSQL,Customer domain entities and repository operations
+tests/fashion,6 files,Pytest,pytest tests/fashion,Taxonomy and product classification,PASS,None,Apparel taxonomy nodes and category hierarchy
+tests/pricing,7 files,Pytest,pytest tests/pricing,Currency formatting and price rules,PASS,None,Handles INR price formatting and discounts
+tests/trends,7 files,Pytest,pytest tests/trends,Trend detection and scoring,PASS,PostgreSQL,Aggregates seasonal fashion trend observations
+tests/observability,3 files,Pytest,pytest tests/observability,Sentry integration and trace filtering,PASS,None,Ensures X-Request-ID propagation in logs
+tests/evaluation,2 files,Pytest,pytest tests/evaluation,VTO benchmark evaluation harness,PASS,Mock adapter fixtures,Evaluates pre-registered VTO quality rubrics
+tests/cart (Frozen),6 files,Pytest,pytest tests/cart -m 'frozen',Post-MVP shopping cart,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/checkout (Frozen),5 files,Pytest,pytest tests/checkout -m 'frozen',Post-MVP checkout pipeline,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/orders (Frozen),6 files,Pytest,pytest tests/orders -m 'frozen',Post-MVP order management,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/payments (Frozen),7 files,Pytest,pytest tests/payments -m 'frozen',Post-MVP payment gateway,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/fulfillment (Frozen),7 files,Pytest,pytest tests/fulfillment -m 'frozen',Post-MVP logistics fulfillment,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/returns (Frozen),6 files,Pytest,pytest tests/returns -m 'frozen',Post-MVP reverse logistics,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/inventory (Frozen),6 files,Pytest,pytest tests/inventory -m 'frozen',Post-MVP warehouse inventory,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+tests/promotions (Frozen),7 files,Pytest,pytest tests/promotions -m 'frozen',Post-MVP promotion discount rules,PASS (in CI frozen job),PostgreSQL (FASHN_ENABLE_FROZEN=1),Frozen commerce domain unmounted in production
+mobile/__tests__,21 test suites,Jest,npm test (inside mobile/),Mobile components navigation stores,PASS (152/152 tests),Node.js 20 / npm,Covers auth flow VTO polling and safe redirects
+Root Test Fixture Debt,1 fixture,Pytest conftest.py,setup_test_identity_override,BLOCKED (locally without DB),PostgreSQL service running,Autouse SQLite in-memory DB hangs on Windows locally

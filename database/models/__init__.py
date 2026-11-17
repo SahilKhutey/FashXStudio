@@ -1,4 +1,5 @@
-from .auth import AuthIdentity
+from .account import AccountDeletionJob, AuthSession, IdentityAccount
+from .auth import AuthIdentity, RevokedAuthSession
 from .base import Base
 from .catalog import (
     Brand,
@@ -26,7 +27,7 @@ from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
 from .identity import ConsentEvent, ConsentRecord, User, UserPhoto
 from .media import MediaObject
-from .operations import IdempotencyRecord, OutboxMessageRecord
+from .operations import IdempotencyRecord, OutboxMessageRecord, WorkerDeadLetter
 from .pilot import (
     PilotFeedback,
     PilotInvite,
@@ -37,7 +38,10 @@ from .profile import (
     BodyProfile,
     OnboardingProfile,
     ProfileArtifact,
+    ProfileCategorySize,
+    ProfileMeasurement,
     ProfilePhotoJob,
+    ShopperProfile,
     SkinToneResult,
     UserMeasurement,
     UserPreference,
@@ -74,10 +78,17 @@ __all__ = [
     "WardrobeItem",
     "ConsentEvent",
     "ConsentRecord",
+    "IdentityAccount",
+    "AuthSession",
+    "AccountDeletionJob",
     "AuthIdentity",
+    "RevokedAuthSession",
     "User",
     "UserPhoto",
     "BodyProfile",
+    "ShopperProfile",
+    "ProfileCategorySize",
+    "ProfileMeasurement",
     "OnboardingProfile",
     "ProfilePhotoJob",
     "SkinToneResult",
@@ -90,6 +101,7 @@ __all__ = [
     "TryOnUsage",
     "IdempotencyRecord",
     "OutboxMessageRecord",
+    "WorkerDeadLetter",
     "MediaObject",
     "FeedImpression",
     "FeedSignal",

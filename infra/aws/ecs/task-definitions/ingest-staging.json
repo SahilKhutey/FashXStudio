@@ -1,0 +1,55 @@
+{
+  "family": "fashx-staging-ingest",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-staging-ingest-execution",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-staging-app-task",
+  "containerDefinitions": [
+    {
+      "name": "fashx-ingest",
+      "image": "${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/fashx:staging-latest",
+      "essential": true,
+      "user": "10001",
+      "stopTimeout": 120,
+      "command": [
+        "celery",
+        "-A",
+        "fashx.workers.app:app",
+        "worker",
+        "--loglevel=INFO",
+        "--queues=ingest",
+        "--concurrency=1"
+      ],
+      "environment": [
+        {"name": "ENV", "value": "staging"},
+        {"name": "APP_ENV", "value": "staging"},
+        {"name": "REPO_BACKEND", "value": "sql"},
+        {"name": "STORAGE_BACKEND", "value": "s3"},
+        {"name": "S3_BUCKET", "value": "fashx-staging-private-${ACCOUNT_ID}"},
+        {"name": "S3_REGION", "value": "ap-south-1"},
+        {"name": "S3_USE_IAM_ROLE", "value": "true"},
+        {"name": "DB_SSL_CA_FILE", "value": "/etc/ssl/certs/aws-rds-global-bundle.pem"}
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/staging/postgres/database-url"
+        },
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/staging/redis/url"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/fashx/staging/ingest",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

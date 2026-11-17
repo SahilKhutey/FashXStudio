@@ -1,0 +1,44 @@
+{
+  "family": "fashx-staging-migration",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-staging-migration-execution",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-staging-migrator-task",
+  "containerDefinitions": [
+    {
+      "name": "fashx-migrate",
+      "image": "${ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/fashx:staging-latest",
+      "essential": true,
+      "user": "10001",
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "environment": [
+        {"name": "ENV", "value": "staging"},
+        {"name": "APP_ENV", "value": "staging"},
+        {"name": "REPO_BACKEND", "value": "sql"},
+        {"name": "DB_SSL_CA_FILE", "value": "/etc/ssl/certs/aws-rds-global-bundle.pem"}
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:${ACCOUNT_ID}:secret:fashx/staging/postgres/migration-url"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/fashx/staging/migration",
+          "awslogs-region": "ap-south-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

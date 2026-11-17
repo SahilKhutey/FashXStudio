@@ -1,0 +1,4 @@
+environment,region,ecs_cluster,rds_instance,s3_bucket,secrets_prefix,redis_resource,public_api,status
+development,ap-south-1,fashx-dev,fashx-pg-dev,fashx-dev-private-ACCOUNTID,fashx/dev/,fashx-redis-dev,restricted,planned
+staging,ap-south-1,fashx-staging,fashx-pg-staging,fashx-staging-private-ACCOUNTID,fashx/staging/,fashx-redis-staging,https,planned
+production,ap-south-1,fashx-prod,fashx-pg-prod,fashx-prod-private-ACCOUNTID,fashx/prod/,fashx-redis-prod,https,planned

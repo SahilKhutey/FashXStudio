@@ -1,0 +1,262 @@
+name: deploy-staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: "Force deploy even without CI run"
+        type: boolean
+        default: false
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & Scan Container
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    outputs:
+      image_digest: ${{ steps.build-push.outputs.digest }}
+      image_uri: ${{ steps.build-push.outputs.image_uri }}
+      registry: ${{ steps.login-ecr.outputs.registry }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate AWS Deploy / Build Role
+        id: check-role
+        run: |
+          ROLE="${{ vars.AWS_BUILD_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}"
+          if [ -z "$ROLE" ]; then
+            echo "Notice: Neither vars.AWS_BUILD_ROLE_ARN nor vars.AWS_DEPLOY_ROLE is configured."
+            echo "Cloud infrastructure is currently unprovisioned. Skipping live build & push."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure AWS Credentials (OIDC)
+        if: steps.check-role.outputs.configured == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_BUILD_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}
+          aws-region: ap-south-1
+
+      - name: Log in to Amazon ECR
+        if: steps.check-role.outputs.configured == 'true'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        if: steps.check-role.outputs.configured == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push immutable image
+        if: steps.check-role.outputs.configured == 'true'
+        id: build-push
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: sha-${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker buildx build \
+            --platform linux/amd64 \
+            --push \
+            --tag "$REGISTRY/fashx:$IMAGE_TAG" \
+            --metadata-file /tmp/build-metadata.json \
+            .
+          DIGEST="$(jq -r '."containerimage.digest"' /tmp/build-metadata.json)"
+          IMAGE_URI="$REGISTRY/fashx@$DIGEST"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "Pushed immutable image: $IMAGE_URI"
+
+      - name: Image Vulnerability Scan (Trivy)
+        if: steps.check-role.outputs.configured == 'true'
+        uses: aquasecurity/trivy-action@v0.28.0
+        with:
+          image-ref: ${{ steps.build-push.outputs.image_uri }}
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "HIGH,CRITICAL"
+
+  deploy:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate AWS Deploy Role
+        id: check-deploy-role
+        run: |
+          ROLE="${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}"
+          if [ -z "$ROLE" ]; then
+            echo "Notice: vars.AWS_DEPLOY_ROLE_ARN is not set. Staging cloud infrastructure is unprovisioned."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure AWS Credentials (OIDC)
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN || vars.AWS_DEPLOY_ROLE }}
+          aws-region: ap-south-1
+
+      - name: Capture Previous Task Definitions for Rollback
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        id: capture-state
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER_STAGING || 'fashx-staging' }}
+          API_SERVICE: ${{ vars.ECS_API_SERVICE_STAGING || 'fashx-staging-api' }}
+          TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_STAGING || 'fashx-staging-tryon' }}
+          INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_STAGING || 'fashx-staging-ingest' }}
+          BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_STAGING || 'fashx-staging-beat' }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/deploy-state
+          echo "Capturing current service task definitions..."
+          jq -n \
+            --arg api "$(aws ecs describe-services --cluster "$CLUSTER" --services "$API_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg tryon "$(aws ecs describe-services --cluster "$CLUSTER" --services "$TRYON_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg ingest "$(aws ecs describe-services --cluster "$CLUSTER" --services "$INGEST_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            --arg beat "$(aws ecs describe-services --cluster "$CLUSTER" --services "$BEAT_SERVICE" --query 'services[0].taskDefinition' --output text 2>/dev/null || echo '')" \
+            '{($api_svc): $api, ($tryon_svc): $tryon, ($ingest_svc): $ingest, ($beat_svc): $beat}' \
+            --arg api_svc "$API_SERVICE" \
+            --arg tryon_svc "$TRYON_SERVICE" \
+            --arg ingest_svc "$INGEST_SERVICE" \
+            --arg beat_svc "$BEAT_SERVICE" \
+            > /tmp/deploy-state/rollback_state.json
+
+      - name: Execute Staging Migration Task
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER_STAGING || 'fashx-staging' }}
+          SUBNETS: ${{ vars.ECS_SUBNETS_STAGING || vars.ECS_SUBNETS }}
+          SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUPS_STAGING || vars.ECS_SECURITY_GROUPS }}
+          IMAGE_URI: ${{ needs.build.outputs.image_uri }}
+        run: |
+          set -euo pipefail
+          echo "Registering migration task definition with image: $IMAGE_URI"
+          TASK_DEF_FILE="$(mktemp)"
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          sed \
+            -e "s|\${ACCOUNT_ID}|$ACCOUNT_ID|g" \
+            -e "s|\${IMAGE_TAG}|sha-${{ github.sha }}|g" \
+            infra/aws/ecs/task-definitions/migration-staging.json > "$TASK_DEF_FILE"
+          
+          # Replace image with exact digest
+          jq --arg img "$IMAGE_URI" '.containerDefinitions[0].image = $img' "$TASK_DEF_FILE" > "${TASK_DEF_FILE}.rendered"
+          
+          MIGRATION_TASK_ARN="$(aws ecs register-task-definition --cli-input-json "file://${TASK_DEF_FILE}.rendered" --query 'taskDefinition.taskDefinitionArn' --output text)"
+          rm -f "$TASK_DEF_FILE" "${TASK_DEF_FILE}.rendered"
+
+          echo "Running migration task: $MIGRATION_TASK_ARN"
+          RUN_ARN="$(aws ecs run-task \
+            --cluster "$CLUSTER" \
+            --launch-type FARGATE \
+            --task-definition "$MIGRATION_TASK_ARN" \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SECURITY_GROUPS],assignPublicIp=DISABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)"
+          
+          test "$RUN_ARN" != "None"
+          aws ecs wait tasks-stopped --cluster "$CLUSTER" --tasks "$RUN_ARN"
+          EXIT_CODE="$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$RUN_ARN" --query 'tasks[0].containers[0].exitCode' --output text)"
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "::error::Staging database migration failed with exit code $EXIT_CODE."
+            exit 1
+          fi
+          echo "Migration task completed successfully (exit code 0)."
+
+      - name: Deploy Staging ECS Services
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          CLUSTER: ${{ vars.ECS_CLUSTER_STAGING || 'fashx-staging' }}
+          IMAGE_URI: ${{ needs.build.outputs.image_uri }}
+          API_SERVICE: ${{ vars.ECS_API_SERVICE_STAGING || 'fashx-staging-api' }}
+          TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_STAGING || 'fashx-staging-tryon' }}
+          INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_STAGING || 'fashx-staging-ingest' }}
+          BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_STAGING || 'fashx-staging-beat' }}
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+
+          deploy_service() {
+            local service="$1"
+            local template="$2"
+            local container="$3"
+
+            echo "Deploying $service from template $template..."
+            local tmpfile
+            tmpfile="$(mktemp)"
+            sed \
+              -e "s|\${ACCOUNT_ID}|$ACCOUNT_ID|g" \
+              -e "s|\${IMAGE_TAG}|sha-${{ github.sha }}|g" \
+              "$template" > "$tmpfile"
+            
+            jq --arg img "$IMAGE_URI" --arg c "$container" \
+              '.containerDefinitions |= map(if .name == $c then .image = $img else . end)' \
+              "$tmpfile" > "${tmpfile}.rendered"
+            
+            local task_arn
+            task_arn="$(aws ecs register-task-definition --cli-input-json "file://${tmpfile}.rendered" --query 'taskDefinition.taskDefinitionArn' --output text)"
+            rm -f "$tmpfile" "${tmpfile}.rendered"
+
+            aws ecs update-service \
+              --cluster "$CLUSTER" \
+              --service "$service" \
+              --task-definition "$task_arn" \
+              --deployment-configuration "deploymentCircuitBreaker={enable=true,rollback=true},minimumHealthyPercent=100,maximumPercent=200" \
+              >/dev/null
+          }
+
+          deploy_service "$API_SERVICE" "infra/aws/ecs/task-definitions/api-staging.json" "fashx-api"
+          deploy_service "$TRYON_SERVICE" "infra/aws/ecs/task-definitions/tryon-staging.json" "fashx-tryon"
+          deploy_service "$INGEST_SERVICE" "infra/aws/ecs/task-definitions/ingest-staging.json" "fashx-ingest"
+          deploy_service "$BEAT_SERVICE" "infra/aws/ecs/task-definitions/beat-staging.json" "fashx-beat"
+
+          echo "Waiting for staging services to stabilize..."
+          aws ecs wait services-stable \
+            --cluster "$CLUSTER" \
+            --services "$API_SERVICE" "$TRYON_SERVICE" "$INGEST_SERVICE" "$BEAT_SERVICE"
+          echo "Staging services stabilized successfully."
+
+      - name: Post-Deployment Smoke Verification
+        if: steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          API_BASE: ${{ vars.API_BASE_STAGING || vars.API_BASE }}
+          SMOKE_TEST_TOKEN: ${{ secrets.SMOKE_TEST_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -n "$API_BASE" ]; then
+            python scripts/release/smoke.py --base "$API_BASE"
+          else
+            echo "Notice: vars.API_BASE_STAGING is unset. Smoke testing skipped."
+          fi
+
+      - name: Automatic Rollback on Failure
+        if: failure() && steps.check-deploy-role.outputs.configured == 'true'
+        env:
+          ECS_CLUSTER: ${{ vars.ECS_CLUSTER_STAGING || 'fashx-staging' }}
+          ECS_API_SERVICE: ${{ vars.ECS_API_SERVICE_STAGING || 'fashx-staging-api' }}
+          ECS_TRYON_SERVICE: ${{ vars.ECS_TRYON_SERVICE_STAGING || 'fashx-staging-tryon' }}
+          ECS_INGEST_SERVICE: ${{ vars.ECS_INGEST_SERVICE_STAGING || 'fashx-staging-ingest' }}
+          ECS_BEAT_SERVICE: ${{ vars.ECS_BEAT_SERVICE_STAGING || 'fashx-staging-beat' }}
+          API_BASE: ${{ vars.API_BASE_STAGING || vars.API_BASE }}
+        run: |
+          echo "::error::Staging deployment or smoke verification failed. Initiating automatic rollback..."
+          bash scripts/release/rollback_ecs.sh staging /tmp/deploy-state/rollback_state.json

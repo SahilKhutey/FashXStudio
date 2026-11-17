@@ -10,6 +10,13 @@ b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.p
 b939181b1f6714e9f11adccaa502a8d65f226bcd:tests/unit/test_vto_job_orchestration.py:generic-api-key:177
 
 # Documentation example artifact keys and fixture tokens in RC05 plan docs (no real credentials)
+c1046127fc88e05c0f8f98ed9172ce3f34ede821:docs/reengineering/RC03/10_E2E_TEST_PLAN.md:generic-api-key:56
 48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/08_ARTIFACT_STORAGE.md:generic-api-key:21
 48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/04_JOB_LIFECYCLE.md:generic-api-key:44
 48d59a4449c5d637ebf8b86f580bf3d96c10c678:docs/reengineering/RC05/14_ACCEPTANCE_REPORT.md:generic-api-key:100
+
+# Redaction and deployment environment test fixtures (no live credentials)
+cbc4fdc64f98a1d1359356d6ce89cfb0b7c8f51f:tests/observability/test_redaction.py:jwt:48
+cbc4fdc64f98a1d1359356d6ce89cfb0b7c8f51f:tests/observability/test_redaction.py:generic-api-key:19
+30997b2d4fd9d8b92f1982302a27298c1ee131a0:tests/core/test_deployment_environments.py:aws-access-token:99
+30997b2d4fd9d8b92f1982302a27298c1ee131a0:tests/core/test_deployment_environments.py:aws-access-token:119

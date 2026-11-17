@@ -30,3 +30,24 @@ class AuthIdentity(Base, UUIDPrimaryKeyMixin):
     )
 
     user: Mapped[User] = relationship()
+
+
+class RevokedAuthSession(Base, UUIDPrimaryKeyMixin):
+    __tablename__ = "revoked_auth_sessions"
+    __table_args__ = (
+        UniqueConstraint(
+            "identity_provider",
+            "session_id",
+            name="uq_revoked_auth_sessions_provider_session",
+        ),
+    )
+
+    identity_provider: Mapped[str] = mapped_column(String(32), nullable=False)
+    subject: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    session_id: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    revoked_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )

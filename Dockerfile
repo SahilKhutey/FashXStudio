@@ -21,6 +21,16 @@ RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 COPY alembic.ini ./
 COPY database ./database
 
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && curl -fsSL \
+    https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+    -o /etc/ssl/certs/aws-rds-global-bundle.pem \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV DB_SSL_CA_FILE=/etc/ssl/certs/aws-rds-global-bundle.pem
+
 USER 10001
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 

@@ -1,0 +1,56 @@
+{
+  "family": "fashx-${ENV}-tryon",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-${ENV}-tryon-execution",
+  "taskRoleArn": "arn:aws:iam::${ACCOUNT_ID}:role/fashx-${ENV}-app-task",
+  "containerDefinitions": [
+    {
+      "name": "worker",
+      "image": "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fashx:${IMAGE_TAG}",
+      "essential": true,
+      "command": [
+        "celery",
+        "-A",
+        "fashx.workers.app:app",
+        "worker",
+        "--loglevel=INFO",
+        "--queues=tryon",
+        "--concurrency=2"
+      ],
+      "environment": [
+        {"name": "ENV", "value": "${ENV}"},
+        {"name": "APP_ENV", "value": "${APP_ENV}"},
+        {"name": "REPO_BACKEND", "value": "sql"},
+        {"name": "STORAGE_BACKEND", "value": "s3"},
+        {"name": "S3_BUCKET", "value": "fashx-${ENV}-private-${ACCOUNT_ID}"},
+        {"name": "S3_REGION", "value": "ap-south-1"},
+        {"name": "S3_USE_IAM_ROLE", "value": "true"},
+        {"name": "DB_SSL_CA_FILE", "value": "/etc/ssl/certs/aws-rds-global-bundle.pem"},
+        {"name": "DB_POOL_SIZE", "value": "3"},
+        {"name": "DB_MAX_OVERFLOW", "value": "2"},
+        {"name": "DB_POOL_TIMEOUT_S", "value": "20"}
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:${AWS_REGION}:${ACCOUNT_ID}:secret:fashx/${ENV}/postgres/database-url"
+        },
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:${AWS_REGION}:${ACCOUNT_ID}:secret:fashx/${ENV}/redis/url"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/fashx/${ENV}/tryon",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

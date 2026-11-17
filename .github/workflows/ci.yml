@@ -24,6 +24,22 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    env:
+      AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
+      AUTH_ISSUER: "fashx-test"
+      AUTH_AUDIENCE: "fashx-api"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -e ".[dev]"
+      - run: python scripts/docs_lint.py
+      - run: ruff check .
+      - run: mypy .
+      - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen and not integration"
+
+  integration:
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -45,22 +61,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
-      - run: pip install -e ".[dev]" || pip install -e .
-      - run: python scripts/docs_lint.py
-      - run: ruff check .
-      - run: mypy .
-      - run: python -m alembic heads
-      - run: python -m alembic upgrade head
-      - run: python -m alembic downgrade -1
-      - run: python -m alembic upgrade head
-      - run: python -m alembic check
+      - run: pip install -e ".[dev]"
+      - name: Migration verification (heads, upgrade, downgrade, check)
+        run: |
+          python -m alembic heads
+          python -m alembic upgrade head
+          python -m alembic downgrade -1
+          python -m alembic upgrade head
+          python -m alembic check
       - name: DB tests must run (no skips)
         shell: bash
         run: |
           set -o pipefail
           python -m pytest tests -m db -q -rs | tee db.log
           if grep -q "SKIPPED" db.log; then echo "::error::db tests were skipped"; exit 1; fi
-      - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen"
+      - name: Run integration test suite
+        run: python -m pytest tests -q -p no:cacheprovider -m "integration and not frozen"
 
   frozen:
     runs-on: ubuntu-latest
@@ -87,7 +103,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
-      - run: pip install -e ".[dev]" || pip install -e .
+      - run: pip install -e ".[dev]"
       - run: python -m alembic upgrade head
       - run: python -m pytest tests -q -p no:cacheprovider -m "frozen"
 
@@ -115,7 +131,7 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - uses: actions/setup-node@v5
         with: { node-version: 20 }
-      - run: pip install -e ".[dev]" || pip install -e .
+      - run: pip install -e ".[dev]"
       - run: |
           python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
           npx -y openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
@@ -129,4 +145,4 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - run: pip install bandit pip-audit
       - run: bandit -r backend/fashx -ll -ii
-      - run: pip-audit --desc on || true # Issue #21: security advisory audit; non-blocking on advisory notices
+      - run: pip-audit --desc on

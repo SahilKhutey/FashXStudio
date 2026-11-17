@@ -22,19 +22,30 @@ def sample_job(job_id: str = "job-001", **kwargs: object) -> dict[str, object]:
     return job
 
 
-def test_valid_real_vto_jobs_pass():
+def test_valid_real_vto_jobs_pass_gate_and_targets():
     jobs = [sample_job(f"job-{i}", latency_seconds=10.0 + i) for i in range(20)]
     res = evaluate_vto_jobs(jobs, require_real_provider=True)
     assert res.decision == VTODecision.PASS
+    assert res.meets_operational_targets is True
     assert res.total_jobs == 20
     assert res.completed_jobs == 20
     assert res.defective_jobs_count == 0
     assert res.completion_rate == 1.0
     assert res.defect_job_rate == 0.0
-    assert "completion_rate" in res.passed_checks
-    assert "defect_rate" in res.passed_checks
-    assert "p95_latency" in res.passed_checks
-    assert "mean_rating" in res.passed_checks
+    assert "completion_rate" in res.passed_gate_checks
+    assert "defect_rate" in res.passed_gate_checks
+    assert "p95_latency" in res.passed_gate_checks
+    assert "mean_rating" in res.passed_gate_checks
+
+
+def test_passes_gate_ceiling_but_misses_stricter_target():
+    # 35s latency: passes gate ceiling (<=45s) but misses target (<=30s)
+    jobs = [sample_job(f"job-{i}", latency_seconds=35.0) for i in range(10)]
+    res = evaluate_vto_jobs(jobs, require_real_provider=True)
+    assert res.decision == VTODecision.PASS  # Gate passes!
+    assert res.meets_operational_targets is False  # Target misses!
+    assert "p95_latency" in res.passed_gate_checks
+    assert "p95_latency" not in res.passed_operational_targets
 
 
 def test_mock_provider_rejected_when_real_required():
@@ -62,40 +73,26 @@ def test_defect_deduplication():
     res = evaluate_vto_jobs(jobs, require_real_provider=True)
     # The count of defective jobs MUST be 1, not 3!
     assert res.defective_jobs_count == 1
-    assert res.defect_job_rate == 0.10  # 1/10 = 10% <= 15% threshold
+    assert res.defect_job_rate == 0.10  # 1/10 = 10% <= 15% gate ceiling
     assert res.decision == VTODecision.PASS
 
 
-def test_completion_rate_below_min_fails():
+def test_completion_rate_below_gate_ceiling_fails():
     jobs = [
         sample_job("job-1", status="completed"),
         sample_job("job-2", status="failed"),
-    ]  # 50% completion rate < 95% min
+    ]  # 50% completion rate < 90% min gate
     res = evaluate_vto_jobs(jobs, require_real_provider=True)
     assert res.decision == VTODecision.FAIL
-    assert "completion_rate" in res.failed_checks
+    assert "completion_rate" in res.failed_gate_checks
 
 
-def test_defect_rate_above_max_fails():
-    # 5 completed jobs, 2 have defects (40% defect rate > 15% max)
-    jobs = [
-        sample_job("job-1"),
-        sample_job("job-2"),
-        sample_job("job-3"),
-        sample_job("job-4", artifacts_detected=True),
-        sample_job("job-5", body_distortion=True),
-    ]
+def test_latency_above_gate_ceiling_fails():
+    # Latency 50.0s > 45.0s gate ceiling
+    jobs = [sample_job(f"job-{i}", latency_seconds=50.0) for i in range(10)]
     res = evaluate_vto_jobs(jobs, require_real_provider=True)
     assert res.decision == VTODecision.FAIL
-    assert "defect_rate" in res.failed_checks
-
-
-def test_latency_above_max_fails():
-    # 10 jobs with latency 45 seconds > 30s max
-    jobs = [sample_job(f"job-{i}", latency_seconds=45.0) for i in range(10)]
-    res = evaluate_vto_jobs(jobs, require_real_provider=True)
-    assert res.decision == VTODecision.FAIL
-    assert "p95_latency" in res.failed_checks
+    assert "p95_latency" in res.failed_gate_checks
 
 
 def test_empty_jobs_holds():

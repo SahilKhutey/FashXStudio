@@ -43,6 +43,14 @@ def get_verifier() -> TokenVerifier:
             issuer=settings.auth_issuer,
             audience=settings.auth_audience,
         )
+    elif settings.auth_mode == "cognito":
+        from .cognito import CognitoTokenVerifier
+
+        return CognitoTokenVerifier(
+            jwks_url=settings.cognito_jwks_url,
+            issuer=settings.cognito_issuer,
+            client_id=settings.cognito_app_client_id,
+        )
     else:
         raise ValueError(f"Unsupported auth_mode: {settings.auth_mode}")
 
@@ -67,6 +75,18 @@ async def get_principal(
         raise unauthorized("Token cannot be empty")
 
     claims = verifier.verify(token)
+
+    session_id = getattr(claims, "session_id", None)
+    if session_id:
+        settings = get_settings()
+        issuer = str(getattr(claims, "issuer", ""))
+        is_cognito = settings.auth_mode == "cognito" or "cognito-idp" in issuer or hasattr(claims, "client_id")
+        provider = "cognito" if is_cognito else (issuer or "unknown")
+        if await repo.is_session_revoked(provider, session_id) or (
+            provider != "cognito" and await repo.is_session_revoked("cognito", session_id)
+        ):
+            raise unauthorized("Session has been revoked")
+
     identity = await repo.resolve(claims.issuer, claims.subject)
     if identity.disabled:
         raise forbidden("Account is disabled")
@@ -93,6 +113,17 @@ async def get_optional_principal(
 
     try:
         claims = verifier.verify(token)
+        session_id = getattr(claims, "session_id", None)
+        if session_id:
+            settings = get_settings()
+            issuer = str(getattr(claims, "issuer", ""))
+            is_cognito = settings.auth_mode == "cognito" or "cognito-idp" in issuer or hasattr(claims, "client_id")
+            provider = "cognito" if is_cognito else (issuer or "unknown")
+            if await repo.is_session_revoked(provider, session_id) or (
+                provider != "cognito" and await repo.is_session_revoked("cognito", session_id)
+            ):
+                return None
+
         identity = await repo.resolve(claims.issuer, claims.subject)
         if identity.disabled:
             return None

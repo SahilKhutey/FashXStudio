@@ -1,12 +1,13 @@
 [extend]
 useDefault = true
 
-[[allowlists]]
+[allowlist]
 description = "Test fixtures and documentation examples (no live credentials)"
 paths = [
   '''tests/.*''',
   '''scripts/release/seed_staging_users\.py''',
   '''docs/architecture/.*''',
+  '''docs/reengineering/.*''',
   '''\.env\.example''',
   '''mobile/\.env\.example''',
   '''docs/archive/.*/\.env\.example''',

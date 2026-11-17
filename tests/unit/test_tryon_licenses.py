@@ -35,7 +35,7 @@ def test_allowed_commercial_and_open_licenses_pass():
 
 def test_prod_settings_reject_mock_provider(monkeypatch):
     monkeypatch.setenv("ENV", "prod")
-    monkeypatch.setenv("APP_ENV", "prod")
+    monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("REPO_BACKEND", "sql")
     monkeypatch.setenv("STORAGE_BACKEND", "s3")
     monkeypatch.setenv("S3_BUCKET", "prod-bucket")

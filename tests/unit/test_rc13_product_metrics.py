@@ -6,57 +6,71 @@ from scripts.rc13.evaluate_product_metrics import (
 
 def sample_metrics() -> dict[str, object]:
     return {
-        "activation_login_rate": 0.75,
-        "tryon_completion_rate": 0.68,
-        "vto_mean_rating": 4.1,
-        "crash_free_sessions": 0.995,
-        "privacy_incident_count": 0,
-        "week2_retention_rate": 0.24,
-        "retailer_clickout_rate": 0.18,
+        "M1_login_invitee_completion_rate": 0.65,
+        "M1_onboarding_starter_completion_rate": 0.84,
+        "M2_mean_vto_rating": 4.10,
+        "M2_ratings_gte_4_rate": 0.78,
+        "M2_defect_rate": 0.08,
+        "M3_crash_free_sessions": 0.995,
+        "M3_tryon_success_rate": 0.94,
+        "M3_p95_latency_seconds": 28.5,
+        "M4_privacy_incident_count": 0,
+        "M4_photo_comfort_agreement_rate": 0.86,
+        "M4_consent_dropoff_rate": 0.06,
+        "M5_week2_return_rate": 0.54,
+        "S1_feed_relevance_rating_gte_4_rate": 0.68,
+        "S1_negative_feed_signal_rate": 0.11,
+        "S2_week1_tryon_rate": 0.72,
+        "S2_median_tryons_per_user": 4.0,
+        "S2_median_minutes_to_first_tryon": 6.5,
+        "S3_buy_click_rate": 0.44,
+        "S3_verified_purchases": 5,
+        "S4_sus_score": 74.0,
+        "S4_pmf_very_disappointed_rate": 0.36,
+        "S4_nps_score": 28.0,
         "is_synthetic": False,
     }
 
 
-def test_all_metrics_pass_threshold():
+def test_all_frozen_metrics_pass_returns_go():
     res = evaluate_product_metrics(sample_metrics())
-    assert res.decision == ProductDecision.PASS
-    assert len(res.passed) == 5
-    assert not res.failed
-    assert not res.unknown
+    assert res.decision == ProductDecision.GO
+    assert len(res.passed_must_haves) == 12
+    assert not res.failed_must_haves
+    assert not res.unknown_must_haves
+    assert len(res.passed_should_groups) == 4
 
 
-def test_metric_below_threshold_fails():
+def test_must_have_below_threshold_fails():
     metrics = sample_metrics()
-    metrics["activation_login_rate"] = 0.65  # Below 0.70 target
+    metrics["M1_login_invitee_completion_rate"] = 0.55  # Below 0.60 target
     res = evaluate_product_metrics(metrics)
-    assert res.decision == ProductDecision.FAIL
-    assert "activation_login_rate" in res.failed
-    assert any("activation_login_rate_below_threshold" in r for r in res.reasons)
+    assert res.decision == ProductDecision.FIX_AND_RERUN
+    assert "M1_login_invitee_completion_rate" in res.failed_must_haves
 
 
-def test_privacy_incident_fails():
+def test_privacy_and_realism_failures_trigger_pivot_or_stop():
     metrics = sample_metrics()
-    metrics["privacy_incident_count"] = 1  # Target is <= 0
+    metrics["M2_mean_vto_rating"] = 2.5  # Critical realism failure
+    metrics["M4_photo_comfort_agreement_rate"] = 0.40  # Critical trust failure
     res = evaluate_product_metrics(metrics)
-    assert res.decision == ProductDecision.FAIL
-    assert "privacy_incident_count" in res.failed
+    assert res.decision == ProductDecision.PIVOT_OR_STOP
 
 
-def test_missing_metric_holds():
+def test_missing_must_have_metric_holds():
     metrics = sample_metrics()
-    del metrics["crash_free_sessions"]
-    res = evaluate_product_metrics(metrics)
-    assert res.decision == ProductDecision.HOLD
-    assert "crash_free_sessions" in res.unknown
-    assert any("metric_crash_free_sessions_missing" in r for r in res.reasons)
-
-
-def test_invalid_metric_value_holds():
-    metrics = sample_metrics()
-    metrics["vto_mean_rating"] = "invalid_numeric"
+    del metrics["M3_crash_free_sessions"]
     res = evaluate_product_metrics(metrics)
     assert res.decision == ProductDecision.HOLD
-    assert "vto_mean_rating" in res.unknown
+    assert "M3_crash_free_sessions" in res.unknown_must_haves
+
+
+def test_stop_rule_triggered_holds():
+    metrics = sample_metrics()
+    metrics["stop_suspected_data_exposure"] = True
+    res = evaluate_product_metrics(metrics)
+    assert res.decision == ProductDecision.HOLD
+    assert "stop_suspected_data_exposure" in res.triggered_stop_rules
 
 
 def test_synthetic_metrics_rejected_by_default():
@@ -64,15 +78,15 @@ def test_synthetic_metrics_rejected_by_default():
     metrics["is_synthetic"] = True
     res = evaluate_product_metrics(metrics, allow_synthetic=False)
     assert res.decision == ProductDecision.HOLD
-    assert "synthetic_metrics_rejected" in res.reasons
-
-    # Allowed when explicitly specified
-    res_allowed = evaluate_product_metrics(metrics, allow_synthetic=True)
-    assert res_allowed.decision == ProductDecision.PASS
+    assert "synthetic_metrics_rejected_for_release_governance" in res.reasons
 
 
-def test_optional_metrics_evaluated():
+def test_fewer_than_3_should_have_groups_requires_fix():
     metrics = sample_metrics()
+    # Remove S1, S2, S3
+    for k in list(metrics.keys()):
+        if k.startswith(("S1_", "S2_", "S3_")):
+            del metrics[k]
     res = evaluate_product_metrics(metrics)
-    assert "week2_retention_rate" in res.metrics
-    assert res.metrics["week2_retention_rate"].status == "pass"
+    assert res.decision == ProductDecision.FIX_AND_RERUN
+    assert any("insufficient_should_have_groups" in r for r in res.reasons)

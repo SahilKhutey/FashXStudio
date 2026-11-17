@@ -1,0 +1,165 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/API", "RequestCount", "Service", "api", "Environment", "prod", {"stat": "Sum", "label": "API Requests"}],
+          [".", "Request5xxCount", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "5xx Server Errors"}],
+          [".", "Request4xxCount", ".", ".", ".", ".", {"stat": "Sum", "color": "#ff7f0e", "label": "4xx Client Errors"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "API Request Volume & Error Distribution",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/API", "RequestLatency", "Service", "api", "Environment", "prod", {"stat": "p50", "label": "p50 Latency"}],
+          [".", ".", ".", ".", ".", ".", {"stat": "p90", "label": "p90 Latency"}],
+          [".", ".", ".", ".", ".", ".", {"stat": "p95", "color": "#ff7f0e", "label": "p95 Latency"}],
+          [".", ".", ".", ".", ".", ".", {"stat": "p99", "color": "#d62728", "label": "p99 Latency"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "API Latency Percentiles (ms)",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "fashx-pg-prod", {"stat": "Average", "label": "RDS CPU (%)"}],
+          [".", "DatabaseConnections", ".", ".", {"stat": "Average", "label": "Active Connections"}],
+          ["FashX/Database", "DBPoolCheckedOut", "Service", "api", "Environment", "prod", {"stat": "Maximum", "label": "SQLAlchemy Checked-Out Pool"}],
+          [".", "DBPoolOverflow", ".", ".", ".", ".", {"stat": "Maximum", "label": "SQLAlchemy Pool Overflow"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "RDS PostgreSQL & Connection Pool Health",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["AWS/ElastiCache", "DatabaseMemoryUsagePercentage", "CacheClusterId", "fashx-redis-prod-001", {"stat": "Average", "label": "Redis Memory (%)"}],
+          [".", "CurrConnections", ".", ".", {"stat": "Average", "label": "Redis Client Connections"}],
+          [".", "Evictions", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "Eviction Count"}],
+          ["FashX/Queues", "QueueDepth", "Queue", "tryon", "Environment", "prod", {"stat": "Maximum", "label": "Tryon Queue Depth"}],
+          [".", ".", "Queue", "ingest", ".", ".", {"stat": "Maximum", "label": "Ingest Queue Depth"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "Redis Memory & Celery Queue Backlog",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/Workers", "TaskStarted", "Queue", "tryon", "Environment", "prod", {"stat": "Sum", "label": "Tryon Tasks Started"}],
+          [".", "TaskSucceeded", ".", ".", ".", ".", {"stat": "Sum", "color": "#2ca02c", "label": "Tryon Tasks Succeeded"}],
+          [".", "TaskFailed", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "Tryon Tasks Failed"}],
+          [".", "TaskRetried", ".", ".", ".", ".", {"stat": "Sum", "color": "#ff7f0e", "label": "Tryon Tasks Retried"}],
+          [".", "TaskDeadLettered", ".", ".", ".", ".", {"stat": "Sum", "color": "#9467bd", "label": "Dead-Lettered"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "Background Worker Execution & Task Lifecycle",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/VTO", "VTOJobSubmitted", "Provider", "fashn_api", "Environment", "prod", {"stat": "Sum", "label": "VTO Jobs Submitted"}],
+          [".", "VTOJobSucceeded", ".", ".", ".", ".", {"stat": "Sum", "color": "#2ca02c", "label": "VTO Jobs Succeeded"}],
+          [".", "VTOJobFailed", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "VTO Jobs Failed"}],
+          [".", "VTOProviderTimeout", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "VTO Timeouts"}],
+          [".", "VTOProviderRateLimit", ".", ".", ".", ".", {"stat": "Sum", "color": "#ff7f0e", "label": "VTO Rate Limits (429)"}],
+          [".", "VTOProviderLatency", ".", ".", ".", ".", {"stat": "p95", "label": "VTO Provider p95 Latency (ms)"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "Virtual Try-On (VTO) Provider Telemetry",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 18,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/Storage", "StorageUploadCount", "Operation", "put", "Environment", "prod", {"stat": "Sum", "label": "S3 Uploads"}],
+          [".", "StorageUploadErrors", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "S3 Upload Failures"}],
+          [".", "StorageDeleteCount", "Operation", "delete", "Environment", "prod", {"stat": "Sum", "label": "S3 Deletions"}],
+          [".", "StorageDeleteErrors", ".", ".", ".", ".", {"stat": "Sum", "color": "#d62728", "label": "S3 Deletion Failures"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "Amazon S3 Object Storage Operations",
+        "period": 60
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 18,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          ["FashX/VTO", "VTOProviderCostEstimate", "Provider", "fashn_api", "Environment", "prod", {"stat": "Sum", "label": "Daily Estimated VTO Inference Spend ($)"}],
+          ["AWS/Billing", "EstimatedCharges", "Currency", "USD", {"stat": "Maximum", "label": "Estimated Total Month AWS Charges ($)"}]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "ap-south-1",
+        "title": "Infrastructure & Inference Cost Telemetry",
+        "period": 3600
+      }
+    }
+  ]
+}

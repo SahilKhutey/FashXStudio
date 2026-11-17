@@ -1,0 +1,44 @@
+# infra/aws/observability/cloudwatch/log-groups.yaml
+# CloudWatch Log Group retention and encryption policies across environments
+
+log_groups:
+  # Development Environment (7 days retention)
+  - name: /fashx/dev/api
+    retention_in_days: 7
+  - name: /fashx/dev/tryon
+    retention_in_days: 7
+  - name: /fashx/dev/ingest
+    retention_in_days: 7
+  - name: /fashx/dev/beat
+    retention_in_days: 7
+  - name: /fashx/dev/migration
+    retention_in_days: 7
+
+  # Staging Environment (14 days retention)
+  - name: /fashx/staging/api
+    retention_in_days: 14
+  - name: /fashx/staging/tryon
+    retention_in_days: 14
+  - name: /fashx/staging/ingest
+    retention_in_days: 14
+  - name: /fashx/staging/beat
+    retention_in_days: 14
+  - name: /fashx/staging/migration
+    retention_in_days: 14
+
+  # Production Environment (365 days retention per CERT-In ICT compliance mandate)
+  - name: /fashx/prod/api
+    retention_in_days: 365
+    kms_key_id: "arn:aws:kms:ap-south-1:${ACCOUNT_ID}:key/fashx-logs-prod"
+  - name: /fashx/prod/tryon
+    retention_in_days: 365
+    kms_key_id: "arn:aws:kms:ap-south-1:${ACCOUNT_ID}:key/fashx-logs-prod"
+  - name: /fashx/prod/ingest
+    retention_in_days: 365
+    kms_key_id: "arn:aws:kms:ap-south-1:${ACCOUNT_ID}:key/fashx-logs-prod"
+  - name: /fashx/prod/beat
+    retention_in_days: 365
+    kms_key_id: "arn:aws:kms:ap-south-1:${ACCOUNT_ID}:key/fashx-logs-prod"
+  - name: /fashx/prod/migration
+    retention_in_days: 365
+    kms_key_id: "arn:aws:kms:ap-south-1:${ACCOUNT_ID}:key/fashx-logs-prod"

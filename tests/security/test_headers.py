@@ -19,7 +19,7 @@ def test_standard_security_headers():
 
 
 def test_production_headers_and_docs_gating():
-    with patch("fashx.core.settings.Settings.is_production", True):
+    with patch("fashx.core.settings.Settings.is_production", True), patch("fashx.core.settings.Settings.is_hosted", False):
         prod_app = create_app()
         client = TestClient(prod_app)
 

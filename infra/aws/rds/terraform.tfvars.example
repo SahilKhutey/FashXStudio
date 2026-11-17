@@ -1,0 +1,28 @@
+aws_region = "ap-south-1"
+
+vpc_id = "vpc-REPLACE"
+
+private_subnet_ids = [
+  "subnet-REPLACE-A",
+  "subnet-REPLACE-B"
+]
+
+app_security_group_ids = {
+  dev     = "sg-REPLACE-DEV-APP"
+  staging = "sg-REPLACE-STAGING-APP"
+  prod    = "sg-REPLACE-PROD-APP"
+}
+
+# Replace with an exact supported minor version available in ap-south-1 (e.g. 16.3).
+postgres_engine_version = "16.3"
+
+instance_classes = {
+  dev     = "db.t4g.micro"
+  staging = "db.t4g.small"
+  prod    = "db.t4g.medium"
+}
+
+allocated_storage_gb     = 20
+max_allocated_storage_gb = 100
+
+master_username = "fashx_admin"
