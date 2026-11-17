@@ -61,6 +61,11 @@ class LocalStorage:
         sig = self._sign(key, exp)
         return f"{self.base_url}/dev-files/{key}?exp={exp}&sig={sig}"
 
+    def create_upload_url(self, key: str, content_type: str = "image/jpeg", ttl_s: int = 300) -> str:
+        exp = int(time.time()) + ttl_s
+        sig = self._sign(key, exp)
+        return f"{self.base_url}/dev-files/{key}?exp={exp}&sig={sig}"
+
     def verify(self, key: str, exp: int, sig: str) -> bool:
         if exp < int(time.time()):
             return False

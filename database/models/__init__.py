@@ -26,7 +26,7 @@ from .experiment import ExperimentExposure
 from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
 from .identity import ConsentEvent, ConsentRecord, User, UserPhoto
-from .media import MediaObject
+from .media import MediaObject, MediaUpload, UserMedia
 from .operations import IdempotencyRecord, OutboxMessageRecord, WorkerDeadLetter
 from .pilot import (
     PilotFeedback,
@@ -103,6 +103,8 @@ __all__ = [
     "OutboxMessageRecord",
     "WorkerDeadLetter",
     "MediaObject",
+    "MediaUpload",
+    "UserMedia",
     "FeedImpression",
     "FeedSignal",
     "ErasureTombstone",

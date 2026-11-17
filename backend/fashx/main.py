@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
@@ -71,10 +71,13 @@ def create_app(settings: Any | None = None) -> FastAPI:
     from fashx.api.v1.me import router as me_router
     from fashx.api.v1.onboarding import router as onboarding_router
     from fashx.catalog.customer_router import customer_garment_router
+    from fashx.media.errors import MediaError, media_error_handler
+    from fashx.media.router import router as media_router
     from fashx.security.deps import get_principal, require_role
     from fashx.security.errors import ApiError, api_error_handler
 
     app.add_exception_handler(ApiError, api_error_handler)
+    app.add_exception_handler(MediaError, media_error_handler)
     app.include_router(health_router)
     app.include_router(healthz_router)
     app.include_router(config_router, prefix="/api/v1")
@@ -83,6 +86,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(media_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     from fashx.admin.router import router as admin_router
 
     app.include_router(admin_router, prefix="/api/v1")
@@ -137,6 +141,26 @@ def create_app(settings: Any | None = None) -> FastAPI:
             if root not in p.parents or not p.is_file() or p.suffix.lower() not in DEV_MIME:
                 raise HTTPException(status_code=404, detail="File not found")
             return FileResponse(p, media_type=DEV_MIME[p.suffix.lower()], headers={"Cache-Control": "no-store"})
+
+        @app.put("/dev-files/{file_path:path}", include_in_schema=False)
+        async def upload_dev_file(
+            file_path: str,
+            request: Request,
+            exp: int = 0,
+            sig: str = "",
+            storage: Any = Depends(get_storage),
+        ) -> Response:
+            verify_fn = getattr(storage, "verify", None)
+            if not verify_fn or not verify_fn(file_path, exp, sig):
+                raise HTTPException(status_code=403, detail="Invalid or expired signature")
+            root = Path(getattr(storage, "root", dev_storage_root)).resolve()
+            p = (root / file_path).resolve()
+            if root not in p.parents:
+                raise HTTPException(status_code=404, detail="File not found")
+            body = await request.body()
+            content_type = request.headers.get("content-type", "application/octet-stream")
+            storage.put(file_path, body, content_type=content_type)
+            return Response(status_code=200)
 
     from fashx.api.v1.analytics import router as analytics_router
     from fashx.api.v1.cart import router as cart_router
