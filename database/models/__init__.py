@@ -31,6 +31,18 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
+from .catalog_image import (
+    CatalogImageAsset,
+    CatalogImageDeletionJob,
+    CatalogImageTakedown,
+    CatalogImageTransformation,
+    ImageAssetStatus,
+    ImageDeletionJobStatus,
+    ImageDeletionTargetType,
+    ImageTakedownScope,
+    ImageTakedownStatus,
+    ImageTransformationType,
+)
 from .catalog_sync import (
     CatalogIngestionQuarantine,
     CatalogSyncCheckpoint,
@@ -163,4 +175,14 @@ __all__ = [
     "CatalogSyncCheckpoint",
     "CatalogSyncRun",
     "CatalogIngestionQuarantine",
+    "CatalogImageAsset",
+    "CatalogImageTransformation",
+    "CatalogImageTakedown",
+    "CatalogImageDeletionJob",
+    "ImageAssetStatus",
+    "ImageTransformationType",
+    "ImageTakedownScope",
+    "ImageTakedownStatus",
+    "ImageDeletionTargetType",
+    "ImageDeletionJobStatus",
 ]

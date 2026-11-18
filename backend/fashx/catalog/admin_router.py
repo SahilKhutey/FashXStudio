@@ -11,6 +11,12 @@ from database.models.catalog_auth import (
     CatalogPermissionCode,
     TakedownReasonCode,
 )
+from database.models.catalog_image import (
+    CatalogImageAsset,
+    CatalogImageTakedown,
+    CatalogImageTransformation,
+    ImageAssetStatus,
+)
 from database.models.catalog_sync import (
     CatalogSyncCheckpoint,
     CatalogSyncRun,
@@ -40,6 +46,18 @@ from fashx.catalog.authorization.schemas import (
     PermissionResponse,
 )
 from fashx.catalog.authorization.service import CatalogAuthorizationService
+from fashx.catalog.images.lifecycle import ImageLifecycleService
+from fashx.catalog.images.models import ImageJobRequest
+from fashx.catalog.images.pipeline import ProductImagePipeline
+from fashx.catalog.images.schemas import (
+    ImageAssetResponse,
+    ImageJobCreateRequest,
+    ImageJobResponse,
+    ImageTakedownCreateRequest,
+    ImageTakedownResponse,
+    ImageTransformationResponse,
+)
+from fashx.catalog.images.storage_service import ImageStorageService
 from fashx.catalog.merchants.schemas import (
     MerchantCreate,
     MerchantResponse,
@@ -58,6 +76,7 @@ from fashx.catalog.takedowns.schemas import (
 )
 from fashx.catalog.takedowns.service import CatalogTakedownService
 from fashx.core.database import get_db_session, get_session_factory
+from fashx.core.dependencies import get_storage
 from fashx.security.deps import require_role
 
 router = APIRouter(
@@ -597,3 +616,175 @@ async def reprocess_quarantine_record(
         status="REPROCESSED",
         message="Quarantine record marked as reprocessed.",
     )
+
+
+# ---------------------------------------------------------------------------
+# Image Asset & Derivative Management Endpoints (Phase 05.4)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/images/jobs", response_model=ImageJobResponse)
+async def create_image_job(
+    payload: ImageJobCreateRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageJobResponse:
+    """Start authorized image retrieval, validation, storage, and transformation."""
+    storage_port = get_storage()
+    storage_svc = ImageStorageService(storage_port)
+    pipeline = ProductImagePipeline(session=session, storage_service=storage_svc)
+
+    req = ImageJobRequest(
+        source_id=payload.source_id,
+        merchant_id=payload.merchant_id,
+        source_product_id=payload.source_product_id,
+        image_url=payload.image_url,
+        category=payload.category,
+        source_variant_id=payload.source_variant_id,
+        canonical_garment_id=payload.canonical_garment_id,
+    )
+    result = await pipeline.process_image(req)
+    await session.commit()
+    return ImageJobResponse(
+        success=result.success,
+        asset_id=result.asset_id,
+        status=result.status,
+        original_storage_key=result.original_storage_key,
+        transformations=result.transformations,
+        quality_score=result.quality_score,
+        error_code=result.error_code,
+        error_message=result.error_message,
+    )
+
+
+@router.get("/images/{asset_id}", response_model=ImageAssetResponse)
+async def get_image_asset(
+    asset_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageAssetResponse:
+    """Inspect image asset metadata and status."""
+    asset = await session.get(CatalogImageAsset, asset_id)
+    if not asset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image asset '{asset_id}' not found.",
+        )
+    return ImageAssetResponse.model_validate(asset)
+
+
+@router.get(
+    "/images/{asset_id}/transformations",
+    response_model=list[ImageTransformationResponse],
+)
+async def list_image_transformations(
+    asset_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ImageTransformationResponse]:
+    """View transformation history and derivatives for an image asset."""
+    stmt = (
+        select(CatalogImageTransformation)
+        .where(CatalogImageTransformation.asset_id == asset_id)
+        .order_by(CatalogImageTransformation.created_at.asc())
+    )
+    results = (await session.scalars(stmt)).all()
+    return [ImageTransformationResponse.model_validate(t) for t in results]
+
+
+@router.post("/images/{asset_id}/reprocess", response_model=ImageJobResponse)
+async def reprocess_image_asset(
+    asset_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageJobResponse:
+    """Reprocess an eligible image asset to regenerate derivatives."""
+    asset = await session.get(CatalogImageAsset, asset_id)
+    if not asset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image asset '{asset_id}' not found.",
+        )
+    if not asset.source_reference:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Asset has no source reference URL for reprocessing.",
+        )
+
+    storage_port = get_storage()
+    storage_svc = ImageStorageService(storage_port)
+    pipeline = ProductImagePipeline(session=session, storage_service=storage_svc)
+
+    req = ImageJobRequest(
+        source_id=asset.source_id,
+        merchant_id=asset.merchant_id,
+        source_product_id=asset.source_product_id,
+        image_url=asset.source_reference,
+        category="tops",
+        source_variant_id=asset.source_variant_id,
+    )
+    result = await pipeline.process_image(req)
+    await session.commit()
+    return ImageJobResponse(
+        success=result.success,
+        asset_id=result.asset_id,
+        status=result.status,
+        original_storage_key=result.original_storage_key,
+        transformations=result.transformations,
+        quality_score=result.quality_score,
+        error_code=result.error_code,
+        error_message=result.error_message,
+    )
+
+
+@router.post("/images/{asset_id}/suspend", response_model=ImageAssetResponse)
+async def suspend_image_asset(
+    asset_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageAssetResponse:
+    """Suspend an image asset immediately."""
+    asset = await session.get(CatalogImageAsset, asset_id)
+    if not asset:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image asset '{asset_id}' not found.",
+        )
+    asset.status = ImageAssetStatus.SUSPENDED.value
+    await session.commit()
+    return ImageAssetResponse.model_validate(asset)
+
+
+@router.post("/images/takedowns", response_model=ImageTakedownResponse)
+async def create_image_takedown(
+    payload: ImageTakedownCreateRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageTakedownResponse:
+    """Initiate an image takedown, immediately suspend assets, and enqueue deletion jobs."""
+    storage_port = get_storage()
+    storage_svc = ImageStorageService(storage_port)
+    lifecycle_svc = ImageLifecycleService(session=session, storage_service=storage_svc)
+
+    takedown = await lifecycle_svc.initiate_takedown(
+        reason_code=payload.reason_code,
+        scope_type=payload.scope_type,
+        source_id=payload.source_id,
+        merchant_id=payload.merchant_id,
+        scope_target=payload.scope_target,
+        asset_id=payload.asset_id,
+        audit_metadata=payload.audit_metadata,
+    )
+    # Execute deletions
+    await lifecycle_svc.execute_deletion_jobs(takedown.id)
+    await session.commit()
+    return ImageTakedownResponse.model_validate(takedown)
+
+
+@router.get("/images/takedowns/{id}", response_model=ImageTakedownResponse)
+async def get_image_takedown(
+    id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> ImageTakedownResponse:
+    """Check the status and audit details of an image takedown."""
+    takedown = await session.get(CatalogImageTakedown, id)
+    if not takedown:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Image takedown '{id}' not found.",
+        )
+    return ImageTakedownResponse.model_validate(takedown)

@@ -301,6 +301,9 @@ class GarmentImage(Base, UUIDPrimaryKeyMixin):
     perceptual_hash: Mapped[str | None] = mapped_column(String(255))
     image_type: Mapped[str] = mapped_column(String(32), nullable=False)
     version: Mapped[int] = mapped_column(default=1, nullable=False)
+    asset_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("catalog_image_assets.id", ondelete="SET NULL"), nullable=True
+    )
 
     __table_args__ = (UniqueConstraint("garment_id", "content_hash", name="uq_garment_image_hash"),)
 

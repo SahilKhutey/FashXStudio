@@ -93,7 +93,7 @@ Establish FashXStudio's automated, extensible, permission-aware catalog acquisit
 - [x] **P5.2**: Source adapter contract (`CatalogSourceAdapter`), DTOs (`SourceProduct`, `AcquisitionBatch`), and registry.
 - [x] **P5.3**: Canonical catalog ingestion pipeline, validation engine, strict taxonomy normalization (quarantine on unmapped categories without silent fallback), minor-unit currency math, image rights isolation, and durable quarantine management (`catalog_ingestion_quarantine`).
 - [x] **P5.4**: Idempotent product, canonical garment, and offer ingestion with change tracking and `IngestRun` auditing.
-- [x] **P5.5**: Image acquisition, provenance, byte-level Pillow validation (decompression bombs, size limits), and SSRF defense.
+- [x] **P5.5 / Phase 05.4**: Product Image Pipeline: Permission-aware acquisition, byte/type validation, SSRF defense, separated display and VTO profiles, private S3 storage layout, provenance tracking, and takedown cascade deletion.
 - [x] **P5.6**: Catalog quality gate hardening and multi-factor item eligibility (`CatalogEligibility`).
 - [x] **P5.7**: Incremental sync, bounded retries with jitter (`retry_transient`), and stale offer reconciliation (`reconcile_stale_offers`).
 - [x] **P5.8**: Enrichment pipeline contract and strict embedding validation rejecting constant placeholder vectors.

@@ -9,6 +9,9 @@ DELETE /api/v1/wardrobe/users/{user_id}/items/{item_id}
 GET /
 GET /api/v1/account/deletion-status
 GET /api/v1/account/me
+GET /api/v1/admin/catalog/images/takedowns/{id}
+GET /api/v1/admin/catalog/images/{asset_id}
+GET /api/v1/admin/catalog/images/{asset_id}/transformations
 GET /api/v1/admin/catalog/ingestion-jobs/{run_id}
 GET /api/v1/admin/catalog/ingestion-jobs/{run_id}/report
 GET /api/v1/admin/catalog/merchants/{merchant_id}
@@ -181,6 +184,10 @@ POST /api/v1/account/email-change
 POST /api/v1/account/email-change/confirm
 POST /api/v1/account/provision
 POST /api/v1/account/sessions/revoke-all
+POST /api/v1/admin/catalog/images/jobs
+POST /api/v1/admin/catalog/images/takedowns
+POST /api/v1/admin/catalog/images/{asset_id}/reprocess
+POST /api/v1/admin/catalog/images/{asset_id}/suspend
 POST /api/v1/admin/catalog/ingestion-jobs
 POST /api/v1/admin/catalog/ingestion-jobs/{run_id}/cancel
 POST /api/v1/admin/catalog/merchants

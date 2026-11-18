@@ -1230,6 +1230,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/images/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Image Job
+         * @description Start authorized image retrieval, validation, storage, and transformation.
+         */
+        post: operations["create_image_job_api_v1_admin_catalog_images_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Image Asset
+         * @description Inspect image asset metadata and status.
+         */
+        get: operations["get_image_asset_api_v1_admin_catalog_images__asset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/transformations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Image Transformations
+         * @description View transformation history and derivatives for an image asset.
+         */
+        get: operations["list_image_transformations_api_v1_admin_catalog_images__asset_id__transformations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/reprocess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reprocess Image Asset
+         * @description Reprocess an eligible image asset to regenerate derivatives.
+         */
+        post: operations["reprocess_image_asset_api_v1_admin_catalog_images__asset_id__reprocess_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend Image Asset
+         * @description Suspend an image asset immediately.
+         */
+        post: operations["suspend_image_asset_api_v1_admin_catalog_images__asset_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/takedowns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Image Takedown
+         * @description Initiate an image takedown, immediately suspend assets, and enqueue deletion jobs.
+         */
+        post: operations["create_image_takedown_api_v1_admin_catalog_images_takedowns_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/takedowns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Image Takedown
+         * @description Check the status and audit details of an image takedown.
+         */
+        get: operations["get_image_takedown_api_v1_admin_catalog_images_takedowns__id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/garments/{garment_id}": {
         parameters: {
             query?: never;
@@ -8786,6 +8926,201 @@ export interface components {
             dependencies?: {
                 [key: string]: string;
             } | null;
+        };
+        /** ImageAssetResponse */
+        ImageAssetResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Source Product Id */
+            source_product_id: string;
+            /** Source Variant Id */
+            source_variant_id?: string | null;
+            /** Source Reference */
+            source_reference?: string | null;
+            /** Original Storage Key */
+            original_storage_key?: string | null;
+            /** Original Sha256 */
+            original_sha256?: string | null;
+            /** Normalized Sha256 */
+            normalized_sha256?: string | null;
+            /** Perceptual Hash */
+            perceptual_hash?: string | null;
+            /** Original Mime Type */
+            original_mime_type?: string | null;
+            /** Original Width */
+            original_width?: number | null;
+            /** Original Height */
+            original_height?: number | null;
+            /** Original Bytes */
+            original_bytes?: number | null;
+            /** Status */
+            status: string;
+            /** Quality Score */
+            quality_score?: string | null;
+            /** Quality Notes */
+            quality_notes?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Deleted At */
+            deleted_at?: string | null;
+        };
+        /** ImageJobCreateRequest */
+        ImageJobCreateRequest: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Source Product Id */
+            source_product_id: string;
+            /** Image Url */
+            image_url: string;
+            /** Category */
+            category: string;
+            /** Source Variant Id */
+            source_variant_id?: string | null;
+            /** Canonical Garment Id */
+            canonical_garment_id?: string | null;
+        };
+        /** ImageJobResponse */
+        ImageJobResponse: {
+            /** Success */
+            success: boolean;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Status */
+            status: string;
+            /** Original Storage Key */
+            original_storage_key?: string | null;
+            /** Transformations */
+            transformations?: string[];
+            /** Quality Score */
+            quality_score?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+        };
+        /** ImageTakedownCreateRequest */
+        ImageTakedownCreateRequest: {
+            /** Reason Code */
+            reason_code: string;
+            /**
+             * Scope Type
+             * @default SOURCE
+             */
+            scope_type: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Scope Target */
+            scope_target?: string | null;
+            /** Audit Metadata */
+            audit_metadata?: {
+                [key: string]: unknown;
+            };
+        };
+        /** ImageTakedownResponse */
+        ImageTakedownResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Scope Type */
+            scope_type: string;
+            /** Scope Target */
+            scope_target?: string | null;
+            /** Reason Code */
+            reason_code: string;
+            /** Status */
+            status: string;
+            /** Audit Metadata */
+            audit_metadata?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+        };
+        /** ImageTransformationResponse */
+        ImageTransformationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Transformation Type */
+            transformation_type: string;
+            /** Transformation Version */
+            transformation_version: string;
+            /** Processor Name */
+            processor_name: string;
+            /** Processor Version */
+            processor_version?: string | null;
+            /** Storage Key */
+            storage_key: string;
+            /** Output Mime Type */
+            output_mime_type: string;
+            /** Output Width */
+            output_width: number;
+            /** Output Height */
+            output_height: number;
+            /** Output Bytes */
+            output_bytes: number;
+            /** Output Sha256 */
+            output_sha256: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * ImplementationDependencyGroup
@@ -17845,6 +18180,227 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuarantineReprocessResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_image_job_api_v1_admin_catalog_images_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImageJobCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_asset_api_v1_admin_catalog_images__asset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageAssetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_image_transformations_api_v1_admin_catalog_images__asset_id__transformations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTransformationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reprocess_image_asset_api_v1_admin_catalog_images__asset_id__reprocess_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_image_asset_api_v1_admin_catalog_images__asset_id__suspend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageAssetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_image_takedown_api_v1_admin_catalog_images_takedowns_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImageTakedownCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_takedown_api_v1_admin_catalog_images_takedowns__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTakedownResponse"];
                 };
             };
             /** @description Validation Error */
