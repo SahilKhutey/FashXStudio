@@ -185,18 +185,22 @@ class CatalogSyncService:
                 norm_prod = normalize_product(row)
             except ValidationError as err:
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": str(err),
-                    "field": getattr(err, "field", "unknown"),
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": str(err),
+                        "field": getattr(err, "field", "unknown"),
+                    }
+                )
                 continue
             except Exception as exc:
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": f"Normalization failure: {exc}",
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": f"Normalization failure: {exc}",
+                    }
+                )
                 continue
 
             try:
@@ -223,10 +227,12 @@ class CatalogSyncService:
             except Exception as exc:
                 logger.warning("Failed importing row %d: %s", line_number, exc)
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": str(exc),
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": str(exc),
+                    }
+                )
 
         # Record durable ingestion history in database
         async with uow:

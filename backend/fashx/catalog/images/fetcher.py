@@ -42,7 +42,9 @@ class SafeImageFetcher:
         ) as client:
             async with client.stream("GET", url) as response:
                 if response.status_code != 200:
-                    raise ValueError(f"Image download failed with HTTP status {response.status_code}")
+                    raise ValueError(
+                        f"Image download failed with HTTP status {response.status_code}"
+                    )
 
                 content_type = (response.headers.get("content-type") or "").lower()
                 if "html" in content_type or "text" in content_type:
@@ -51,7 +53,9 @@ class SafeImageFetcher:
                 async for chunk in response.aiter_bytes():
                     total_bytes += len(chunk)
                     if total_bytes > MAX_IMAGE_BYTES:
-                        raise ValueError(f"Image exceeded maximum size limit of {MAX_IMAGE_BYTES} bytes")
+                        raise ValueError(
+                            f"Image exceeded maximum size limit of {MAX_IMAGE_BYTES} bytes"
+                        )
                     chunks.append(chunk)
 
         raw_bytes = b"".join(chunks)

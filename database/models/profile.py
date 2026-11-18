@@ -75,7 +75,9 @@ class OnboardingProfile(Base):
     fit_preferences: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     shopping_preferences: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     discovery_preferences: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
-    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -110,7 +112,9 @@ class ProfilePhotoJob(Base, UUIDPrimaryKeyMixin):
     locked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_error: Mapped[str | None] = mapped_column(Text)
     failure_reason: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
@@ -131,7 +135,9 @@ class SkinToneResult(Base, UUIDPrimaryKeyMixin):
     method: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class ProfileArtifact(Base, UUIDPrimaryKeyMixin):
@@ -145,10 +151,16 @@ class ProfileArtifact(Base, UUIDPrimaryKeyMixin):
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     body_snapshot: Mapped[dict] = mapped_column(JSON, nullable=False)
     preferences_snapshot: Mapped[dict] = mapped_column(JSON, nullable=False)
-    tryon_photo_id: Mapped[UUID | None] = mapped_column(ForeignKey("user_photos.id", ondelete="SET NULL"))
-    skin_tone_result_id: Mapped[UUID | None] = mapped_column(ForeignKey("skin_tone_results.id", ondelete="SET NULL"))
+    tryon_photo_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("user_photos.id", ondelete="SET NULL")
+    )
+    skin_tone_result_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("skin_tone_results.id", ondelete="SET NULL")
+    )
     ready_for_tryon: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class ShopperProfile(Base, UUIDPrimaryKeyMixin):
@@ -227,5 +239,3 @@ class ProfileMeasurement(Base, UUIDPrimaryKeyMixin):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     consent_record_id: Mapped[UUID | None] = mapped_column(nullable=True)
-
-

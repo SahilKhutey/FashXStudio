@@ -15,9 +15,18 @@ class CatalogRepository:
     async def get_garment(self, garment_id: UUID) -> CanonicalGarment | None:
         return await self.session.get(CanonicalGarment, garment_id)
 
-    async def create_garment(self, *, category: str, subcategory: str | None = None, brand_id: UUID | None = None, display_name: str | None = None) -> CanonicalGarment:
+    async def create_garment(
+        self,
+        *,
+        category: str,
+        subcategory: str | None = None,
+        brand_id: UUID | None = None,
+        display_name: str | None = None,
+    ) -> CanonicalGarment:
         name = display_name or subcategory or category or ""
-        garment = CanonicalGarment(category=category, subcategory=subcategory, brand_id=brand_id, display_name=name)
+        garment = CanonicalGarment(
+            category=category, subcategory=subcategory, brand_id=brand_id, display_name=name
+        )
         self.session.add(garment)
         await self.session.flush()
         return garment
@@ -26,14 +35,25 @@ class CatalogRepository:
         statement = select(Merchant).where(Merchant.name == name)
         return (await self.session.execute(statement)).scalar_one_or_none()
 
-    async def get_merchant_product(self, merchant_id: UUID, source_product_id: str) -> MerchantProduct | None:
+    async def get_merchant_product(
+        self, merchant_id: UUID, source_product_id: str
+    ) -> MerchantProduct | None:
         statement = select(MerchantProduct).where(
             MerchantProduct.merchant_id == merchant_id,
             MerchantProduct.source_product_id == source_product_id,
         )
         return (await self.session.execute(statement)).scalar_one_or_none()
 
-    async def create_merchant_product(self, *, merchant_id: UUID, brand_id: UUID | None, source_product_id: str, title: str, description: str | None, source_url: str) -> MerchantProduct:
+    async def create_merchant_product(
+        self,
+        *,
+        merchant_id: UUID,
+        brand_id: UUID | None,
+        source_product_id: str,
+        title: str,
+        description: str | None,
+        source_url: str,
+    ) -> MerchantProduct:
         item = MerchantProduct(
             merchant_id=merchant_id,
             brand_id=brand_id,

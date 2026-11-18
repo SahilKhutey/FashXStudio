@@ -12,7 +12,11 @@ GET /api/v1/account/me
 GET /api/v1/admin/catalog/merchants/{merchant_id}
 GET /api/v1/admin/catalog/sources/{source_id}
 GET /api/v1/admin/catalog/sources/{source_id}/authorization
+GET /api/v1/admin/catalog/sources/{source_id}/checkpoints
+GET /api/v1/admin/catalog/sources/{source_id}/health
 GET /api/v1/admin/catalog/sources/{source_id}/permissions
+GET /api/v1/admin/catalog/sources/{source_id}/sync-runs
+GET /api/v1/admin/catalog/sync-runs/{run_id}
 GET /api/v1/admin/catalog/takedowns/{request_id}
 GET /api/v1/admin/feature-flags
 GET /api/v1/catalog/garments/{garment_id}
@@ -177,10 +181,12 @@ POST /api/v1/admin/catalog/merchants
 POST /api/v1/admin/catalog/merchants/{merchant_id}/verify
 POST /api/v1/admin/catalog/sources
 POST /api/v1/admin/catalog/sources/{source_id}/evidence
+POST /api/v1/admin/catalog/sources/{source_id}/health-check
 POST /api/v1/admin/catalog/sources/{source_id}/permissions
 POST /api/v1/admin/catalog/sources/{source_id}/resume
 POST /api/v1/admin/catalog/sources/{source_id}/status
 POST /api/v1/admin/catalog/sources/{source_id}/suspend
+POST /api/v1/admin/catalog/sources/{source_id}/sync
 POST /api/v1/admin/catalog/sources/{source_id}/takedown
 POST /api/v1/admin/feature-flags
 POST /api/v1/analytics/aggregate

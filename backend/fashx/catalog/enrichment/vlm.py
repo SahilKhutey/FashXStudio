@@ -72,14 +72,31 @@ class MockVlmClient:
 
         # 2. Color (earliest matching color term by position in title/description with word boundaries)
         color_map = {
-            "olive": "green", "mehendi": "green", "mehndi": "green", "green": "green", "pista": "green",
-            "maroon": "red", "crimson": "red", "burgundy": "red", "red": "red",
-            "mustard": "yellow", "yellow": "yellow", "gold": "yellow",
-            "indigo": "blue", "navy": "blue", "blue": "blue", "teal": "blue",
-            "charcoal": "black", "black": "black",
-            "off-white": "white", "white": "white", "cream": "white",
-            "pink": "pink", "rani": "pink",
-            "beige": "beige", "khaki": "beige",
+            "olive": "green",
+            "mehendi": "green",
+            "mehndi": "green",
+            "green": "green",
+            "pista": "green",
+            "maroon": "red",
+            "crimson": "red",
+            "burgundy": "red",
+            "red": "red",
+            "mustard": "yellow",
+            "yellow": "yellow",
+            "gold": "yellow",
+            "indigo": "blue",
+            "navy": "blue",
+            "blue": "blue",
+            "teal": "blue",
+            "charcoal": "black",
+            "black": "black",
+            "off-white": "white",
+            "white": "white",
+            "cream": "white",
+            "pink": "pink",
+            "rani": "pink",
+            "beige": "beige",
+            "khaki": "beige",
         }
         color_matches = []
         for word, c_val in color_map.items():
@@ -100,7 +117,10 @@ class MockVlmClient:
             pattern = "checked"
         elif any(w in text for w in ("floral", "flower")):
             pattern = "floral"
-        elif any(w in text for w in ("print", "printed", "block", "handblock", "kalamkari", "ikat", "ajrakh")):
+        elif any(
+            w in text
+            for w in ("print", "printed", "block", "handblock", "kalamkari", "ikat", "ajrakh")
+        ):
             pattern = "printed"
         elif any(w in text for w in ("embroider", "embroidery", "zari", "chikan")):
             pattern = "embroidered"
@@ -111,11 +131,28 @@ class MockVlmClient:
             sleeve = None
         elif any(w in text for w in ("sleeveless", "nehru", "waistcoat", "bundi", "bodycon")):
             sleeve = "sleeveless"
-        elif any(w in text for w in ("three_quarter", "three quarter", "3/4", "kurti")) or bool(re.search(r"\banarkali kurta\b", text)):
+        elif any(w in text for w in ("three_quarter", "three quarter", "3/4", "kurti")) or bool(
+            re.search(r"\banarkali kurta\b", text)
+        ):
             sleeve = "three_quarter"
         elif sub_cat != "jacket" and (
-            any(w in text for w in ("short sleeve", "half sleeve", "resort", "puff", "tee", "t-shirt", "lehenga", "choli"))
-            or (bool(re.search(r"\bshort\b", text)) and not bool(re.search(r"\bshort kurta\b", text)))
+            any(
+                w in text
+                for w in (
+                    "short sleeve",
+                    "half sleeve",
+                    "resort",
+                    "puff",
+                    "tee",
+                    "t-shirt",
+                    "lehenga",
+                    "choli",
+                )
+            )
+            or (
+                bool(re.search(r"\bshort\b", text))
+                and not bool(re.search(r"\bshort kurta\b", text))
+            )
             or "striped linen" in text
             or "summer kurta" in text
         ):
@@ -129,9 +166,14 @@ class MockVlmClient:
             length = "maxi"
         elif any(w in text for w in ("midi", "calf")):
             length = "midi"
-        elif any(w in text for w in ("knee", "overcoat", "bodycon", "long kurta", "handspun kurta")):
+        elif any(
+            w in text for w in ("knee", "overcoat", "bodycon", "long kurta", "handspun kurta")
+        ):
             length = "knee"
-        elif any(w in text for w in ("crop", "cropped", "short kurta", "kurti", "nehru", "bundi", "waistcoat")):
+        elif any(
+            w in text
+            for w in ("crop", "cropped", "short kurta", "kurti", "nehru", "bundi", "waistcoat")
+        ):
             length = "crop"
         else:
             length = "regular"
@@ -146,7 +188,10 @@ class MockVlmClient:
             fit = "oversized"
 
         formality = 3
-        if any(w in text for w in ("silk", "festive", "wedding", "sherwani", "lehenga", "zari", "brocade")):
+        if any(
+            w in text
+            for w in ("silk", "festive", "wedding", "sherwani", "lehenga", "zari", "brocade")
+        ):
             formality = 5
         elif any(w in text for w in ("blazer", "formal", "office", "trousers")):
             formality = 4
@@ -162,7 +207,9 @@ class MockVlmClient:
         if sub_cat in ("saree", "lehenga"):
             # Complex draped wear is flagged unsuitable or requires special draping
             tryon_suitable = False
-            tryon_reason = "Complex unanchored drape format exceeds 2D single-panel warping capability"
+            tryon_reason = (
+                "Complex unanchored drape format exceeds 2D single-panel warping capability"
+            )
         elif "accessory" in text:
             tryon_suitable = False
             tryon_reason = "Accessory item not supported in apparel VTO pipeline"

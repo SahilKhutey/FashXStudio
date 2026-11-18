@@ -59,7 +59,6 @@ class StyleQuizPickRepository(BaseRepository[StyleQuizPick]):
         return pick
 
 
-
 class MerchantRepository(BaseRepository[Merchant]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session, Merchant)
@@ -84,12 +83,8 @@ class MerchantProductRepository(BaseRepository[MerchantProduct]):
         result = await self.session.scalars(stmt)
         return result.first()
 
-    async def get_by_canonical_garment_id(
-        self, garment_id: UUID
-    ) -> Sequence[MerchantProduct]:
-        stmt = select(MerchantProduct).where(
-            MerchantProduct.canonical_garment_id == garment_id
-        )
+    async def get_by_canonical_garment_id(self, garment_id: UUID) -> Sequence[MerchantProduct]:
+        stmt = select(MerchantProduct).where(MerchantProduct.canonical_garment_id == garment_id)
         result = await self.session.scalars(stmt)
         return result.all()
 
@@ -391,4 +386,3 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         if self._style_quiz_picks is None:
             self._style_quiz_picks = StyleQuizPickRepository(self.session)
         return self._style_quiz_picks
-

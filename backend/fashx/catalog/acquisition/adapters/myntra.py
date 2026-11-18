@@ -6,11 +6,19 @@ from collections.abc import Sequence
 
 from fashx.catalog.acquisition.adapters.base import BaseSourceAdapter
 from fashx.catalog.acquisition.contract import AcquisitionBatch, SourceProduct
+from fashx.catalog.acquisition.contracts_v2 import IntegrationStatus
 from fashx.catalog.acquisition.registry import SourceConfig
 
 
 class MyntraAdapter(BaseSourceAdapter):
-    """Adapter for authorized Myntra product partner integrations and feeds."""
+    """Adapter for Myntra product partner integrations and feeds.
+
+    CLASSIFICATION: FIXTURE_ONLY / MOCK.
+    This adapter operates on in-memory fixtures. Live Myntra Partner API connectivity
+    and catalog-wide ingestion rights remain unverified pending formal partnership agreements.
+    """
+
+    integration_status: IntegrationStatus = IntegrationStatus.MOCK
 
     def __init__(
         self,

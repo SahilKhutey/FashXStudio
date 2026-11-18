@@ -22,7 +22,9 @@ class IdentityAccount(Base, UUIDPrimaryKeyMixin):
 
     __tablename__ = "identity_accounts"
     __table_args__ = (
-        UniqueConstraint("provider", "provider_subject", name="uq_identity_accounts_provider_subject"),
+        UniqueConstraint(
+            "provider", "provider_subject", name="uq_identity_accounts_provider_subject"
+        ),
         UniqueConstraint("user_id", "provider", name="uq_identity_accounts_user_provider"),
     )
 
@@ -73,9 +75,7 @@ class AuthSession(Base, UUIDPrimaryKeyMixin):
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, index=True
     )
-    revoked_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[User] = relationship()
 
@@ -84,9 +84,7 @@ class AccountDeletionJob(Base, UUIDPrimaryKeyMixin):
     """Durable asynchronous account deletion tracking record. Retained post-erasure as audit record."""
 
     __tablename__ = "account_deletion_jobs"
-    __table_args__ = (
-        Index("ix_account_deletion_jobs_user_status", "user_id", "status"),
-    )
+    __table_args__ = (Index("ix_account_deletion_jobs_user_status", "user_id", "status"),)
 
     user_id: Mapped[UUID] = mapped_column(index=True, nullable=False)
     status: Mapped[str] = mapped_column(
@@ -95,15 +93,9 @@ class AccountDeletionJob(Base, UUIDPrimaryKeyMixin):
     requested_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    started_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    attempts: Mapped[int] = mapped_column(
-        Integer, default=0, server_default="0", nullable=False
-    )
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     max_attempts: Mapped[int] = mapped_column(
         Integer, default=5, server_default="5", nullable=False
     )

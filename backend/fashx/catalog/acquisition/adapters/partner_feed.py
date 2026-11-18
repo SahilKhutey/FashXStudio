@@ -8,11 +8,18 @@ from pathlib import Path
 
 from fashx.catalog.acquisition.adapters.base import BaseSourceAdapter
 from fashx.catalog.acquisition.contract import AcquisitionBatch, SourceProduct
+from fashx.catalog.acquisition.contracts_v2 import IntegrationStatus
 from fashx.catalog.acquisition.registry import SourceConfig
 
 
 class PartnerFeedAdapter(BaseSourceAdapter):
-    """Adapter for authorized partner CSV and JSON feeds."""
+    """Adapter for authorized partner CSV and JSON feeds.
+
+    CLASSIFICATION: LOCAL.
+    Supports in-memory feed items and local CSV file inputs.
+    """
+
+    integration_status: IntegrationStatus = IntegrationStatus.LOCAL
 
     def __init__(
         self,
@@ -46,7 +53,9 @@ class PartnerFeedAdapter(BaseSourceAdapter):
             with self._feed_csv_path.open(encoding="utf-8-sig", newline="") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
-                    sizes = tuple(s.strip() for s in r.get("size_values", "").split("|") if s.strip())
+                    sizes = tuple(
+                        s.strip() for s in r.get("size_values", "").split("|") if s.strip()
+                    )
                     items.append(
                         SourceProduct(
                             source_slug=self.source_slug,
@@ -62,10 +71,12 @@ class PartnerFeedAdapter(BaseSourceAdapter):
                                 r.get("product_url", "").strip() or r.get("source_url", "").strip()
                             ),
                             image_url=r.get("image_url", "").strip() or None,
-                            in_stock=r.get("in_stock", "true").strip().lower() in {"true", "1", "yes"},
+                            in_stock=r.get("in_stock", "true").strip().lower()
+                            in {"true", "1", "yes"},
                             sizes=sizes,
                             image_rights=r.get("image_rights", "partner_authorized").strip(),
-                            tryon_rights=r.get("tryon_rights", "false").strip().lower() in {"true", "1", "yes"},
+                            tryon_rights=r.get("tryon_rights", "false").strip().lower()
+                            in {"true", "1", "yes"},
                         )
                     )
 

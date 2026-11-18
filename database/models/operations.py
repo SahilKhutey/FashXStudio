@@ -16,7 +16,9 @@ class IdempotencyRecord(Base, UUIDPrimaryKeyMixin):
     status_code: Mapped[int | None] = mapped_column(Integer)
     response_body: Mapped[dict | None] = mapped_column(JSON)
     state: Mapped[str] = mapped_column(String(32), default="in_progress", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     __table_args__ = (UniqueConstraint("user_id", "key", name="uq_idempotency_user_key"),)
@@ -27,8 +29,12 @@ class OutboxMessageRecord(Base, UUIDPrimaryKeyMixin):
 
     topic: Mapped[str] = mapped_column(String(255), nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    next_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_error: Mapped[str | None] = mapped_column(Text)
@@ -45,5 +51,7 @@ class WorkerDeadLetter(Base, UUIDPrimaryKeyMixin):
     safe_payload: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     status: Mapped[str] = mapped_column(String(30), default="pending", nullable=False, index=True)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

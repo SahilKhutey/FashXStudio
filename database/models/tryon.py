@@ -33,9 +33,7 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     garment_id: Mapped[UUID] = mapped_column(
         ForeignKey("canonical_garments.id", ondelete="CASCADE")
     )
-    profile_photo_id: Mapped[UUID] = mapped_column(
-        ForeignKey("user_photos.id", ondelete="CASCADE")
-    )
+    profile_photo_id: Mapped[UUID] = mapped_column(ForeignKey("user_photos.id", ondelete="CASCADE"))
     idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False)
     artifact_key: Mapped[str] = mapped_column(String(512), nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False)
@@ -96,11 +94,11 @@ class TryOnUsage(Base, UUIDPrimaryKeyMixin):
     )
     provider: Mapped[str] = mapped_column(Text, nullable=False)
     model: Mapped[str] = mapped_column(Text, nullable=False)
-    outcome: Mapped[str] = mapped_column(Text, nullable=False)  # completed | failed | retried | cancelled
+    outcome: Mapped[str] = mapped_column(
+        Text, nullable=False
+    )  # completed | failed | retried | cancelled
     error_code: Mapped[str | None] = mapped_column(Text, nullable=True)
     latency_ms: Mapped[int | None] = mapped_column(nullable=True)
     cost_usd_est: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
 
-    __table_args__ = (
-        Index("ix_tryon_usage_created", "created_at"),
-    )
+    __table_args__ = (Index("ix_tryon_usage_created", "created_at"),)

@@ -15,9 +15,7 @@ from .base import Base, UUIDPrimaryKeyMixin
 
 class ExperimentExposure(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "experiment_exposures"
-    __table_args__ = (
-        UniqueConstraint("user_id", "experiment", name="uq_user_experiment"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "experiment", name="uq_user_experiment"),)
 
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True

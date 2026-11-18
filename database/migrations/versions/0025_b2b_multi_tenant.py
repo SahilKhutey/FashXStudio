@@ -136,7 +136,9 @@ def upgrade() -> None:
         sa.UniqueConstraint("tenant_id", "external_product_id", name="uq_tenant_external_product"),
     )
     op.create_index("ix_tenant_products_tenant_id", "tenant_products", ["tenant_id"])
-    op.create_index("ix_tenant_products_external_product_id", "tenant_products", ["external_product_id"])
+    op.create_index(
+        "ix_tenant_products_external_product_id", "tenant_products", ["external_product_id"]
+    )
 
     # 5. tenant_members
     op.create_table(

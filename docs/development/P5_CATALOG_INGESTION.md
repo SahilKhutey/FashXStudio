@@ -14,10 +14,11 @@ Establish FashXStudio's automated, extensible, permission-aware catalog acquisit
 - **`AdapterRegistry` (`registry.py`)**: Thread-safe registry and configuration manager holding source-specific RPS limits, circuit breaker settings, timeouts, and refresh policies.
 - **Store Adapters (`adapters/`)**:
   - `BaseSourceAdapter`: Implements sliding-window rate limiting, exponential backoff, and circuit breaker protection (CLOSED -> OPEN -> HALF_OPEN).
-  - `AmazonAdapter`: Adapter for Amazon product feeds and Product Advertising API.
-  - `MyntraAdapter`: Adapter for Myntra partner feeds and API integrations.
-  - `FlipkartAdapter`: Adapter for Flipkart partner feeds and API integrations.
-  - `PartnerFeedAdapter`: Reference adapter supporting local/remote CSV and JSON data feeds.
+  - `AuthorizedHttpFeedAdapter` (Phase 05.2): Production remote feed connector for authorized HTTPS merchant feeds with ETag/Last-Modified caching and SSRF protection.
+  - `AmazonAdapter`: `FIXTURE_ONLY` / `IntegrationStatus.MOCK`. PA-API deprecated; requires Creators API and bilateral licensing.
+  - `MyntraAdapter`: `FIXTURE_ONLY` / `IntegrationStatus.MOCK`. Seller listing management API; requires bilateral enterprise contract.
+  - `FlipkartAdapter`: `FIXTURE_ONLY` / `IntegrationStatus.MOCK`. Affiliate terms forbid derivative works/competitive services without licensing.
+  - `PartnerFeedAdapter`: Reference adapter supporting local/remote CSV and JSON data feeds (`IntegrationStatus.LOCAL`).
 - **Fail-Closed Approval Lifecycle (`backend/fashx/catalog/acquisition/pipeline.py` & `application/ingest_product.py`)**:
   - In automated acquisition (`AcquisitionPipeline`): Unregistered or unapproved (`status != "cleared"`) sources are strictly rejected and refused ingestion.
   - In direct ingestion (`IngestMerchantProductUseCase`): Unregistered `source_id` raises `EntityNotFoundError`. When `source_id` is omitted, fallback sources default to `status="pending_approval"`, `rights_display=False`, and `rights_tryon=False`, ensuring unapproved sources never self-grant feed or try-on clearance.
@@ -101,5 +102,5 @@ Establish FashXStudio's automated, extensible, permission-aware catalog acquisit
 
 ## Known Blockers & Limitations (Rule 14)
 - **Hosted PostgreSQL**: Backend tests were executed against SQLite in-memory; live PostgreSQL was unreachable locally (`[WinError 1225] The remote computer refused the network connection`) and remains unverified locally until CI run.
-- **Live Commercial Store APIs**: Adapters for Amazon, Myntra, and Flipkart implement the full protocol with rate limiting and circuit breakers, tested against local authorized feeds; production API keys/credentials are not configured locally.
+- **Live Commercial Store APIs**: Adapters for Amazon, Myntra, and Flipkart are explicitly classified as `FIXTURE_ONLY` / `IntegrationStatus.MOCK`, tested against local mock fixtures; live bilateral enterprise licensing and production credentials are required before production clearance. Remote feed ingestion is powered by `AuthorizedHttpFeedAdapter` under bilateral authorization.
 - **Physical Mobile Hardware**: Mobile validation completed via Jest tests, TypeScript type checking, and Expo Android static bundling; physical device test remains unverified.

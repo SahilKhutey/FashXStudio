@@ -2531,6 +2531,304 @@
         }
       }
     },
+    "/api/v1/admin/catalog/sources/{source_id}/health": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Get Source Health",
+        "description": "Evaluate current health state of a catalog source based on recent syncs and status.",
+        "operationId": "get_source_health_api_v1_admin_catalog_sources__source_id__health_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceHealthReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/health-check": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Check Source Health",
+        "description": "Trigger a live diagnostic probe for an authorized catalog source.",
+        "operationId": "check_source_health_api_v1_admin_catalog_sources__source_id__health_check_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceHealthReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/sync": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Trigger Source Sync",
+        "description": "Execute synchronization (full or incremental) for an authorized catalog source.",
+        "operationId": "trigger_source_sync_api_v1_admin_catalog_sources__source_id__sync_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncTriggerRequest",
+                "default": {
+                  "mode": "full",
+                  "limit_per_page": 100,
+                  "apply": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/sync-runs": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "List Source Sync Runs",
+        "description": "List historical and active sync runs for a source.",
+        "operationId": "list_source_sync_runs_api_v1_admin_catalog_sources__source_id__sync_runs_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SyncRunResponse"
+                  },
+                  "title": "Response List Source Sync Runs Api V1 Admin Catalog Sources  Source Id  Sync Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/checkpoints": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "List Source Checkpoints",
+        "description": "List durable synchronization checkpoints for a source.",
+        "operationId": "list_source_checkpoints_api_v1_admin_catalog_sources__source_id__checkpoints_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SyncCheckpointResponse"
+                  },
+                  "title": "Response List Source Checkpoints Api V1 Admin Catalog Sources  Source Id  Checkpoints Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sync-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Get Sync Run",
+        "description": "Retrieve details of a specific sync run execution.",
+        "operationId": "get_sync_run_api_v1_admin_catalog_sync_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncRunResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/garments/{garment_id}": {
       "get": {
         "tags": [
@@ -29469,6 +29767,119 @@
         ],
         "title": "SourceCreate"
       },
+      "SourceErrorCode": {
+        "type": "string",
+        "enum": [
+          "authentication",
+          "authorization",
+          "rate_limited",
+          "transient",
+          "timeout",
+          "not_found",
+          "invalid_request",
+          "cursor_expired",
+          "schema_changed",
+          "permission_revoked"
+        ],
+        "title": "SourceErrorCode"
+      },
+      "SourceHealthReport": {
+        "properties": {
+          "source_slug": {
+            "type": "string",
+            "title": "Source Slug"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SourceHealthState"
+          },
+          "last_check_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Check At"
+          },
+          "last_successful_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Successful Sync At"
+          },
+          "last_failed_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Failed Sync At"
+          },
+          "consecutive_failures": {
+            "type": "integer",
+            "title": "Consecutive Failures",
+            "default": 0
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "last_error_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "Healthy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_slug",
+          "state"
+        ],
+        "title": "SourceHealthReport"
+      },
+      "SourceHealthState": {
+        "type": "string",
+        "enum": [
+          "unknown",
+          "healthy",
+          "degraded",
+          "rate_limited",
+          "auth_failed",
+          "stale",
+          "disabled"
+        ],
+        "title": "SourceHealthState"
+      },
       "SourceResponse": {
         "properties": {
           "id": {
@@ -30419,6 +30830,221 @@
         ],
         "title": "SuggestionType",
         "description": "Categorized search autocomplete suggestions (Section 8.18)."
+      },
+      "SyncCheckpointResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "checkpoint_type": {
+            "type": "string",
+            "title": "Checkpoint Type"
+          },
+          "cursor_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor Data"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watermark"
+          },
+          "provider_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Version"
+          },
+          "last_success_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Success At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "checkpoint_type",
+          "updated_at"
+        ],
+        "title": "SyncCheckpointResponse",
+        "description": "Schema representing durable checkpoint state for a source."
+      },
+      "SyncMode": {
+        "type": "string",
+        "enum": [
+          "full",
+          "incremental"
+        ],
+        "title": "SyncMode"
+      },
+      "SyncRunResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "pages_fetched": {
+            "type": "integer",
+            "title": "Pages Fetched"
+          },
+          "products_seen": {
+            "type": "integer",
+            "title": "Products Seen"
+          },
+          "products_inserted": {
+            "type": "integer",
+            "title": "Products Inserted"
+          },
+          "products_updated": {
+            "type": "integer",
+            "title": "Products Updated"
+          },
+          "products_rejected": {
+            "type": "integer",
+            "title": "Products Rejected"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "mode",
+          "status",
+          "started_at",
+          "pages_fetched",
+          "products_seen",
+          "products_inserted",
+          "products_updated",
+          "products_rejected",
+          "created_at"
+        ],
+        "title": "SyncRunResponse",
+        "description": "Schema representing a catalog synchronization execution record."
+      },
+      "SyncTriggerRequest": {
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/SyncMode",
+            "description": "Synchronization mode (full or incremental)",
+            "default": "full"
+          },
+          "limit_per_page": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit Per Page",
+            "description": "Page batch size",
+            "default": 100
+          },
+          "apply": {
+            "type": "boolean",
+            "title": "Apply",
+            "description": "Whether to persist changes or run as dry-run",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "SyncTriggerRequest",
+        "description": "Admin request payload to trigger catalog source synchronization."
       },
       "TabContract": {
         "properties": {

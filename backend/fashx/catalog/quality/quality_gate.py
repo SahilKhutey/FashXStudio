@@ -150,7 +150,9 @@ class CatalogQualityGate:
             color = str(attrs.get("dominant_color") or "").strip().lower()
 
             is_cat_valid = cat in cls.VALID_CATEGORIES
-            is_sil_valid = bool(silhouette) and (silhouette in cls.VALID_SILHOUETTES or len(silhouette) > 2)
+            is_sil_valid = bool(silhouette) and (
+                silhouette in cls.VALID_SILHOUETTES or len(silhouette) > 2
+            )
             is_col_valid = bool(color) and (color in cls.VALID_COLORS or len(color) > 2)
 
             if is_cat_valid:

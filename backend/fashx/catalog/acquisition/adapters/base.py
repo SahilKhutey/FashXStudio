@@ -31,7 +31,9 @@ class BaseSourceAdapter(CatalogSourceAdapter, ABC):
     @property
     def circuit_state(self) -> str:
         if self._circuit_state == "OPEN":
-            if (time.time() - self._last_failure_time) > self.config.circuit_breaker_cooldown_seconds:
+            if (
+                time.time() - self._last_failure_time
+            ) > self.config.circuit_breaker_cooldown_seconds:
                 self._circuit_state = "HALF_OPEN"
         return self._circuit_state
 

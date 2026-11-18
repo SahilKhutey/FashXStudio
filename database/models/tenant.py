@@ -98,9 +98,7 @@ class TenantProduct(Base, UUIDPrimaryKeyMixin):
 
 class TenantMember(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tenant_members"
-    __table_args__ = (
-        UniqueConstraint("tenant_id", "user_id", name="uq_tenant_member"),
-    )
+    __table_args__ = (UniqueConstraint("tenant_id", "user_id", name="uq_tenant_member"),)
 
     tenant_id: Mapped[UUID] = mapped_column(
         ForeignKey("tenants.id", ondelete="CASCADE"), index=True, nullable=False

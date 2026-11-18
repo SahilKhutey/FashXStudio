@@ -970,6 +970,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/sources/{source_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Health
+         * @description Evaluate current health state of a catalog source based on recent syncs and status.
+         */
+        get: operations["get_source_health_api_v1_admin_catalog_sources__source_id__health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/health-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Source Health
+         * @description Trigger a live diagnostic probe for an authorized catalog source.
+         */
+        post: operations["check_source_health_api_v1_admin_catalog_sources__source_id__health_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Source Sync
+         * @description Execute synchronization (full or incremental) for an authorized catalog source.
+         */
+        post: operations["trigger_source_sync_api_v1_admin_catalog_sources__source_id__sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/sync-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Source Sync Runs
+         * @description List historical and active sync runs for a source.
+         */
+        get: operations["list_source_sync_runs_api_v1_admin_catalog_sources__source_id__sync_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/checkpoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Source Checkpoints
+         * @description List durable synchronization checkpoints for a source.
+         */
+        get: operations["list_source_checkpoints_api_v1_admin_catalog_sources__source_id__checkpoints_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sync-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sync Run
+         * @description Retrieve details of a specific sync run execution.
+         */
+        get: operations["get_sync_run_api_v1_admin_catalog_sync_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/garments/{garment_id}": {
         parameters: {
             query?: never;
@@ -13076,6 +13196,41 @@ export interface components {
             /** Next Review At */
             next_review_at?: string | null;
         };
+        /**
+         * SourceErrorCode
+         * @enum {string}
+         */
+        SourceErrorCode: "authentication" | "authorization" | "rate_limited" | "transient" | "timeout" | "not_found" | "invalid_request" | "cursor_expired" | "schema_changed" | "permission_revoked";
+        /** SourceHealthReport */
+        SourceHealthReport: {
+            /** Source Slug */
+            source_slug: string;
+            state: components["schemas"]["SourceHealthState"];
+            /** Last Check At */
+            last_check_at?: string | null;
+            /** Last Successful Sync At */
+            last_successful_sync_at?: string | null;
+            /** Last Failed Sync At */
+            last_failed_sync_at?: string | null;
+            /**
+             * Consecutive Failures
+             * @default 0
+             */
+            consecutive_failures: number;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            last_error_code?: components["schemas"]["SourceErrorCode"] | null;
+            /**
+             * Message
+             * @default Healthy
+             */
+            message: string;
+        };
+        /**
+         * SourceHealthState
+         * @enum {string}
+         */
+        SourceHealthState: "unknown" | "healthy" | "degraded" | "rate_limited" | "auth_failed" | "stale" | "disabled";
         /** SourceResponse */
         SourceResponse: {
             /**
@@ -13495,6 +13650,113 @@ export interface components {
          * @enum {string}
          */
         SuggestionType: "query" | "product" | "brand" | "style" | "trend" | "category";
+        /**
+         * SyncCheckpointResponse
+         * @description Schema representing durable checkpoint state for a source.
+         */
+        SyncCheckpointResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Checkpoint Type */
+            checkpoint_type: string;
+            /** Cursor Data */
+            cursor_data?: {
+                [key: string]: unknown;
+            } | null;
+            /** Watermark */
+            watermark?: string | null;
+            /** Provider Version */
+            provider_version?: string | null;
+            /** Last Success At */
+            last_success_at?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SyncMode
+         * @enum {string}
+         */
+        SyncMode: "full" | "incremental";
+        /**
+         * SyncRunResponse
+         * @description Schema representing a catalog synchronization execution record.
+         */
+        SyncRunResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Mode */
+            mode: string;
+            /** Status */
+            status: string;
+            /** Snapshot Id */
+            snapshot_id?: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Pages Fetched */
+            pages_fetched: number;
+            /** Products Seen */
+            products_seen: number;
+            /** Products Inserted */
+            products_inserted: number;
+            /** Products Updated */
+            products_updated: number;
+            /** Products Rejected */
+            products_rejected: number;
+            /** Error Code */
+            error_code?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * SyncTriggerRequest
+         * @description Admin request payload to trigger catalog source synchronization.
+         */
+        SyncTriggerRequest: {
+            /**
+             * @description Synchronization mode (full or incremental)
+             * @default full
+             */
+            mode: components["schemas"]["SyncMode"];
+            /**
+             * Limit Per Page
+             * @description Page batch size
+             * @default 100
+             */
+            limit_per_page: number;
+            /**
+             * Apply
+             * @description Whether to persist changes or run as dry-run
+             * @default true
+             */
+            apply: boolean;
+        };
         /**
          * TabContract
          * @description A single tab in a tab group (Section 4.17).
@@ -16849,6 +17111,198 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_health_api_v1_admin_catalog_sources__source_id__health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_source_health_api_v1_admin_catalog_sources__source_id__health_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_source_sync_api_v1_admin_catalog_sources__source_id__sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SyncTriggerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_sync_runs_api_v1_admin_catalog_sources__source_id__sync_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_checkpoints_api_v1_admin_catalog_sources__source_id__checkpoints_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncCheckpointResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sync_run_api_v1_admin_catalog_sync_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"];
                 };
             };
             /** @description Validation Error */

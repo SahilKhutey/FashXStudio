@@ -2,13 +2,25 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from database.models.catalog import CatalogSource
 from database.models.catalog_auth import (
     CatalogPermissionCode,
     TakedownReasonCode,
 )
+from database.models.catalog_sync import CatalogSyncCheckpoint, CatalogSyncRun
+from fashx.catalog.acquisition.contracts_v2 import SourceHealthReport
+from fashx.catalog.acquisition.health import SourceHealthChecker
+from fashx.catalog.acquisition.registry import get_adapter_registry
+from fashx.catalog.acquisition.schemas import (
+    SyncCheckpointResponse,
+    SyncRunResponse,
+    SyncTriggerRequest,
+)
+from fashx.catalog.acquisition.sync_engine import CatalogSyncEngine
 from fashx.catalog.authorization.schemas import (
     AuthorizationContext,
     AuthorizationDecisionResponse,
@@ -35,7 +47,7 @@ from fashx.catalog.takedowns.schemas import (
     TakedownResponse,
 )
 from fashx.catalog.takedowns.service import CatalogTakedownService
-from fashx.core.database import get_db_session
+from fashx.core.database import get_db_session, get_session_factory
 from fashx.security.deps import require_role
 
 router = APIRouter(
@@ -250,3 +262,139 @@ async def get_takedown(
     service = CatalogTakedownService(session)
     takedown = await service.get_takedown(request_id)
     return TakedownResponse.model_validate(takedown)
+
+
+# --- Health & Sync Endpoints ---
+
+
+@router.get("/sources/{source_id}/health", response_model=SourceHealthReport)
+async def get_source_health(
+    source_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> SourceHealthReport:
+    """Evaluate current health state of a catalog source based on recent syncs and status."""
+    return await SourceHealthChecker.evaluate_health(session, source_id)
+
+
+@router.post("/sources/{source_id}/health-check", response_model=SourceHealthReport)
+async def check_source_health(
+    source_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> SourceHealthReport:
+    """Trigger a live diagnostic probe for an authorized catalog source."""
+    src_res = await session.execute(select(CatalogSource).where(CatalogSource.id == source_id))
+    source = src_res.scalar_one_or_none()
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Source '{source_id}' not found.",
+        )
+
+    probe_func = None
+    registry = get_adapter_registry()
+    if source.slug in registry.list_sources():
+        adapter = registry.get(source.slug)
+        if hasattr(adapter, "health_check"):
+
+            async def _probe():
+                return await adapter.health_check()
+
+            probe_func = _probe
+
+    return await SourceHealthChecker.perform_probe(session, source_id, probe=probe_func)
+
+
+@router.post(
+    "/sources/{source_id}/sync",
+    response_model=SyncRunResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def trigger_source_sync(
+    source_id: UUID,
+    payload: SyncTriggerRequest = SyncTriggerRequest(),
+    session: AsyncSession = Depends(get_db_session),
+) -> SyncRunResponse:
+    """Execute synchronization (full or incremental) for an authorized catalog source."""
+    src_res = await session.execute(select(CatalogSource).where(CatalogSource.id == source_id))
+    source = src_res.scalar_one_or_none()
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Source '{source_id}' not found.",
+        )
+
+    registry = get_adapter_registry()
+    if source.slug not in registry.list_sources():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"No adapter registered for source slug '{source.slug}'.",
+        )
+
+    adapter = registry.get(source.slug)
+    engine = CatalogSyncEngine(get_session_factory())
+    await engine.execute_sync(
+        source_id=source_id,
+        adapter=adapter,
+        mode=payload.mode,
+        limit_per_page=payload.limit_per_page,
+        apply=payload.apply,
+    )
+
+    latest_run_res = await session.execute(
+        select(CatalogSyncRun)
+        .where(CatalogSyncRun.source_id == source_id)
+        .order_by(CatalogSyncRun.started_at.desc())
+        .limit(1)
+    )
+    latest_run = latest_run_res.scalar_one()
+    return SyncRunResponse.model_validate(latest_run)
+
+
+@router.get("/sources/{source_id}/sync-runs", response_model=list[SyncRunResponse])
+async def list_source_sync_runs(
+    source_id: UUID,
+    limit: int = Query(20, ge=1, le=100),
+    session: AsyncSession = Depends(get_db_session),
+) -> list[SyncRunResponse]:
+    """List historical and active sync runs for a source."""
+    stmt = (
+        select(CatalogSyncRun)
+        .where(CatalogSyncRun.source_id == source_id)
+        .order_by(CatalogSyncRun.started_at.desc())
+        .limit(limit)
+    )
+    res = await session.execute(stmt)
+    runs = res.scalars().all()
+    return [SyncRunResponse.model_validate(r) for r in runs]
+
+
+@router.get("/sources/{source_id}/checkpoints", response_model=list[SyncCheckpointResponse])
+async def list_source_checkpoints(
+    source_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> list[SyncCheckpointResponse]:
+    """List durable synchronization checkpoints for a source."""
+    stmt = (
+        select(CatalogSyncCheckpoint)
+        .where(CatalogSyncCheckpoint.source_id == source_id)
+        .order_by(CatalogSyncCheckpoint.updated_at.desc())
+    )
+    res = await session.execute(stmt)
+    checkpoints = res.scalars().all()
+    return [SyncCheckpointResponse.model_validate(c) for c in checkpoints]
+
+
+@router.get("/sync-runs/{run_id}", response_model=SyncRunResponse)
+async def get_sync_run(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> SyncRunResponse:
+    """Retrieve details of a specific sync run execution."""
+    res = await session.execute(select(CatalogSyncRun).where(CatalogSyncRun.id == run_id))
+    run = res.scalar_one_or_none()
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sync run '{run_id}' not found.",
+        )
+    return SyncRunResponse.model_validate(run)

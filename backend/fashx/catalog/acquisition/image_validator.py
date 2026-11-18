@@ -99,7 +99,10 @@ class SafeImageValidator:
         if "." in path_lower:
             ext = "." + path_lower.rsplit(".", 1)[1]
             if ext not in APPROVED_IMAGE_EXTENSIONS:
-                return False, f"Unsupported image extension '{ext}'. Must be one of {APPROVED_IMAGE_EXTENSIONS}"
+                return (
+                    False,
+                    f"Unsupported image extension '{ext}'. Must be one of {APPROVED_IMAGE_EXTENSIONS}",
+                )
 
         return True, None
 

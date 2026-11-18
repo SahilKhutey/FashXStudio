@@ -42,7 +42,11 @@ class PipelineRunReport:
     success: bool = True
 
     def print_summary(self, apply: bool) -> None:
-        mode_label = "APPLY (Production writes committed)" if apply else "DRY-RUN (Simulated without committing)"
+        mode_label = (
+            "APPLY (Production writes committed)"
+            if apply
+            else "DRY-RUN (Simulated without committing)"
+        )
         print("=" * 60)
         print(f"ACQUISITION PIPELINE REPORT [{self.source_slug.upper()}] - {mode_label}")
         print("=" * 60)
@@ -81,14 +85,18 @@ class AcquisitionPipeline:
             source = await self.uow.sources.get_by_slug(batch.source_slug)
             if source is None:
                 report.rejected = len(batch.products)
-                report.rejection_reasons[f"unregistered_source_{batch.source_slug}"] = len(batch.products)
+                report.rejection_reasons[f"unregistered_source_{batch.source_slug}"] = len(
+                    batch.products
+                )
                 report.success = False
                 report.finished_at = datetime.now(UTC)
                 return report
 
             if source.status != "cleared" and not allow_unapproved_source:
                 report.rejected = len(batch.products)
-                report.rejection_reasons[f"source_not_cleared_{source.status}"] = len(batch.products)
+                report.rejection_reasons[f"source_not_cleared_{source.status}"] = len(
+                    batch.products
+                )
                 report.success = False
                 report.finished_at = datetime.now(UTC)
                 return report
@@ -160,7 +168,9 @@ class AcquisitionPipeline:
                         merchant.id, p.source_product_id
                     )
 
-                    is_price_changed = existing_offer and existing_offer.price_minor != p.price_minor
+                    is_price_changed = (
+                        existing_offer and existing_offer.price_minor != p.price_minor
+                    )
                     is_stock_changed = existing_offer and existing_offer.in_stock != p.in_stock
 
                     if is_price_changed or is_stock_changed or existing_prod.title != p.title:

@@ -19,7 +19,13 @@ CATEGORY_MAPPINGS: list[tuple[re.Pattern, str, str]] = [
     (re.compile(r"\b(hoodies?|sweatshirts?)\b", re.I), "tops", "hoodie"),
     (re.compile(r"\b(blouses?|camisoles?|tank[- ]?tops?|tops?|tunics?)\b", re.I), "tops", "top"),
     # Dresses
-    (re.compile(r"\b(midi[- ]?dress|maxi[- ]?dress|sundress|slip[- ]?dress|gowns?|dresses?)\b", re.I), "dresses", "dress"),
+    (
+        re.compile(
+            r"\b(midi[- ]?dress|maxi[- ]?dress|sundress|slip[- ]?dress|gowns?|dresses?)\b", re.I
+        ),
+        "dresses",
+        "dress",
+    ),
     # Bottoms
     (re.compile(r"\b(jeans?|denims?)\b", re.I), "bottoms", "jeans"),
     (re.compile(r"\b(trousers?|chinos?|slacks?|pants?)\b", re.I), "bottoms", "trousers"),

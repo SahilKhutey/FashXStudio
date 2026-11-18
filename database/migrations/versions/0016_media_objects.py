@@ -3,6 +3,7 @@
 Revision ID: 0016_media_objects
 Revises: 0015_outbox_messages
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
