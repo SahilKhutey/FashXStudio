@@ -117,14 +117,22 @@ class CategoryMap(Base):
 
 class IngestRun(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "ingest_runs"
-    __table_args__ = (Index("ix_ingest_runs_source", "source_id", "started_at"),)
+    __table_args__ = (
+        Index("ix_ingest_runs_source", "source_id", "started_at"),
+        Index("ix_ingest_runs_merchant", "merchant_id"),
+    )
 
     source_id: Mapped[UUID] = mapped_column(ForeignKey("catalog_sources.id", ondelete="CASCADE"))
+    merchant_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchants.id", ondelete="SET NULL"), nullable=True
+    )
+    sync_mode: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    correlation_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(
         Text, default="running", nullable=False
-    )  # running | ok | failed | aborted
+    )  # running | ok | failed | aborted | queued | validating | partial | completed | rejected
     counts: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     error: Mapped[str | None] = mapped_column(Text)
 

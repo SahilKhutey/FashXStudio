@@ -9,7 +9,11 @@ DELETE /api/v1/wardrobe/users/{user_id}/items/{item_id}
 GET /
 GET /api/v1/account/deletion-status
 GET /api/v1/account/me
+GET /api/v1/admin/catalog/ingestion-jobs/{run_id}
+GET /api/v1/admin/catalog/ingestion-jobs/{run_id}/report
 GET /api/v1/admin/catalog/merchants/{merchant_id}
+GET /api/v1/admin/catalog/quarantine
+GET /api/v1/admin/catalog/quarantine/{quarantine_id}
 GET /api/v1/admin/catalog/sources/{source_id}
 GET /api/v1/admin/catalog/sources/{source_id}/authorization
 GET /api/v1/admin/catalog/sources/{source_id}/checkpoints
@@ -177,8 +181,11 @@ POST /api/v1/account/email-change
 POST /api/v1/account/email-change/confirm
 POST /api/v1/account/provision
 POST /api/v1/account/sessions/revoke-all
+POST /api/v1/admin/catalog/ingestion-jobs
+POST /api/v1/admin/catalog/ingestion-jobs/{run_id}/cancel
 POST /api/v1/admin/catalog/merchants
 POST /api/v1/admin/catalog/merchants/{merchant_id}/verify
+POST /api/v1/admin/catalog/quarantine/{quarantine_id}/reprocess
 POST /api/v1/admin/catalog/sources
 POST /api/v1/admin/catalog/sources/{source_id}/evidence
 POST /api/v1/admin/catalog/sources/{source_id}/health-check

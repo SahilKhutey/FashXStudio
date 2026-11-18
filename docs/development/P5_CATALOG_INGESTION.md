@@ -91,7 +91,7 @@ Establish FashXStudio's automated, extensible, permission-aware catalog acquisit
 - [x] **P5.0**: Audit catalog schema, migrations, API contracts, environment and test baseline.
 - [x] **P5.1**: Catalog source registry and approval lifecycle; fail-closed validation for unregistered/unapproved sources.
 - [x] **P5.2**: Source adapter contract (`CatalogSourceAdapter`), DTOs (`SourceProduct`, `AcquisitionBatch`), and registry.
-- [x] **P5.3**: Product normalization & validation (taxonomies, integer paise, sizes, URL sanitizer).
+- [x] **P5.3**: Canonical catalog ingestion pipeline, validation engine, strict taxonomy normalization (quarantine on unmapped categories without silent fallback), minor-unit currency math, image rights isolation, and durable quarantine management (`catalog_ingestion_quarantine`).
 - [x] **P5.4**: Idempotent product, canonical garment, and offer ingestion with change tracking and `IngestRun` auditing.
 - [x] **P5.5**: Image acquisition, provenance, byte-level Pillow validation (decompression bombs, size limits), and SSRF defense.
 - [x] **P5.6**: Catalog quality gate hardening and multi-factor item eligibility (`CatalogEligibility`).

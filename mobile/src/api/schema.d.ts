@@ -1090,6 +1090,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/ingestion-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Ingestion Job
+         * @description Create and trigger a catalog ingestion job.
+         */
+        post: operations["create_ingestion_job_api_v1_admin_catalog_ingestion_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ingestion Job
+         * @description Retrieve status and metadata for an ingestion job.
+         */
+        get: operations["get_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ingestion Job Report
+         * @description Retrieve detailed outcome counts, errors, and image processing summary for an ingestion run.
+         */
+        get: operations["get_ingestion_job_report_api_v1_admin_catalog_ingestion_jobs__run_id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Ingestion Job
+         * @description Cancel / abort an active ingestion job.
+         */
+        post: operations["cancel_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Quarantine Records
+         * @description List quarantined product records with optional source and status filters.
+         */
+        get: operations["list_quarantine_records_api_v1_admin_catalog_quarantine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine/{quarantine_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quarantine Record
+         * @description Retrieve details of a single quarantined product record.
+         */
+        get: operations["get_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine/{quarantine_id}/reprocess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reprocess Quarantine Record
+         * @description Trigger reprocessing of a quarantined product record.
+         */
+        post: operations["reprocess_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__reprocess_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/garments/{garment_id}": {
         parameters: {
             query?: never;
@@ -8736,6 +8876,108 @@ export interface components {
             currency: string;
         };
         /**
+         * IngestionJobCreateRequest
+         * @description Admin request to launch a catalog ingestion run.
+         */
+        IngestionJobCreateRequest: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Mode
+             * @description Sync mode: full | incremental | manual
+             * @default incremental
+             */
+            mode: string;
+            /**
+             * Dry Run
+             * @description Simulate ingestion without DB commit
+             * @default false
+             */
+            dry_run: boolean;
+            /**
+             * Limit Per Page
+             * @default 100
+             */
+            limit_per_page: number;
+        };
+        /**
+         * IngestionJobReportResponse
+         * @description Detailed summary metrics for an ingestion run.
+         */
+        IngestionJobReportResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Counts */
+            counts: {
+                [key: string]: unknown;
+            };
+            /** Rejection Reasons */
+            rejection_reasons: {
+                [key: string]: unknown;
+            };
+            /** Image Counts */
+            image_counts: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error?: string | null;
+        };
+        /**
+         * IngestionJobResponse
+         * @description Schema for ingestion run execution details.
+         */
+        IngestionJobResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Sync Mode */
+            sync_mode?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Counts */
+            counts: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error?: string | null;
+        };
+        /**
          * InteractionInputMode
          * @description Input capabilities of the active client (Section 14.1 & 14.49).
          * @enum {string}
@@ -11230,6 +11472,84 @@ export interface components {
          * @enum {string}
          */
         QualityCategory: "foundation" | "shell" | "components" | "fashion" | "shopping" | "discovery" | "styling" | "geography" | "ai" | "personal" | "responsive" | "accessibility" | "qa";
+        /**
+         * QuarantineListResponse
+         * @description Paginated list of quarantined product records.
+         */
+        QuarantineListResponse: {
+            /** Items */
+            items: components["schemas"]["QuarantineRecordResponse"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /**
+         * QuarantineRecordResponse
+         * @description Sanitized quarantined product record.
+         */
+        QuarantineRecordResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ingest Run Id
+             * Format: uuid
+             */
+            ingest_run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Product Id */
+            source_product_id?: string | null;
+            /** Reason Code */
+            reason_code: string;
+            /** Field Name */
+            field_name?: string | null;
+            /** Safe Record Reference */
+            safe_record_reference?: {
+                [key: string]: unknown;
+            } | null;
+            /** Record Hash */
+            record_hash?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Resolution Note */
+            resolution_note?: string | null;
+        };
+        /**
+         * QuarantineReprocessResponse
+         * @description Result of attempting to reprocess a quarantined record.
+         */
+        QuarantineReprocessResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Message */
+            message: string;
+        };
         /**
          * RadiusScale
          * @description Border radius scale (Section 2.18).
@@ -17303,6 +17623,228 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SyncRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_ingestion_job_api_v1_admin_catalog_ingestion_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IngestionJobCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ingestion_job_report_api_v1_admin_catalog_ingestion_jobs__run_id__report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_quarantine_records_api_v1_admin_catalog_quarantine_get: {
+        parameters: {
+            query?: {
+                source_id?: string | null;
+                status?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineRecordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reprocess_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__reprocess_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineReprocessResponse"];
                 };
             };
             /** @description Validation Error */

@@ -80,3 +80,39 @@ class CatalogSyncRun(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+class CatalogIngestionQuarantine(Base, UUIDPrimaryKeyMixin):
+    """Durable record-level quarantine for products failing validation, normalization or authorization."""
+
+    __tablename__ = "catalog_ingestion_quarantine"
+    __table_args__ = (
+        Index("ix_ingestion_quarantine_source", "source_id", "status"),
+        Index("ix_ingestion_quarantine_run", "ingest_run_id"),
+        UniqueConstraint(
+            "source_id", "source_product_id", "reason_code", name="uq_quarantine_source_prod_reason"
+        ),
+    )
+
+    ingest_run_id: Mapped[UUID] = mapped_column(
+        ForeignKey("ingest_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    source_id: Mapped[UUID] = mapped_column(
+        ForeignKey("catalog_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    source_product_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reason_code: Mapped[str] = mapped_column(String(100), nullable=False)
+    field_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    safe_record_reference: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    record_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(30), default="PENDING", server_default="PENDING", nullable=False
+    )
+    first_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    resolution_note: Mapped[str | None] = mapped_column(String(1024), nullable=True)

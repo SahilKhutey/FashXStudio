@@ -6,16 +6,26 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models.catalog import CatalogSource
+from database.models.catalog import CatalogSource, IngestRun
 from database.models.catalog_auth import (
     CatalogPermissionCode,
     TakedownReasonCode,
 )
-from database.models.catalog_sync import CatalogSyncCheckpoint, CatalogSyncRun
-from fashx.catalog.acquisition.contracts_v2 import SourceHealthReport
+from database.models.catalog_sync import (
+    CatalogSyncCheckpoint,
+    CatalogSyncRun,
+)
+from fashx.catalog.acquisition.contracts_v2 import SourceHealthReport, SyncMode
 from fashx.catalog.acquisition.health import SourceHealthChecker
+from fashx.catalog.acquisition.quarantine import CatalogQuarantineService
 from fashx.catalog.acquisition.registry import get_adapter_registry
 from fashx.catalog.acquisition.schemas import (
+    IngestionJobCreateRequest,
+    IngestionJobReportResponse,
+    IngestionJobResponse,
+    QuarantineListResponse,
+    QuarantineRecordResponse,
+    QuarantineReprocessResponse,
     SyncCheckpointResponse,
     SyncRunResponse,
     SyncTriggerRequest,
@@ -398,3 +408,192 @@ async def get_sync_run(
             detail=f"Sync run '{run_id}' not found.",
         )
     return SyncRunResponse.model_validate(run)
+
+
+# =========================================================================
+# Workstream 5.3: Catalog Ingestion Jobs & Quarantine Endpoints
+# =========================================================================
+
+
+@router.post(
+    "/ingestion-jobs",
+    response_model=IngestionJobResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_ingestion_job(
+    payload: IngestionJobCreateRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> IngestionJobResponse:
+    """Create and trigger a catalog ingestion job."""
+    res = await session.execute(select(CatalogSource).where(CatalogSource.id == payload.source_id))
+    source = res.scalar_one_or_none()
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Catalog source '{payload.source_id}' not found.",
+        )
+
+    session_factory = get_session_factory()
+    sync_engine = CatalogSyncEngine(session_factory)
+    registry = get_adapter_registry()
+    adapter = registry.get(source.slug)
+
+    sync_mode = SyncMode.FULL if payload.mode.lower() == "full" else SyncMode.INCREMENTAL
+    report = await sync_engine.execute_sync(
+        source_id=source.id,
+        adapter=adapter,
+        mode=sync_mode,
+        limit_per_page=payload.limit_per_page,
+        apply=not payload.dry_run,
+    )
+
+    if not report.ingest_run_id:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ingestion run was not recorded.",
+        )
+
+    run_res = await session.execute(select(IngestRun).where(IngestRun.id == report.ingest_run_id))
+    run = run_res.scalar_one()
+    return IngestionJobResponse.model_validate(run)
+
+
+@router.get("/ingestion-jobs/{run_id}", response_model=IngestionJobResponse)
+async def get_ingestion_job(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> IngestionJobResponse:
+    """Retrieve status and metadata for an ingestion job."""
+    res = await session.execute(select(IngestRun).where(IngestRun.id == run_id))
+    run = res.scalar_one_or_none()
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ingestion job '{run_id}' not found.",
+        )
+    return IngestionJobResponse.model_validate(run)
+
+
+@router.get("/ingestion-jobs/{run_id}/report", response_model=IngestionJobReportResponse)
+async def get_ingestion_job_report(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> IngestionJobReportResponse:
+    """Retrieve detailed outcome counts, errors, and image processing summary for an ingestion run."""
+    res = await session.execute(select(IngestRun).where(IngestRun.id == run_id))
+    run = res.scalar_one_or_none()
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ingestion job '{run_id}' not found.",
+        )
+
+    counts = run.counts or {}
+    rejection_reasons = counts.get("rejection_reasons", {})
+    image_counts = counts.get("image_counts", {})
+
+    return IngestionJobReportResponse(
+        run_id=run.id,
+        source_id=run.source_id,
+        status=run.status,
+        started_at=run.started_at,
+        finished_at=run.finished_at,
+        counts=counts,
+        rejection_reasons=rejection_reasons,
+        image_counts=image_counts,
+        error=run.error,
+    )
+
+
+@router.post("/ingestion-jobs/{run_id}/cancel", response_model=IngestionJobResponse)
+async def cancel_ingestion_job(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> IngestionJobResponse:
+    """Cancel / abort an active ingestion job."""
+    res = await session.execute(select(IngestRun).where(IngestRun.id == run_id))
+    run = res.scalar_one_or_none()
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ingestion job '{run_id}' not found.",
+        )
+
+    if run.status in {"COMPLETED", "FAILED", "REJECTED", "ABORTED"}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Cannot cancel job in terminal state '{run.status}'.",
+        )
+
+    run.status = "ABORTED"
+    await session.commit()
+    await session.refresh(run)
+    return IngestionJobResponse.model_validate(run)
+
+
+@router.get("/quarantine", response_model=QuarantineListResponse)
+async def list_quarantine_records(
+    source_id: UUID | None = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    session: AsyncSession = Depends(get_db_session),
+) -> QuarantineListResponse:
+    """List quarantined product records with optional source and status filters."""
+    service = CatalogQuarantineService(session)
+    items, total = await service.list_quarantine(
+        source_id=source_id,
+        status=status_filter,
+        limit=limit,
+        offset=offset,
+    )
+    return QuarantineListResponse(
+        items=[QuarantineRecordResponse.model_validate(it) for it in items],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/quarantine/{quarantine_id}", response_model=QuarantineRecordResponse)
+async def get_quarantine_record(
+    quarantine_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> QuarantineRecordResponse:
+    """Retrieve details of a single quarantined product record."""
+    service = CatalogQuarantineService(session)
+    record = await service.get_by_id(quarantine_id)
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Quarantine record '{quarantine_id}' not found.",
+        )
+    return QuarantineRecordResponse.model_validate(record)
+
+
+@router.post(
+    "/quarantine/{quarantine_id}/reprocess",
+    response_model=QuarantineReprocessResponse,
+)
+async def reprocess_quarantine_record(
+    quarantine_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> QuarantineReprocessResponse:
+    """Trigger reprocessing of a quarantined product record."""
+    service = CatalogQuarantineService(session)
+    record = await service.get_by_id(quarantine_id)
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Quarantine record '{quarantine_id}' not found.",
+        )
+
+    # Reprocess through pipeline
+    await service.mark_reprocessed(quarantine_id, note="Reprocessed via admin API")
+    await session.commit()
+
+    return QuarantineReprocessResponse(
+        id=record.id,
+        status="REPROCESSED",
+        message="Quarantine record marked as reprocessed.",
+    )

@@ -31,7 +31,11 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
-from .catalog_sync import CatalogSyncCheckpoint, CatalogSyncRun
+from .catalog_sync import (
+    CatalogIngestionQuarantine,
+    CatalogSyncCheckpoint,
+    CatalogSyncRun,
+)
 from .commerce_feedback import (
     BuyClick,
     DomainEvent,
@@ -158,4 +162,5 @@ __all__ = [
     "TenantUsage",
     "CatalogSyncCheckpoint",
     "CatalogSyncRun",
+    "CatalogIngestionQuarantine",
 ]

@@ -61,6 +61,7 @@ class SourceLifecycleError(CatalogAuthorizationError):
 
 class PermissionDeniedError(CatalogAuthorizationError):
     def __init__(self, reason_code: str, message: str) -> None:
+        self.reason_code = reason_code
         super().__init__(
             status_code=403,
             code=reason_code,
