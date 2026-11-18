@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import (
@@ -16,21 +19,37 @@ from sqlalchemy import (
     false,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, UUIDPrimaryKeyMixin, Vector512
+
+if TYPE_CHECKING:
+    from .catalog_auth import (
+        CatalogAuthorizationEvidence,
+        CatalogSourcePermission,
+        CatalogTakedownRequest,
+    )
 
 
 class CatalogSource(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "catalog_sources"
+    __table_args__ = (
+        Index("idx_catalog_sources_merchant", "merchant_id"),
+        Index("idx_catalog_sources_status", "source_status"),
+        Index("idx_catalog_sources_expiry", "expires_at"),
+    )
 
     slug: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     kind: Mapped[str] = mapped_column(Text, nullable=False)  # api | feed_url | file_drop | manual
-    status: Mapped[str] = mapped_column(Text, default="pending", nullable=False)  # pending | cleared | suspended
+    status: Mapped[str] = mapped_column(
+        Text, default="pending", nullable=False
+    )  # pending | cleared | suspended
     rights_display: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     rights_tryon: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    image_policy: Mapped[str] = mapped_column(Text, default="hotlink", nullable=False)  # hotlink | mirror
+    image_policy: Mapped[str] = mapped_column(
+        Text, default="hotlink", nullable=False
+    )  # hotlink | mirror
     refresh_hours: Mapped[int] = mapped_column(Integer, default=24, nullable=False)
     max_rps: Mapped[float] = mapped_column(Numeric(5, 2), default=2.0, nullable=False)
     terms_url: Mapped[str | None] = mapped_column(Text)
@@ -38,6 +57,52 @@ class CatalogSource(Base, UUIDPrimaryKeyMixin):
     takedown_contact: Mapped[str | None] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    # Workstream 5.1 Extensions
+    merchant_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchants.id", ondelete="CASCADE"), nullable=True
+    )
+    source_name: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    source_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    source_owner: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    provider_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    source_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    access_method: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    credential_secret_ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    source_status: Mapped[str] = mapped_column(
+        String(32), default="PENDING_REVIEW", server_default="PENDING_REVIEW", nullable=False
+    )
+    market_codes: Mapped[list[str]] = mapped_column(
+        JSON, default=list, server_default="[]", nullable=False
+    )
+    category_codes: Mapped[list[str]] = mapped_column(
+        JSON, default=list, server_default="[]", nullable=False
+    )
+    source_terms_version: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    authorization_reference: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    effective_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    next_review_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_successful_sync_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_authorization_check_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    merchant: Mapped[Merchant | None] = relationship(back_populates="sources")
+    permissions: Mapped[list[CatalogSourcePermission]] = relationship(
+        back_populates="source", cascade="all, delete-orphan"
+    )
+    evidence_records: Mapped[list[CatalogAuthorizationEvidence]] = relationship(
+        back_populates="source", cascade="all, delete-orphan"
+    )
+    takedowns: Mapped[list[CatalogTakedownRequest]] = relationship(
+        back_populates="source", cascade="all, delete-orphan"
+    )
 
 
 class CategoryMap(Base):
@@ -52,16 +117,14 @@ class CategoryMap(Base):
 
 class IngestRun(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "ingest_runs"
-    __table_args__ = (
-        Index("ix_ingest_runs_source", "source_id", "started_at"),
-    )
+    __table_args__ = (Index("ix_ingest_runs_source", "source_id", "started_at"),)
 
-    source_id: Mapped[UUID] = mapped_column(
-        ForeignKey("catalog_sources.id", ondelete="CASCADE")
-    )
+    source_id: Mapped[UUID] = mapped_column(ForeignKey("catalog_sources.id", ondelete="CASCADE"))
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    status: Mapped[str] = mapped_column(Text, default="running", nullable=False)  # running | ok | failed | aborted
+    status: Mapped[str] = mapped_column(
+        Text, default="running", nullable=False
+    )  # running | ok | failed | aborted
     counts: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     error: Mapped[str | None] = mapped_column(Text)
 
@@ -75,9 +138,38 @@ class Brand(Base, UUIDPrimaryKeyMixin):
 
 class Merchant(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "merchants"
+    __table_args__ = (
+        Index("ix_merchants_verification_status", "verification_status"),
+        Index("ix_merchants_legal_name", "legal_name"),
+    )
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     merchant_type: Mapped[str] = mapped_column(String(64), nullable=False)
+
+    # Workstream 5.1 Extensions
+    legal_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    display_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    website: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    country_code: Mapped[str] = mapped_column(
+        String(8), default="IN", server_default="IN", nullable=False
+    )
+    registration_reference: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    verification_status: Mapped[str] = mapped_column(
+        String(32), default="UNVERIFIED", server_default="UNVERIFIED", nullable=False
+    )
+    primary_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    technical_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    takedown_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    sources: Mapped[list[CatalogSource]] = relationship(
+        back_populates="merchant", cascade="all, delete-orphan"
+    )
 
 
 class MerchantProduct(Base, UUIDPrimaryKeyMixin):
@@ -143,7 +235,9 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     in_stock: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     price_minor: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    price_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    price_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     sizes_in_stock: Mapped[list[str]] = mapped_column(
         ARRAY(String(32)).with_variant(JSON, "sqlite"), default=list, nullable=False
     )
@@ -240,9 +334,7 @@ class SizeChart(Base, UUIDPrimaryKeyMixin):
 class SizeMeasurement(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "size_measurements"
 
-    size_chart_id: Mapped[UUID] = mapped_column(
-        ForeignKey("size_charts.id", ondelete="CASCADE")
-    )
+    size_chart_id: Mapped[UUID] = mapped_column(ForeignKey("size_charts.id", ondelete="CASCADE"))
     garment_id: Mapped[UUID] = mapped_column(
         ForeignKey("canonical_garments.id", ondelete="CASCADE"), index=True
     )

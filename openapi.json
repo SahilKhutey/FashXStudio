@@ -1394,6 +1394,277 @@
         }
       }
     },
+    "/api/v1/media/uploads": {
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Initiate photo upload intent",
+        "operationId": "initiate_upload_api_v1_media_uploads_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadInitiateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadInitiateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/uploads/{upload_id}": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Poll photo upload validation status",
+        "operationId": "get_upload_status_api_v1_media_uploads__upload_id__get",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/uploads/{upload_id}/complete": {
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Complete upload and trigger validation",
+        "operationId": "complete_upload_api_v1_media_uploads__upload_id__complete_post",
+        "parameters": [
+          {
+            "name": "upload_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Upload Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/UploadCompleteRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/{image_id}": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Retrieve validated image metadata",
+        "operationId": "get_image_metadata_api_v1_media__image_id__get",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaMetadataResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Request deletion of user personal image",
+        "operationId": "delete_image_api_v1_media__image_id__delete",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaDeletionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/{image_id}/access-url": {
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Generate expiring download URL for personal image",
+        "operationId": "create_access_url_api_v1_media__image_id__access_url_post",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAccessUrlResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/feature-flags": {
       "get": {
         "tags": [
@@ -1445,6 +1716,804 @@
                   "additionalProperties": true,
                   "type": "object",
                   "title": "Response Update Feature Flag Api V1 Admin Feature Flags Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/merchants": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Create Merchant",
+        "operationId": "create_merchant_api_v1_admin_catalog_merchants_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/merchants/{merchant_id}": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Get Merchant",
+        "operationId": "get_merchant_api_v1_admin_catalog_merchants__merchant_id__get",
+        "parameters": [
+          {
+            "name": "merchant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Merchant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/merchants/{merchant_id}/verify": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Verify Merchant",
+        "operationId": "verify_merchant_api_v1_admin_catalog_merchants__merchant_id__verify_post",
+        "parameters": [
+          {
+            "name": "merchant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Merchant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Create Source",
+        "operationId": "create_source_api_v1_admin_catalog_sources_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Get Source",
+        "operationId": "get_source_api_v1_admin_catalog_sources__source_id__get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/status": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Update Source Status",
+        "operationId": "update_source_status_api_v1_admin_catalog_sources__source_id__status_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/evidence": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Add Source Evidence",
+        "operationId": "add_source_evidence_api_v1_admin_catalog_sources__source_id__evidence_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/permissions": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Grant Source Permission",
+        "operationId": "grant_source_permission_api_v1_admin_catalog_sources__source_id__permissions_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermissionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "List Source Permissions",
+        "operationId": "list_source_permissions_api_v1_admin_catalog_sources__source_id__permissions_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionResponse"
+                  },
+                  "title": "Response List Source Permissions Api V1 Admin Catalog Sources  Source Id  Permissions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/suspend": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Suspend Source",
+        "operationId": "suspend_source_api_v1_admin_catalog_sources__source_id__suspend_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "title": "Reason"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/resume": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Resume Source",
+        "operationId": "resume_source_api_v1_admin_catalog_sources__source_id__resume_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "title": "Reason"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/takedown": {
+      "post": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Initiate Source Takedown",
+        "operationId": "initiate_source_takedown_api_v1_admin_catalog_sources__source_id__takedown_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "reason_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TakedownReasonCode"
+            }
+          },
+          {
+            "name": "requested_by",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "title": "Requested By"
+            }
+          },
+          {
+            "name": "request_reference",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Reference"
+            }
+          },
+          {
+            "name": "resolution_notes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resolution Notes"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TakedownResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/sources/{source_id}/authorization": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Check Source Authorization",
+        "operationId": "check_source_authorization_api_v1_admin_catalog_sources__source_id__authorization_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CatalogPermissionCode"
+            }
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "market",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Market"
+            }
+          },
+          {
+            "name": "processor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Processor Id"
+            }
+          },
+          {
+            "name": "correlation_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Correlation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationDecisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/takedowns/{request_id}": {
+      "get": {
+        "tags": [
+          "admin-catalog"
+        ],
+        "summary": "Get Takedown",
+        "operationId": "get_takedown_api_v1_admin_catalog_takedowns__request_id__get",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TakedownResponse"
                 }
               }
             }
@@ -12838,6 +13907,64 @@
         "title": "AttributeComparisonItemContract",
         "description": "Single attribute comparison row across multiple products (Section 9.31)."
       },
+      "AuthorizationDecisionResponse": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "operation": {
+            "type": "string",
+            "title": "Operation"
+          },
+          "permission_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Permission Id"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Evaluated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision",
+          "reason_code",
+          "source_id",
+          "operation",
+          "evaluated_at"
+        ],
+        "title": "AuthorizationDecisionResponse"
+      },
       "BatchSessionEventsRequest": {
         "properties": {
           "events": {
@@ -13732,6 +14859,64 @@
         ],
         "title": "CardContentPruningResult",
         "description": "Pruned card metadata respecting content priority model (Section 14.28)."
+      },
+      "CatalogAccessMethod": {
+        "type": "string",
+        "enum": [
+          "OAUTH2",
+          "API_KEY",
+          "SIGNED_REQUEST",
+          "WEBHOOK",
+          "SFTP",
+          "HTTPS_FEED",
+          "MANUAL_PARTNER_EXPORT",
+          "OTHER"
+        ],
+        "title": "CatalogAccessMethod"
+      },
+      "CatalogPermissionCode": {
+        "type": "string",
+        "enum": [
+          "PRODUCT_DATA_READ",
+          "PRODUCT_DATA_STORE",
+          "PRODUCT_DISPLAY",
+          "IMAGE_FETCH",
+          "IMAGE_DISPLAY",
+          "IMAGE_STORE",
+          "IMAGE_AI_PROCESS",
+          "VTO_PROCESS",
+          "DERIVATIVE_CREATE",
+          "DERIVATIVE_STORE",
+          "DERIVATIVE_DISPLAY",
+          "MERCHANT_REDIRECT",
+          "AFFILIATE_ATTRIBUTION"
+        ],
+        "title": "CatalogPermissionCode"
+      },
+      "CatalogSourceStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_REVIEW",
+          "APPROVED",
+          "ACTIVE",
+          "SUSPENDED",
+          "EXPIRED",
+          "REVOKED",
+          "REJECTED"
+        ],
+        "title": "CatalogSourceStatus"
+      },
+      "CatalogSourceType": {
+        "type": "string",
+        "enum": [
+          "MERCHANT_API",
+          "AFFILIATE_API",
+          "MERCHANT_FEED",
+          "PARTNER_EXPORT",
+          "SHOPIFY_APP",
+          "OTHER_AUTHORIZED"
+        ],
+        "title": "CatalogSourceType"
       },
       "CategorySizeItem": {
         "properties": {
@@ -16260,6 +17445,275 @@
           "user_id"
         ],
         "title": "EraseAccountResponse"
+      },
+      "EvidenceCreate": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "evidence_type": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Evidence Type",
+            "default": "CONTRACT"
+          },
+          "document_reference": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 2,
+            "title": "Document Reference"
+          },
+          "document_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Sha256"
+          },
+          "agreement_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Reference"
+          },
+          "agreement_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Version"
+          },
+          "granted_by_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted By Name"
+          },
+          "granted_by_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted By Role"
+          },
+          "verified_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified By"
+          },
+          "effective_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "verification_status": {
+            "$ref": "#/components/schemas/EvidenceVerificationStatus",
+            "default": "VERIFIED"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "document_reference"
+        ],
+        "title": "EvidenceCreate"
+      },
+      "EvidenceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "evidence_type": {
+            "type": "string",
+            "title": "Evidence Type"
+          },
+          "document_reference": {
+            "type": "string",
+            "title": "Document Reference"
+          },
+          "document_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Sha256"
+          },
+          "agreement_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Reference"
+          },
+          "agreement_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Version"
+          },
+          "granted_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted By Name"
+          },
+          "granted_by_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted By Role"
+          },
+          "verified_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified By"
+          },
+          "effective_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "verification_status": {
+            "type": "string",
+            "title": "Verification Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "evidence_type",
+          "document_reference",
+          "verification_status",
+          "created_at"
+        ],
+        "title": "EvidenceResponse"
+      },
+      "EvidenceVerificationStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "VERIFIED",
+          "REJECTED",
+          "SUPERSEDED"
+        ],
+        "title": "EvidenceVerificationStatus"
       },
       "ExplicitPreferencesContract": {
         "properties": {
@@ -19620,6 +21074,50 @@
         ],
         "title": "MeasurementSource"
       },
+      "MediaAccessUrlResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "expires_in_seconds": {
+            "type": "integer",
+            "title": "Expires In Seconds",
+            "default": 60
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "url"
+        ],
+        "title": "MediaAccessUrlResponse"
+      },
+      "MediaDeletionResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "DELETION_PENDING",
+            "title": "Status",
+            "default": "DELETION_PENDING"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id"
+        ],
+        "title": "MediaDeletionResponse"
+      },
       "MediaItemContract": {
         "properties": {
           "id": {
@@ -19664,6 +21162,73 @@
         "title": "MediaItemContract",
         "description": "Individual media asset specification (Section 9.6)."
       },
+      "MediaMetadataResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "DELETION_PENDING",
+              "DELETED",
+              "QUARANTINED"
+            ],
+            "title": "Status"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "width": {
+            "type": "integer",
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
+          },
+          "sha256_normalized": {
+            "type": "string",
+            "title": "Sha256 Normalized"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "purpose",
+          "status",
+          "content_type",
+          "size_bytes",
+          "width",
+          "height",
+          "sha256_normalized",
+          "created_at"
+        ],
+        "title": "MediaMetadataResponse"
+      },
       "MediaType": {
         "type": "string",
         "enum": [
@@ -19677,6 +21242,282 @@
         ],
         "title": "MediaType",
         "description": "Media asset categorization (Section 9.6)."
+      },
+      "MerchantCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "merchant_type": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Merchant Type",
+            "default": "brand"
+          },
+          "legal_name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Legal Name"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "country_code": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 2,
+            "title": "Country Code",
+            "default": "IN"
+          },
+          "registration_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Reference"
+          },
+          "primary_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Contact Id"
+          },
+          "technical_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technical Contact Id"
+          },
+          "takedown_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Takedown Contact Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "legal_name"
+        ],
+        "title": "MerchantCreate"
+      },
+      "MerchantResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "merchant_type": {
+            "type": "string",
+            "title": "Merchant Type"
+          },
+          "legal_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Name"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "registration_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Reference"
+          },
+          "verification_status": {
+            "type": "string",
+            "title": "Verification Status"
+          },
+          "primary_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Contact Id"
+          },
+          "technical_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Technical Contact Id"
+          },
+          "takedown_contact_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Takedown Contact Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "merchant_type",
+          "country_code",
+          "verification_status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "MerchantResponse"
+      },
+      "MerchantVerificationRequest": {
+        "properties": {
+          "verification_status": {
+            "$ref": "#/components/schemas/MerchantVerificationStatus"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "reviewer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verification_status",
+          "reason"
+        ],
+        "title": "MerchantVerificationRequest"
+      },
+      "MerchantVerificationStatus": {
+        "type": "string",
+        "enum": [
+          "UNVERIFIED",
+          "UNDER_REVIEW",
+          "VERIFIED",
+          "REJECTED",
+          "SUSPENDED"
+        ],
+        "title": "MerchantVerificationStatus"
       },
       "MixMatchContract": {
         "properties": {
@@ -21260,6 +23101,218 @@
           "survey_key"
         ],
         "title": "PendingSurveyResponse"
+      },
+      "PermissionCreate": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "permission_code": {
+            "$ref": "#/components/schemas/CatalogPermissionCode"
+          },
+          "granted_by": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Granted By"
+          },
+          "evidence_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Id"
+          },
+          "scope_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scope Categories"
+          },
+          "scope_markets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scope Markets"
+          },
+          "processor_restrictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Processor Restrictions"
+          },
+          "storage_limit_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Limit Days"
+          },
+          "effective_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "permission_code",
+          "granted_by"
+        ],
+        "title": "PermissionCreate"
+      },
+      "PermissionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "permission_code": {
+            "type": "string",
+            "title": "Permission Code"
+          },
+          "permission_status": {
+            "type": "string",
+            "title": "Permission Status"
+          },
+          "granted_by": {
+            "type": "string",
+            "title": "Granted By"
+          },
+          "evidence_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Id"
+          },
+          "scope_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scope Categories",
+            "default": []
+          },
+          "scope_markets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Scope Markets",
+            "default": []
+          },
+          "processor_restrictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Processor Restrictions",
+            "default": []
+          },
+          "storage_limit_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Limit Days"
+          },
+          "effective_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "permission_code",
+          "permission_status",
+          "granted_by",
+          "effective_at",
+          "created_at"
+        ],
+        "title": "PermissionResponse"
       },
       "PersonalCollectionContract": {
         "properties": {
@@ -27235,6 +29288,468 @@
         "title": "SortOption",
         "description": "Authoritative catalog sort orders (Section 7.18)."
       },
+      "SourceCreate": {
+        "properties": {
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/CatalogSourceType",
+            "default": "MERCHANT_API"
+          },
+          "source_owner": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Owner"
+          },
+          "provider_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Name"
+          },
+          "source_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Description"
+          },
+          "access_method": {
+            "$ref": "#/components/schemas/CatalogAccessMethod",
+            "default": "API_KEY"
+          },
+          "credential_secret_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credential Secret Ref"
+          },
+          "market_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Market Codes"
+          },
+          "category_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Category Codes"
+          },
+          "refresh_hours": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 1.0,
+            "title": "Refresh Hours",
+            "default": 24
+          },
+          "max_rps": {
+            "type": "number",
+            "maximum": 100.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Max Rps",
+            "default": 2.0
+          },
+          "terms_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terms Url"
+          },
+          "takedown_contact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Takedown Contact"
+          },
+          "effective_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "next_review_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Review At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "merchant_id",
+          "slug",
+          "name"
+        ],
+        "title": "SourceCreate"
+      },
+      "SourceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "source_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Name"
+          },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
+          "source_owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Owner"
+          },
+          "provider_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Name"
+          },
+          "source_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Description"
+          },
+          "access_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Method"
+          },
+          "credential_secret_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credential Secret Ref"
+          },
+          "source_status": {
+            "type": "string",
+            "title": "Source Status"
+          },
+          "market_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Market Codes",
+            "default": []
+          },
+          "category_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Category Codes",
+            "default": []
+          },
+          "refresh_hours": {
+            "type": "integer",
+            "title": "Refresh Hours"
+          },
+          "max_rps": {
+            "type": "number",
+            "title": "Max Rps"
+          },
+          "terms_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terms Url"
+          },
+          "takedown_contact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Takedown Contact"
+          },
+          "effective_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "next_review_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Review At"
+          },
+          "last_successful_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Successful Sync At"
+          },
+          "last_authorization_check_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Authorization Check At"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "source_status",
+          "refresh_hours",
+          "max_rps"
+        ],
+        "title": "SourceResponse"
+      },
+      "SourceStatusUpdate": {
+        "properties": {
+          "target_status": {
+            "$ref": "#/components/schemas/CatalogSourceStatus"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason"
+          },
+          "reviewer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_status",
+          "reason"
+        ],
+        "title": "SourceStatusUpdate"
+      },
       "SpacingScale": {
         "properties": {
           "space_1": {
@@ -28030,6 +30545,132 @@
         ],
         "title": "TabMode",
         "description": "Whether tab switching drives URL or local state (Section 4.18)."
+      },
+      "TakedownReasonCode": {
+        "type": "string",
+        "enum": [
+          "MERCHANT_REQUEST",
+          "LICENSE_EXPIRED",
+          "LICENSE_REVOKED",
+          "IMAGE_RIGHTS_DISPUTE",
+          "DATA_RIGHTS_DISPUTE",
+          "PROVIDER_TERMINATION",
+          "CREDENTIAL_COMPROMISE",
+          "SECURITY_INCIDENT",
+          "INCORRECT_PRODUCT_DATA",
+          "LEGAL_REQUEST",
+          "OTHER"
+        ],
+        "title": "TakedownReasonCode"
+      },
+      "TakedownResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "requested_by": {
+            "type": "string",
+            "title": "Requested By"
+          },
+          "request_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Reference"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "affected_product_count": {
+            "type": "integer",
+            "title": "Affected Product Count",
+            "default": 0
+          },
+          "affected_asset_count": {
+            "type": "integer",
+            "title": "Affected Asset Count",
+            "default": 0
+          },
+          "assigned_reviewer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Reviewer"
+          },
+          "resolution_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "reason_code",
+          "requested_by",
+          "status",
+          "received_at"
+        ],
+        "title": "TakedownResponse"
       },
       "TargetSizeTokens": {
         "properties": {
@@ -29675,6 +32316,138 @@
         "title": "UpdateRegionalPreferencesRequestContract",
         "description": "Payload for updating discovery regional preferences."
       },
+      "UploadCompleteRequest": {
+        "properties": {
+          "client_checksum_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Checksum Sha256",
+            "description": "Optional client SHA-256 checksum confirmation"
+          }
+        },
+        "type": "object",
+        "title": "UploadCompleteRequest"
+      },
+      "UploadInitiateRequest": {
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "PROFILE_PHOTO",
+              "VTO_PERSONAL_PHOTO"
+            ],
+            "title": "Purpose",
+            "description": "Declared purpose for the personal media asset",
+            "examples": [
+              "VTO_PERSONAL_PHOTO"
+            ]
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Filename",
+            "description": "Original client filename (metadata only, not used for storage key)",
+            "examples": [
+              "personal-photo.jpg"
+            ]
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type",
+            "description": "Declared MIME content type",
+            "examples": [
+              "image/jpeg"
+            ]
+          },
+          "declared_size_bytes": {
+            "type": "integer",
+            "maximum": 10485760.0,
+            "minimum": 10240.0,
+            "title": "Declared Size Bytes",
+            "description": "Declared file size in bytes (10KB to 10MB)",
+            "examples": [
+              2457600
+            ]
+          },
+          "client_checksum_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Checksum Sha256",
+            "description": "Optional client-computed SHA-256 checksum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "purpose",
+          "filename",
+          "content_type",
+          "declared_size_bytes"
+        ],
+        "title": "UploadInitiateRequest"
+      },
+      "UploadInitiateResponse": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Upload Id"
+          },
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "upload_url": {
+            "type": "string",
+            "title": "Upload Url"
+          },
+          "method": {
+            "type": "string",
+            "const": "PUT",
+            "title": "Method",
+            "default": "PUT"
+          },
+          "required_headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Required Headers"
+          },
+          "expires_in_seconds": {
+            "type": "integer",
+            "title": "Expires In Seconds",
+            "default": 300
+          },
+          "status": {
+            "type": "string",
+            "const": "PENDING_UPLOAD",
+            "title": "Status",
+            "default": "PENDING_UPLOAD"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id",
+          "image_id",
+          "upload_url",
+          "required_headers"
+        ],
+        "title": "UploadInitiateResponse"
+      },
       "UploadPhotoResponse": {
         "properties": {
           "photo_id": {
@@ -29738,6 +32511,51 @@
           "status"
         ],
         "title": "UploadPhotoResponse"
+      },
+      "UploadStatusResponse": {
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Upload Id"
+          },
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_UPLOAD",
+              "VALIDATING",
+              "AVAILABLE",
+              "REJECTED",
+              "FAILED",
+              "EXPIRED",
+              "CANCELLED"
+            ],
+            "title": "Status"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upload_id",
+          "image_id",
+          "status"
+        ],
+        "title": "UploadStatusResponse"
       },
       "UserPhotoItem": {
         "properties": {

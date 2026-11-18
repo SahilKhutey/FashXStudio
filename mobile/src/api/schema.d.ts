@@ -748,6 +748,228 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/merchants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Merchant */
+        post: operations["create_merchant_api_v1_admin_catalog_merchants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/merchants/{merchant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Merchant */
+        get: operations["get_merchant_api_v1_admin_catalog_merchants__merchant_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/merchants/{merchant_id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify Merchant */
+        post: operations["verify_merchant_api_v1_admin_catalog_merchants__merchant_id__verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Source */
+        post: operations["create_source_api_v1_admin_catalog_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Source */
+        get: operations["get_source_api_v1_admin_catalog_sources__source_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update Source Status */
+        post: operations["update_source_status_api_v1_admin_catalog_sources__source_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Source Evidence */
+        post: operations["add_source_evidence_api_v1_admin_catalog_sources__source_id__evidence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Source Permissions */
+        get: operations["list_source_permissions_api_v1_admin_catalog_sources__source_id__permissions_get"];
+        put?: never;
+        /** Grant Source Permission */
+        post: operations["grant_source_permission_api_v1_admin_catalog_sources__source_id__permissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suspend Source */
+        post: operations["suspend_source_api_v1_admin_catalog_sources__source_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resume Source */
+        post: operations["resume_source_api_v1_admin_catalog_sources__source_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/takedown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initiate Source Takedown */
+        post: operations["initiate_source_takedown_api_v1_admin_catalog_sources__source_id__takedown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/authorization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check Source Authorization */
+        get: operations["check_source_authorization_api_v1_admin_catalog_sources__source_id__authorization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/takedowns/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Takedown */
+        get: operations["get_takedown_api_v1_admin_catalog_takedowns__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/garments/{garment_id}": {
         parameters: {
             query?: never;
@@ -5536,6 +5758,29 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** AuthorizationDecisionResponse */
+        AuthorizationDecisionResponse: {
+            /** Decision */
+            decision: string;
+            /** Reason Code */
+            reason_code: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Operation */
+            operation: string;
+            /** Permission Id */
+            permission_id?: string | null;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+        };
         /** BatchSessionEventsRequest */
         BatchSessionEventsRequest: {
             /** Events */
@@ -6010,6 +6255,26 @@ export interface components {
              */
             display_tags: boolean;
         };
+        /**
+         * CatalogAccessMethod
+         * @enum {string}
+         */
+        CatalogAccessMethod: "OAUTH2" | "API_KEY" | "SIGNED_REQUEST" | "WEBHOOK" | "SFTP" | "HTTPS_FEED" | "MANUAL_PARTNER_EXPORT" | "OTHER";
+        /**
+         * CatalogPermissionCode
+         * @enum {string}
+         */
+        CatalogPermissionCode: "PRODUCT_DATA_READ" | "PRODUCT_DATA_STORE" | "PRODUCT_DISPLAY" | "IMAGE_FETCH" | "IMAGE_DISPLAY" | "IMAGE_STORE" | "IMAGE_AI_PROCESS" | "VTO_PROCESS" | "DERIVATIVE_CREATE" | "DERIVATIVE_STORE" | "DERIVATIVE_DISPLAY" | "MERCHANT_REDIRECT" | "AFFILIATE_ATTRIBUTION";
+        /**
+         * CatalogSourceStatus
+         * @enum {string}
+         */
+        CatalogSourceStatus: "PENDING_REVIEW" | "APPROVED" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REVOKED" | "REJECTED";
+        /**
+         * CatalogSourceType
+         * @enum {string}
+         */
+        CatalogSourceType: "MERCHANT_API" | "AFFILIATE_API" | "MERCHANT_FEED" | "PARTNER_EXPORT" | "SHOPIFY_APP" | "OTHER_AUTHORIZED";
         /** CategorySizeItem */
         CategorySizeItem: {
             /** Category Code */
@@ -7218,6 +7483,84 @@ export interface components {
              */
             message: string;
         };
+        /** EvidenceCreate */
+        EvidenceCreate: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Evidence Type
+             * @default CONTRACT
+             */
+            evidence_type: string;
+            /** Document Reference */
+            document_reference: string;
+            /** Document Sha256 */
+            document_sha256?: string | null;
+            /** Agreement Reference */
+            agreement_reference?: string | null;
+            /** Agreement Version */
+            agreement_version?: string | null;
+            /** Granted By Name */
+            granted_by_name?: string | null;
+            /** Granted By Role */
+            granted_by_role?: string | null;
+            /** Verified By */
+            verified_by?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** @default VERIFIED */
+            verification_status: components["schemas"]["EvidenceVerificationStatus"];
+        };
+        /** EvidenceResponse */
+        EvidenceResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Evidence Type */
+            evidence_type: string;
+            /** Document Reference */
+            document_reference: string;
+            /** Document Sha256 */
+            document_sha256?: string | null;
+            /** Agreement Reference */
+            agreement_reference?: string | null;
+            /** Agreement Version */
+            agreement_version?: string | null;
+            /** Granted By Name */
+            granted_by_name?: string | null;
+            /** Granted By Role */
+            granted_by_role?: string | null;
+            /** Verified By */
+            verified_by?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Verification Status */
+            verification_status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * EvidenceVerificationStatus
+         * @enum {string}
+         */
+        EvidenceVerificationStatus: "PENDING" | "VERIFIED" | "REJECTED" | "SUPERSEDED";
         /**
          * ExplicitPreferencesContract
          * @description User-chosen preferences that can be explicitly toggled and saved (Section 13.4, 13.27, 13.28).
@@ -8872,6 +9215,88 @@ export interface components {
          * @enum {string}
          */
         MediaType: "image" | "thumbnail" | "detail" | "lifestyle" | "model" | "video" | "view_360";
+        /** MerchantCreate */
+        MerchantCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Merchant Type
+             * @default brand
+             */
+            merchant_type: string;
+            /** Legal Name */
+            legal_name: string;
+            /** Display Name */
+            display_name?: string | null;
+            /** Website */
+            website?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /** Registration Reference */
+            registration_reference?: string | null;
+            /** Primary Contact Id */
+            primary_contact_id?: string | null;
+            /** Technical Contact Id */
+            technical_contact_id?: string | null;
+            /** Takedown Contact Id */
+            takedown_contact_id?: string | null;
+        };
+        /** MerchantResponse */
+        MerchantResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Merchant Type */
+            merchant_type: string;
+            /** Legal Name */
+            legal_name?: string | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Country Code */
+            country_code: string;
+            /** Registration Reference */
+            registration_reference?: string | null;
+            /** Verification Status */
+            verification_status: string;
+            /** Primary Contact Id */
+            primary_contact_id?: string | null;
+            /** Technical Contact Id */
+            technical_contact_id?: string | null;
+            /** Takedown Contact Id */
+            takedown_contact_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** MerchantVerificationRequest */
+        MerchantVerificationRequest: {
+            verification_status: components["schemas"]["MerchantVerificationStatus"];
+            /** Reason */
+            reason: string;
+            /** Reviewer Id */
+            reviewer_id?: string | null;
+        };
+        /**
+         * MerchantVerificationStatus
+         * @enum {string}
+         */
+        MerchantVerificationStatus: "UNVERIFIED" | "UNDER_REVIEW" | "VERIFIED" | "REJECTED" | "SUSPENDED";
         /**
          * MixMatchContract
          * @description Mix & Match experiment matrix (Section 10.16, 10.17).
@@ -9792,6 +10217,83 @@ export interface components {
             survey_key: ("tryon_first" | "feed_day5" | "end_of_pilot") | null;
             /** Description */
             description?: string | null;
+        };
+        /** PermissionCreate */
+        PermissionCreate: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            permission_code: components["schemas"]["CatalogPermissionCode"];
+            /** Granted By */
+            granted_by: string;
+            /** Evidence Id */
+            evidence_id?: string | null;
+            /** Scope Categories */
+            scope_categories?: string[];
+            /** Scope Markets */
+            scope_markets?: string[];
+            /** Processor Restrictions */
+            processor_restrictions?: string[];
+            /** Storage Limit Days */
+            storage_limit_days?: number | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+        };
+        /** PermissionResponse */
+        PermissionResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Permission Code */
+            permission_code: string;
+            /** Permission Status */
+            permission_status: string;
+            /** Granted By */
+            granted_by: string;
+            /** Evidence Id */
+            evidence_id?: string | null;
+            /**
+             * Scope Categories
+             * @default []
+             */
+            scope_categories: string[];
+            /**
+             * Scope Markets
+             * @default []
+             */
+            scope_markets: string[];
+            /**
+             * Processor Restrictions
+             * @default []
+             */
+            processor_restrictions: string[];
+            /** Storage Limit Days */
+            storage_limit_days?: number | null;
+            /**
+             * Effective At
+             * Format: date-time
+             */
+            effective_at: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Revoked At */
+            revoked_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * PersonalCollectionContract
@@ -12524,6 +13026,126 @@ export interface components {
          * @enum {string}
          */
         SortOption: "relevance" | "newest" | "price_asc" | "price_desc" | "popularity";
+        /** SourceCreate */
+        SourceCreate: {
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** @default MERCHANT_API */
+            source_type: components["schemas"]["CatalogSourceType"];
+            /** Source Owner */
+            source_owner?: string | null;
+            /** Provider Name */
+            provider_name?: string | null;
+            /** Source Description */
+            source_description?: string | null;
+            /** @default API_KEY */
+            access_method: components["schemas"]["CatalogAccessMethod"];
+            /** Credential Secret Ref */
+            credential_secret_ref?: string | null;
+            /** Market Codes */
+            market_codes?: string[];
+            /** Category Codes */
+            category_codes?: string[];
+            /**
+             * Refresh Hours
+             * @default 24
+             */
+            refresh_hours: number;
+            /**
+             * Max Rps
+             * @default 2
+             */
+            max_rps: number;
+            /** Terms Url */
+            terms_url?: string | null;
+            /** Takedown Contact */
+            takedown_contact?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Next Review At */
+            next_review_at?: string | null;
+        };
+        /** SourceResponse */
+        SourceResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** Source Type */
+            source_type?: string | null;
+            /** Source Owner */
+            source_owner?: string | null;
+            /** Provider Name */
+            provider_name?: string | null;
+            /** Source Description */
+            source_description?: string | null;
+            /** Access Method */
+            access_method?: string | null;
+            /** Credential Secret Ref */
+            credential_secret_ref?: string | null;
+            /** Source Status */
+            source_status: string;
+            /**
+             * Market Codes
+             * @default []
+             */
+            market_codes: string[];
+            /**
+             * Category Codes
+             * @default []
+             */
+            category_codes: string[];
+            /** Refresh Hours */
+            refresh_hours: number;
+            /** Max Rps */
+            max_rps: number;
+            /** Terms Url */
+            terms_url?: string | null;
+            /** Takedown Contact */
+            takedown_contact?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Next Review At */
+            next_review_at?: string | null;
+            /** Last Successful Sync At */
+            last_successful_sync_at?: string | null;
+            /** Last Authorization Check At */
+            last_authorization_check_at?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** SourceStatusUpdate */
+        SourceStatusUpdate: {
+            target_status: components["schemas"]["CatalogSourceStatus"];
+            /** Reason */
+            reason: string;
+            /** Reviewer Id */
+            reviewer_id?: string | null;
+        };
         /**
          * SpacingScale
          * @description 4px base increment spacing matrix (Section 2.13).
@@ -12930,6 +13552,55 @@ export interface components {
          * @enum {string}
          */
         TabMode: "route_based" | "state_based";
+        /**
+         * TakedownReasonCode
+         * @enum {string}
+         */
+        TakedownReasonCode: "MERCHANT_REQUEST" | "LICENSE_EXPIRED" | "LICENSE_REVOKED" | "IMAGE_RIGHTS_DISPUTE" | "DATA_RIGHTS_DISPUTE" | "PROVIDER_TERMINATION" | "CREDENTIAL_COMPROMISE" | "SECURITY_INCIDENT" | "INCORRECT_PRODUCT_DATA" | "LEGAL_REQUEST" | "OTHER";
+        /** TakedownResponse */
+        TakedownResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Reason Code */
+            reason_code: string;
+            /** Requested By */
+            requested_by: string;
+            /** Request Reference */
+            request_reference?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Acknowledged At */
+            acknowledged_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /**
+             * Affected Product Count
+             * @default 0
+             */
+            affected_product_count: number;
+            /**
+             * Affected Asset Count
+             * @default 0
+             */
+            affected_asset_count: number;
+            /** Assigned Reviewer */
+            assigned_reviewer?: string | null;
+            /** Resolution Notes */
+            resolution_notes?: string | null;
+        };
         /**
          * TargetSizeTokens
          * @description Accessibility minimum touch targets (Section 2.16 & WCAG 2.5.5/2.5.8).
@@ -15708,6 +16379,476 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_merchant_api_v1_admin_catalog_merchants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_api_v1_admin_catalog_merchants__merchant_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                merchant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_merchant_api_v1_admin_catalog_merchants__merchant_id__verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                merchant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_source_api_v1_admin_catalog_sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_api_v1_admin_catalog_sources__source_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_source_status_api_v1_admin_catalog_sources__source_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceStatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_source_evidence_api_v1_admin_catalog_sources__source_id__evidence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvidenceCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_permissions_api_v1_admin_catalog_sources__source_id__permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    grant_source_permission_api_v1_admin_catalog_sources__source_id__permissions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PermissionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_source_api_v1_admin_catalog_sources__source_id__suspend_post: {
+        parameters: {
+            query: {
+                reason: string;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_source_api_v1_admin_catalog_sources__source_id__resume_post: {
+        parameters: {
+            query: {
+                reason: string;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_source_takedown_api_v1_admin_catalog_sources__source_id__takedown_post: {
+        parameters: {
+            query: {
+                reason_code: components["schemas"]["TakedownReasonCode"];
+                requested_by: string;
+                request_reference?: string | null;
+                resolution_notes?: string | null;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_source_authorization_api_v1_admin_catalog_sources__source_id__authorization_get: {
+        parameters: {
+            query: {
+                operation: components["schemas"]["CatalogPermissionCode"];
+                product_id?: string | null;
+                category?: string | null;
+                market?: string | null;
+                processor_id?: string | null;
+                correlation_id?: string | null;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthorizationDecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_takedown_api_v1_admin_catalog_takedowns__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TakedownResponse"];
                 };
             };
             /** @description Validation Error */
