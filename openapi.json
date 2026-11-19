@@ -4436,6 +4436,394 @@
         }
       }
     },
+    "/api/v1/admin/catalog/targets": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "Get Configured Targets",
+        "description": "Retrieve versioned pilot catalog targets and quality limits.",
+        "operationId": "get_configured_targets_api_v1_admin_catalog_targets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TargetConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/evaluations": {
+      "post": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "Start Evaluation Run",
+        "description": "Trigger a comprehensive evaluation run against all catalog targets.",
+        "operationId": "start_evaluation_run_api_v1_admin_catalog_evaluations_post",
+        "parameters": [
+          {
+            "name": "sample_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sample Size"
+            }
+          },
+          {
+            "name": "random_seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 42,
+              "title": "Random Seed"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/evaluations/{id}": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "Get Evaluation Status",
+        "description": "Retrieve status and summary of a specific evaluation run.",
+        "operationId": "get_evaluation_status_api_v1_admin_catalog_evaluations__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Evaluation Status Api V1 Admin Catalog Evaluations  Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/evaluations/{id}/report": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "Get Evaluation Full Report",
+        "description": "Retrieve the full detailed evaluation report.",
+        "operationId": "get_evaluation_full_report_api_v1_admin_catalog_evaluations__id__report_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Evaluation Full Report Api V1 Admin Catalog Evaluations  Id  Report Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/metrics": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "Get Latest Metrics",
+        "description": "Retrieve latest metric results across all 7 catalog targets.",
+        "operationId": "get_latest_metrics_api_v1_admin_catalog_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CatalogMetricResult"
+                  },
+                  "type": "object",
+                  "title": "Response Get Latest Metrics Api V1 Admin Catalog Metrics Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/source-health": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "View Source Health And Authorization",
+        "description": "View source health, live feeds, and authorization compliance details.",
+        "operationId": "view_source_health_and_authorization_api_v1_admin_catalog_source_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response View Source Health And Authorization Api V1 Admin Catalog Source Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/quality": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "View Product Quality Results",
+        "description": "View usable product breakdown and rejection counts.",
+        "operationId": "view_product_quality_results_api_v1_admin_catalog_quality_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsableProductCheckResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/price-freshness": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "View Price Freshness",
+        "description": "View price freshness metrics and exception counts.",
+        "operationId": "view_price_freshness_api_v1_admin_catalog_price_freshness_get",
+        "parameters": [
+          {
+            "name": "sample_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Sample Size"
+            }
+          },
+          {
+            "name": "random_seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 42,
+              "title": "Random Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response View Price Freshness Api V1 Admin Catalog Price Freshness Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/link-health": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "View Link Health",
+        "description": "View product link health, classifications, and broken link rate.",
+        "operationId": "view_link_health_api_v1_admin_catalog_link_health_get",
+        "parameters": [
+          {
+            "name": "sample_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Sample Size"
+            }
+          },
+          {
+            "name": "random_seed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 42,
+              "title": "Random Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response View Link Health Api V1 Admin Catalog Link Health Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/catalog/image-compliance": {
+      "get": {
+        "tags": [
+          "Catalog Target Metrics & Release Gates"
+        ],
+        "summary": "View Image Compliance",
+        "description": "View image permission traceability and operational rights breakdown.",
+        "operationId": "view_image_compliance_api_v1_admin_catalog_image_compliance_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response View Image Compliance Api V1 Admin Catalog Image Compliance Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/garments/{garment_id}": {
       "get": {
         "tags": [
@@ -16909,6 +17297,109 @@
         ],
         "title": "CatalogAuditListResponse"
       },
+      "CatalogMetricResult": {
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "title": "Metric Id"
+          },
+          "target_value": {
+            "type": "number",
+            "title": "Target Value"
+          },
+          "actual_value": {
+            "type": "number",
+            "title": "Actual Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "measured_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Measured At"
+          },
+          "numerator": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerator"
+          },
+          "denominator": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Denominator"
+          },
+          "sample_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Size"
+          },
+          "source_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Ids"
+          },
+          "evaluation_version": {
+            "type": "string",
+            "title": "Evaluation Version",
+            "default": "1.0"
+          },
+          "evidence_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Reference"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric_id",
+          "target_value",
+          "actual_value",
+          "unit",
+          "passed",
+          "measured_at"
+        ],
+        "title": "CatalogMetricResult",
+        "description": "Normalized result for a single catalog target or release gate metric."
+      },
       "CatalogPermissionCode": {
         "type": "string",
         "enum": [
@@ -19480,6 +19971,84 @@
           "user_id"
         ],
         "title": "EraseAccountResponse"
+      },
+      "EvaluationReport": {
+        "properties": {
+          "evaluation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Evaluation Id"
+          },
+          "configuration_version": {
+            "type": "string",
+            "title": "Configuration Version"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "all_passed": {
+            "type": "boolean",
+            "title": "All Passed"
+          },
+          "metric_results": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CatalogMetricResult"
+            },
+            "type": "object",
+            "title": "Metric Results"
+          },
+          "usable_product_breakdown": {
+            "$ref": "#/components/schemas/UsableProductCheckResult"
+          },
+          "release_decision": {
+            "type": "string",
+            "title": "Release Decision"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "evidence_references": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluation_id",
+          "configuration_version",
+          "status",
+          "started_at",
+          "all_passed",
+          "metric_results",
+          "usable_product_breakdown",
+          "release_decision"
+        ],
+        "title": "EvaluationReport"
       },
       "EvidenceCreate": {
         "properties": {
@@ -26822,6 +27391,32 @@
         ],
         "title": "PilotFeedbackRequest"
       },
+      "PilotTargetLimits": {
+        "properties": {
+          "minimum_live_authorized_sources": {
+            "type": "integer",
+            "title": "Minimum Live Authorized Sources",
+            "default": 1
+          },
+          "minimum_usable_offers": {
+            "type": "integer",
+            "title": "Minimum Usable Offers",
+            "default": 1000
+          },
+          "expansion_minimum_offers": {
+            "type": "integer",
+            "title": "Expansion Minimum Offers",
+            "default": 2000
+          },
+          "expansion_maximum_offers": {
+            "type": "integer",
+            "title": "Expansion Maximum Offers",
+            "default": 5000
+          }
+        },
+        "type": "object",
+        "title": "PilotTargetLimits"
+      },
       "PostAIFeedbackRequestContract": {
         "properties": {
           "result_id": {
@@ -28412,6 +29007,32 @@
         ],
         "title": "QualityCategory",
         "description": "Categories in the Master Visual Quality Checklist (Section 16.57)."
+      },
+      "QualityTargetLimits": {
+        "properties": {
+          "minimum_fresh_price_percentage": {
+            "type": "number",
+            "title": "Minimum Fresh Price Percentage",
+            "default": 95.0
+          },
+          "maximum_broken_link_percentage_exclusive": {
+            "type": "number",
+            "title": "Maximum Broken Link Percentage Exclusive",
+            "default": 1.0
+          },
+          "maximum_unauthorized_sources": {
+            "type": "integer",
+            "title": "Maximum Unauthorized Sources",
+            "default": 0
+          },
+          "minimum_image_permission_traceability_percentage": {
+            "type": "number",
+            "title": "Minimum Image Permission Traceability Percentage",
+            "default": 100.0
+          }
+        },
+        "type": "object",
+        "title": "QualityTargetLimits"
       },
       "QuarantineListResponse": {
         "properties": {
@@ -30577,6 +31198,32 @@
         "type": "object",
         "title": "SafeAreaInsetsContract",
         "description": "Mobile safe-area boundary constraints (Section 14.14)."
+      },
+      "SamplingConfig": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "title": "Method",
+            "default": "stratified_random"
+          },
+          "require_reproducible_seed": {
+            "type": "boolean",
+            "title": "Require Reproducible Seed",
+            "default": true
+          },
+          "default_seed": {
+            "type": "integer",
+            "title": "Default Seed",
+            "default": 42
+          },
+          "default_sample_size": {
+            "type": "integer",
+            "title": "Default Sample Size",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "title": "SamplingConfig"
       },
       "SaveOutfitRequestContract": {
         "properties": {
@@ -35081,6 +35728,26 @@
         ],
         "title": "TakedownResponse"
       },
+      "TargetConfig": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "default": "1.0"
+          },
+          "pilot": {
+            "$ref": "#/components/schemas/PilotTargetLimits"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/QualityTargetLimits"
+          },
+          "sampling": {
+            "$ref": "#/components/schemas/SamplingConfig"
+          }
+        },
+        "type": "object",
+        "title": "TargetConfig"
+      },
       "TargetSizeTokens": {
         "properties": {
           "compact_desktop_min_px": {
@@ -36965,6 +37632,52 @@
           "status"
         ],
         "title": "UploadStatusResponse"
+      },
+      "UsableProductCheckResult": {
+        "properties": {
+          "usable_offers_count": {
+            "type": "integer",
+            "title": "Usable Offers Count",
+            "default": 0
+          },
+          "canonical_garments_count": {
+            "type": "integer",
+            "title": "Canonical Garments Count",
+            "default": 0
+          },
+          "product_variants_count": {
+            "type": "integer",
+            "title": "Product Variants Count",
+            "default": 0
+          },
+          "excluded_duplicates_count": {
+            "type": "integer",
+            "title": "Excluded Duplicates Count",
+            "default": 0
+          },
+          "excluded_quarantined_count": {
+            "type": "integer",
+            "title": "Excluded Quarantined Count",
+            "default": 0
+          },
+          "excluded_inactive_count": {
+            "type": "integer",
+            "title": "Excluded Inactive Count",
+            "default": 0
+          },
+          "excluded_unauthorized_source_count": {
+            "type": "integer",
+            "title": "Excluded Unauthorized Source Count",
+            "default": 0
+          },
+          "passed_all": {
+            "type": "boolean",
+            "title": "Passed All",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "UsableProductCheckResult"
       },
       "UserPhotoItem": {
         "properties": {

@@ -45,6 +45,10 @@ from .catalog_freshness import (
     SizeDefinition,
     SyncStatus,
 )
+from .catalog_evaluation import (
+    CatalogEvaluationRun,
+    CatalogLinkHealthCheck,
+)
 from .catalog_operations import (
     AuditAction,
     AuditActorRole,
@@ -235,4 +239,6 @@ __all__ = [
     "AuditAction",
     "AuditActorRole",
     "AuditOutcome",
+    "CatalogEvaluationRun",
+    "CatalogLinkHealthCheck",
 ]
