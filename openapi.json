@@ -3489,6 +3489,953 @@
         }
       }
     },
+    "/api/v1/merchant/sources": {
+      "post": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Connect Merchant Source",
+        "description": "Register and connect an authorized catalog source.",
+        "operationId": "connect_merchant_source_api_v1_merchant_sources_post",
+        "parameters": [
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceConnectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceConnectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/status": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Source Sync Status",
+        "description": "Retrieve operational health, counts, and last synchronization outcome.",
+        "operationId": "get_source_sync_status_api_v1_merchant_sources__source_id__status_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStatusDashboardResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/operational-status": {
+      "patch": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Update Source Operational Status",
+        "description": "Toggle source operational status (ENABLE, DISABLE, PAUSE).",
+        "operationId": "update_source_operational_status_api_v1_merchant_sources__source_id__operational_status_patch",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceOperationalStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOperationalStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/sync": {
+      "post": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Trigger Manual Source Sync",
+        "description": "Trigger manual synchronization with idempotency guarantee.",
+        "operationId": "trigger_manual_source_sync_api_v1_merchant_sources__source_id__sync_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualSyncRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManualSyncResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/schedule": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Source Schedule",
+        "description": "Retrieve synchronization schedule and cadence.",
+        "operationId": "get_source_schedule_api_v1_merchant_sources__source_id__schedule_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceScheduleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Update Source Schedule",
+        "description": "Configure synchronization schedule (intervals >= 15m).",
+        "operationId": "update_source_schedule_api_v1_merchant_sources__source_id__schedule_put",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceScheduleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceScheduleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/errors": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Source Ingestion Errors",
+        "description": "Retrieve structured, sanitized error report for ingestion failures.",
+        "operationId": "get_source_ingestion_errors_api_v1_merchant_sources__source_id__errors_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestErrorListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/quarantine": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Source Quarantined Products",
+        "description": "Retrieve quarantined records with actionable resolution guidance.",
+        "operationId": "get_source_quarantined_products_api_v1_merchant_sources__source_id__quarantine_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuarantineReportListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/sources/{source_id}/image-permissions": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Source Image Permission Matrix",
+        "description": "Retrieve granular image and VTO permission matrix and asset counts.",
+        "operationId": "get_source_image_permission_matrix_api_v1_merchant_sources__source_id__image_permissions_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagePermissionMatrixResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/products/{product_id}/override": {
+      "post": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Override Merchant Product Field",
+        "description": "Apply permitted field overrides to a merchant-owned product.",
+        "operationId": "override_merchant_product_field_api_v1_merchant_products__product_id__override_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantProductOverrideRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantProductOverrideResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/offers/{offer_id}/deactivate": {
+      "post": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Deactivate Merchant Offer",
+        "description": "Deactivate merchant offer while preserving shared canonical garment.",
+        "operationId": "deactivate_merchant_offer_api_v1_merchant_offers__offer_id__deactivate_post",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MerchantOfferDeactivateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantOfferDeactivateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant/audit": {
+      "get": {
+        "tags": [
+          "Merchant Catalog Operations"
+        ],
+        "summary": "Get Merchant Audit Trail",
+        "description": "Retrieve immutable audit trail scoped to the merchant.",
+        "operationId": "get_merchant_audit_trail_api_v1_merchant_audit_get",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Id"
+            }
+          },
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "X-Merchant-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Merchant-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogAuditListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sources/{source_id}/takedown": {
+      "post": {
+        "tags": [
+          "Admin Catalog Operations"
+        ],
+        "summary": "Execute Source Takedown",
+        "description": "Execute immediate emergency takedown of a catalog source.",
+        "operationId": "execute_source_takedown_api_v1_admin_sources__source_id__takedown_post",
+        "parameters": [
+          {
+            "name": "source_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceTakedownRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceTakedownResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/garments/{garment_id}": {
       "get": {
         "tags": [
@@ -15832,6 +16779,136 @@
         ],
         "title": "CatalogAccessMethod"
       },
+      "CatalogAuditEventResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "actor_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id"
+          },
+          "actor_role": {
+            "type": "string",
+            "title": "Actor Role"
+          },
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type"
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "safe_change_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Safe Change Summary"
+          },
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "actor_id",
+          "actor_role",
+          "merchant_id",
+          "source_id",
+          "entity_type",
+          "entity_id",
+          "action",
+          "reason_code",
+          "safe_change_summary",
+          "outcome",
+          "created_at"
+        ],
+        "title": "CatalogAuditEventResponse"
+      },
+      "CatalogAuditListResponse": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogAuditEventResponse"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events",
+          "total_count"
+        ],
+        "title": "CatalogAuditListResponse"
+      },
       "CatalogPermissionCode": {
         "type": "string",
         "enum": [
@@ -21066,6 +22143,78 @@
         ],
         "title": "ImageJobResponse"
       },
+      "ImagePermissionMatrixResponse": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "fetch_permitted": {
+            "type": "boolean",
+            "title": "Fetch Permitted"
+          },
+          "store_permitted": {
+            "type": "boolean",
+            "title": "Store Permitted"
+          },
+          "display_permitted": {
+            "type": "boolean",
+            "title": "Display Permitted"
+          },
+          "ai_processing_permitted": {
+            "type": "boolean",
+            "title": "Ai Processing Permitted"
+          },
+          "vto_permitted": {
+            "type": "boolean",
+            "title": "Vto Permitted"
+          },
+          "derivatives_retained": {
+            "type": "boolean",
+            "title": "Derivatives Retained"
+          },
+          "total_assets_count": {
+            "type": "integer",
+            "title": "Total Assets Count"
+          },
+          "active_assets_count": {
+            "type": "integer",
+            "title": "Active Assets Count"
+          },
+          "suspended_assets_count": {
+            "type": "integer",
+            "title": "Suspended Assets Count"
+          },
+          "warning_messages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warning Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "merchant_id",
+          "fetch_permitted",
+          "store_permitted",
+          "display_permitted",
+          "ai_processing_permitted",
+          "vto_permitted",
+          "derivatives_retained",
+          "total_assets_count",
+          "active_assets_count",
+          "suspended_assets_count"
+        ],
+        "title": "ImagePermissionMatrixResponse"
+      },
       "ImageTakedownCreateRequest": {
         "properties": {
           "reason_code": {
@@ -21358,6 +22507,37 @@
         "title": "InferredPreferencesContract",
         "description": "System-observed behavior strictly separated from explicit choices (Section 13.4, 13.5)."
       },
+      "IngestErrorListResponse": {
+        "properties": {
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/IngestRunErrorResponse"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "errors",
+          "total_count",
+          "page",
+          "page_size"
+        ],
+        "title": "IngestErrorListResponse"
+      },
       "IngestProductRequest": {
         "properties": {
           "merchant_id": {
@@ -21498,6 +22678,93 @@
           "currency"
         ],
         "title": "IngestProductResponse"
+      },
+      "IngestRunErrorResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ingest_run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Ingest Run Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "error_code": {
+            "type": "string",
+            "title": "Error Code"
+          },
+          "error_category": {
+            "type": "string",
+            "title": "Error Category"
+          },
+          "failed_stage": {
+            "type": "string",
+            "title": "Failed Stage"
+          },
+          "source_product_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Product Reference"
+          },
+          "safe_error_message": {
+            "type": "string",
+            "title": "Safe Error Message"
+          },
+          "retryable": {
+            "type": "boolean",
+            "title": "Retryable"
+          },
+          "attempt_number": {
+            "type": "integer",
+            "title": "Attempt Number"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ingest_run_id",
+          "source_id",
+          "error_code",
+          "error_category",
+          "failed_stage",
+          "source_product_reference",
+          "safe_error_message",
+          "retryable",
+          "attempt_number",
+          "occurred_at",
+          "resolved_at"
+        ],
+        "title": "IngestRunErrorResponse"
       },
       "IngestionJobCreateRequest": {
         "properties": {
@@ -22328,6 +23595,86 @@
         "title": "LookItemLinkContract",
         "description": "Direct product link constituent within styled look (Section 9.37, 9.38)."
       },
+      "ManualSyncRequest": {
+        "properties": {
+          "sync_mode": {
+            "$ref": "#/components/schemas/database__models__catalog_operations__SyncMode",
+            "default": "INCREMENTAL"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "ManualSyncRequest"
+      },
+      "ManualSyncResponse": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "sync_mode": {
+            "type": "string",
+            "title": "Sync Mode"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "is_duplicate_request": {
+            "type": "boolean",
+            "title": "Is Duplicate Request"
+          },
+          "enqueued_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Enqueued At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "source_id",
+          "sync_mode",
+          "status",
+          "idempotency_key",
+          "is_duplicate_request",
+          "enqueued_at"
+        ],
+        "title": "ManualSyncResponse"
+      },
       "MapClusterContract": {
         "properties": {
           "cluster_id": {
@@ -23081,6 +24428,167 @@
           "legal_name"
         ],
         "title": "MerchantCreate"
+      },
+      "MerchantOfferDeactivateRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "title": "MerchantOfferDeactivateRequest"
+      },
+      "MerchantOfferDeactivateResponse": {
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Offer Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "garment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Garment Id"
+          },
+          "offer_status": {
+            "type": "string",
+            "title": "Offer Status"
+          },
+          "canonical_garment_active": {
+            "type": "boolean",
+            "title": "Canonical Garment Active"
+          },
+          "deactivated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Deactivated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id",
+          "merchant_id",
+          "garment_id",
+          "offer_status",
+          "canonical_garment_active",
+          "deactivated_at"
+        ],
+        "title": "MerchantOfferDeactivateResponse"
+      },
+      "MerchantProductOverrideRequest": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 2,
+            "title": "Field Name"
+          },
+          "override_value": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Override Value"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field_name",
+          "override_value"
+        ],
+        "title": "MerchantProductOverrideRequest"
+      },
+      "MerchantProductOverrideResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "merchant_product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Product Id"
+          },
+          "field_name": {
+            "type": "string",
+            "title": "Field Name"
+          },
+          "override_value": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Override Value"
+          },
+          "previous_value": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Value"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "merchant_id",
+          "merchant_product_id",
+          "field_name",
+          "override_value",
+          "previous_value",
+          "reason",
+          "updated_at"
+        ],
+        "title": "MerchantProductOverrideResponse"
       },
       "MerchantResponse": {
         "properties": {
@@ -24227,6 +25735,16 @@
         "type": "object",
         "title": "OpacityTokens",
         "description": "Opacity tokens (Section 2.20)."
+      },
+      "OperationalStatus": {
+        "type": "string",
+        "enum": [
+          "ENABLED",
+          "DISABLED",
+          "PAUSED",
+          "SUSPENDED"
+        ],
+        "title": "OperationalStatus"
       },
       "OutfitBuilderLayoutType": {
         "type": "string",
@@ -27044,6 +28562,27 @@
         "title": "QuarantineRecordResponse",
         "description": "Sanitized quarantined product record."
       },
+      "QuarantineReportListResponse": {
+        "properties": {
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/QuarantinedProductResponse"
+            },
+            "type": "array",
+            "title": "Records"
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "records",
+          "total_count"
+        ],
+        "title": "QuarantineReportListResponse"
+      },
       "QuarantineReprocessResponse": {
         "properties": {
           "id": {
@@ -27068,6 +28607,104 @@
         ],
         "title": "QuarantineReprocessResponse",
         "description": "Result of attempting to reprocess a quarantined record."
+      },
+      "QuarantineResolutionGuidance": {
+        "properties": {
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "recommended_action": {
+            "type": "string",
+            "title": "Recommended Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason_code",
+          "severity",
+          "summary",
+          "recommended_action"
+        ],
+        "title": "QuarantineResolutionGuidance"
+      },
+      "QuarantinedProductResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "ingest_run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Ingest Run Id"
+          },
+          "source_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Product Id"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code"
+          },
+          "field_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Name"
+          },
+          "guidance": {
+            "$ref": "#/components/schemas/QuarantineResolutionGuidance"
+          },
+          "first_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "ingest_run_id",
+          "source_product_id",
+          "reason_code",
+          "field_name",
+          "guidance",
+          "first_seen_at",
+          "status"
+        ],
+        "title": "QuarantinedProductResponse"
       },
       "RadiusScale": {
         "properties": {
@@ -31193,6 +32830,195 @@
         "title": "SortOption",
         "description": "Authoritative catalog sort orders (Section 7.18)."
       },
+      "SourceConnectionRequest": {
+        "properties": {
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "source_type": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Source Type",
+            "default": "MERCHANT_API"
+          },
+          "adapter_name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Adapter Name",
+            "default": "generic_merchant_api"
+          },
+          "adapter_version": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Adapter Version",
+            "default": "1.0.0"
+          },
+          "access_method": {
+            "type": "string",
+            "maxLength": 32,
+            "title": "Access Method",
+            "default": "API_KEY"
+          },
+          "credential_secret_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credential Secret Ref"
+          },
+          "market_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Market Codes"
+          },
+          "category_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Category Codes"
+          },
+          "refresh_hours": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 1.0,
+            "title": "Refresh Hours",
+            "default": 24
+          }
+        },
+        "type": "object",
+        "required": [
+          "merchant_id",
+          "slug",
+          "name"
+        ],
+        "title": "SourceConnectionRequest"
+      },
+      "SourceConnectionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "adapter_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adapter Name"
+          },
+          "adapter_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adapter Version"
+          },
+          "access_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Method"
+          },
+          "masked_credential_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Masked Credential Ref"
+          },
+          "source_status": {
+            "type": "string",
+            "title": "Source Status"
+          },
+          "operational_status": {
+            "type": "string",
+            "title": "Operational Status"
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "merchant_id",
+          "slug",
+          "name",
+          "source_type",
+          "adapter_name",
+          "adapter_version",
+          "access_method",
+          "masked_credential_ref",
+          "source_status",
+          "operational_status",
+          "is_enabled",
+          "created_at"
+        ],
+        "title": "SourceConnectionResponse"
+      },
       "SourceCreate": {
         "properties": {
           "merchant_id": {
@@ -31487,6 +33313,60 @@
         ],
         "title": "SourceHealthState"
       },
+      "SourceOperationalStatusRequest": {
+        "properties": {
+          "target_status": {
+            "$ref": "#/components/schemas/OperationalStatus"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_status",
+          "reason"
+        ],
+        "title": "SourceOperationalStatusRequest"
+      },
+      "SourceOperationalStatusResponse": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "operational_status": {
+            "type": "string",
+            "title": "Operational Status"
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "title": "Is Enabled"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "operational_status",
+          "is_enabled",
+          "updated_at",
+          "message"
+        ],
+        "title": "SourceOperationalStatusResponse"
+      },
       "SourceResponse": {
         "properties": {
           "id": {
@@ -31737,6 +33617,136 @@
         ],
         "title": "SourceResponse"
       },
+      "SourceScheduleRequest": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          },
+          "sync_mode": {
+            "$ref": "#/components/schemas/database__models__catalog_operations__SyncMode",
+            "default": "INCREMENTAL"
+          },
+          "interval_minutes": {
+            "type": "integer",
+            "maximum": 10080.0,
+            "minimum": 15.0,
+            "title": "Interval Minutes",
+            "default": 60
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "timezone": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Timezone",
+            "default": "UTC"
+          }
+        },
+        "type": "object",
+        "title": "SourceScheduleRequest"
+      },
+      "SourceScheduleResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "merchant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Merchant Id"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "sync_mode": {
+            "type": "string",
+            "title": "Sync Mode"
+          },
+          "interval_minutes": {
+            "type": "integer",
+            "title": "Interval Minutes"
+          },
+          "cron_expression": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cron Expression"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Run At"
+          },
+          "last_scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Scheduled At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source_id",
+          "merchant_id",
+          "enabled",
+          "sync_mode",
+          "interval_minutes",
+          "cron_expression",
+          "timezone",
+          "next_run_at",
+          "last_scheduled_at",
+          "updated_at"
+        ],
+        "title": "SourceScheduleResponse"
+      },
       "SourceStatusUpdate": {
         "properties": {
           "target_status": {
@@ -31767,6 +33777,73 @@
           "reason"
         ],
         "title": "SourceStatusUpdate"
+      },
+      "SourceTakedownRequest": {
+        "properties": {
+          "reason_code": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Reason Code"
+          },
+          "reason_text": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 5,
+            "title": "Reason Text"
+          },
+          "purge_images": {
+            "type": "boolean",
+            "title": "Purge Images",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "reason_code",
+          "reason_text"
+        ],
+        "title": "SourceTakedownRequest"
+      },
+      "SourceTakedownResponse": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "takedown_status": {
+            "type": "string",
+            "title": "Takedown Status"
+          },
+          "jobs_cancelled_count": {
+            "type": "integer",
+            "title": "Jobs Cancelled Count"
+          },
+          "offers_deactivated_count": {
+            "type": "integer",
+            "title": "Offers Deactivated Count"
+          },
+          "images_purged_count": {
+            "type": "integer",
+            "title": "Images Purged Count"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "takedown_status",
+          "jobs_cancelled_count",
+          "offers_deactivated_count",
+          "images_purged_count",
+          "completed_at"
+        ],
+        "title": "SourceTakedownResponse"
       },
       "SpacingScale": {
         "properties": {
@@ -32517,14 +34594,6 @@
         "title": "SyncCheckpointResponse",
         "description": "Schema representing durable checkpoint state for a source."
       },
-      "SyncMode": {
-        "type": "string",
-        "enum": [
-          "full",
-          "incremental"
-        ],
-        "title": "SyncMode"
-      },
       "SyncRunResponse": {
         "properties": {
           "id": {
@@ -32627,10 +34696,117 @@
         "title": "SyncRunResponse",
         "description": "Schema representing a catalog synchronization execution record."
       },
+      "SyncStatusDashboardResponse": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Id"
+          },
+          "source_name": {
+            "type": "string",
+            "title": "Source Name"
+          },
+          "operational_status": {
+            "type": "string",
+            "title": "Operational Status"
+          },
+          "source_status": {
+            "type": "string",
+            "title": "Source Status"
+          },
+          "last_sync_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Status"
+          },
+          "last_sync_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Mode"
+          },
+          "last_successful_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Successful Sync At"
+          },
+          "last_failed_sync_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Failed Sync At"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "counts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Counts"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "is_healthy": {
+            "type": "boolean",
+            "title": "Is Healthy",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_id",
+          "source_name",
+          "operational_status",
+          "source_status"
+        ],
+        "title": "SyncStatusDashboardResponse"
+      },
       "SyncTriggerRequest": {
         "properties": {
           "mode": {
-            "$ref": "#/components/schemas/SyncMode",
+            "$ref": "#/components/schemas/fashx__catalog__acquisition__contracts_v2__SyncMode",
             "description": "Synchronization mode (full or incremental)",
             "default": "full"
           },
@@ -35690,6 +37866,23 @@
         "type": "object",
         "title": "ZIndexTokens",
         "description": "Centralized z-index layers preventing arbitrary z-index 9999 (Section 2.21)."
+      },
+      "database__models__catalog_operations__SyncMode": {
+        "type": "string",
+        "enum": [
+          "INCREMENTAL",
+          "FULL",
+          "VALIDATION_ONLY"
+        ],
+        "title": "SyncMode"
+      },
+      "fashx__catalog__acquisition__contracts_v2__SyncMode": {
+        "type": "string",
+        "enum": [
+          "full",
+          "incremental"
+        ],
+        "title": "SyncMode"
       },
       "schemas__visual__detail__BreadcrumbItemContract": {
         "properties": {

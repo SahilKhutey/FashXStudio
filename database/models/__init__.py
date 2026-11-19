@@ -45,6 +45,19 @@ from .catalog_freshness import (
     SizeDefinition,
     SyncStatus,
 )
+from .catalog_operations import (
+    AuditAction,
+    AuditActorRole,
+    AuditOutcome,
+    CatalogSourceAuditEvent,
+    CatalogSourceSchedule,
+    ErrorCategory,
+    FailedStage,
+    IngestRunError,
+    MerchantProductOverride,
+    OperationalStatus,
+    SyncMode,
+)
 from .catalog_image import (
     CatalogImageAsset,
     CatalogImageDeletionJob,
@@ -211,4 +224,15 @@ __all__ = [
     "FreshnessState",
     "CatalogTakedownStatus",
     "ProvenanceEntityType",
+    "CatalogSourceSchedule",
+    "IngestRunError",
+    "CatalogSourceAuditEvent",
+    "MerchantProductOverride",
+    "OperationalStatus",
+    "SyncMode",
+    "ErrorCategory",
+    "FailedStage",
+    "AuditAction",
+    "AuditActorRole",
+    "AuditOutcome",
 ]

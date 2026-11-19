@@ -48,6 +48,12 @@ GET /api/v1/me
 GET /api/v1/me/consents
 GET /api/v1/media/uploads/{upload_id}
 GET /api/v1/media/{image_id}
+GET /api/v1/merchant/audit
+GET /api/v1/merchant/sources/{source_id}/errors
+GET /api/v1/merchant/sources/{source_id}/image-permissions
+GET /api/v1/merchant/sources/{source_id}/quarantine
+GET /api/v1/merchant/sources/{source_id}/schedule
+GET /api/v1/merchant/sources/{source_id}/status
 GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
 GET /api/v1/profile/consents
@@ -177,6 +183,7 @@ GET /healthz/live
 GET /healthz/ready
 GET /pilot/surveys/pending
 PATCH /api/v1/customers/{customer_id}
+PATCH /api/v1/merchant/sources/{source_id}/operational-status
 PATCH /api/v1/profile/me
 POST /api/v1/account/deletion-request
 POST /api/v1/account/disable
@@ -203,6 +210,7 @@ POST /api/v1/admin/catalog/sources/{source_id}/suspend
 POST /api/v1/admin/catalog/sources/{source_id}/sync
 POST /api/v1/admin/catalog/sources/{source_id}/takedown
 POST /api/v1/admin/feature-flags
+POST /api/v1/admin/sources/{source_id}/takedown
 POST /api/v1/analytics/aggregate
 POST /api/v1/analytics/events
 POST /api/v1/analytics/session-events
@@ -226,6 +234,10 @@ POST /api/v1/feedback/tryon
 POST /api/v1/media/uploads
 POST /api/v1/media/uploads/{upload_id}/complete
 POST /api/v1/media/{image_id}/access-url
+POST /api/v1/merchant/offers/{offer_id}/deactivate
+POST /api/v1/merchant/products/{product_id}/override
+POST /api/v1/merchant/sources
+POST /api/v1/merchant/sources/{source_id}/sync
 POST /api/v1/onboarding/style-quiz/picks
 POST /api/v1/pilot/feedback
 POST /api/v1/pilot/join
@@ -280,6 +292,7 @@ PUT /api/v1/commerce/products/{product_id}/brand
 PUT /api/v1/customers/{customer_id}/preferences
 PUT /api/v1/fashion/products/{product_id}/classification
 PUT /api/v1/me/consents/{data_type}
+PUT /api/v1/merchant/sources/{source_id}/schedule
 PUT /api/v1/profile/consents/{data_type}
 PUT /api/v1/profile/me
 PUT /api/v1/profile/me/category-sizes

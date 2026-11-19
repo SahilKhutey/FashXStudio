@@ -11,16 +11,24 @@ class CatalogAuthorizationError(Exception):
 
     def __init__(
         self,
-        status_code: int,
-        code: str,
-        message: str,
+        message_or_status: str | int = "",
+        code: str = "catalog_authorization_error",
+        message: str = "",
         details: Any = None,
+        status_code: int = 400,
+        **kwargs: Any,
     ) -> None:
-        self.status_code = status_code
+        if isinstance(message_or_status, int):
+            final_status = message_or_status
+            final_msg = message or kwargs.get("message", "")
+        else:
+            final_status = kwargs.get("status_code", status_code)
+            final_msg = message_or_status or message or kwargs.get("message", "")
+        self.status_code = final_status
         self.code = code
-        self.message = message
+        self.message = final_msg
         self.details = details
-        super().__init__(message)
+        super().__init__(final_msg)
 
 
 class MerchantNotFoundError(CatalogAuthorizationError):
