@@ -6,6 +6,7 @@ from uuid import UUID
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
     Date,
     DateTime,
@@ -28,6 +29,11 @@ if TYPE_CHECKING:
         CatalogAuthorizationEvidence,
         CatalogSourcePermission,
         CatalogTakedownRequest,
+    )
+    from .catalog_freshness import (
+        MerchantOfferSize,
+        OfferPriceHistory,
+        ProductVariant,
     )
 
 
@@ -86,9 +92,16 @@ class CatalogSource(Base, UUIDPrimaryKeyMixin):
     last_successful_sync_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    last_failed_sync_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     last_authorization_check_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    adapter_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    adapter_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    permission_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    freshness_policy_hours: Mapped[int | None] = mapped_column(Integer, default=24, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
@@ -165,6 +178,9 @@ class Merchant(Base, UUIDPrimaryKeyMixin):
     verification_status: Mapped[str] = mapped_column(
         String(32), default="UNVERIFIED", server_default="UNVERIFIED", nullable=False
     )
+    operational_status: Mapped[str] = mapped_column(
+        String(32), default="ACTIVE", server_default="ACTIVE", nullable=False
+    )
     primary_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
     technical_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
     takedown_contact_id: Mapped[UUID | None] = mapped_column(nullable=True)
@@ -205,11 +221,46 @@ class MerchantProduct(Base, UUIDPrimaryKeyMixin):
     title: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    source_variant_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source_category: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    currency: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    price_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    availability: Mapped[str | None] = mapped_column(
+        String(32), default="IN_STOCK", server_default="IN_STOCK", nullable=True
+    )
+    source_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    ingest_run_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("ingest_runs.id", ondelete="SET NULL"), nullable=True
+    )
+    first_ingested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    last_ingested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    source_schema_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    sync_status: Mapped[str] = mapped_column(
+        String(32), default="CURRENT", server_default="CURRENT", nullable=False
+    )
+    takedown_status: Mapped[str] = mapped_column(
+        String(32), default="NONE", server_default="NONE", nullable=False
+    )
+    takedown_id: Mapped[UUID | None] = mapped_column(nullable=True)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     price_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    offers: Mapped[list[MerchantOffer]] = relationship(
+        back_populates="merchant_product", cascade="all, delete-orphan"
     )
 
 
@@ -252,10 +303,23 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
     tryon_supported: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=false(), nullable=False
     )
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    material: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    color_family: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    identity_status: Mapped[str] = mapped_column(
+        String(32), default="VERIFIED", server_default="VERIFIED", nullable=False
+    )
     version: Mapped[int] = mapped_column(default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    variants: Mapped[list[ProductVariant]] = relationship(
+        back_populates="canonical_garment", cascade="all, delete-orphan"
+    )
+    offers: Mapped[list[MerchantOffer]] = relationship(
+        back_populates="garment", cascade="all, delete-orphan"
     )
 
     __table_args__ = (
@@ -272,6 +336,9 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
     __table_args__ = (
         UniqueConstraint("merchant_id", "source_product_id", name="uq_merchant_offer_source"),
         Index("ix_merchant_offers_stock_price", "in_stock", "price_minor", "garment_id"),
+        Index("ix_merchant_offers_merchant_status", "merchant_id", "status"),
+        Index("ix_merchant_offers_price_currency", "currency", "price_minor"),
+        Index("ix_merchant_offers_availability", "availability"),
     )
 
     garment_id: Mapped[UUID] = mapped_column(
@@ -280,13 +347,70 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
     merchant_id: Mapped[UUID] = mapped_column(
         ForeignKey("merchants.id", ondelete="CASCADE"), index=True
     )
+    merchant_product_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    source_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("catalog_sources.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    ingest_run_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("ingest_runs.id", ondelete="SET NULL"), nullable=True
+    )
     source_product_id: Mapped[str] = mapped_column(String(255), nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=False)
-    price_minor: Mapped[int] = mapped_column(Integer, nullable=False)
+    price_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
     currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
+    original_price_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    discount_percentage: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
     in_stock: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(32), default="ACTIVE", server_default="ACTIVE", nullable=False
+    )
+    availability: Mapped[str] = mapped_column(
+        String(32), default="IN_STOCK", server_default="IN_STOCK", nullable=False
+    )
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_price_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_availability_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    source_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    first_ingested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    last_changed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    sync_status: Mapped[str] = mapped_column(
+        String(32), default="CURRENT", server_default="CURRENT", nullable=False
+    )
+    takedown_status: Mapped[str] = mapped_column(
+        String(32), default="NONE", server_default="NONE", nullable=False
+    )
     last_synced_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    garment: Mapped[CanonicalGarment] = relationship(back_populates="offers")
+    merchant_product: Mapped[MerchantProduct | None] = relationship(back_populates="offers")
+    price_history: Mapped[list[OfferPriceHistory]] = relationship(
+        back_populates="offer", cascade="all, delete-orphan"
+    )
+    offer_sizes: Mapped[list[MerchantOfferSize]] = relationship(
+        back_populates="offer", cascade="all, delete-orphan"
     )
 
 

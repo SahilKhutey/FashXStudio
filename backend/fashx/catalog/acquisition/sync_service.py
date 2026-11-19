@@ -123,7 +123,18 @@ class CatalogSyncService:
             offers: Sequence[MerchantOffer] = (await uow.session.scalars(stmt)).all()
 
             for offer in offers:
+                if getattr(offer, "takedown_status", "NONE") in {
+                    "REQUESTED",
+                    "PROCESSING",
+                    "COMPLETED",
+                    "UNDER_REVIEW",
+                }:
+                    continue
                 offer.in_stock = False
+                offer.status = "OUT_OF_STOCK"
+                offer.availability = "OUT_OF_STOCK"
+                offer.sync_status = "STALE"
+                offer.last_changed_at = datetime.now(UTC)
                 stale_count += 1
 
                 # Reconcile CanonicalGarment if no other in-stock offers exist

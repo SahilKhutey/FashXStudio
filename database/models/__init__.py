@@ -31,6 +31,20 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
+from .catalog_freshness import (
+    AvailabilityStatus,
+    CatalogProvenanceRecord,
+    CatalogTakedownStatus,
+    FreshnessState,
+    MerchantOfferSize,
+    OfferPriceHistory,
+    OfferStatus,
+    PriceChangeType,
+    ProductVariant,
+    ProvenanceEntityType,
+    SizeDefinition,
+    SyncStatus,
+)
 from .catalog_image import (
     CatalogImageAsset,
     CatalogImageDeletionJob,
@@ -185,4 +199,16 @@ __all__ = [
     "ImageTakedownStatus",
     "ImageDeletionTargetType",
     "ImageDeletionJobStatus",
+    "OfferPriceHistory",
+    "SizeDefinition",
+    "ProductVariant",
+    "MerchantOfferSize",
+    "CatalogProvenanceRecord",
+    "OfferStatus",
+    "AvailabilityStatus",
+    "PriceChangeType",
+    "SyncStatus",
+    "FreshnessState",
+    "CatalogTakedownStatus",
+    "ProvenanceEntityType",
 ]

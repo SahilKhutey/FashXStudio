@@ -19,12 +19,19 @@ from database.models.catalog import (
     MerchantOffer,
     MerchantProduct,
 )
+from database.models.catalog_freshness import (
+    CatalogTakedownStatus,
+    MerchantOfferSize,
+    OfferPriceHistory,
+    PriceChangeType,
+)
 from fashx.catalog.acquisition.contract import AcquisitionBatch
 from fashx.catalog.acquisition.image_validator import SafeImageValidator
 from fashx.catalog.acquisition.normalizer import CatalogNormalizer, to_minor_units
 from fashx.catalog.acquisition.quarantine import CatalogQuarantineService
 from fashx.catalog.acquisition.record_validation import validate_product_record
 from fashx.catalog.errors import PermissionDeniedError
+from fashx.catalog.freshness import CatalogFreshnessService, CatalogProvenanceService
 from fashx.catalog.ingestion.authorization_guard import CatalogAuthorizationGuard
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 
@@ -201,6 +208,8 @@ class AcquisitionPipeline:
             report.ingest_run_id = ingest_run.id
 
             quarantine_svc = CatalogQuarantineService(self.uow.session)
+            freshness_svc = CatalogFreshnessService(self.uow.session)
+            provenance_svc = CatalogProvenanceService(self.uow.session)
             brands_by_name: dict[str, Brand] = {}
 
             # 6. Process Records
@@ -346,6 +355,18 @@ class AcquisitionPipeline:
                 )
 
                 if existing_prod is not None:
+                    # Invariant: Never override an active takedown
+                    prod_takedown = getattr(existing_prod, "takedown_status", "NONE")
+                    if prod_takedown in {
+                        CatalogTakedownStatus.REQUESTED,
+                        CatalogTakedownStatus.PROCESSING,
+                        CatalogTakedownStatus.COMPLETED,
+                        CatalogTakedownStatus.UNDER_REVIEW,
+                    }:
+                        report.rejected += 1
+                        report.rejection_reasons["product_under_takedown"] += 1
+                        continue
+
                     existing_offer = await self.uow.offers.get_by_merchant_and_product(
                         merchant.id, raw_p.source_product_id
                     )
@@ -362,22 +383,67 @@ class AcquisitionPipeline:
                     if is_hash_changed or is_price_changed or is_stock_changed or is_title_changed:
                         # Update Offer
                         if existing_offer is not None:
-                            existing_offer.price_minor = price_minor
-                            existing_offer.currency = currency
-                            existing_offer.in_stock = (
-                                bool(in_stock) if in_stock is not None else False
+                            await freshness_svc.record_price_observation(
+                                offer=existing_offer,
+                                observed_price_minor=price_minor,
+                                currency=currency,
+                                source_id=source.id,
+                                merchant_id=merchant.id,
+                                ingest_run_id=ingest_run.id,
+                                observed_at=now,
                             )
-                            existing_offer.last_synced_at = now
+                            await freshness_svc.record_availability_observation(
+                                offer=existing_offer,
+                                in_stock=bool(in_stock) if in_stock is not None else False,
+                                availability="IN_STOCK" if in_stock else "OUT_OF_STOCK",
+                                observed_at=now,
+                            )
+                            existing_offer.merchant_product_id = existing_prod.id
+                            existing_offer.source_id = source.id
+                            existing_offer.ingest_run_id = ingest_run.id
+                            existing_offer.status = "ACTIVE" if in_stock else "OUT_OF_STOCK"
                             existing_offer.url = product_url
+                            existing_offer.last_synced_at = now
 
                         # Update MerchantProduct
                         existing_prod.title = raw_p.title
                         existing_prod.description = raw_p.description
                         existing_prod.source_url = product_url
                         existing_prod.brand_id = brand_id
+                        existing_prod.source_category = category
+                        existing_prod.currency = currency
+                        existing_prod.price_minor = price_minor
+                        existing_prod.availability = "IN_STOCK" if in_stock else "OUT_OF_STOCK"
                         existing_prod.content_hash = content_hash
+                        existing_prod.ingest_run_id = ingest_run.id
                         existing_prod.last_seen_at = now
+                        existing_prod.last_ingested_at = now
+                        existing_prod.last_verified_at = now
                         existing_prod.price_checked_at = now
+                        existing_prod.last_changed_at = now
+                        existing_prod.sync_status = "CURRENT"
+
+                        # Provenance updates
+                        if is_title_changed:
+                            await provenance_svc.record_attribute_change(
+                                entity_type="MERCHANT_PRODUCT",
+                                entity_id=existing_prod.id,
+                                attribute_name="title",
+                                attribute_value=raw_p.title,
+                                source_id=source.id,
+                                merchant_id=merchant.id,
+                                ingest_run_id=ingest_run.id,
+                            )
+                        if is_price_changed and existing_offer is not None:
+                            await provenance_svc.record_attribute_change(
+                                entity_type="MERCHANT_OFFER",
+                                entity_id=existing_offer.id,
+                                attribute_name="price_minor",
+                                attribute_value=price_minor,
+                                source_id=source.id,
+                                merchant_id=merchant.id,
+                                ingest_run_id=ingest_run.id,
+                            )
 
                         # Update CanonicalGarment
                         if existing_prod.canonical_garment_id:
@@ -421,8 +487,15 @@ class AcquisitionPipeline:
                         report.updated += 1
                     else:
                         existing_prod.last_seen_at = now
+                        existing_prod.last_verified_at = now
+                        existing_prod.sync_status = "CURRENT"
                         if existing_offer is not None:
                             existing_offer.last_synced_at = now
+                            existing_offer.last_seen_at = now
+                            existing_offer.last_verified_at = now
+                            existing_offer.last_price_verified_at = now
+                            existing_offer.last_availability_verified_at = now
+                            existing_offer.sync_status = "CURRENT"
                         report.unchanged += 1
 
                 else:
@@ -430,6 +503,7 @@ class AcquisitionPipeline:
                     garment = CanonicalGarment(
                         brand_id=brand_id,
                         display_name=raw_p.title,
+                        description=raw_p.description,
                         category=category,
                         subcategory=subcategory,
                         price_minor=price_minor,
@@ -451,22 +525,83 @@ class AcquisitionPipeline:
                         title=raw_p.title,
                         description=raw_p.description,
                         source_url=product_url,
+                        source_category=category,
+                        currency=currency,
+                        price_minor=price_minor,
+                        availability="IN_STOCK" if in_stock else "OUT_OF_STOCK",
+                        ingest_run_id=ingest_run.id,
+                        first_ingested_at=now,
+                        last_ingested_at=now,
+                        last_changed_at=now,
                         last_seen_at=now,
+                        last_verified_at=now,
                         price_checked_at=now,
+                        sync_status="CURRENT",
+                        takedown_status="NONE",
                     )
                     self.uow.merchant_products.add(product)
+                    await self.uow.merchant_products.flush()
 
                     offer = MerchantOffer(
                         garment_id=garment.id,
                         merchant_id=merchant.id,
+                        merchant_product_id=product.id,
+                        source_id=source.id,
+                        ingest_run_id=ingest_run.id,
                         source_product_id=raw_p.source_product_id,
                         url=product_url,
                         price_minor=price_minor,
                         currency=currency,
                         in_stock=bool(in_stock) if in_stock is not None else False,
+                        status="ACTIVE" if in_stock else "OUT_OF_STOCK",
+                        availability="IN_STOCK" if in_stock else "OUT_OF_STOCK",
+                        first_ingested_at=now,
+                        last_changed_at=now,
+                        last_seen_at=now,
+                        last_verified_at=now,
+                        last_price_verified_at=now,
+                        last_availability_verified_at=now,
+                        sync_status="CURRENT",
+                        takedown_status="NONE",
                         last_synced_at=now,
                     )
                     self.uow.offers.add(offer)
+                    await self.uow.offers.flush()
+
+                    # Record initial price observation
+                    price_hist = OfferPriceHistory(
+                        merchant_offer_id=offer.id,
+                        merchant_id=merchant.id,
+                        source_id=source.id,
+                        ingest_run_id=ingest_run.id,
+                        price_minor=price_minor,
+                        currency=currency,
+                        change_type=PriceChangeType.INITIAL,
+                        observed_at=now,
+                        recorded_at=now,
+                    )
+                    self.uow.session.add(price_hist)
+
+                    # Record provenance
+                    await provenance_svc.record_attribute_change(
+                        entity_type="MERCHANT_PRODUCT",
+                        entity_id=product.id,
+                        attribute_name="title",
+                        attribute_value=raw_p.title,
+                        source_id=source.id,
+                        merchant_id=merchant.id,
+                        ingest_run_id=ingest_run.id,
+                    )
+
+                    # Record offer sizes
+                    for s in sizes:
+                        offer_size = MerchantOfferSize(
+                            merchant_offer_id=offer.id,
+                            raw_size=s,
+                            availability="IN_STOCK" if in_stock else "OUT_OF_STOCK",
+                            last_verified_at=now,
+                        )
+                        self.uow.session.add(offer_size)
 
                     # Persist image if display eligible
                     if raw_p.prepared_image_key and raw_p.prepared_image_hash and display_eligible:

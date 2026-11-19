@@ -1,12 +1,17 @@
 from .catalog_repository import (
     CanonicalGarmentRepository,
+    CatalogProvenanceRepository,
     CatalogUnitOfWork,
     GarmentEnrichmentRepository,
     GarmentImageRepository,
+    MerchantOfferPriceHistoryRepository,
     MerchantOfferRepository,
+    MerchantOfferSizeRepository,
     MerchantProductRepository,
     MerchantRepository,
+    ProductVariantRepository,
     SizeChartRepository,
+    SizeDefinitionRepository,
     SizeMeasurementRepository,
 )
 
@@ -19,5 +24,10 @@ __all__ = [
     "GarmentEnrichmentRepository",
     "SizeChartRepository",
     "SizeMeasurementRepository",
+    "MerchantOfferPriceHistoryRepository",
+    "SizeDefinitionRepository",
+    "ProductVariantRepository",
+    "MerchantOfferSizeRepository",
+    "CatalogProvenanceRepository",
     "CatalogUnitOfWork",
 ]
