@@ -20,9 +20,9 @@ from tests.conftest import make_token
 @pytest.fixture(autouse=True)
 def override_pilot_db_session():
     """Route pilot endpoint database access through test SQLite session."""
-    session_factory = app.dependency_overrides[get_analytics_session_factory]()
 
     async def _sqlite_db_session():
+        session_factory = app.dependency_overrides[get_analytics_session_factory]()
         async with session_factory() as session:
             yield session
 

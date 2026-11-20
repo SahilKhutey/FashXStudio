@@ -72,12 +72,12 @@ def create_app(settings: Any | None = None) -> FastAPI:
     from fashx.api.v1.onboarding import router as onboarding_router
     from fashx.catalog.admin_router import router as admin_catalog_router
     from fashx.catalog.customer_router import customer_garment_router
-    from fashx.catalog.metrics.router import router as catalog_metrics_router
-    from fashx.catalog.operations.router import router as catalog_operations_router
     from fashx.catalog.errors import (
         CatalogAuthorizationError,
         catalog_authorization_error_handler,
     )
+    from fashx.catalog.metrics.router import router as catalog_metrics_router
+    from fashx.catalog.operations.router import router as catalog_operations_router
     from fashx.media.errors import MediaError, media_error_handler
     from fashx.media.router import router as media_router
     from fashx.security.deps import get_principal, require_role

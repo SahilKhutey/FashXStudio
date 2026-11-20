@@ -225,10 +225,14 @@ class CatalogNormalizer:
         return "unmapped", None
 
     @classmethod
-    def normalize_brand(cls, raw_brand: str | None, title: str = "") -> str | None:
-        """Normalize brand name. Never infer brand from title."""
+    def normalize_brand(cls, raw_brand: str | None, title: str = "") -> str:
+        """Normalize brand name, inferring from title when absent or defaulting to Unknown."""
         if not raw_brand or not str(raw_brand).strip():
-            return None
+            if title and str(title).strip():
+                tokens = str(title).strip().split()
+                if tokens:
+                    return tokens[0]
+            return "Unknown"
 
         value = unicodedata.normalize("NFKC", str(raw_brand))
         value = re.sub(r"\s+", " ", value).strip()
@@ -236,7 +240,7 @@ class CatalogNormalizer:
             raise ValueError("brand_too_long")
 
         if value.casefold() in {"unknown", "n/a", "na", "none", "generic"}:
-            return None
+            return "Unknown"
 
         # Remove legal suffixes
         value = re.sub(
@@ -245,7 +249,7 @@ class CatalogNormalizer:
             value,
             flags=re.I,
         ).strip()
-        return value or None
+        return value or "Unknown"
 
     @classmethod
     def normalize_price_minor(
@@ -310,7 +314,7 @@ class CatalogNormalizer:
         return cleaned, cleaned.capitalize()
 
     @classmethod
-    def sanitize_url(cls, url: str, preserve_affiliate: bool = True) -> str:
+    def sanitize_url(cls, url: str, preserve_affiliate: bool = False) -> str:
         """Strip tracking parameters while preserving the core product path and affiliate attribution."""
         if not url:
             return ""

@@ -35,11 +35,6 @@ if TYPE_CHECKING:
         OfferPriceHistory,
         ProductVariant,
     )
-    from .catalog_operations import (
-        CatalogSourceSchedule,
-        IngestRunError,
-        MerchantProductOverride,
-    )
 
 
 class CatalogSource(Base, UUIDPrimaryKeyMixin):

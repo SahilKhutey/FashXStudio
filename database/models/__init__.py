@@ -31,6 +31,10 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
+from .catalog_evaluation import (
+    CatalogEvaluationRun,
+    CatalogLinkHealthCheck,
+)
 from .catalog_freshness import (
     AvailabilityStatus,
     CatalogProvenanceRecord,
@@ -45,9 +49,17 @@ from .catalog_freshness import (
     SizeDefinition,
     SyncStatus,
 )
-from .catalog_evaluation import (
-    CatalogEvaluationRun,
-    CatalogLinkHealthCheck,
+from .catalog_image import (
+    CatalogImageAsset,
+    CatalogImageDeletionJob,
+    CatalogImageTakedown,
+    CatalogImageTransformation,
+    ImageAssetStatus,
+    ImageDeletionJobStatus,
+    ImageDeletionTargetType,
+    ImageTakedownScope,
+    ImageTakedownStatus,
+    ImageTransformationType,
 )
 from .catalog_operations import (
     AuditAction,
@@ -61,18 +73,6 @@ from .catalog_operations import (
     MerchantProductOverride,
     OperationalStatus,
     SyncMode,
-)
-from .catalog_image import (
-    CatalogImageAsset,
-    CatalogImageDeletionJob,
-    CatalogImageTakedown,
-    CatalogImageTransformation,
-    ImageAssetStatus,
-    ImageDeletionJobStatus,
-    ImageDeletionTargetType,
-    ImageTakedownScope,
-    ImageTakedownStatus,
-    ImageTransformationType,
 )
 from .catalog_sync import (
     CatalogIngestionQuarantine,

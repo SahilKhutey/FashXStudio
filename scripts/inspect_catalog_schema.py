@@ -41,7 +41,7 @@ def inspect_catalog_schema() -> dict[str, Any]:
             schema_report[table_name] = {"found": False}
             continue
 
-        columns = [
+        columns: list[dict[str, Any]] = [
             {
                 "name": col.name,
                 "type": str(col.type),
@@ -52,19 +52,19 @@ def inspect_catalog_schema() -> dict[str, Any]:
             for col in table.columns
         ]
 
-        indexes = [
+        indexes: list[dict[str, Any]] = [
             {
-                "name": idx.name,
+                "name": str(idx.name),
                 "columns": [col.name for col in idx.columns],
                 "unique": idx.unique,
             }
             for idx in table.indexes
         ]
 
-        uniques = [
+        uniques: list[dict[str, Any]] = [
             {
-                "name": uq.name,
-                "columns": [col.name for col in uq.columns],
+                "name": str(uq.name),
+                "columns": [col.name for col in getattr(uq, "columns", [])],
             }
             for uq in table.constraints
             if getattr(uq, "name", None) and uq.__class__.__name__ == "UniqueConstraint"
@@ -81,7 +81,7 @@ def inspect_catalog_schema() -> dict[str, Any]:
 
         print(f"\n[+] Table: {table_name} ({len(columns)} columns, {len(indexes)} indexes)")
         for col in columns:
-            fk_str = f" -> FK({', '.join(col['foreign_keys'])})" if col["foreign_keys"] else ""
+            fk_str = f" -> FK({', '.join(str(x) for x in col['foreign_keys'])})" if col["foreign_keys"] else ""
             pk_str = " [PK]" if col["primary_key"] else ""
             null_str = "NULL" if col["nullable"] else "NOT NULL"
             print(f"    - {col['name']}: {col['type']} {null_str}{pk_str}{fk_str}")
@@ -90,12 +90,12 @@ def inspect_catalog_schema() -> dict[str, Any]:
             print("    Indexes:")
             for idx in indexes:
                 uniq_flag = " UNIQUE" if idx["unique"] else ""
-                print(f"      * {idx['name']} ({', '.join(idx['columns'])}){uniq_flag}")
+                print(f"      * {idx['name']} ({', '.join(str(c) for c in idx['columns'])}){uniq_flag}")
 
         if uniques:
             print("    Unique Constraints:")
             for uq in uniques:
-                print(f"      * {uq['name']} ({', '.join(uq['columns'])})")
+                print(f"      * {uq['name']} ({', '.join(str(c) for c in uq['columns'])})")
 
     # Verify Phase 05.5 invariants
     print("\n" + "=" * 70)
