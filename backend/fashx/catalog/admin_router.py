@@ -11,6 +11,12 @@ from database.models.catalog_auth import (
     CatalogPermissionCode,
     TakedownReasonCode,
 )
+from database.models.catalog_enrichment import (
+    ProductAttributeReviewEventRecord,
+    ProductAttributeReviewRecord,
+    ProductEnrichmentResultRecord,
+    ProductEnrichmentRunRecord,
+)
 from database.models.catalog_image import (
     CatalogImageAsset,
     CatalogImageTakedown,
@@ -46,6 +52,14 @@ from fashx.catalog.authorization.schemas import (
     PermissionResponse,
 )
 from fashx.catalog.authorization.service import CatalogAuthorizationService
+from fashx.catalog.enrichment.schemas_api import (
+    EnrichmentQueueResponse,
+    EnrichmentResultResponse,
+    EnrichmentRunStatusResponse,
+    ReviewDecisionRequest,
+    ReviewDecisionResponse,
+    ReviewItemResponse,
+)
 from fashx.catalog.images.lifecycle import ImageLifecycleService
 from fashx.catalog.images.models import ImageJobRequest
 from fashx.catalog.images.pipeline import ProductImagePipeline
@@ -788,3 +802,247 @@ async def get_image_takedown(
             detail=f"Image takedown '{id}' not found.",
         )
     return ImageTakedownResponse.model_validate(takedown)
+
+
+# ---------------------------------------------------------------------------
+# Phase 06.2: Product Enrichment & Review Endpoints (Section 6.4)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/products/{product_id}/enrich", response_model=EnrichmentQueueResponse)
+async def queue_product_enrichment(
+    product_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> EnrichmentQueueResponse:
+    """Queue a product for fashion attribute enrichment (Rule 6.2.14)."""
+    from uuid import uuid4
+
+    run_record = ProductEnrichmentRunRecord(
+        id=uuid4(),
+        product_id=product_id,
+        taxonomy_version="1.0.0",
+        enrichment_version="1.0.0",
+        status="QUEUED",
+        attempt_number=1,
+    )
+    session.add(run_record)
+    await session.commit()
+    return EnrichmentQueueResponse(
+        run_id=run_record.id,
+        product_id=product_id,
+        status="QUEUED",
+    )
+
+
+@router.get("/enrichment-runs/{run_id}", response_model=EnrichmentRunStatusResponse)
+async def get_enrichment_run_status(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> EnrichmentRunStatusResponse:
+    """Get the current execution status of an enrichment run."""
+    run = await session.get(ProductEnrichmentRunRecord, run_id)
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Enrichment run '{run_id}' not found.",
+        )
+    return EnrichmentRunStatusResponse(
+        run_id=run.id,
+        product_id=run.product_id,
+        status=run.status,
+        attempt_number=run.attempt_number,
+        started_at=run.started_at,
+        completed_at=run.completed_at,
+        error_code=run.error_code,
+    )
+
+
+@router.get("/products/{product_id}/enrichment", response_model=EnrichmentResultResponse)
+async def get_product_current_enrichment(
+    product_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> EnrichmentResultResponse:
+    """Retrieve the current accepted enrichment attributes for a product."""
+    stmt = (
+        select(ProductEnrichmentResultRecord)
+        .where(
+            ProductEnrichmentResultRecord.product_id == product_id,
+            ProductEnrichmentResultRecord.is_current.is_(True),
+        )
+        .order_by(ProductEnrichmentResultRecord.created_at.desc())
+    )
+    result = (await session.execute(stmt)).scalars().first()
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Current enrichment for product '{product_id}' not found.",
+        )
+    return EnrichmentResultResponse(
+        product_id=result.product_id,
+        taxonomy_version=result.taxonomy_version,
+        enrichment_version=result.enrichment_version,
+        status=result.status,
+        category_id=result.category_id,
+        garment_type=result.garment_type,
+        summary_json=result.summary_json,
+        is_current=result.is_current,
+        created_at=result.created_at,
+    )
+
+
+@router.post("/enrichment-runs/{run_id}/retry", response_model=EnrichmentRunStatusResponse)
+async def retry_enrichment_run(
+    run_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> EnrichmentRunStatusResponse:
+    """Retry an eligible failed or rejected enrichment run."""
+    from datetime import UTC, datetime
+
+    run = await session.get(ProductEnrichmentRunRecord, run_id)
+    if not run:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Enrichment run '{run_id}' not found.",
+        )
+    if run.status not in {"FAILED", "REJECTED"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Enrichment run in status '{run.status}' is not eligible for retry.",
+        )
+    run.status = "QUEUED"
+    run.attempt_number += 1
+    run.error_code = None
+    run.started_at = datetime.now(UTC)
+    run.completed_at = None
+    await session.commit()
+    return EnrichmentRunStatusResponse(
+        run_id=run.id,
+        product_id=run.product_id,
+        status=run.status,
+        attempt_number=run.attempt_number,
+        started_at=run.started_at,
+        completed_at=run.completed_at,
+        error_code=run.error_code,
+    )
+
+
+@router.get("/reviews", response_model=list[ReviewItemResponse])
+async def list_pending_reviews(
+    merchant_id: UUID | None = Query(None),
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ReviewItemResponse]:
+    """List pending attribute reviews, optionally filtered by merchant tenant."""
+    stmt = select(ProductAttributeReviewRecord).where(
+        ProductAttributeReviewRecord.status == "PENDING"
+    )
+    if merchant_id is not None:
+        stmt = stmt.where(ProductAttributeReviewRecord.merchant_id == merchant_id)
+    stmt = stmt.order_by(ProductAttributeReviewRecord.created_at.asc())
+    records = (await session.execute(stmt)).scalars().all()
+    return [
+        ReviewItemResponse(
+            id=r.id,
+            product_id=r.product_id,
+            merchant_id=r.merchant_id,
+            attribute_id=r.attribute_id,
+            proposed_value=r.proposed_value,
+            current_value=r.current_value,
+            status=r.status,
+            confidence=float(r.confidence) if r.confidence is not None else None,
+            flags=r.flags_json if isinstance(r.flags_json, list) else [],
+            reason=r.reason,
+            created_at=r.created_at,
+        )
+        for r in records
+    ]
+
+
+@router.get("/reviews/{review_id}", response_model=ReviewItemResponse)
+async def get_review_detail(
+    review_id: UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> ReviewItemResponse:
+    """Get detailed attribute review task."""
+    review = await session.get(ProductAttributeReviewRecord, review_id)
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Review record '{review_id}' not found.",
+        )
+    return ReviewItemResponse(
+        id=review.id,
+        product_id=review.product_id,
+        merchant_id=review.merchant_id,
+        attribute_id=review.attribute_id,
+        proposed_value=review.proposed_value,
+        current_value=review.current_value,
+        status=review.status,
+        confidence=float(review.confidence) if review.confidence is not None else None,
+        flags=review.flags_json if isinstance(review.flags_json, list) else [],
+        reason=review.reason,
+        created_at=review.created_at,
+    )
+
+
+@router.post("/reviews/{review_id}/decision", response_model=ReviewDecisionResponse)
+async def submit_review_decision(
+    review_id: UUID,
+    payload: ReviewDecisionRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> ReviewDecisionResponse:
+    """Submit an audited reviewer decision (APPROVE, CORRECT, REJECT, MARK_UNKNOWN)."""
+    from datetime import UTC, datetime
+    from uuid import uuid4
+
+    review = await session.get(ProductAttributeReviewRecord, review_id)
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Review record '{review_id}' not found.",
+        )
+
+    now = datetime.now(UTC)
+    prev_val = review.current_value
+    act = payload.action.upper()
+
+    if act == "APPROVE":
+        review.status = "APPROVED"
+        review.current_value = review.proposed_value
+    elif act == "CORRECT":
+        review.status = "CORRECTED"
+        review.current_value = payload.corrected_value
+    elif act == "REJECT":
+        review.status = "REJECTED"
+    elif act == "MARK_UNKNOWN":
+        review.status = "APPROVED"
+        review.current_value = None
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid review action '{payload.action}'.",
+        )
+
+    review.reviewed_by = "admin-catalog-reviewer"
+    review.reviewed_at = now
+
+    event = ProductAttributeReviewEventRecord(
+        id=uuid4(),
+        review_id=review.id,
+        actor_id="admin-catalog-reviewer",
+        action=act,
+        previous_value=prev_val,
+        new_value=review.current_value,
+        reason=payload.reason,
+        created_at=now,
+    )
+    session.add(event)
+    await session.commit()
+
+    return ReviewDecisionResponse(
+        review_id=review.id,
+        status=review.status,
+        attribute_id=review.attribute_id,
+        current_value=review.current_value,
+        reviewed_by="admin-catalog-reviewer",
+        reviewed_at=now,
+    )

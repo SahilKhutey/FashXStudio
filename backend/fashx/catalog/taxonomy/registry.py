@@ -109,6 +109,9 @@ class TaxonomyRegistry:
     def is_valid_material(self, material_id: str) -> bool:
         return material_id in self.materials
 
+    def is_valid_fabric(self, fabric_id: str) -> bool:
+        return self.is_valid_material(fabric_id)
+
     def is_valid_sleeve(self, sleeve_id: str) -> bool:
         return sleeve_id in self.sleeves
 
@@ -149,11 +152,19 @@ class TaxonomyRegistry:
         return True
 
     # 5. Synonym / Alias lookup
-    def resolve_alias(self, term: str, target_type: str | None = None) -> tuple[str, str] | None:
+    def resolve_alias(
+        self, term_or_target: str, target_or_term: str | None = None
+    ) -> tuple[str, str] | None:
         """Resolve a merchant term / synonym to (target_type, canonical_id)."""
-        normalized = term.strip().lower()
-        if normalized in self.aliases:
-            res_type, res_id = self.aliases[normalized]
-            if target_type is None or res_type == target_type:
+        cand1 = term_or_target.strip().lower()
+        cand2 = target_or_term.strip().lower() if target_or_term else None
+
+        if cand1 in self.aliases:
+            res_type, res_id = self.aliases[cand1]
+            if cand2 is None or res_type == cand2:
+                return res_type, res_id
+        if cand2 and cand2 in self.aliases:
+            res_type, res_id = self.aliases[cand2]
+            if cand1 is None or res_type == cand1:
                 return res_type, res_id
         return None

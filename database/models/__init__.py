@@ -31,6 +31,14 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
+from .catalog_enrichment import (
+    ProductAttributeEvidenceRecord,
+    ProductAttributeReviewEventRecord,
+    ProductAttributeReviewRecord,
+    ProductEnrichmentModelRunRecord,
+    ProductEnrichmentResultRecord,
+    ProductEnrichmentRunRecord,
+)
 from .catalog_evaluation import (
     CatalogEvaluationRun,
     CatalogLinkHealthCheck,
@@ -259,4 +267,10 @@ __all__ = [
     "ProductClassificationRecord",
     "ProductAttributeValueRecord",
     "ProductAttributeProvenanceRecord",
+    "ProductEnrichmentRunRecord",
+    "ProductEnrichmentResultRecord",
+    "ProductAttributeEvidenceRecord",
+    "ProductAttributeReviewRecord",
+    "ProductAttributeReviewEventRecord",
+    "ProductEnrichmentModelRunRecord",
 ]

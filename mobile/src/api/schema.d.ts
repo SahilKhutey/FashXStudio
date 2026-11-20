@@ -1370,6 +1370,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/catalog/products/{product_id}/enrich": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queue Product Enrichment
+         * @description Queue a product for fashion attribute enrichment (Rule 6.2.14).
+         */
+        post: operations["queue_product_enrichment_api_v1_admin_catalog_products__product_id__enrich_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/enrichment-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Enrichment Run Status
+         * @description Get the current execution status of an enrichment run.
+         */
+        get: operations["get_enrichment_run_status_api_v1_admin_catalog_enrichment_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/products/{product_id}/enrichment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Current Enrichment
+         * @description Retrieve the current accepted enrichment attributes for a product.
+         */
+        get: operations["get_product_current_enrichment_api_v1_admin_catalog_products__product_id__enrichment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/enrichment-runs/{run_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retry Enrichment Run
+         * @description Retry an eligible failed or rejected enrichment run.
+         */
+        post: operations["retry_enrichment_run_api_v1_admin_catalog_enrichment_runs__run_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Pending Reviews
+         * @description List pending attribute reviews, optionally filtered by merchant tenant.
+         */
+        get: operations["list_pending_reviews_api_v1_admin_catalog_reviews_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews/{review_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Review Detail
+         * @description Get detailed attribute review task.
+         */
+        get: operations["get_review_detail_api_v1_admin_catalog_reviews__review_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews/{review_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Review Decision
+         * @description Submit an audited reviewer decision (APPROVE, CORRECT, REJECT, MARK_UNKNOWN).
+         */
+        post: operations["submit_review_decision_api_v1_admin_catalog_reviews__review_id__decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/merchant/sources": {
         parameters: {
             query?: never;
@@ -8392,6 +8532,81 @@ export interface components {
             /** Garment Version */
             garment_version: number;
         };
+        /** EnrichmentQueueResponse */
+        EnrichmentQueueResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Message
+             * @default Enrichment job queued
+             */
+            message: string;
+        };
+        /** EnrichmentResultResponse */
+        EnrichmentResultResponse: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Taxonomy Version */
+            taxonomy_version: string;
+            /** Enrichment Version */
+            enrichment_version: string;
+            /** Status */
+            status: string;
+            /** Category Id */
+            category_id?: string | null;
+            /** Garment Type */
+            garment_type?: string | null;
+            /** Summary Json */
+            summary_json: {
+                [key: string]: unknown;
+            };
+            /** Is Current */
+            is_current: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** EnrichmentRunStatusResponse */
+        EnrichmentRunStatusResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Status */
+            status: string;
+            /** Attempt Number */
+            attempt_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+        };
         /** EraseAccountResponse */
         EraseAccountResponse: {
             /** User Id */
@@ -13489,6 +13704,39 @@ export interface components {
              */
             utilization_pct: number;
         };
+        /** ReviewDecisionRequest */
+        ReviewDecisionRequest: {
+            /** Action */
+            action: string;
+            /** Corrected Value */
+            corrected_value?: string | null;
+            /**
+             * Reason
+             * @default Decision recorded by reviewer
+             */
+            reason: string;
+        };
+        /** ReviewDecisionResponse */
+        ReviewDecisionResponse: {
+            /**
+             * Review Id
+             * Format: uuid
+             */
+            review_id: string;
+            /** Status */
+            status: string;
+            /** Attribute Id */
+            attribute_id: string;
+            /** Current Value */
+            current_value?: string | null;
+            /** Reviewed By */
+            reviewed_by: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+        };
         /**
          * ReviewDistributionItemContract
          * @description Histogram bar for star rating distribution (Section 9.21).
@@ -13506,6 +13754,43 @@ export interface components {
              * @default 0
              */
             percentage: number;
+        };
+        /** ReviewItemResponse */
+        ReviewItemResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Attribute Id */
+            attribute_id: string;
+            /** Proposed Value */
+            proposed_value?: string | null;
+            /** Current Value */
+            current_value?: string | null;
+            /** Status */
+            status: string;
+            /** Confidence */
+            confidence?: number | null;
+            /** Flags */
+            flags?: string[];
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** RevokeConsentRequest */
         RevokeConsentRequest: {
@@ -19572,6 +19857,227 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImageTakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    queue_product_enrichment_api_v1_admin_catalog_products__product_id__enrich_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentQueueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_enrichment_run_status_api_v1_admin_catalog_enrichment_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentRunStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_current_enrichment_api_v1_admin_catalog_products__product_id__enrichment_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_enrichment_run_api_v1_admin_catalog_enrichment_runs__run_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentRunStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_pending_reviews_api_v1_admin_catalog_reviews_get: {
+        parameters: {
+            query?: {
+                merchant_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review_detail_api_v1_admin_catalog_reviews__review_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewItemResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_review_decision_api_v1_admin_catalog_reviews__review_id__decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDecisionResponse"];
                 };
             };
             /** @description Validation Error */
