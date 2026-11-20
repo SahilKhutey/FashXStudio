@@ -1,0 +1,31 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+audiences:
+  men:
+    label: "Men"
+    description: "Adult men"
+  women:
+    label: "Women"
+    description: "Adult women"
+  unisex:
+    label: "Unisex"
+    description: "Designed for any gender"
+  boys:
+    label: "Boys"
+    description: "Young boys"
+  girls:
+    label: "Girls"
+    description: "Young girls"
+  kids:
+    label: "Kids"
+    description: "Children of all genders"
+  infants:
+    label: "Infants"
+    description: "Babies and toddlers"
+  all_audiences:
+    label: "All audiences"
+    description: "Universal audience appeal"
+  unknown:
+    label: "Unknown"
+    description: "Audience not specified or undetermined"

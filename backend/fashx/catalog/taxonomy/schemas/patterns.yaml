@@ -1,0 +1,97 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+patterns:
+  # Universal patterns
+  solid:
+    label: "Solid"
+    category: "universal"
+  striped:
+    label: "Striped"
+    category: "universal"
+  checked:
+    label: "Checked"
+    category: "universal"
+  plaid:
+    label: "Plaid"
+    category: "universal"
+  floral:
+    label: "Floral"
+    category: "universal"
+  geometric:
+    label: "Geometric"
+    category: "universal"
+  abstract:
+    label: "Abstract"
+    category: "universal"
+  graphic:
+    label: "Graphic"
+    category: "universal"
+  printed:
+    label: "Printed"
+    category: "universal"
+  embroidered:
+    label: "Embroidered"
+    category: "universal"
+  polka_dot:
+    label: "Polka dot"
+    category: "universal"
+  animal_print:
+    label: "Animal print"
+    category: "universal"
+  camouflage:
+    label: "Camouflage"
+    category: "universal"
+  paisley:
+    label: "Paisley"
+    category: "universal"
+  ikat:
+    label: "Ikat"
+    category: "universal"
+  tie_dye:
+    label: "Tie-dye"
+    category: "universal"
+  color_block:
+    label: "Color block"
+    category: "universal"
+  textured:
+    label: "Textured"
+    category: "universal"
+  self_design:
+    label: "Self-design"
+    category: "universal"
+  other:
+    label: "Other"
+    category: "universal"
+
+  # Indian craft and regional prints
+  block_print:
+    label: "Block print"
+    category: "indian_craft"
+  bandhani:
+    label: "Bandhani"
+    category: "indian_craft"
+  ajrak:
+    label: "Ajrak"
+    category: "indian_craft"
+  kalamkari:
+    label: "Kalamkari"
+    category: "indian_craft"
+  batik:
+    label: "Batik"
+    category: "indian_craft"
+  leheriya:
+    label: "Leheriya"
+    category: "indian_craft"
+  chikankari:
+    label: "Chikankari"
+    category: "indian_craft"
+  phulkari:
+    label: "Phulkari"
+    category: "indian_craft"
+  kantha:
+    label: "Kantha"
+    category: "indian_craft"
+  zari_work:
+    label: "Zari work"
+    category: "indian_craft"

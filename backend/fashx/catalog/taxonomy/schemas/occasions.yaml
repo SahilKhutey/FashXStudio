@@ -1,0 +1,52 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+occasions:
+  everyday:
+    label: "Everyday"
+    description: "Daily routine wear"
+  casual:
+    label: "Casual"
+    description: "Informal, relaxed settings"
+  workwear:
+    label: "Workwear"
+    description: "Professional office environment"
+  business_formal:
+    label: "Business formal"
+    description: "Formal corporate or executive settings"
+  party:
+    label: "Party"
+    description: "Celebrations, nights out and parties"
+  wedding:
+    label: "Wedding"
+    description: "Wedding functions and banquets"
+  festive:
+    label: "Festive"
+    description: "Cultural and religious festivals"
+  traditional_ceremony:
+    label: "Traditional ceremony"
+    description: "Pujas, rituals and ceremonies"
+  date_night:
+    label: "Date night"
+    description: "Dinner dates and social evenings"
+  travel:
+    label: "Travel"
+    description: "Comfortable transit and travel"
+  vacation:
+    label: "Vacation"
+    description: "Holiday and resort wear"
+  sports:
+    label: "Sports"
+    description: "Athletics and sports activities"
+  gym:
+    label: "Gym"
+    description: "Workout and fitness training"
+  outdoor:
+    label: "Outdoor"
+    description: "Outdoor recreation and hiking"
+  lounge:
+    label: "Lounge"
+    description: "Home relaxation and lounging"
+  evening:
+    label: "Evening"
+    description: "Formal evening events"

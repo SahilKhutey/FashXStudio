@@ -1,0 +1,183 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+locale: en-IN
+market: IN
+effective_from: "2026-11-20"
+description: "FashXStudio standardized fashion taxonomy categories"
+
+categories:
+  - id: apparel
+    label: Apparel
+    parent_id: null
+    description: "Garments worn on the body"
+    children:
+      - id: apparel_tops
+        label: Tops
+        parent_id: apparel
+        children:
+          - id: apparel_tops_t_shirts
+            label: T-shirts
+            parent_id: apparel_tops
+          - id: apparel_tops_shirts
+            label: Shirts
+            parent_id: apparel_tops
+          - id: apparel_tops_blouses
+            label: Blouses
+            parent_id: apparel_tops
+          - id: apparel_tops_tank_tops
+            label: Tank tops
+            parent_id: apparel_tops
+          - id: apparel_tops_casual_tops
+            label: Casual tops
+            parent_id: apparel_tops
+      - id: apparel_bottoms
+        label: Bottoms
+        parent_id: apparel
+        children:
+          - id: apparel_bottoms_jeans
+            label: Jeans
+            parent_id: apparel_bottoms
+          - id: apparel_bottoms_trousers
+            label: Trousers
+            parent_id: apparel_bottoms
+          - id: apparel_bottoms_shorts
+            label: Shorts
+            parent_id: apparel_bottoms
+          - id: apparel_bottoms_leggings
+            label: Leggings
+            parent_id: apparel_bottoms
+      - id: apparel_dresses
+        label: Dresses
+        parent_id: apparel
+      - id: apparel_skirts
+        label: Skirts
+        parent_id: apparel
+      - id: apparel_jumpsuits
+        label: Jumpsuits
+        parent_id: apparel
+
+  - id: ethnic_wear
+    label: Indian and ethnic wear
+    parent_id: null
+    description: "Traditional and regional Indian clothing"
+    children:
+      - id: ethnic_wear_kurtas_and_kurtis
+        label: Kurtas and kurtis
+        parent_id: ethnic_wear
+      - id: ethnic_wear_sarees
+        label: Sarees
+        parent_id: ethnic_wear
+      - id: ethnic_wear_lehengas
+        label: Lehengas
+        parent_id: ethnic_wear
+      - id: ethnic_wear_salwar_suits
+        label: Salwar suits
+        parent_id: ethnic_wear
+      - id: ethnic_wear_dupattas
+        label: Dupattas
+        parent_id: ethnic_wear
+      - id: ethnic_wear_dhotis_and_bottoms
+        label: Dhotis and ethnic bottoms
+        parent_id: ethnic_wear
+
+  - id: footwear
+    label: Footwear
+    parent_id: null
+    description: "Shoes, sandals, boots and related footwear"
+    children:
+      - id: footwear_sneakers
+        label: Sneakers
+        parent_id: footwear
+      - id: footwear_formal_shoes
+        label: Formal shoes
+        parent_id: footwear
+      - id: footwear_sandals
+        label: Sandals
+        parent_id: footwear
+      - id: footwear_slippers
+        label: Slippers
+        parent_id: footwear
+      - id: footwear_boots
+        label: Boots
+        parent_id: footwear
+      - id: footwear_heels
+        label: Heels
+        parent_id: footwear
+
+  - id: accessories
+    label: Accessories
+    parent_id: null
+    description: "Wearable accessories, bags and jewellery"
+    children:
+      - id: accessories_bags
+        label: Bags
+        parent_id: accessories
+      - id: accessories_belts
+        label: Belts
+        parent_id: accessories
+      - id: accessories_jewellery
+        label: Jewellery
+        parent_id: accessories
+      - id: accessories_watches
+        label: Watches
+        parent_id: accessories
+      - id: accessories_scarves
+        label: Scarves
+        parent_id: accessories
+      - id: accessories_eyewear
+        label: Eyewear
+        parent_id: accessories
+
+  - id: activewear
+    label: Activewear
+    parent_id: null
+    description: "Sports and performance clothing"
+    children:
+      - id: activewear_sports_tops
+        label: Sports tops
+        parent_id: activewear
+      - id: activewear_sports_bottoms
+        label: Sports bottoms
+        parent_id: activewear
+      - id: activewear_sports_bras
+        label: Sports bras
+        parent_id: activewear
+      - id: activewear_tracksuits
+        label: Tracksuits
+        parent_id: activewear
+
+  - id: innerwear
+    label: Innerwear
+    parent_id: null
+    description: "Undergarments, sleepwear and base layers"
+    children:
+      - id: innerwear_underwear
+        label: Underwear
+        parent_id: innerwear
+      - id: innerwear_bras
+        label: Bras
+        parent_id: innerwear
+      - id: innerwear_vests
+        label: Vests
+        parent_id: innerwear
+      - id: innerwear_sleepwear
+        label: Sleepwear
+        parent_id: innerwear
+
+  - id: outerwear
+    label: Outerwear
+    parent_id: null
+    description: "Jackets, coats, blazers and protective layers"
+    children:
+      - id: outerwear_jackets
+        label: Jackets
+        parent_id: outerwear
+      - id: outerwear_coats
+        label: Coats
+        parent_id: outerwear
+      - id: outerwear_blazers
+        label: Blazers
+        parent_id: outerwear
+      - id: outerwear_hoodies
+        label: Hoodies
+        parent_id: outerwear

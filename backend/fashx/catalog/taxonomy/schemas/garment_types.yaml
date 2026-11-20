@@ -1,0 +1,202 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+garment_types:
+  t_shirt:
+    label: "T-shirt"
+    allowed_categories:
+      - apparel_tops_t_shirts
+    priority: "P0"
+    style_family: "western"
+
+  polo_shirt:
+    label: "Polo shirt"
+    allowed_categories:
+      - apparel_tops_t_shirts
+      - apparel_tops_shirts
+    priority: "P0"
+    style_family: "western"
+
+  graphic_t_shirt:
+    label: "Graphic T-shirt"
+    allowed_categories:
+      - apparel_tops_t_shirts
+    priority: "P0"
+    style_family: "western"
+
+  casual_shirt:
+    label: "Casual shirt"
+    allowed_categories:
+      - apparel_tops_shirts
+    priority: "P0"
+    style_family: "western"
+
+  formal_shirt:
+    label: "Formal shirt"
+    allowed_categories:
+      - apparel_tops_shirts
+    priority: "P0"
+    style_family: "western"
+
+  overshirt:
+    label: "Overshirt"
+    allowed_categories:
+      - apparel_tops_shirts
+      - outerwear_jackets
+    priority: "P0"
+    style_family: "western"
+
+  blouse:
+    label: "Blouse"
+    allowed_categories:
+      - apparel_tops_blouses
+      - apparel_tops_casual_tops
+    priority: "P1"
+    style_family: "western"
+
+  tank_top:
+    label: "Tank top"
+    allowed_categories:
+      - apparel_tops_tank_tops
+    priority: "P1"
+    style_family: "western"
+
+  casual_top:
+    label: "Casual top"
+    allowed_categories:
+      - apparel_tops_casual_tops
+    priority: "P1"
+    style_family: "western"
+
+  kurta:
+    label: "Kurta"
+    allowed_categories:
+      - ethnic_wear_kurtas_and_kurtis
+    priority: "P1"
+    style_family: "indian_ethnic"
+
+  kurti:
+    label: "Kurti"
+    allowed_categories:
+      - ethnic_wear_kurtas_and_kurtis
+    priority: "P1"
+    style_family: "indian_ethnic"
+
+  short_kurta:
+    label: "Short kurta"
+    allowed_categories:
+      - ethnic_wear_kurtas_and_kurtis
+    priority: "P1"
+    style_family: "indian_ethnic"
+
+  anarkali_kurta:
+    label: "Anarkali kurta"
+    allowed_categories:
+      - ethnic_wear_kurtas_and_kurtis
+    priority: "P1"
+    style_family: "indian_ethnic"
+
+  saree:
+    label: "Saree"
+    allowed_categories:
+      - ethnic_wear_sarees
+    priority: "P3"
+    style_family: "indian_ethnic"
+
+  lehenga:
+    label: "Lehenga"
+    allowed_categories:
+      - ethnic_wear_lehengas
+    priority: "P3"
+    style_family: "indian_ethnic"
+
+  salwar_suit:
+    label: "Salwar suit"
+    allowed_categories:
+      - ethnic_wear_salwar_suits
+    priority: "P2"
+    style_family: "indian_ethnic"
+
+  dupatta:
+    label: "Dupatta"
+    allowed_categories:
+      - ethnic_wear_dupattas
+    priority: "P2"
+    style_family: "indian_ethnic"
+
+  dhoti:
+    label: "Dhoti"
+    allowed_categories:
+      - ethnic_wear_dhotis_and_bottoms
+    priority: "P2"
+    style_family: "indian_ethnic"
+
+  jeans:
+    label: "Jeans"
+    allowed_categories:
+      - apparel_bottoms_jeans
+    priority: "P2"
+    style_family: "western"
+
+  trousers:
+    label: "Trousers"
+    allowed_categories:
+      - apparel_bottoms_trousers
+    priority: "P2"
+    style_family: "western"
+
+  shorts:
+    label: "Shorts"
+    allowed_categories:
+      - apparel_bottoms_shorts
+    priority: "P2"
+    style_family: "western"
+
+  dress:
+    label: "Dress"
+    allowed_categories:
+      - apparel_dresses
+    priority: "P2"
+    style_family: "western"
+
+  skirt:
+    label: "Skirt"
+    allowed_categories:
+      - apparel_skirts
+    priority: "P2"
+    style_family: "western"
+
+  jumpsuit:
+    label: "Jumpsuit"
+    allowed_categories:
+      - apparel_jumpsuits
+    priority: "P2"
+    style_family: "western"
+
+  sneakers:
+    label: "Sneakers"
+    allowed_categories:
+      - footwear_sneakers
+    priority: "P2"
+    style_family: "universal"
+
+  formal_shoes:
+    label: "Formal shoes"
+    allowed_categories:
+      - footwear_formal_shoes
+    priority: "P2"
+    style_family: "western"
+
+  sandals:
+    label: "Sandals"
+    allowed_categories:
+      - footwear_sandals
+    priority: "P2"
+    style_family: "universal"
+
+  handbag:
+    label: "Handbag"
+    allowed_categories:
+      - accessories_bags
+    priority: "P2"
+    style_family: "universal"

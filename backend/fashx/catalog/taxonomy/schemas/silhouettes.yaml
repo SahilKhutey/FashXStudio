@@ -1,0 +1,46 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+fits:
+  regular:
+    label: "Regular"
+  slim:
+    label: "Slim"
+  relaxed:
+    label: "Relaxed"
+  oversized:
+    label: "Oversized"
+  fitted:
+    label: "Fitted"
+  tight:
+    label: "Tight"
+  loose:
+    label: "Loose"
+
+silhouettes:
+  straight:
+    label: "Straight"
+  a_line:
+    label: "A-line"
+  fit_and_flare:
+    label: "Fit and flare"
+  bodycon:
+    label: "Bodycon"
+  flared:
+    label: "Flared"
+  wide_leg:
+    label: "Wide leg"
+  tapered:
+    label: "Tapered"
+  bootcut:
+    label: "Bootcut"
+  skinny:
+    label: "Skinny"
+  cropped:
+    label: "Cropped"
+  layered:
+    label: "Layered"
+  asymmetric:
+    label: "Asymmetric"
+  other:
+    label: "Other"

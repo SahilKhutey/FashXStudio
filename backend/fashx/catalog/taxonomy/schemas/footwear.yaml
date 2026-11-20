@@ -1,0 +1,65 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+footwear:
+  footwear_types:
+    - sneakers
+    - formal_shoes
+    - sandals
+    - heels
+    - boots
+    - slippers
+    - loafers
+    - flats
+    - flip_flops
+
+  closure_types:
+    - lace_up
+    - slip_on
+    - buckle
+    - zipper
+    - hook_and_loop
+    - elastic
+
+  toe_shapes:
+    - round
+    - square
+    - pointed
+    - open
+    - almond
+
+  heel_types:
+    - flat
+    - block
+    - wedge
+    - stiletto
+    - platform
+    - kitten
+
+  upper_materials:
+    - leather
+    - textile
+    - synthetic
+    - mesh
+    - canvas
+    - suede
+
+  sole_materials:
+    - rubber
+    - eva
+    - leather
+    - polyurethane
+    - tpr
+
+  shoe_widths:
+    - narrow
+    - regular
+    - wide
+    - extra_wide
+    - unknown
+
+  size_systems:
+    - UK
+    - US
+    - EU
+    - IN

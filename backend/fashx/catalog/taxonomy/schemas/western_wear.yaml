@@ -1,0 +1,82 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+western_wear:
+  shirt_types:
+    - casual
+    - formal
+    - dress_shirt
+    - overshirt
+    - tuxedo_shirt
+
+  t_shirt_types:
+    - crew_neck
+    - v_neck
+    - polo
+    - graphic
+    - basic
+    - henley
+
+  dress_types:
+    - a_line
+    - bodycon
+    - maxi
+    - midi
+    - mini
+    - shirt_dress
+    - wrap_dress
+    - sheath
+
+  trouser_types:
+    - chinos
+    - formal_trousers
+    - cargo
+    - joggers
+    - cropped_trousers
+
+  jeans_fits:
+    - skinny
+    - slim
+    - straight
+    - relaxed
+    - bootcut
+    - wide_leg
+    - mom_fit
+    - boyfriend
+
+  rise_types:
+    - low_rise
+    - mid_rise
+    - high_rise
+
+  waistband_types:
+    - elastic
+    - button
+    - drawstring
+    - adjustable
+    - belt_loops
+
+  closure_types:
+    - buttons
+    - zipper
+    - hook_and_eye
+    - pull_on
+    - tie_up
+    - snap
+
+  length_types:
+    - cropped
+    - regular
+    - long
+    - ankle_length
+    - full_length
+
+  layering_types:
+    - base_layer
+    - mid_layer
+    - outer_layer
+
+  hood_types:
+    - hooded
+    - non_hooded
+    - detachable_hood

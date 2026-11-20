@@ -1,0 +1,209 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+color_families:
+  black:
+    label: "Black"
+    shades:
+      - id: black
+        label: "Black"
+        hex: "#000000"
+      - id: jet_black
+        label: "Jet Black"
+        hex: "#0A0A0A"
+      - id: charcoal
+        label: "Charcoal"
+        hex: "#36454F"
+
+  white:
+    label: "White"
+    shades:
+      - id: white
+        label: "White"
+        hex: "#FFFFFF"
+      - id: pure_white
+        label: "Pure White"
+        hex: "#FFFFFF"
+      - id: ivory
+        label: "Ivory"
+        hex: "#FFFFF0"
+      - id: off_white
+        label: "Off-White"
+        hex: "#FAF9F6"
+
+  grey:
+    label: "Grey"
+    shades:
+      - id: grey
+        label: "Grey"
+        hex: "#808080"
+      - id: light_grey
+        label: "Light Grey"
+        hex: "#D3D3D3"
+      - id: dark_grey
+        label: "Dark Grey"
+        hex: "#A9A9A9"
+      - id: heather_grey
+        label: "Heather Grey"
+        hex: "#9E9E9E"
+
+  brown:
+    label: "Brown"
+    shades:
+      - id: brown
+        label: "Brown"
+        hex: "#964B00"
+      - id: tan
+        label: "Tan"
+        hex: "#D2B48C"
+      - id: camel
+        label: "Camel"
+        hex: "#C19A6B"
+      - id: chocolate
+        label: "Chocolate"
+        hex: "#7B3F00"
+      - id: beige
+        label: "Beige"
+        hex: "#F5F5DC"
+
+  red:
+    label: "Red"
+    shades:
+      - id: red
+        label: "Red"
+        hex: "#FF0000"
+      - id: maroon
+        label: "Maroon"
+        hex: "#800000"
+      - id: burgundy
+        label: "Burgundy"
+        hex: "#800020"
+      - id: crimson
+        label: "Crimson"
+        hex: "#DC143C"
+
+  pink:
+    label: "Pink"
+    shades:
+      - id: pink
+        label: "Pink"
+        hex: "#FFC0CB"
+      - id: baby_pink
+        label: "Baby Pink"
+        hex: "#F4C2C2"
+      - id: rose
+        label: "Rose"
+        hex: "#FF007F"
+      - id: magenta
+        label: "Magenta"
+        hex: "#FF00FF"
+
+  orange:
+    label: "Orange"
+    shades:
+      - id: orange
+        label: "Orange"
+        hex: "#FFA500"
+      - id: rust
+        label: "Rust"
+        hex: "#B7410E"
+      - id: coral
+        label: "Coral"
+        hex: "#FF7F50"
+      - id: peach
+        label: "Peach"
+        hex: "#FFE5B4"
+
+  yellow:
+    label: "Yellow"
+    shades:
+      - id: yellow
+        label: "Yellow"
+        hex: "#FFFF00"
+      - id: mustard
+        label: "Mustard"
+        hex: "#FFDB58"
+      - id: lemon
+        label: "Lemon"
+        hex: "#FFF44F"
+
+  green:
+    label: "Green"
+    shades:
+      - id: green
+        label: "Green"
+        hex: "#008000"
+      - id: olive
+        label: "Olive"
+        hex: "#808000"
+      - id: sage
+        label: "Sage"
+        hex: "#9DC183"
+      - id: mint
+        label: "Mint"
+        hex: "#3EB489"
+      - id: emerald
+        label: "Emerald"
+        hex: "#50C878"
+
+  blue:
+    label: "Blue"
+    shades:
+      - id: blue
+        label: "Blue"
+        hex: "#0000FF"
+      - id: navy
+        label: "Navy"
+        hex: "#000080"
+      - id: sky_blue
+        label: "Sky Blue"
+        hex: "#87CEEB"
+      - id: royal_blue
+        label: "Royal Blue"
+        hex: "#4169E1"
+      - id: indigo
+        label: "Indigo"
+        hex: "#4B0082"
+
+  purple:
+    label: "Purple"
+    shades:
+      - id: purple
+        label: "Purple"
+        hex: "#800080"
+      - id: lavender
+        label: "Lavender"
+        hex: "#E6E6FA"
+      - id: violet
+        label: "Violet"
+        hex: "#7F00FF"
+      - id: plum
+        label: "Plum"
+        hex: "#8E4585"
+
+  metallic:
+    label: "Metallic"
+    shades:
+      - id: gold
+        label: "Gold"
+        hex: "#FFD700"
+      - id: silver
+        label: "Silver"
+        hex: "#C0C0C0"
+      - id: bronze
+        label: "Bronze"
+        hex: "#CD7F32"
+
+  multicolor:
+    label: "Multicolor"
+    shades:
+      - id: multicolor
+        label: "Multicolor"
+        hex: null
+
+  other:
+    label: "Other"
+    shades:
+      - id: other
+        label: "Other"
+        hex: null

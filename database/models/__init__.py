@@ -79,6 +79,16 @@ from .catalog_sync import (
     CatalogSyncCheckpoint,
     CatalogSyncRun,
 )
+from .catalog_taxonomy import (
+    ProductAttributeProvenanceRecord,
+    ProductAttributeValueRecord,
+    ProductClassificationRecord,
+    TaxonomyAlias,
+    TaxonomyAttribute,
+    TaxonomyAttributeValueRecord,
+    TaxonomyCategory,
+    TaxonomyVersion,
+)
 from .commerce_feedback import (
     BuyClick,
     DomainEvent,
@@ -241,4 +251,12 @@ __all__ = [
     "AuditOutcome",
     "CatalogEvaluationRun",
     "CatalogLinkHealthCheck",
+    "TaxonomyVersion",
+    "TaxonomyCategory",
+    "TaxonomyAttribute",
+    "TaxonomyAttributeValueRecord",
+    "TaxonomyAlias",
+    "ProductClassificationRecord",
+    "ProductAttributeValueRecord",
+    "ProductAttributeProvenanceRecord",
 ]

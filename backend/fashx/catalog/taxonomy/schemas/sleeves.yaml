@@ -1,0 +1,43 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+sleeves:
+  sleeveless:
+    label: "Sleeveless"
+    length_group: "none"
+  cap_sleeve:
+    label: "Cap sleeve"
+    length_group: "short"
+  short_sleeve:
+    label: "Short sleeve"
+    length_group: "short"
+  half_sleeve:
+    label: "Half sleeve"
+    length_group: "short"
+  three_quarter_sleeve:
+    label: "Three-quarter sleeve"
+    length_group: "three_quarter"
+  full_sleeve:
+    label: "Full sleeve"
+    length_group: "full"
+  long_sleeve:
+    label: "Long sleeve"
+    length_group: "full"
+  roll_up_sleeve:
+    label: "Roll-up sleeve"
+    length_group: "adjustable"
+  bell_sleeve:
+    label: "Bell sleeve"
+    length_group: "stylized"
+  puff_sleeve:
+    label: "Puff sleeve"
+    length_group: "stylized"
+  bishop_sleeve:
+    label: "Bishop sleeve"
+    length_group: "stylized"
+  raglan_sleeve:
+    label: "Raglan sleeve"
+    length_group: "construction"
+  other:
+    label: "Other"
+    length_group: "other"

@@ -1,0 +1,50 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+necklines:
+  crew_neck:
+    label: "Crew neck"
+  round_neck:
+    label: "Round neck"
+  v_neck:
+    label: "V-neck"
+  scoop_neck:
+    label: "Scoop neck"
+  boat_neck:
+    label: "Boat neck"
+  square_neck:
+    label: "Square neck"
+  sweetheart_neck:
+    label: "Sweetheart neck"
+  halter_neck:
+    label: "Halter neck"
+  high_neck:
+    label: "High neck"
+  mock_neck:
+    label: "Mock neck"
+  turtle_neck:
+    label: "Turtleneck"
+  collared:
+    label: "Collared"
+  mandarin_collar:
+    label: "Mandarin collar"
+  peter_pan_collar:
+    label: "Peter Pan collar"
+  off_shoulder:
+    label: "Off-shoulder"
+  one_shoulder:
+    label: "One-shoulder"
+  other:
+    label: "Other"
+
+collars:
+  spread_collar:
+    label: "Spread collar"
+  button_down_collar:
+    label: "Button-down collar"
+  cutaway_collar:
+    label: "Cutaway collar"
+  band_collar:
+    label: "Band collar"
+  notched_lapel:
+    label: "Notched lapel"
