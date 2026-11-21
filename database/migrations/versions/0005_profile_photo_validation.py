@@ -21,8 +21,13 @@ def upgrade() -> None:
     op.add_column("user_photos", sa.Column("has_face", sa.Boolean(), nullable=True))
     op.create_index("ix_user_photos_content_sha256", "user_photos", ["content_sha256"])
 
-    op.add_column("profile_photo_jobs", sa.Column("attempt_count", sa.Integer(), server_default="0", nullable=False))
-    op.add_column("profile_photo_jobs", sa.Column("locked_at", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "profile_photo_jobs",
+        sa.Column("attempt_count", sa.Integer(), server_default="0", nullable=False),
+    )
+    op.add_column(
+        "profile_photo_jobs", sa.Column("locked_at", sa.DateTime(timezone=True), nullable=True)
+    )
     op.add_column("profile_photo_jobs", sa.Column("last_error", sa.Text(), nullable=True))
     op.create_index("ix_profile_photo_jobs_status", "profile_photo_jobs", ["status", "created_at"])
 

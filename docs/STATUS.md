@@ -9,11 +9,11 @@ Legend: 🟢 code and automated tests pass in CI · 🟡 partial · ⬜ not star
 | **Authentication & Identity** | 🟢 LocalJWTVerifier with symmetric secret; default-deny middleware; RBAC | None: No external JWKS provider or Supabase auth tenant connected |
 | **Persistence & Database** | 🟢 SQLAlchemy UOW, 32 linear Alembic revisions to head `0032_tryon_feedback_issue_tags` | None: Production cloud database unverified; local runs use CI container |
 | **Virtual Try-On (VTO)** | 🟢 FASHN API adapter implemented; MockTryOnAdapter active default with preview watermark | None: No vendor account; no live commercial AI image generation ever executed |
-| **Catalog & Ingestion** | 🟢 Multi-source pipeline, normalizer, dHash dedup, source registry | None: No live merchant feed; local CSV fixtures only; real VLM unmeasured |
+| **Catalog & Ingestion** | 🟢 Multi-source pipeline, normalizer, dHash dedup, source registry, canonical ingestion (05.3), product image pipeline (05.4), catalog database integrity & freshness (05.5), merchant catalog operations (05.6), initial catalog targets (05.7), and end-to-end catalog lifecycle integration & exit gates (05.8) | None: No live merchant feed; local CSV fixtures only; real VLM unmeasured |
 | **Discovery & Personalization** | 🟢 Constrained MMR ranker, 11-feature scoring, fallback embeddings | None: Evaluated on synthetic test personas; zero human relevance ratings |
 | **Mobile Application** | 🟢 22 Jest suites (165 tests); Expo Doctor 20/20 passed; Android Hermes bundle built | None: Simulator and test suite only; unverified on physical hardware |
 | **Infrastructure & Deploy** | 🟢 GitHub Actions CI passing (6/6 jobs); S3/R2 storage adapter implemented | None: Storage defaults to `./.local_storage`; no production cloud environment |
-| **Merchant Platform (B2B)** | 🟡 Code implemented; feature flag `ENABLE_B2B=False` (prohibited in prod for MVP) | None: Zero real merchants activated |
+| **Merchant Platform (B2B & Operations)** | 🟢 Operational control plane (05.6: source connection, schedules, status dashboard, error & quarantine reporting, image permission matrix, takedowns, product overrides & offer removal); feature flag ENABLE_B2B=False for MVP | None: Zero real merchants activated |
 | **Operations & Experiments** | 🟡 Metrics contracts, deterministic experiment hashing, SLO schemas | None: No live production traffic |
 | **Legal & Privacy** | 🟢 DPDP cascading erasure use cases, age gating (18+), consent tracking | None: Draft policies only; external counsel review unverified |
 | **Closed Pilot Execution** | ⬜ Pilot measurement framework pre-registered; evaluators implemented | None: Quarantined simulated scenario only; real human pilot not run |

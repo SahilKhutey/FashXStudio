@@ -126,9 +126,7 @@ def normalize_product(row: dict[str, str]) -> NormalizedProduct:
         "item_group_id": item_group_id,
         "image_url": image_url,
     }
-    digest = hashlib.sha256(
-        json.dumps(canonical_dict, sort_keys=True).encode("utf-8")
-    ).hexdigest()
+    digest = hashlib.sha256(json.dumps(canonical_dict, sort_keys=True).encode("utf-8")).hexdigest()
 
     return NormalizedProduct(
         source_product_id=source_product_id,

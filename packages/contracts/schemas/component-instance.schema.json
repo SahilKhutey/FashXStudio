@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.modularmenu.com/contracts/component-instance.schema.json",
+  "title": "ComponentInstance",
+  "description": "Schema for an instantiated component within a ModularMenu configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "component_id", "slot", "order", "visible", "props"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,64}$" },
+    "component_id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "slot": {
+      "type": "string",
+      "enum": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"]
+    },
+    "order": { "type": "integer", "minimum": 0 },
+    "visible": { "type": "boolean" },
+    "props": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

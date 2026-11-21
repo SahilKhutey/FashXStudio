@@ -33,7 +33,9 @@ class User(Base, UUIDPrimaryKeyMixin):
     )
     activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     disabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    deletion_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deletion_requested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -63,7 +65,9 @@ class ConsentRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     consent_version: Mapped[str] = mapped_column(String(16), default="2026.1", nullable=False)
     is_18_or_older: Mapped[bool | None] = mapped_column(Boolean, default=None, nullable=True)
-    consented_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    consented_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     user: Mapped[User] = relationship(back_populates="consents")
 
@@ -95,16 +99,12 @@ class ConsentEvent(Base, UUIDPrimaryKeyMixin):
 
     user: Mapped[User] = relationship(back_populates="consent_events")
 
-    __table_args__ = (
-        Index("ix_consent_events_user_created", "user_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_consent_events_user_created", "user_id", "created_at"),)
 
 
 class UserPhoto(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "user_photos"
-    __table_args__ = (
-        Index("ix_user_photos_user_id", "user_id", "photo_type"),
-    )
+    __table_args__ = (Index("ix_user_photos_user_id", "user_id", "photo_type"),)
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     photo_type: Mapped[str] = mapped_column(String(32), nullable=False)

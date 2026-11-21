@@ -101,7 +101,9 @@ class GarmentImagePreparer:
         try:
             resp = await client.get(image_url)
             if 300 <= resp.status_code < 400:
-                raise ImagePreparationError(f"HTTP redirects prohibited (got status {resp.status_code})")
+                raise ImagePreparationError(
+                    f"HTTP redirects prohibited (got status {resp.status_code})"
+                )
             if resp.status_code != 200:
                 raise ImagePreparationError(f"HTTP fetch failed with status {resp.status_code}")
 
@@ -136,7 +138,9 @@ class GarmentImagePreparer:
                 img = ImageOps.exif_transpose(img)
 
                 if img.mode != "RGB":
-                    if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
+                    if img.mode in ("RGBA", "LA") or (
+                        img.mode == "P" and "transparency" in img.info
+                    ):
                         bg = Image.new("RGB", img.size, (255, 255, 255))
                         rgba_img = img.convert("RGBA")
                         bg.paste(rgba_img, mask=rgba_img.split()[3])

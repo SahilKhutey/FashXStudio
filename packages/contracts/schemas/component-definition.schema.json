@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.modularmenu.com/contracts/component-definition.schema.json",
+  "title": "ComponentDefinition",
+  "description": "Schema definition for registered platform-approved components in ModularMenu",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "name", "version", "status", "category", "allowed_slots", "property_schema", "default_props", "renderer"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "status": { "type": "string", "enum": ["active", "deprecated", "retired"] },
+    "category": { "type": "string", "enum": ["header", "navigation", "layout", "item", "feedback", "footer"] },
+    "allowed_slots": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"] },
+      "minItems": 1
+    },
+    "property_schema": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "default_props": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "role": { "type": "string" },
+        "keyboard_navigable": { "type": "boolean" },
+        "aria_label_required": { "type": "boolean" }
+      }
+    },
+    "renderer": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" }
+  }
+}

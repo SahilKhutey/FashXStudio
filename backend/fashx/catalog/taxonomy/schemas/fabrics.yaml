@@ -1,0 +1,85 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+materials:
+  cotton:
+    label: "Cotton"
+    type: "natural"
+  organic_cotton:
+    label: "Organic cotton"
+    type: "natural"
+  linen:
+    label: "Linen"
+    type: "natural"
+  silk:
+    label: "Silk"
+    type: "natural"
+  raw_silk:
+    label: "Raw silk"
+    type: "natural"
+  wool:
+    label: "Wool"
+    type: "natural"
+  cashmere:
+    label: "Cashmere"
+    type: "natural"
+  polyester:
+    label: "Polyester"
+    type: "synthetic"
+  nylon:
+    label: "Nylon"
+    type: "synthetic"
+  viscose:
+    label: "Viscose"
+    type: "semi_synthetic"
+  rayon:
+    label: "Rayon"
+    type: "semi_synthetic"
+  modal:
+    label: "Modal"
+    type: "semi_synthetic"
+  lyocell:
+    label: "Lyocell"
+    type: "semi_synthetic"
+  acrylic:
+    label: "Acrylic"
+    type: "synthetic"
+  denim:
+    label: "Denim"
+    type: "fabric_construction"
+    note: "Fabric weave commonly made of cotton"
+  leather:
+    label: "Leather"
+    type: "natural"
+  faux_leather:
+    label: "Faux leather"
+    type: "synthetic"
+  satin:
+    label: "Satin"
+    type: "fabric_weave"
+  chiffon:
+    label: "Chiffon"
+    type: "fabric_weave"
+  georgette:
+    label: "Georgette"
+    type: "fabric_weave"
+  crepe:
+    label: "Crepe"
+    type: "fabric_weave"
+  velvet:
+    label: "Velvet"
+    type: "fabric_pile"
+  net:
+    label: "Net"
+    type: "fabric_mesh"
+  other:
+    label: "Other"
+    type: "other"
+
+fabric_structures:
+  knit:
+    label: "Knit"
+  woven:
+    label: "Woven"
+  non_woven:
+    label: "Non-woven"

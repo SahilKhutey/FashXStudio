@@ -167,6 +167,31 @@ class S3Storage:
             ExpiresIn=ttl_s,
         )
 
+    def create_upload_url(
+        self,
+        key: str,
+        content_type: str = "image/jpeg",
+        ttl_s: int = 300,
+    ) -> str:
+        self._validate_key(key)
+        params: dict[str, Any] = {
+            "Bucket": self._b,
+            "Key": key,
+            "ContentType": content_type,
+        }
+        if self._is_aws:
+            if self._kms_key_id:
+                params["ServerSideEncryption"] = "aws:kms"
+                params["SSEKMSKeyId"] = self._kms_key_id
+            else:
+                params["ServerSideEncryption"] = "AES256"
+        return self._c.generate_presigned_url(
+            ClientMethod="put_object",
+            Params=params,
+            ExpiresIn=ttl_s,
+            HttpMethod="PUT",
+        )
+
     def generate_presigned_post(
         self,
         key: str,

@@ -1,0 +1,14 @@
+permission_code,description,default_status,requires_explicit_legal_clause,allows_ai_inference,allows_display,allows_storage
+PRODUCT_DATA_READ,Authority to fetch raw product listings,DENIED,Yes,No,No,No
+PRODUCT_DATA_STORE,Authority to persist normalized product data,DENIED,Yes,No,No,Yes
+PRODUCT_DISPLAY,Authority to display product metadata to shoppers,DENIED,Yes,No,Yes,No
+IMAGE_FETCH,Authority to download product images,DENIED,Yes,No,No,No
+IMAGE_DISPLAY,Authority to render product images to shoppers,DENIED,Yes,No,Yes,No
+IMAGE_STORE,Authority to mirror product images in FashX S3,DENIED,Yes,No,No,Yes
+IMAGE_AI_PROCESS,Authority to pass images into computer vision and segmentation,DENIED,Yes,Yes,No,No
+VTO_PROCESS,Authority to use garment in virtual try-on diffusion pipelines,DENIED,Yes,Yes,No,No
+DERIVATIVE_CREATE,Authority to synthesize cutout masks and 3D garment maps,DENIED,Yes,Yes,No,No
+DERIVATIVE_STORE,Authority to retain synthesized derivative assets,DENIED,Yes,No,No,Yes
+DERIVATIVE_DISPLAY,Authority to display derivative garment flats and try-on collages,DENIED,Yes,No,Yes,No
+MERCHANT_REDIRECT,Authority to redirect shoppers to merchant PDP/checkout,DENIED,Yes,No,Yes,No
+AFFILIATE_ATTRIBUTION,Authority to apply affiliate tracking tokens and commissions,DENIED,Yes,No,Yes,No

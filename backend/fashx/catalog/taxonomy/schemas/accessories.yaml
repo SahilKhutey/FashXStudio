@@ -1,0 +1,77 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+accessories:
+  bags:
+    types:
+      - handbag
+      - tote_bag
+      - backpack
+      - sling_bag
+      - clutch
+      - duffle_bag
+      - wallet
+    strap_types:
+      - adjustable
+      - detachable
+      - fixed
+      - double_handle
+      - chain
+    closure_types:
+      - zipper
+      - magnetic_snap
+      - flap
+      - drawstring
+
+  belts:
+    width_types:
+      - skinny
+      - medium
+      - wide
+    buckle_types:
+      - pin_buckle
+      - auto_lock
+      - double_ring
+      - plate
+
+  jewellery:
+    types:
+      - necklace
+      - earrings
+      - bracelet
+      - ring
+      - anklet
+      - pendant
+    materials:
+      - gold_plated
+      - silver_plated
+      - brass
+      - alloy
+      - stainless_steel
+      - precious_metal
+
+  watches:
+    display_types:
+      - analog
+      - digital
+      - chronograph
+      - smart
+    dial_shapes:
+      - round
+      - square
+      - rectangular
+      - oval
+
+  eyewear:
+    frame_shapes:
+      - aviator
+      - wayfarer
+      - round
+      - cat_eye
+      - square
+      - rimless
+    lens_types:
+      - uv_protected
+      - polarized
+      - clear
+      - mirrored

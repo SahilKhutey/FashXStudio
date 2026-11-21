@@ -19,6 +19,13 @@ from database.models.catalog import (
     SizeMeasurement,
     StyleQuizPick,
 )
+from database.models.catalog_freshness import (
+    CatalogProvenanceRecord,
+    MerchantOfferSize,
+    OfferPriceHistory,
+    ProductVariant,
+    SizeDefinition,
+)
 from fashx.core.repository import BaseRepository
 from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
@@ -59,7 +66,6 @@ class StyleQuizPickRepository(BaseRepository[StyleQuizPick]):
         return pick
 
 
-
 class MerchantRepository(BaseRepository[Merchant]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session, Merchant)
@@ -84,12 +90,8 @@ class MerchantProductRepository(BaseRepository[MerchantProduct]):
         result = await self.session.scalars(stmt)
         return result.first()
 
-    async def get_by_canonical_garment_id(
-        self, garment_id: UUID
-    ) -> Sequence[MerchantProduct]:
-        stmt = select(MerchantProduct).where(
-            MerchantProduct.canonical_garment_id == garment_id
-        )
+    async def get_by_canonical_garment_id(self, garment_id: UUID) -> Sequence[MerchantProduct]:
+        stmt = select(MerchantProduct).where(MerchantProduct.canonical_garment_id == garment_id)
         result = await self.session.scalars(stmt)
         return result.all()
 
@@ -277,6 +279,68 @@ class SizeMeasurementRepository(BaseRepository[SizeMeasurement]):
         return result.all()
 
 
+class MerchantOfferPriceHistoryRepository(BaseRepository[OfferPriceHistory]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, OfferPriceHistory)
+
+    async def list_for_offer(self, offer_id: UUID, limit: int = 50) -> Sequence[OfferPriceHistory]:
+        stmt = (
+            select(OfferPriceHistory)
+            .where(OfferPriceHistory.merchant_offer_id == offer_id)
+            .order_by(OfferPriceHistory.observed_at.desc())
+            .limit(limit)
+        )
+        return (await self.session.scalars(stmt)).all()
+
+
+class SizeDefinitionRepository(BaseRepository[SizeDefinition]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, SizeDefinition)
+
+    async def get_by_label(self, system: str, category: str, label: str) -> SizeDefinition | None:
+        stmt = select(SizeDefinition).where(
+            SizeDefinition.size_system == system,
+            SizeDefinition.category == category,
+            SizeDefinition.standardized_label == label,
+        )
+        return (await self.session.scalars(stmt)).first()
+
+
+class ProductVariantRepository(BaseRepository[ProductVariant]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, ProductVariant)
+
+    async def list_for_garment(self, garment_id: UUID) -> Sequence[ProductVariant]:
+        stmt = select(ProductVariant).where(ProductVariant.canonical_garment_id == garment_id)
+        return (await self.session.scalars(stmt)).all()
+
+
+class MerchantOfferSizeRepository(BaseRepository[MerchantOfferSize]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, MerchantOfferSize)
+
+    async def list_for_offer(self, offer_id: UUID) -> Sequence[MerchantOfferSize]:
+        stmt = select(MerchantOfferSize).where(MerchantOfferSize.merchant_offer_id == offer_id)
+        return (await self.session.scalars(stmt)).all()
+
+
+class CatalogProvenanceRepository(BaseRepository[CatalogProvenanceRecord]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, CatalogProvenanceRecord)
+
+    async def list_for_entity(
+        self, entity_type: str, entity_id: UUID, attribute_name: str | None = None
+    ) -> Sequence[CatalogProvenanceRecord]:
+        stmt = select(CatalogProvenanceRecord).where(
+            CatalogProvenanceRecord.entity_type == entity_type,
+            CatalogProvenanceRecord.entity_id == entity_id,
+        )
+        if attribute_name:
+            stmt = stmt.where(CatalogProvenanceRecord.attribute_name == attribute_name)
+        stmt = stmt.order_by(CatalogProvenanceRecord.recorded_at.desc())
+        return (await self.session.scalars(stmt)).all()
+
+
 class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of Work bundling Catalog aggregate repositories."""
 
@@ -299,6 +363,11 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         self._category_maps: CategoryMapRepository | None = None
         self._ingest_runs: IngestRunRepository | None = None
         self._style_quiz_picks: StyleQuizPickRepository | None = None
+        self._price_history: MerchantOfferPriceHistoryRepository | None = None
+        self._size_definitions: SizeDefinitionRepository | None = None
+        self._variants: ProductVariantRepository | None = None
+        self._offer_sizes: MerchantOfferSizeRepository | None = None
+        self._provenance: CatalogProvenanceRepository | None = None
 
     async def __aenter__(self) -> "CatalogUnitOfWork":
         await super().__aenter__()
@@ -314,6 +383,11 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
         self._category_maps = None
         self._ingest_runs = None
         self._style_quiz_picks = None
+        self._price_history = None
+        self._size_definitions = None
+        self._variants = None
+        self._offer_sizes = None
+        self._provenance = None
         return self
 
     @property
@@ -392,3 +466,32 @@ class CatalogUnitOfWork(SqlAlchemyUnitOfWork):
             self._style_quiz_picks = StyleQuizPickRepository(self.session)
         return self._style_quiz_picks
 
+    @property
+    def price_history(self) -> MerchantOfferPriceHistoryRepository:
+        if self._price_history is None:
+            self._price_history = MerchantOfferPriceHistoryRepository(self.session)
+        return self._price_history
+
+    @property
+    def size_definitions(self) -> SizeDefinitionRepository:
+        if self._size_definitions is None:
+            self._size_definitions = SizeDefinitionRepository(self.session)
+        return self._size_definitions
+
+    @property
+    def variants(self) -> ProductVariantRepository:
+        if self._variants is None:
+            self._variants = ProductVariantRepository(self.session)
+        return self._variants
+
+    @property
+    def offer_sizes(self) -> MerchantOfferSizeRepository:
+        if self._offer_sizes is None:
+            self._offer_sizes = MerchantOfferSizeRepository(self.session)
+        return self._offer_sizes
+
+    @property
+    def provenance(self) -> CatalogProvenanceRepository:
+        if self._provenance is None:
+            self._provenance = CatalogProvenanceRepository(self.session)
+        return self._provenance

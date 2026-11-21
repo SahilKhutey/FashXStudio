@@ -1,9 +1,10 @@
 from typing import Any
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
+from fashx.catalog.search.router import router as search_router
 from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
 from fashx.config.router import router as config_router
 from fashx.core.logging import configure_logging
@@ -70,11 +71,22 @@ def create_app(settings: Any | None = None) -> FastAPI:
     from fashx.account.router import router as account_router
     from fashx.api.v1.me import router as me_router
     from fashx.api.v1.onboarding import router as onboarding_router
+    from fashx.catalog.admin_router import router as admin_catalog_router
     from fashx.catalog.customer_router import customer_garment_router
+    from fashx.catalog.errors import (
+        CatalogAuthorizationError,
+        catalog_authorization_error_handler,
+    )
+    from fashx.catalog.metrics.router import router as catalog_metrics_router
+    from fashx.catalog.operations.router import router as catalog_operations_router
+    from fashx.media.errors import MediaError, media_error_handler
+    from fashx.media.router import router as media_router
     from fashx.security.deps import get_principal, require_role
     from fashx.security.errors import ApiError, api_error_handler
 
     app.add_exception_handler(ApiError, api_error_handler)
+    app.add_exception_handler(MediaError, media_error_handler)
+    app.add_exception_handler(CatalogAuthorizationError, catalog_authorization_error_handler)
     app.include_router(health_router)
     app.include_router(healthz_router)
     app.include_router(config_router, prefix="/api/v1")
@@ -83,16 +95,32 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(media_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     from fashx.admin.router import router as admin_router
 
     app.include_router(admin_router, prefix="/api/v1")
-    app.include_router(customer_garment_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-    app.include_router(catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))])
-    app.include_router(recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(admin_catalog_router, prefix="/api/v1")
+    app.include_router(catalog_operations_router, prefix="/api/v1")
+    app.include_router(catalog_metrics_router, prefix="/api/v1")
+    app.include_router(
+        customer_garment_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
+    app.include_router(
+        catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))]
+    )
+    app.include_router(
+        recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
     app.include_router(feed_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(tryon_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-    app.include_router(commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(
+        commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
     app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(search_router, prefix="/api/v1")
+    from app.modules.customization.api.routes import router as customization_router
+
+    app.include_router(customization_router, prefix="/api/v1")
     from fashx.pilot.router import router as pilot_router
 
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
@@ -136,7 +164,29 @@ def create_app(settings: Any | None = None) -> FastAPI:
             p = (root / file_path).resolve()
             if root not in p.parents or not p.is_file() or p.suffix.lower() not in DEV_MIME:
                 raise HTTPException(status_code=404, detail="File not found")
-            return FileResponse(p, media_type=DEV_MIME[p.suffix.lower()], headers={"Cache-Control": "no-store"})
+            return FileResponse(
+                p, media_type=DEV_MIME[p.suffix.lower()], headers={"Cache-Control": "no-store"}
+            )
+
+        @app.put("/dev-files/{file_path:path}", include_in_schema=False)
+        async def upload_dev_file(
+            file_path: str,
+            request: Request,
+            exp: int = 0,
+            sig: str = "",
+            storage: Any = Depends(get_storage),
+        ) -> Response:
+            verify_fn = getattr(storage, "verify", None)
+            if not verify_fn or not verify_fn(file_path, exp, sig):
+                raise HTTPException(status_code=403, detail="Invalid or expired signature")
+            root = Path(getattr(storage, "root", dev_storage_root)).resolve()
+            p = (root / file_path).resolve()
+            if root not in p.parents:
+                raise HTTPException(status_code=404, detail="File not found")
+            body = await request.body()
+            content_type = request.headers.get("content-type", "application/octet-stream")
+            storage.put(file_path, body, content_type=content_type)
+            return Response(status_code=200)
 
     from fashx.api.v1.analytics import router as analytics_router
     from fashx.api.v1.cart import router as cart_router
@@ -164,7 +214,9 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(commerce_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(customer_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(pricing_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-    app.include_router(recommendations_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(
+        recommendations_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
     app.include_router(trends_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(analytics_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(system_router, prefix="/api/v1")
@@ -175,16 +227,23 @@ def create_app(settings: Any | None = None) -> FastAPI:
     if enable_frozen:
         from fashx.visual.router import visual_shopping_frozen_router
 
-        app.include_router(visual_shopping_frozen_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-        app.include_router(inventory_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-        app.include_router(promotions_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(
+            visual_shopping_frozen_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+        )
+        app.include_router(
+            inventory_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+        )
+        app.include_router(
+            promotions_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+        )
         app.include_router(cart_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
         app.include_router(checkout_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
         app.include_router(orders_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
         app.include_router(payments_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-        app.include_router(fulfillment_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+        app.include_router(
+            fulfillment_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+        )
         app.include_router(returns_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
-
 
     @app.get("/", tags=["system"])
     async def root() -> dict[str, str]:

@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-11-21T10:00:00Z",
+  "supported_versions": ["1.0.0"],
+  "deprecated_versions": ["0.9.0"],
+  "migrations": [
+    {
+      "source_version": "0.9.0",
+      "target_version": "1.0.0",
+      "description": "Migrate pre-1.0 flat colors and legacy slot names to structured design tokens and canonical slot hierarchy",
+      "field_mappings": {
+        "theme.primary_color": "theme.overrides.color.brand.primary",
+        "theme.background_color": "theme.overrides.color.surface.default",
+        "slots.main": "content",
+        "slots.top": "header"
+      }
+    }
+  ]
+}

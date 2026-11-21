@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.pilot import (
     PilotFeedback,
@@ -41,144 +42,139 @@ def hash_invite_code(code: str) -> str:
 async def join_pilot(
     payload: JoinPilotRequest,
     principal: Principal = Depends(get_principal),
+    session: AsyncSession = Depends(get_db_session),
 ) -> JoinPilotResponse:
     """Redeem a single-use invite code to join a pilot cohort (Rule 10.4)."""
     user_id = UUID(principal.user_id)
     code_h = hash_invite_code(payload.code)
 
-    async for session in get_db_session():
-        # Concurrently safe with FOR UPDATE lock
-        stmt = (
-            select(PilotInvite)
-            .where(PilotInvite.code_hash == code_h)
-            .with_for_update()
-        )
-        res = await session.execute(stmt)
-        invite = res.scalar_one_or_none()
+    # Concurrently safe with FOR UPDATE lock
+    stmt = (
+        select(PilotInvite)
+        .where(PilotInvite.code_hash == code_h)
+        .with_for_update()
+    )
+    res = await session.execute(stmt)
+    invite = res.scalar_one_or_none()
 
-        # Identical 404 for invalid code and already-used code to avoid enumeration
-        if invite is None or invite.used_at is not None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Invalid or expired invite code",
-            )
-
-        # Prevent duplicate enrollment from inflating participant counts
-        existing_part = (
-            await session.execute(
-                select(PilotParticipant).where(PilotParticipant.user_id == user_id)
-            )
-        ).scalar_one_or_none()
-        if existing_part is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="User has already joined a pilot cohort",
-            )
-
-        now = datetime.now(UTC)
-        invite.used_at = now
-        invite.user_id = user_id
-
-        # Record or update pilot participant
-        participant = PilotParticipant(
-            user_id=user_id,
-            cohort=invite.cohort,
-            channel=invite.channel,
-            joined_at=now,
-            os=payload.os,
-            app_version=payload.app_version,
-        )
-        session.add(participant)
-        await session.commit()
-
-        return JoinPilotResponse(
-            cohort=invite.cohort,
-            channel=invite.channel,
-            joined_at=now,
+    # Identical 404 for invalid code and already-used code to avoid enumeration
+    if invite is None or invite.used_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invalid or expired invite code",
         )
 
-    raise HTTPException(status_code=500, detail="Database session unavailable")
+    # Prevent duplicate enrollment from inflating participant counts
+    existing_part = (
+        await session.execute(
+            select(PilotParticipant).where(PilotParticipant.user_id == user_id)
+        )
+    ).scalar_one_or_none()
+    if existing_part is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User has already joined a pilot cohort",
+        )
+
+    now = datetime.now(UTC)
+    invite.used_at = now
+    invite.user_id = user_id
+
+    # Record or update pilot participant
+    participant = PilotParticipant(
+        user_id=user_id,
+        cohort=invite.cohort,
+        channel=invite.channel,
+        joined_at=now,
+        os=payload.os,
+        app_version=payload.app_version,
+    )
+    session.add(participant)
+    await session.commit()
+
+    return JoinPilotResponse(
+        cohort=invite.cohort,
+        channel=invite.channel,
+        joined_at=now,
+    )
 
 
 @router.post("/feedback")
 async def submit_feedback(
     payload: PilotFeedbackRequest,
     principal: Principal = Depends(get_principal),
+    session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, str]:
     """Submit qualitative feedback during the pilot (Rule 10.4)."""
     user_id = UUID(principal.user_id)
 
-    async for session in get_db_session():
-        entry = PilotFeedback(
-            user_id=user_id,
-            kind=payload.kind,
-            message=payload.message,
-            context=payload.context,
-        )
-        session.add(entry)
-        await session.commit()
-        return {"status": "recorded"}
-
-    raise HTTPException(status_code=500, detail="Database session unavailable")
+    entry = PilotFeedback(
+        user_id=user_id,
+        kind=payload.kind,
+        message=payload.message,
+        context=payload.context,
+    )
+    session.add(entry)
+    await session.commit()
+    return {"status": "recorded"}
 
 
 @router.get("/surveys/pending", response_model=PendingSurveyResponse)
 async def get_pending_survey(
     principal: Principal = Depends(get_principal),
+    session: AsyncSession = Depends(get_db_session),
 ) -> PendingSurveyResponse:
     """Determine the next appropriate pending survey for the participant (Rule 10.4)."""
     user_id = UUID(principal.user_id)
 
-    async for session in get_db_session():
-        # 1. Fetch answered survey keys
-        answered_stmt = select(PilotSurveyResponse.survey_key).where(
-            PilotSurveyResponse.user_id == user_id
+    # 1. Fetch answered survey keys
+    answered_stmt = select(PilotSurveyResponse.survey_key).where(
+        PilotSurveyResponse.user_id == user_id
+    )
+    res_answered = await session.execute(answered_stmt)
+    answered = set(res_answered.scalars().all())
+
+    # 2. Check tryon_first: completed at least 1 tryon job
+    if "tryon_first" not in answered:
+        tryon_stmt = (
+            select(TryOnJob.id)
+            .where(TryOnJob.user_id == user_id, TryOnJob.status == "completed")
+            .limit(1)
         )
-        res_answered = await session.execute(answered_stmt)
-        answered = set(res_answered.scalars().all())
-
-        # 2. Check tryon_first: completed at least 1 tryon job
-        if "tryon_first" not in answered:
-            tryon_stmt = (
-                select(TryOnJob.id)
-                .where(TryOnJob.user_id == user_id, TryOnJob.status == "completed")
-                .limit(1)
+        has_tryon = (await session.execute(tryon_stmt)).scalar_one_or_none()
+        if has_tryon is not None:
+            return PendingSurveyResponse(
+                survey_key="tryon_first",
+                description="First Virtual Try-On Experience Feedback",
             )
-            has_tryon = (await session.execute(tryon_stmt)).scalar_one_or_none()
-            if has_tryon is not None:
-                return PendingSurveyResponse(
-                    survey_key="tryon_first",
-                    description="First Virtual Try-On Experience Feedback",
-                )
 
-        # 3. Check feed_day5: joined >= 5 days ago
-        if "feed_day5" not in answered:
-            part_stmt = select(PilotParticipant).where(PilotParticipant.user_id == user_id)
-            participant = (await session.execute(part_stmt)).scalar_one_or_none()
-            if participant and participant.joined_at <= datetime.now(UTC) - timedelta(days=5):
-                return PendingSurveyResponse(
-                    survey_key="feed_day5",
-                    description="Discovery Feed 5-Day Check-In",
-                )
+    # 3. Check feed_day5: joined >= 5 days ago
+    if "feed_day5" not in answered:
+        part_stmt = select(PilotParticipant).where(PilotParticipant.user_id == user_id)
+        participant = (await session.execute(part_stmt)).scalar_one_or_none()
+        if participant and participant.joined_at <= datetime.now(UTC) - timedelta(days=5):
+            return PendingSurveyResponse(
+                survey_key="feed_day5",
+                description="Discovery Feed 5-Day Check-In",
+            )
 
-        # 4. Check end_of_pilot: feature flag active
-        if "end_of_pilot" not in answered:
-            is_open = await is_flag_enabled(END_SURVEY_OPEN, default=False, session=session)
-            if is_open:
-                return PendingSurveyResponse(
-                    survey_key="end_of_pilot",
-                    description="Final Pilot Evaluation & System Usability Scale (SUS)",
-                )
+    # 4. Check end_of_pilot: feature flag active
+    if "end_of_pilot" not in answered:
+        is_open = await is_flag_enabled(END_SURVEY_OPEN, default=False, session=session)
+        if is_open:
+            return PendingSurveyResponse(
+                survey_key="end_of_pilot",
+                description="Final Pilot Evaluation & System Usability Scale (SUS)",
+            )
 
-        return PendingSurveyResponse(survey_key=None, description=None)
-
-    raise HTTPException(status_code=500, detail="Database session unavailable")
+    return PendingSurveyResponse(survey_key=None, description=None)
 
 
 @router.post("/survey")
 async def submit_survey(
     payload: SubmitSurveyRequest,
     principal: Principal = Depends(get_principal),
+    session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, str]:
     """Validate and record a completed survey submission (Rule 10.4)."""
     user_id = UUID(principal.user_id)
@@ -199,26 +195,23 @@ async def submit_survey(
             detail=f"Invalid survey answers format: {e.errors()}",
         ) from e
 
-    async for session in get_db_session():
-        # Check if already submitted (enforces uq_survey_once)
-        check_stmt = select(PilotSurveyResponse.id).where(
-            PilotSurveyResponse.user_id == user_id,
-            PilotSurveyResponse.survey_key == payload.survey_key,
+    # Check if already submitted (enforces uq_survey_once)
+    check_stmt = select(PilotSurveyResponse.id).where(
+        PilotSurveyResponse.user_id == user_id,
+        PilotSurveyResponse.survey_key == payload.survey_key,
+    )
+    existing = (await session.execute(check_stmt)).scalar_one_or_none()
+    if existing is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Survey '{payload.survey_key}' has already been submitted",
         )
-        existing = (await session.execute(check_stmt)).scalar_one_or_none()
-        if existing is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Survey '{payload.survey_key}' has already been submitted",
-            )
 
-        resp = PilotSurveyResponse(
-            user_id=user_id,
-            survey_key=payload.survey_key,
-            answers=validated,
-        )
-        session.add(resp)
-        await session.commit()
-        return {"status": "recorded", "survey_key": payload.survey_key}
-
-    raise HTTPException(status_code=500, detail="Database session unavailable")
+    resp = PilotSurveyResponse(
+        user_id=user_id,
+        survey_key=payload.survey_key,
+        answers=validated,
+    )
+    session.add(resp)
+    await session.commit()
+    return {"status": "recorded", "survey_key": payload.survey_key}

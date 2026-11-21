@@ -6,11 +6,19 @@ from collections.abc import Sequence
 
 from fashx.catalog.acquisition.adapters.base import BaseSourceAdapter
 from fashx.catalog.acquisition.contract import AcquisitionBatch, SourceProduct
+from fashx.catalog.acquisition.contracts_v2 import IntegrationStatus
 from fashx.catalog.acquisition.registry import SourceConfig
 
 
 class AmazonAdapter(BaseSourceAdapter):
-    """Adapter for authorized Amazon product feeds and Product Advertising API."""
+    """Adapter for Amazon product feeds.
+
+    CLASSIFICATION: FIXTURE_ONLY / MOCK.
+    This adapter operates on in-memory fixtures. Live Amazon Creators API connectivity,
+    OAuth tokens, and multi-retailer VTO rights remain unverified pending formal commercial agreements.
+    """
+
+    integration_status: IntegrationStatus = IntegrationStatus.MOCK
 
     def __init__(
         self,

@@ -1,0 +1,130 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-11-21T10:00:00Z",
+  "layouts": [
+    {
+      "schema_version": "1.0.0",
+      "id": "layout-list",
+      "name": "Compact List",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Streamlined vertical list presentation optimized for quick scanning and text-focused menus.",
+      "supported_slots": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+      "allowed_components_by_slot": {
+        "menu.root": ["restaurant-header", "navigation", "content", "footer"],
+        "header": ["restaurant-header", "search-bar"],
+        "navigation": ["category-navigation", "dietary-filters"],
+        "content": ["featured-carousel", "category-section"],
+        "category.header": ["badge-notification"],
+        "category.items": ["menu-item-card", "menu-item-detail", "price-display", "allergen-badge-group", "order-action-button"],
+        "footer": ["restaurant-footer"]
+      },
+      "default_settings": {
+        "columns": 1,
+        "density": "compact",
+        "image_position": "left",
+        "category_navigation_style": "sticky-bar"
+      },
+      "responsive_profiles": {
+        "mobileSmall": { "columns": 1, "density": "compact" },
+        "mobile": { "columns": 1, "density": "compact" },
+        "tablet": { "columns": 1, "density": "comfortable" },
+        "desktop": { "columns": 1, "density": "comfortable" },
+        "desktopLarge": { "columns": 1, "density": "comfortable" }
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "layout-grid",
+      "name": "Responsive Grid",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Structured multi-column grid layout presenting dishes in uniform cards.",
+      "supported_slots": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+      "allowed_components_by_slot": {
+        "menu.root": ["restaurant-header", "navigation", "content", "footer"],
+        "header": ["restaurant-header", "search-bar"],
+        "navigation": ["category-navigation", "dietary-filters"],
+        "content": ["featured-carousel", "category-section"],
+        "category.header": ["badge-notification"],
+        "category.items": ["menu-item-card", "menu-item-detail", "price-display", "allergen-badge-group", "order-action-button"],
+        "footer": ["restaurant-footer"]
+      },
+      "default_settings": {
+        "columns": 2,
+        "density": "comfortable",
+        "image_position": "top",
+        "category_navigation_style": "pills"
+      },
+      "responsive_profiles": {
+        "mobileSmall": { "columns": 1, "density": "compact" },
+        "mobile": { "columns": 1, "density": "comfortable" },
+        "tablet": { "columns": 2, "density": "comfortable" },
+        "desktop": { "columns": 3, "density": "comfortable" },
+        "desktopLarge": { "columns": 4, "density": "spacious" }
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "layout-image-cards",
+      "name": "Image-Forward Cards",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Rich imagery cards with large photography, detailed descriptions, and prominent pricing.",
+      "supported_slots": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+      "allowed_components_by_slot": {
+        "menu.root": ["restaurant-header", "navigation", "content", "footer"],
+        "header": ["restaurant-header", "search-bar"],
+        "navigation": ["category-navigation", "dietary-filters"],
+        "content": ["featured-carousel", "category-section"],
+        "category.header": ["badge-notification"],
+        "category.items": ["menu-item-card", "menu-item-detail", "price-display", "allergen-badge-group", "order-action-button"],
+        "footer": ["restaurant-footer"]
+      },
+      "default_settings": {
+        "columns": 2,
+        "density": "comfortable",
+        "image_position": "top",
+        "category_navigation_style": "tabs"
+      },
+      "responsive_profiles": {
+        "mobileSmall": { "columns": 1, "density": "compact" },
+        "mobile": { "columns": 1, "density": "comfortable" },
+        "tablet": { "columns": 2, "density": "comfortable" },
+        "desktop": { "columns": 2, "density": "spacious" },
+        "desktopLarge": { "columns": 3, "density": "spacious" }
+      }
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "layout-editorial",
+      "name": "Editorial Sections",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Magazine-inspired sections with curated hero items, narratives, and dynamic card pacing.",
+      "supported_slots": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+      "allowed_components_by_slot": {
+        "menu.root": ["restaurant-header", "navigation", "content", "footer"],
+        "header": ["restaurant-header", "search-bar"],
+        "navigation": ["category-navigation", "dietary-filters"],
+        "content": ["featured-carousel", "category-section"],
+        "category.header": ["badge-notification"],
+        "category.items": ["menu-item-card", "menu-item-detail", "price-display", "allergen-badge-group", "order-action-button"],
+        "footer": ["restaurant-footer"]
+      },
+      "default_settings": {
+        "columns": 2,
+        "density": "spacious",
+        "image_position": "top",
+        "category_navigation_style": "sidebar"
+      },
+      "responsive_profiles": {
+        "mobileSmall": { "columns": 1, "density": "compact" },
+        "mobile": { "columns": 1, "density": "comfortable" },
+        "tablet": { "columns": 2, "density": "comfortable" },
+        "desktop": { "columns": 2, "density": "spacious" },
+        "desktopLarge": { "columns": 3, "density": "spacious" }
+      }
+    }
+  ]
+}

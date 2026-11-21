@@ -12,11 +12,9 @@ class ImageTextEmbedder(Protocol):
     model_version: str
     dim: int
 
-    def embed_images(self, images: list[bytes]) -> list[list[float]]:
-        ...
+    def embed_images(self, images: list[bytes]) -> list[list[float]]: ...
 
-    def embed_text(self, texts: list[str]) -> list[list[float]]:
-        ...
+    def embed_text(self, texts: list[str]) -> list[list[float]]: ...
 
 
 # Reconciled alias for backward compatibility with existing ImageEmbedder callers

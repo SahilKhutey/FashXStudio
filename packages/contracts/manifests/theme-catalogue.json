@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-11-21T10:00:00Z",
+  "themes": [
+    {
+      "id": "theme-minimal",
+      "name": "Minimal",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Clean whitespace, restrained typography, and low visual density.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/minimal-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#18181b", "secondary": "#71717a", "accent": "#2563eb" },
+          "surface": { "default": "#ffffff", "subtle": "#f4f4f5", "raised": "#ffffff" },
+          "text": { "primary": "#09090b", "secondary": "#71717a", "inverse": "#ffffff", "muted": "#a1a1aa" },
+          "border": { "default": "#e4e4e7", "subtle": "#f4f4f5", "strong": "#a1a1aa" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Inter", "heading": "Inter" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.5rem", "display": "2rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 700 }
+        },
+        "spacing": { "xs": "0.25rem", "sm": "0.5rem", "md": "1rem", "lg": "1.5rem", "xl": "2rem" },
+        "radius": { "small": "0.25rem", "medium": "0.375rem", "large": "0.5rem" },
+        "shadow": { "card": "0 1px 3px rgba(0,0,0,0.05)" }
+      },
+      "supported_layouts": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 12.6, "contrast_ratio_large": 12.6, "wcag_level": "AAA" }
+    },
+    {
+      "id": "theme-luxury",
+      "name": "Luxury",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Dark surfaces, restrained gold accents, and elegant serif typography.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/luxury-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#d4af37", "secondary": "#997b23", "accent": "#f59e0b" },
+          "surface": { "default": "#121212", "subtle": "#1e1e1e", "raised": "#242424" },
+          "text": { "primary": "#f8f9fa", "secondary": "#b0b0b0", "inverse": "#121212", "muted": "#757575" },
+          "border": { "default": "#2e2e2e", "subtle": "#1f1f1f", "strong": "#d4af37" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Lora", "heading": "Playfair Display" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.625rem", "display": "2.25rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 700 }
+        },
+        "spacing": { "xs": "0.25rem", "sm": "0.5rem", "md": "1.25rem", "lg": "1.75rem", "xl": "2.5rem" },
+        "radius": { "small": "0.125rem", "medium": "0.25rem", "large": "0.375rem" },
+        "shadow": { "card": "0 4px 20px rgba(0,0,0,0.5)" }
+      },
+      "supported_layouts": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 10.4, "contrast_ratio_large": 10.4, "wcag_level": "AAA" }
+    },
+    {
+      "id": "theme-rustic",
+      "name": "Rustic",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Warm earth palette, organic feel, and soft visual elements.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/rustic-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#8b4513", "secondary": "#a0522d", "accent": "#cd853f" },
+          "surface": { "default": "#fdfbf7", "subtle": "#f4ede4", "raised": "#ffffff" },
+          "text": { "primary": "#2b1e16", "secondary": "#634832", "inverse": "#ffffff", "muted": "#8c725c" },
+          "border": { "default": "#e6d7c3", "subtle": "#f0e6d8", "strong": "#8b4513" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Merriweather", "heading": "Merriweather" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.5rem", "display": "2rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 700 }
+        },
+        "spacing": { "xs": "0.25rem", "sm": "0.5rem", "md": "1rem", "lg": "1.5rem", "xl": "2.25rem" },
+        "radius": { "small": "0.375rem", "medium": "0.625rem", "large": "0.875rem" },
+        "shadow": { "card": "0 2px 8px rgba(139,69,19,0.08)" }
+      },
+      "supported_layouts": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 9.2, "contrast_ratio_large": 9.2, "wcag_level": "AAA" }
+    },
+    {
+      "id": "theme-contemporary",
+      "name": "Contemporary",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Structured modern grids, strong typographical hierarchy, and punchy contrast.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/contemporary-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#0f172a", "secondary": "#475569", "accent": "#0ea5e9" },
+          "surface": { "default": "#ffffff", "subtle": "#f8fafc", "raised": "#ffffff" },
+          "text": { "primary": "#0f172a", "secondary": "#475569", "inverse": "#ffffff", "muted": "#94a3b8" },
+          "border": { "default": "#e2e8f0", "subtle": "#f1f5f9", "strong": "#0f172a" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Outfit", "heading": "Outfit" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.5rem", "display": "2.125rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 700 }
+        },
+        "spacing": { "xs": "0.25rem", "sm": "0.5rem", "md": "1rem", "lg": "1.5rem", "xl": "2rem" },
+        "radius": { "small": "0.25rem", "medium": "0.5rem", "large": "0.75rem" },
+        "shadow": { "card": "0 2px 10px rgba(15,23,42,0.06)" }
+      },
+      "supported_layouts": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 11.5, "contrast_ratio_large": 11.5, "wcag_level": "AAA" }
+    },
+    {
+      "id": "theme-vibrant",
+      "name": "Vibrant",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Lively color accents, energetic visual cadence, and friendly geometry.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/vibrant-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#ea580c", "secondary": "#f59e0b", "accent": "#ec4899" },
+          "surface": { "default": "#ffffff", "subtle": "#fff7ed", "raised": "#ffffff" },
+          "text": { "primary": "#1c1917", "secondary": "#57534e", "inverse": "#ffffff", "muted": "#a8a29e" },
+          "border": { "default": "#fed7aa", "subtle": "#ffedd5", "strong": "#ea580c" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Outfit", "heading": "Outfit" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.5rem", "display": "2.25rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 800 }
+        },
+        "spacing": { "xs": "0.25rem", "sm": "0.5rem", "md": "1rem", "lg": "1.5rem", "xl": "2.25rem" },
+        "radius": { "small": "0.375rem", "medium": "0.75rem", "large": "1.25rem" },
+        "shadow": { "card": "0 4px 14px rgba(234,88,12,0.12)" }
+      },
+      "supported_layouts": ["layout-list", "layout-grid", "layout-image-cards"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 8.7, "contrast_ratio_large": 8.7, "wcag_level": "AA" }
+    },
+    {
+      "id": "theme-editorial",
+      "name": "Editorial",
+      "version": "1.0.0",
+      "status": "active",
+      "description": "Magazine-like layout, spacious typography, and refined aesthetic storytelling.",
+      "preview_image_url": "https://assets.modularmenu.com/themes/editorial-preview.png",
+      "tokens": {
+        "color": {
+          "brand": { "primary": "#1e293b", "secondary": "#475569", "accent": "#0d9488" },
+          "surface": { "default": "#fafaf9", "subtle": "#f5f5f4", "raised": "#ffffff" },
+          "text": { "primary": "#1c1917", "secondary": "#57534e", "inverse": "#ffffff", "muted": "#78716c" },
+          "border": { "default": "#e7e5e4", "subtle": "#f5f5f4", "strong": "#1e293b" }
+        },
+        "typography": {
+          "fontFamily": { "body": "Lora", "heading": "Cinzel" },
+          "fontSize": { "small": "0.875rem", "body": "1rem", "heading": "1.75rem", "display": "2.5rem" },
+          "fontWeight": { "normal": 400, "medium": 500, "bold": 700 }
+        },
+        "spacing": { "xs": "0.375rem", "sm": "0.75rem", "md": "1.25rem", "lg": "2rem", "xl": "3rem" },
+        "radius": { "small": "0.125rem", "medium": "0.25rem", "large": "0.375rem" },
+        "shadow": { "card": "0 2px 6px rgba(0,0,0,0.04)" }
+      },
+      "supported_layouts": ["layout-editorial", "layout-list", "layout-grid"],
+      "supported_components": [
+        "restaurant-header", "category-navigation", "category-section", "menu-item-card",
+        "menu-item-detail", "search-bar", "dietary-filters", "featured-carousel",
+        "restaurant-footer", "allergen-badge-group", "price-display", "order-action-button", "badge-notification"
+      ],
+      "accessibility": { "contrast_ratio_normal": 11.0, "contrast_ratio_large": 11.0, "wcag_level": "AAA" }
+    }
+  ]
+}

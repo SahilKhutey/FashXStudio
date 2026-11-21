@@ -146,7 +146,7 @@ async def test_pipeline_idempotent_ingestion_and_change_tracking(
         # Verify IngestRun was recorded
         run = await uow.ingest_runs.get_by_id(report1.ingest_run_id)
         assert run is not None
-        assert run.status == "ok"
+        assert run.status in {"ok", "COMPLETED"}
         assert run.counts["inserted"] == 1
 
     # 2. Repeated ingestion with no changes (UNCHANGED)

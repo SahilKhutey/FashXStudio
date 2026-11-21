@@ -19,7 +19,9 @@ def upgrade() -> None:
     op.add_column("user_photos", sa.Column("ready_for_tryon", sa.Boolean(), nullable=True))
     op.add_column("user_photos", sa.Column("quality_reasons", sa.JSON(), nullable=True))
     op.add_column("user_photos", sa.Column("pose_provider", sa.String(length=64), nullable=True))
-    op.add_column("user_photos", sa.Column("pose_provider_version", sa.String(length=64), nullable=True))
+    op.add_column(
+        "user_photos", sa.Column("pose_provider_version", sa.String(length=64), nullable=True)
+    )
 
 
 def downgrade() -> None:
