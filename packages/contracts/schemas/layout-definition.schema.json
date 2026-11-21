@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.modularmenu.com/contracts/layout-definition.schema.json",
+  "title": "LayoutDefinition",
+  "description": "Schema definition for structural layouts in ModularMenu",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "name", "version", "status", "supported_slots", "allowed_components_by_slot", "default_settings", "responsive_profiles"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "id": { "type": "string", "pattern": "^layout-[a-z0-9-]+$" },
+    "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "status": { "type": "string", "enum": ["active", "deprecated", "retired"] },
+    "description": { "type": "string", "maxLength": 500 },
+    "supported_slots": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"] },
+      "minItems": 1
+    },
+    "allowed_components_by_slot": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "default_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "density"],
+      "properties": {
+        "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] },
+        "image_position": { "type": "string", "enum": ["top", "left", "right", "none"] },
+        "category_navigation_style": { "type": "string", "enum": ["pills", "tabs", "sticky-bar", "sidebar"] }
+      }
+    },
+    "responsive_profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mobile", "desktop"],
+      "properties": {
+        "mobileSmall": {
+          "type": "object",
+          "properties": {
+            "columns": { "type": "integer", "enum": [1] },
+            "density": { "type": "string", "enum": ["compact", "comfortable"] }
+          }
+        },
+        "mobile": {
+          "type": "object",
+          "properties": {
+            "columns": { "type": "integer", "enum": [1, 2] },
+            "density": { "type": "string", "enum": ["compact", "comfortable"] }
+          }
+        },
+        "tablet": {
+          "type": "object",
+          "properties": {
+            "columns": { "type": "integer", "minimum": 1, "maximum": 4 },
+            "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] }
+          }
+        },
+        "desktop": {
+          "type": "object",
+          "properties": {
+            "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+            "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] }
+          }
+        },
+        "desktopLarge": {
+          "type": "object",
+          "properties": {
+            "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+            "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] }
+          }
+        }
+      }
+    }
+  }
+}

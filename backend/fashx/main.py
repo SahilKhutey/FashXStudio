@@ -118,6 +118,9 @@ def create_app(settings: Any | None = None) -> FastAPI:
     )
     app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(search_router, prefix="/api/v1")
+    from app.modules.customization.api.routes import router as customization_router
+
+    app.include_router(customization_router, prefix="/api/v1")
     from fashx.pilot.router import router as pilot_router
 
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])

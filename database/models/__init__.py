@@ -120,6 +120,14 @@ from .commerce_feedback import (
     TryOnFeedback,
     WardrobeItem,
 )
+from .customization import (
+    ComponentDefinitionRecord,
+    ConfigurationMigrationRecord,
+    CustomizationRevisionRecord,
+    LayoutDefinitionRecord,
+    MenuCustomizationRecord,
+    ThemeDefinitionRecord,
+)
 from .erasure import ErasureTombstone
 from .experiment import ExperimentExposure
 from .feature_flags import FeatureFlag
@@ -299,4 +307,10 @@ __all__ = [
     "ProductSearchEventRecord",
     "SearchSynonymRecord",
     "SearchEvaluationRunRecord",
+    "ThemeDefinitionRecord",
+    "LayoutDefinitionRecord",
+    "ComponentDefinitionRecord",
+    "MenuCustomizationRecord",
+    "CustomizationRevisionRecord",
+    "ConfigurationMigrationRecord",
 ]

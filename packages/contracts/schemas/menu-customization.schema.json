@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.modularmenu.com/contracts/menu-customization.schema.json",
+  "title": "MenuCustomization",
+  "description": "Canonical configuration document contract for ModularMenu theme and layout customization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["configuration_version", "schema_version", "theme", "layout", "components"],
+  "properties": {
+    "configuration_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "overrides"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^theme-[a-z0-9-]+$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "overrides": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "settings"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^layout-[a-z0-9-]+$" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "settings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
+            "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] },
+            "image_position": { "type": "string", "enum": ["top", "left", "right", "none"] },
+            "category_navigation_style": { "type": "string", "enum": ["pills", "tabs", "sticky-bar", "sidebar"] }
+          }
+        },
+        "responsive": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mobileSmall": { "type": "object", "properties": { "columns": { "type": "integer", "enum": [1] }, "density": { "type": "string", "enum": ["compact", "comfortable"] } } },
+            "mobile": { "type": "object", "properties": { "columns": { "type": "integer", "enum": [1, 2] }, "density": { "type": "string", "enum": ["compact", "comfortable"] } } },
+            "tablet": { "type": "object", "properties": { "columns": { "type": "integer", "minimum": 1, "maximum": 4 }, "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] } } },
+            "desktop": { "type": "object", "properties": { "columns": { "type": "integer", "minimum": 1, "maximum": 6 }, "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] } } },
+            "desktopLarge": { "type": "object", "properties": { "columns": { "type": "integer", "minimum": 1, "maximum": 6 }, "density": { "type": "string", "enum": ["compact", "comfortable", "spacious"] } } }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "component-instance.schema.json"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
