@@ -76,6 +76,14 @@ from .catalog_image import (
     ImageTakedownStatus,
     ImageTransformationType,
 )
+from .catalog_search import (
+    ProductSearchDocumentRecord,
+    ProductSearchEventRecord,
+    ProductTextEmbeddingRecord,
+    SearchEvaluationRunRecord,
+    SearchSessionRecord,
+    SearchSynonymRecord,
+)
 from .catalog_operations import (
     AuditAction,
     AuditActorRole,
@@ -285,4 +293,10 @@ __all__ = [
     "EmbeddingBatchRecord",
     "EmbeddingJobRecord",
     "EmbeddingMigrationRecord",
+    "ProductSearchDocumentRecord",
+    "ProductTextEmbeddingRecord",
+    "SearchSessionRecord",
+    "ProductSearchEventRecord",
+    "SearchSynonymRecord",
+    "SearchEvaluationRunRecord",
 ]

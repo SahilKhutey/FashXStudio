@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
+from fashx.catalog.search.router import router as search_router
 from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
 from fashx.config.router import router as config_router
 from fashx.core.logging import configure_logging
@@ -116,6 +117,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
         commerce_wardrobe_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
     )
     app.include_router(visual_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(search_router, prefix="/api/v1")
     from fashx.pilot.router import router as pilot_router
 
     app.include_router(pilot_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
