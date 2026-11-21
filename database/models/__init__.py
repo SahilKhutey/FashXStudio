@@ -31,6 +31,13 @@ from .catalog_auth import (
     TakedownReasonCode,
     TakedownStatus,
 )
+from .catalog_embeddings import (
+    EmbeddingBatchRecord,
+    EmbeddingJobRecord,
+    EmbeddingMigrationRecord,
+    EmbeddingModelRegistryRecord,
+    ProductImageEmbeddingRecord,
+)
 from .catalog_enrichment import (
     ProductAttributeEvidenceRecord,
     ProductAttributeReviewEventRecord,
@@ -273,4 +280,9 @@ __all__ = [
     "ProductAttributeReviewRecord",
     "ProductAttributeReviewEventRecord",
     "ProductEnrichmentModelRunRecord",
+    "EmbeddingModelRegistryRecord",
+    "ProductImageEmbeddingRecord",
+    "EmbeddingBatchRecord",
+    "EmbeddingJobRecord",
+    "EmbeddingMigrationRecord",
 ]
