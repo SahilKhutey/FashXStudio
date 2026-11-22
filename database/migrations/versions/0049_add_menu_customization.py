@@ -92,8 +92,8 @@ def upgrade() -> None:
     # 4. menu_customizations
     op.create_table(
         "menu_customizations",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("organization_id", sa.UUID(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
         sa.Column("menu_id", sa.Text(), nullable=False),
         sa.Column("revision", sa.Integer(), nullable=False, server_default="1"),
         sa.Column("status", sa.Text(), nullable=False, server_default="draft"),
@@ -122,9 +122,9 @@ def upgrade() -> None:
     # 5. customization_revisions
     op.create_table(
         "customization_revisions",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("customization_id", sa.UUID(), nullable=False),
-        sa.Column("organization_id", sa.UUID(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("customization_id", sa.Uuid(), nullable=False),
+        sa.Column("organization_id", sa.Uuid(), nullable=False),
         sa.Column("menu_id", sa.Text(), nullable=False),
         sa.Column("revision", sa.Integer(), nullable=False),
         sa.Column("configuration", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
@@ -150,7 +150,7 @@ def upgrade() -> None:
     # 6. configuration_migrations
     op.create_table(
         "configuration_migrations",
-        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("source_version", sa.Text(), nullable=False),
         sa.Column("target_version", sa.Text(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),

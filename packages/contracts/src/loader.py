@@ -2,8 +2,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator, RefResolver
-
 SCHEMAS_DIR = Path(__file__).resolve().parent.parent / "schemas"
 MANIFESTS_DIR = Path(__file__).resolve().parent.parent / "manifests"
 
@@ -24,7 +22,9 @@ def load_manifest(manifest_name: str) -> dict[str, Any]:
         return json.load(f)
 
 
-def get_menu_customization_validator() -> Draft202012Validator:
+def get_menu_customization_validator() -> Any:
+    from jsonschema import Draft202012Validator, RefResolver
+
     schema = load_schema("menu-customization.schema.json")
     instance_schema = load_schema("component-instance.schema.json")
     tokens_schema = load_schema("design-tokens.schema.json")
