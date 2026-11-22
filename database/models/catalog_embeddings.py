@@ -27,7 +27,7 @@ class EmbeddingModelRegistryRecord(Base):
 
     model_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     model_version: Mapped[str] = mapped_column(String(32), primary_key=True)
-    dimension: Mapped[int] = mapped_column(Integer, default=512, nullable=False)
+    dimension: Mapped[int] = mapped_column(Integer, default=512, server_default="512", nullable=False)
     status: Mapped[str] = mapped_column(
         String(32), default="APPROVED", server_default="APPROVED", nullable=False
     )
@@ -86,9 +86,9 @@ class EmbeddingBatchRecord(Base, UUIDPrimaryKeyMixin):
     batch_key: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
     model_id: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(32), nullable=False)
-    total_items: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    succeeded_items: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    failed_items: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_items: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    succeeded_items: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    failed_items: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     status: Mapped[str] = mapped_column(
         String(32), default="PENDING", server_default="PENDING", nullable=False
     )
@@ -118,7 +118,7 @@ class EmbeddingJobRecord(Base, UUIDPrimaryKeyMixin):
     status: Mapped[str] = mapped_column(
         String(32), default="PENDING", server_default="PENDING", nullable=False
     )
-    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -142,8 +142,8 @@ class EmbeddingMigrationRecord(Base, UUIDPrimaryKeyMixin):
     migration_phase: Mapped[str] = mapped_column(
         String(32), default="PREPARATION", server_default="PREPARATION", nullable=False
     )
-    total_records: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    migrated_records: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_records: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    migrated_records: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     status: Mapped[str] = mapped_column(
         String(32), default="IN_PROGRESS", server_default="IN_PROGRESS", nullable=False
     )

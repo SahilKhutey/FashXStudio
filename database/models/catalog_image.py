@@ -110,7 +110,7 @@ class CatalogImageAsset(Base, UUIDPrimaryKeyMixin):
     permission_policy_version: Mapped[str | None] = mapped_column(String(64))
 
     status: Mapped[str] = mapped_column(
-        String(32), default=ImageAssetStatus.PENDING.value, nullable=False
+        String(32), default=ImageAssetStatus.PENDING.value, server_default="PENDING", nullable=False
     )
     quality_score: Mapped[str | None] = mapped_column(String(32))
     quality_notes: Mapped[dict | None] = mapped_column(JSON)
@@ -153,7 +153,7 @@ class CatalogImageTransformation(Base, UUIDPrimaryKeyMixin):
     output_height: Mapped[int] = mapped_column(Integer, nullable=False)
     output_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
     output_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(32), default="ACTIVE", nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="ACTIVE", server_default="ACTIVE", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     asset: Mapped[CatalogImageAsset] = relationship(
@@ -177,14 +177,14 @@ class CatalogImageTakedown(Base, UUIDPrimaryKeyMixin):
         ForeignKey("merchants.id", ondelete="SET NULL")
     )
     scope_type: Mapped[str] = mapped_column(
-        String(32), default=ImageTakedownScope.SOURCE.value, nullable=False
+        String(32), default=ImageTakedownScope.SOURCE.value, server_default="SOURCE", nullable=False
     )
     scope_target: Mapped[str | None] = mapped_column(String(255))
     reason_code: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(
-        String(32), default=ImageTakedownStatus.RECEIVED.value, nullable=False
+        String(32), default=ImageTakedownStatus.RECEIVED.value, server_default="RECEIVED", nullable=False
     )
-    audit_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    audit_metadata: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
     received_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -209,12 +209,12 @@ class CatalogImageDeletionJob(Base, UUIDPrimaryKeyMixin):
     )
     storage_key: Mapped[str] = mapped_column(Text, nullable=False)
     target_type: Mapped[str] = mapped_column(
-        String(32), default=ImageDeletionTargetType.ORIGINAL.value, nullable=False
+        String(32), default=ImageDeletionTargetType.ORIGINAL.value, server_default="ORIGINAL", nullable=False
     )
     status: Mapped[str] = mapped_column(
-        String(32), default=ImageDeletionJobStatus.PENDING.value, nullable=False
+        String(32), default=ImageDeletionJobStatus.PENDING.value, server_default="PENDING", nullable=False
     )
-    attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     error_message: Mapped[str | None] = mapped_column(Text)
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

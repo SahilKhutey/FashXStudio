@@ -2,7 +2,10 @@ import copy
 import re
 from typing import Any
 
-from contracts.src.loader import load_manifest
+try:
+    from contracts.src.loader import load_manifest
+except ModuleNotFoundError:
+    from packages.contracts.src.loader import load_manifest
 from jsonschema import Draft202012Validator, ValidationError
 
 MALICIOUS_PAYLOAD_REGEX = re.compile(

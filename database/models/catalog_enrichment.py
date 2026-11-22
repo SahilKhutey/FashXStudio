@@ -30,7 +30,7 @@ class ProductEnrichmentRunRecord(Base, UUIDPrimaryKeyMixin):
     status: Mapped[str] = mapped_column(
         String(32), default="QUEUED", server_default="QUEUED", nullable=False
     )
-    attempt_number: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    attempt_number: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     idempotency_key: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -65,7 +65,7 @@ class ProductEnrichmentResultRecord(Base, UUIDPrimaryKeyMixin):
     summary_json: Mapped[dict] = mapped_column(
         JSON, default=dict, server_default="{}", nullable=False
     )
-    is_current: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_current: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

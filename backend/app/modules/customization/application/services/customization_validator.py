@@ -2,7 +2,10 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-from contracts.src.loader import get_menu_customization_validator
+try:
+    from contracts.src.loader import get_menu_customization_validator
+except ModuleNotFoundError:
+    from packages.contracts.src.loader import get_menu_customization_validator
 
 from app.modules.customization.infrastructure.component_registry import (
     ComponentNotFoundError,

@@ -75,7 +75,7 @@ class ProductTextEmbeddingRecord(Base, UUIDPrimaryKeyMixin):
     model_id: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(32), nullable=False)
     text_revision_hash: Mapped[str] = mapped_column(String(64), nullable=False)
-    embedding_dimension: Mapped[int] = mapped_column(Integer, default=512, nullable=False)
+    embedding_dimension: Mapped[int] = mapped_column(Integer, default=512, server_default="512", nullable=False)
     embedding: Mapped[list[float]] = mapped_column(Vector512(512), nullable=False)
     status: Mapped[str] = mapped_column(
         String(32), default="READY", server_default="READY", nullable=False
@@ -107,7 +107,7 @@ class SearchSessionRecord(Base, UUIDPrimaryKeyMixin):
     result_ids_json: Mapped[list] = mapped_column(
         JSON, default=list, server_default="[]", nullable=False
     )
-    total_results: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    total_results: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -176,8 +176,8 @@ class SearchEvaluationRunRecord(Base, UUIDPrimaryKeyMixin):
     mrr: Mapped[float] = mapped_column(Float, nullable=False)
     ndcg_at_10: Mapped[float] = mapped_column(Float, nullable=False)
     zero_result_rate: Mapped[float] = mapped_column(Float, nullable=False)
-    hard_filter_violation_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    takedown_violation_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    hard_filter_violation_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    takedown_violation_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     results_json: Mapped[dict] = mapped_column(
         JSON, default=dict, server_default="{}", nullable=False
     )

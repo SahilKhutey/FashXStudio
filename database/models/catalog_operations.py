@@ -143,10 +143,10 @@ class IngestRunError(Base, UUIDPrimaryKeyMixin):
     )
     error_code: Mapped[str] = mapped_column(String(80), nullable=False)
     error_category: Mapped[str] = mapped_column(
-        String(40), default=ErrorCategory.INTERNAL.value, nullable=False
+        String(40), default=ErrorCategory.INTERNAL.value, server_default="INTERNAL", nullable=False
     )
     failed_stage: Mapped[str] = mapped_column(
-        String(40), default=FailedStage.FETCH.value, nullable=False
+        String(40), default=FailedStage.FETCH.value, server_default="FETCH", nullable=False
     )
     source_product_reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
     safe_error_message: Mapped[str] = mapped_column(Text, nullable=False)
@@ -177,7 +177,7 @@ class CatalogSourceAuditEvent(Base, UUIDPrimaryKeyMixin):
 
     actor_id: Mapped[UUID | None] = mapped_column(nullable=True)
     actor_role: Mapped[str] = mapped_column(
-        String(40), default=AuditActorRole.SYSTEM.value, nullable=False
+        String(40), default=AuditActorRole.SYSTEM.value, server_default="SYSTEM", nullable=False
     )
     merchant_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("merchants.id", ondelete="SET NULL"), nullable=True
@@ -189,10 +189,10 @@ class CatalogSourceAuditEvent(Base, UUIDPrimaryKeyMixin):
     entity_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(80), nullable=False)
     reason_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
-    safe_change_summary: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    safe_change_summary: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
     request_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     outcome: Mapped[str] = mapped_column(
-        String(30), default=AuditOutcome.SUCCESS.value, nullable=False
+        String(30), default=AuditOutcome.SUCCESS.value, server_default="SUCCESS", nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

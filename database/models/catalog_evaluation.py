@@ -38,8 +38,8 @@ class CatalogEvaluationRun(Base, UUIDPrimaryKeyMixin):
     all_passed: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default="false", nullable=False
     )
-    metrics_summary: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
-    detailed_report: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    metrics_summary: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
+    detailed_report: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}", nullable=False)
     created_by: Mapped[UUID | None] = mapped_column(nullable=True)
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

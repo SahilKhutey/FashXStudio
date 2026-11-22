@@ -202,7 +202,10 @@ def setup_test_identity_override():
         get_db_session,
     ):
         main_app.dependency_overrides.pop(fn, None)
-    asyncio.run(engine.dispose())
+    try:
+        asyncio.run(engine.dispose())
+    except Exception:
+        pass
 
 
 @pytest.fixture

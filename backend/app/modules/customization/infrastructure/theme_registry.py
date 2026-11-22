@@ -1,7 +1,10 @@
 import copy
 from typing import Any
 
-from contracts.src.loader import load_manifest
+try:
+    from contracts.src.loader import load_manifest
+except ModuleNotFoundError:
+    from packages.contracts.src.loader import load_manifest
 
 
 class ThemeNotFoundError(Exception):
