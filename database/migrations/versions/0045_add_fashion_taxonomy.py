@@ -45,7 +45,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("version"),
+        sa.UniqueConstraint("version", name="uq_taxonomy_versions_version"),
     )
 
     # 2. Create taxonomy_categories

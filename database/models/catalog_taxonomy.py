@@ -63,7 +63,7 @@ class TaxonomyCategory(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "taxonomy_categories"
 
     taxonomy_version_id: Mapped[UUID] = mapped_column(
-        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False
     )
     category_code: Mapped[str] = mapped_column(String(64), nullable=False)
     parent_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -81,6 +81,7 @@ class TaxonomyCategory(Base, UUIDPrimaryKeyMixin):
             "taxonomy_version_id", "category_code", name="uq_taxonomy_category_version_code"
         ),
         Index("ix_taxonomy_categories_path", "path"),
+        Index("ix_taxonomy_categories_version", "taxonomy_version_id"),
     )
 
     version_record: Mapped[TaxonomyVersion] = relationship(back_populates="categories")
@@ -90,7 +91,7 @@ class TaxonomyAttribute(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "taxonomy_attributes"
 
     taxonomy_version_id: Mapped[UUID] = mapped_column(
-        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False
     )
     attribute_code: Mapped[str] = mapped_column(String(64), nullable=False)
     label: Mapped[str] = mapped_column(String(128), nullable=False)
@@ -111,6 +112,7 @@ class TaxonomyAttribute(Base, UUIDPrimaryKeyMixin):
         UniqueConstraint(
             "taxonomy_version_id", "attribute_code", name="uq_taxonomy_attribute_version_code"
         ),
+        Index("ix_taxonomy_attributes_version", "taxonomy_version_id"),
     )
 
     version_record: Mapped[TaxonomyVersion] = relationship(back_populates="attributes")
@@ -123,7 +125,7 @@ class TaxonomyAttributeValueRecord(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "taxonomy_attribute_values"
 
     attribute_id: Mapped[UUID] = mapped_column(
-        ForeignKey("taxonomy_attributes.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("taxonomy_attributes.id", ondelete="CASCADE"), nullable=False
     )
     value_code: Mapped[str] = mapped_column(String(64), nullable=False)
     label: Mapped[str] = mapped_column(String(128), nullable=False)
@@ -137,6 +139,7 @@ class TaxonomyAttributeValueRecord(Base, UUIDPrimaryKeyMixin):
 
     __table_args__ = (
         UniqueConstraint("attribute_id", "value_code", name="uq_taxonomy_attr_value_code"),
+        Index("ix_taxonomy_attr_values_attr", "attribute_id"),
     )
 
     attribute_record: Mapped[TaxonomyAttribute] = relationship(back_populates="values")
@@ -146,7 +149,7 @@ class TaxonomyAlias(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "taxonomy_aliases"
 
     taxonomy_version_id: Mapped[UUID] = mapped_column(
-        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("taxonomy_versions.id", ondelete="CASCADE"), nullable=False
     )
     target_type: Mapped[str] = mapped_column(String(32), nullable=False)
     target_code: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -167,7 +170,7 @@ class ProductClassificationRecord(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "product_classifications"
 
     garment_id: Mapped[UUID] = mapped_column(
-        ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False
     )
     taxonomy_version: Mapped[str] = mapped_column(String(32), nullable=False)
     category_id: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -197,6 +200,7 @@ class ProductClassificationRecord(Base, UUIDPrimaryKeyMixin):
             "garment_id", "taxonomy_version", name="uq_product_classifications_garment_version"
         ),
         Index("ix_product_classifications_cat", "category_id", "garment_type_id"),
+        Index("ix_product_classifications_garment", "garment_id"),
     )
 
     attributes: Mapped[list[ProductAttributeValueRecord]] = relationship(
@@ -208,7 +212,7 @@ class ProductAttributeValueRecord(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "product_attribute_values"
 
     classification_id: Mapped[UUID] = mapped_column(
-        ForeignKey("product_classifications.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("product_classifications.id", ondelete="CASCADE"), nullable=False
     )
     attribute_code: Mapped[str] = mapped_column(String(64), nullable=False)
     value_status: Mapped[str] = mapped_column(
@@ -225,6 +229,7 @@ class ProductAttributeValueRecord(Base, UUIDPrimaryKeyMixin):
             "classification_id", "attribute_code", name="uq_product_attr_classification_code"
         ),
         Index("ix_product_attr_values_lookup", "attribute_code", "value_status"),
+        Index("ix_product_attr_values_classification", "classification_id"),
     )
 
     classification_record: Mapped[ProductClassificationRecord] = relationship(
@@ -237,9 +242,12 @@ class ProductAttributeValueRecord(Base, UUIDPrimaryKeyMixin):
 
 class ProductAttributeProvenanceRecord(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "product_attribute_provenance"
+    __table_args__ = (
+        Index("ix_product_attr_provenance_val", "product_attribute_value_id"),
+    )
 
     product_attribute_value_id: Mapped[UUID] = mapped_column(
-        ForeignKey("product_attribute_values.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("product_attribute_values.id", ondelete="CASCADE"), nullable=False
     )
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     source_reference: Mapped[str | None] = mapped_column(String(255), nullable=True)

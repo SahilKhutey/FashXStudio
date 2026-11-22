@@ -82,8 +82,12 @@ class EmbeddingBatchRecord(Base, UUIDPrimaryKeyMixin):
     """Tracks asynchronous bulk embedding batches."""
 
     __tablename__ = "embedding_batches"
+    __table_args__ = (
+        UniqueConstraint("batch_key", name="uq_embedding_batches_key"),
+        Index("ix_embedding_batches_key", "batch_key"),
+    )
 
-    batch_key: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    batch_key: Mapped[str] = mapped_column(String(128), nullable=False)
     model_id: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(32), nullable=False)
     total_items: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
