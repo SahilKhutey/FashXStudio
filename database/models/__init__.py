@@ -76,14 +76,6 @@ from .catalog_image import (
     ImageTakedownStatus,
     ImageTransformationType,
 )
-from .catalog_search import (
-    ProductSearchDocumentRecord,
-    ProductSearchEventRecord,
-    ProductTextEmbeddingRecord,
-    SearchEvaluationRunRecord,
-    SearchSessionRecord,
-    SearchSynonymRecord,
-)
 from .catalog_operations import (
     AuditAction,
     AuditActorRole,
@@ -96,6 +88,14 @@ from .catalog_operations import (
     MerchantProductOverride,
     OperationalStatus,
     SyncMode,
+)
+from .catalog_search import (
+    ProductSearchDocumentRecord,
+    ProductSearchEventRecord,
+    ProductTextEmbeddingRecord,
+    SearchEvaluationRunRecord,
+    SearchSessionRecord,
+    SearchSynonymRecord,
 )
 from .catalog_sync import (
     CatalogIngestionQuarantine,

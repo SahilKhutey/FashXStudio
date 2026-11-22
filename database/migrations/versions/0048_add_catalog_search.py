@@ -189,7 +189,7 @@ def upgrade() -> None:
         sa.text(
             """
             INSERT INTO search_synonyms (id, term, synonym, category_scope, is_bidirectional)
-            VALUES 
+            VALUES
                 ('d1e1f1a1-0000-0000-0000-000000000001', 'tee', 't-shirt', 'tops', true),
                 ('d1e1f1a1-0000-0000-0000-000000000002', 'kurti', 'short kurta', 'indian_wear', true),
                 ('d1e1f1a1-0000-0000-0000-000000000003', 'denim', 'jeans', 'bottoms', true)

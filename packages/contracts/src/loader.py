@@ -12,7 +12,7 @@ def load_schema(schema_name: str) -> dict[str, Any]:
     schema_path = SCHEMAS_DIR / schema_name
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema {schema_name} not found at {schema_path}")
-    with open(schema_path, "r", encoding="utf-8") as f:
+    with open(schema_path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -20,7 +20,7 @@ def load_manifest(manifest_name: str) -> dict[str, Any]:
     manifest_path = MANIFESTS_DIR / manifest_name
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest {manifest_name} not found at {manifest_path}")
-    with open(manifest_path, "r", encoding="utf-8") as f:
+    with open(manifest_path, encoding="utf-8") as f:
         return json.load(f)
 
 

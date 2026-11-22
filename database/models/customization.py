@@ -117,8 +117,8 @@ class CustomizationRevisionRecord(Base, UUIDPrimaryKeyMixin):
     customization_id: Mapped[UUID] = mapped_column(
         ForeignKey("menu_customizations.id", ondelete="CASCADE"), index=True, nullable=False
     )
-    organization_id: Mapped[UUID] = mapped_column(index=True, nullable=False)
-    menu_id: Mapped[str] = mapped_column(Text, index=True, nullable=False)
+    organization_id: Mapped[UUID] = mapped_column(nullable=False)
+    menu_id: Mapped[str] = mapped_column(Text, nullable=False)
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     configuration: Mapped[dict[str, Any]] = mapped_column(JSONBType, nullable=False)
     created_by: Mapped[str | None] = mapped_column(Text, nullable=True)

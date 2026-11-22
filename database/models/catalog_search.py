@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,6 +26,7 @@ class ProductSearchDocumentRecord(Base, UUIDPrimaryKeyMixin):
 
     __tablename__ = "product_search_documents"
     __table_args__ = (
+        UniqueConstraint("merchant_product_id", name="uq_search_doc_merchant_product"),
         Index("ix_search_document_category", "category_id"),
         Index("ix_search_document_brand", "brand_id"),
         Index("ix_search_document_product", "product_id"),
@@ -32,17 +34,17 @@ class ProductSearchDocumentRecord(Base, UUIDPrimaryKeyMixin):
     )
 
     merchant_product_id: Mapped[UUID] = mapped_column(
-        ForeignKey("merchant_products.id", ondelete="CASCADE"), unique=True, nullable=False, index=True
+        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=False
     )
-    product_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
+    product_id: Mapped[UUID] = mapped_column(nullable=False)
     merchant_id: Mapped[UUID] = mapped_column(
-        ForeignKey("merchants.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("merchants.id", ondelete="CASCADE"), nullable=False
     )
     brand_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("brands.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("brands.id", ondelete="SET NULL"), nullable=True
     )
-    category_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
-    subcategory_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
+    category_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    subcategory_id: Mapped[UUID | None] = mapped_column(nullable=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     search_document: Mapped[str] = mapped_column(Text, nullable=False)
@@ -62,14 +64,15 @@ class ProductTextEmbeddingRecord(Base, UUIDPrimaryKeyMixin):
 
     __tablename__ = "product_text_embeddings"
     __table_args__ = (
+        Index("ix_text_embedding_merchant_product", "merchant_product_id"),
         Index("ix_text_embedding_model", "model_id", "model_version"),
         Index("ix_text_embedding_status", "status"),
     )
 
     merchant_product_id: Mapped[UUID] = mapped_column(
-        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=False
     )
-    model_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    model_id: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(32), nullable=False)
     text_revision_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     embedding_dimension: Mapped[int] = mapped_column(Integer, default=512, nullable=False)
@@ -86,9 +89,14 @@ class SearchSessionRecord(Base, UUIDPrimaryKeyMixin):
     """Search sessions for stable cursor pagination and snapshot consistency."""
 
     __tablename__ = "search_sessions"
+    __table_args__ = (
+        UniqueConstraint("session_token", name="uq_search_sessions_token"),
+        Index("ix_search_sessions_token", "session_token"),
+        Index("ix_search_sessions_user", "user_id"),
+    )
 
-    user_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
-    session_token: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    user_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    session_token: Mapped[str] = mapped_column(String(128), nullable=False)
     query_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     applied_filters_json: Mapped[dict] = mapped_column(
         JSON, default=dict, server_default="{}", nullable=False
@@ -114,12 +122,17 @@ class ProductSearchEventRecord(Base, UUIDPrimaryKeyMixin):
     """Interaction events for search queries, clicks, saves, and handoffs."""
 
     __tablename__ = "product_search_events"
+    __table_args__ = (
+        Index("ix_search_events_type", "event_type"),
+        Index("ix_search_events_session", "session_id"),
+        Index("ix_search_events_user", "user_id"),
+    )
 
     session_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("search_sessions.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("search_sessions.id", ondelete="SET NULL"), nullable=True
     )
-    user_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
-    event_type: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    user_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     query: Mapped[str | None] = mapped_column(Text, nullable=True)
     filter_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
     filter_value: Mapped[str | None] = mapped_column(Text, nullable=True)

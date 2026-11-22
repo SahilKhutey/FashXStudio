@@ -1,4 +1,13 @@
+import sys
+from pathlib import Path
 from typing import Any
+
+# Ensure workspace packages and backend modules are discoverable
+_repo_root = Path(__file__).resolve().parent.parent.parent
+if str(_repo_root / "backend") not in sys.path:
+    sys.path.insert(0, str(_repo_root / "backend"))
+if str(_repo_root / "packages") not in sys.path:
+    sys.path.insert(0, str(_repo_root / "packages"))
 
 from fastapi import Depends, FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
