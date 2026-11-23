@@ -15647,7 +15647,10 @@ export interface components {
          * @enum {string}
          */
         SourceErrorCode: "authentication" | "authorization" | "rate_limited" | "transient" | "timeout" | "not_found" | "invalid_request" | "cursor_expired" | "schema_changed" | "permission_revoked";
-        /** SourceHealthReport */
+        /**
+         * SourceHealthReport
+         * @description Health and operational telemetry for a catalog source.
+         */
         SourceHealthReport: {
             /** Source Slug */
             source_slug: string;

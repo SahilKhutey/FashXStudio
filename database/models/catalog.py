@@ -43,6 +43,7 @@ class CatalogSource(Base, UUIDPrimaryKeyMixin):
         Index("idx_catalog_sources_merchant", "merchant_id"),
         Index("idx_catalog_sources_status", "source_status"),
         Index("idx_catalog_sources_expiry", "expires_at"),
+        Index("ix_catalog_sources_merchant_status", "merchant_id", "source_status"),
     )
 
     slug: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
@@ -334,6 +335,8 @@ class CanonicalGarment(Base, UUIDPrimaryKeyMixin):
         Index("ix_garments_sizes_in_stock_gin", "sizes_in_stock", postgresql_using="gin"),
         Index("ix_garments_feed", "category", "gender", "active", "in_stock"),
         Index("ix_garments_price", "price_minor"),
+        Index("ix_garments_category_brand", "category", "brand_id"),
+        Index("ix_garments_brand", "brand_id"),
     )
 
 
@@ -345,6 +348,7 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
         Index("ix_merchant_offers_merchant_status", "merchant_id", "status"),
         Index("ix_merchant_offers_price_currency", "currency", "price_minor"),
         Index("ix_merchant_offers_availability", "availability"),
+        Index("ix_merchant_offers_merchant_product", "merchant_product_id"),
     )
 
     garment_id: Mapped[UUID] = mapped_column(
@@ -354,7 +358,7 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
         ForeignKey("merchants.id", ondelete="CASCADE"), index=True
     )
     merchant_product_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=True, index=True
+        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=True
     )
     source_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("catalog_sources.id", ondelete="SET NULL"), nullable=True, index=True
@@ -364,7 +368,7 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
     )
     source_product_id: Mapped[str] = mapped_column(String(255), nullable=False)
     url: Mapped[str] = mapped_column(Text, nullable=False)
-    price_minor: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    price_minor: Mapped[int] = mapped_column(Integer, nullable=False)
     currency: Mapped[str] = mapped_column(String(3), default="INR", nullable=False)
     original_price_minor: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     discount_percentage: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
@@ -435,7 +439,10 @@ class GarmentImage(Base, UUIDPrimaryKeyMixin):
         ForeignKey("catalog_image_assets.id", ondelete="SET NULL"), nullable=True
     )
 
-    __table_args__ = (UniqueConstraint("garment_id", "content_hash", name="uq_garment_image_hash"),)
+    __table_args__ = (
+        UniqueConstraint("garment_id", "content_hash", name="uq_garment_image_hash"),
+        Index("ix_garment_images_asset_id", "asset_id"),
+    )
 
     @property
     def image_url(self) -> str:

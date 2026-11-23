@@ -22,11 +22,18 @@ def include_object(object, name, type_, reflected, compare_to):
     """Filter database objects during autogenerate and alembic check.
 
     Excludes custom pgvector HNSW vector indexes created via raw SQL
-    in migrations 0047 and 0048 to prevent false drift detection.
+    in migrations 0047 and 0048, and composite primary key unique constraints,
+    to prevent false drift detection.
     """
     if type_ == "index" and name in (
         "idx_product_image_embeddings_hnsw",
         "idx_product_text_embeddings_hnsw",
+    ):
+        return False
+    if type_ == "unique_constraint" and name in (
+        "uq_theme_definitions_id_version",
+        "uq_layout_definitions_id_version",
+        "uq_component_definitions_id_version",
     ):
         return False
     return True
