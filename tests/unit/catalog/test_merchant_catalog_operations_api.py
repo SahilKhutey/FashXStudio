@@ -27,9 +27,13 @@ def override_db(session_factory: async_sessionmaker[AsyncSession]):
                 await session.rollback()
                 raise
 
+    prev = app.dependency_overrides.get(get_db_session)
     app.dependency_overrides[get_db_session] = _get_test_session
     yield
-    app.dependency_overrides.pop(get_db_session, None)
+    if prev is not None:
+        app.dependency_overrides[get_db_session] = prev
+    else:
+        app.dependency_overrides.pop(get_db_session, None)
 
 
 @pytest.fixture

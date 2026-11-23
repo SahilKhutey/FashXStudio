@@ -67,6 +67,13 @@ class ProductTextEmbeddingRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_text_embedding_merchant_product", "merchant_product_id"),
         Index("ix_text_embedding_model", "model_id", "model_version"),
         Index("ix_text_embedding_status", "status"),
+        Index(
+            "idx_product_text_embeddings_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )
 
     merchant_product_id: Mapped[UUID] = mapped_column(

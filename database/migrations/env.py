@@ -18,12 +18,27 @@ config.set_main_option("sqlalchemy.url", settings.database_url)
 target_metadata = Base.metadata
 
 
+def include_object(object, name, type_, reflected, compare_to):
+    """Filter database objects during autogenerate and alembic check.
+
+    Excludes custom pgvector HNSW vector indexes created via raw SQL
+    in migrations 0047 and 0048 to prevent false drift detection.
+    """
+    if type_ == "index" and name in (
+        "idx_product_image_embeddings_hnsw",
+        "idx_product_text_embeddings_hnsw",
+    ):
+        return False
+    return True
+
+
 def run_migrations_offline() -> None:
     context.configure(
         url=settings.database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -41,6 +56,7 @@ async def run_migrations_online() -> None:
                 connection=sync_conn,
                 target_metadata=target_metadata,
                 compare_type=True,
+                include_object=include_object,
             )
         )
         async with connection.begin():

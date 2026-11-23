@@ -51,6 +51,13 @@ class ProductImageEmbeddingRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_image_embedding_lookup", "product_id", "is_active"),
         Index("ix_image_embedding_active_search", "is_active", "model_id", "model_version"),
         Index("ix_image_embedding_sha256", "image_sha256"),
+        Index(
+            "idx_product_image_embeddings_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )
 
     image_asset_id: Mapped[UUID] = mapped_column(

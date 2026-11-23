@@ -125,6 +125,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
+      AUTH_ISSUER: "fashx-test"
+      AUTH_AUDIENCE: "fashx-api"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -132,10 +134,12 @@ jobs:
       - uses: actions/setup-node@v5
         with: { node-version: 20 }
       - run: pip install -e ".[dev]"
-      - run: |
-          python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
-          npx -y openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
-          diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts
+      - name: Generate OpenAPI specification
+        run: python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
+      - name: Generate TypeScript types from OpenAPI spec
+        run: npx -y openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
+      - name: Verify generated TypeScript types match committed schema
+        run: diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts
 
   security:
     runs-on: ubuntu-latest
