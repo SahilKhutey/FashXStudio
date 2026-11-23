@@ -4,6 +4,7 @@ from uuid import uuid4
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from fashx.core.database import get_db_session
 from fashx.main import app
 from fashx.security.deps import Principal, get_principal
 
@@ -41,6 +42,7 @@ def test_join_invalid_code_returns_404_not_found(monkeypatch):
         async def fake_get_db_session():
             yield mock_session
 
+        app.dependency_overrides[get_db_session] = fake_get_db_session
         monkeypatch.setattr("fashx.pilot.router.get_db_session", fake_get_db_session)
 
         resp = client.post("/api/v1/pilot/join", json={"code": "INVALID-CODE"})
@@ -48,6 +50,7 @@ def test_join_invalid_code_returns_404_not_found(monkeypatch):
         assert resp.json().get("detail") == "Invalid or expired invite code"
     finally:
         app.dependency_overrides.pop(get_principal, None)
+        app.dependency_overrides.pop(get_db_session, None)
 
 
 def test_survey_repeat_submission_returns_409_conflict(monkeypatch):
@@ -67,6 +70,7 @@ def test_survey_repeat_submission_returns_409_conflict(monkeypatch):
         async def fake_get_db_session():
             yield mock_session
 
+        app.dependency_overrides[get_db_session] = fake_get_db_session
         monkeypatch.setattr("fashx.pilot.router.get_db_session", fake_get_db_session)
 
         payload = {
@@ -83,3 +87,4 @@ def test_survey_repeat_submission_returns_409_conflict(monkeypatch):
         assert "already been submitted" in resp.json().get("detail", "")
     finally:
         app.dependency_overrides.pop(get_principal, None)
+        app.dependency_overrides.pop(get_db_session, None)

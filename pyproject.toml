@@ -21,6 +21,7 @@ dependencies = [
   "httpx==0.28.1",
   "celery[redis]>=5.4,<6",
   "gunicorn>=22,<24",
+  "jsonschema>=4.20.0",
 ]
 
 [project.optional-dependencies]
@@ -63,7 +64,9 @@ requires = ["hatchling>=1.27.0,<2"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["backend/fashx", "schemas", "database"]
+packages = ["backend/fashx", "backend/app", "schemas", "database", "packages/contracts"]
+dev-mode-dirs = [".", "backend", "packages"]
 
 [tool.hatch.build.targets.wheel.sources]
 "backend" = ""
+"packages" = ""

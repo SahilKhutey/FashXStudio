@@ -11,9 +11,7 @@ from .base import Base, UUIDPrimaryKeyMixin
 
 class FeedImpression(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "feed_impressions"
-    __table_args__ = (
-        Index("ix_impr_user_time", "user_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_impr_user_time", "user_id", "created_at"),)
 
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False

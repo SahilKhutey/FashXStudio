@@ -3,6 +3,7 @@
 Revision ID: 0012_analytics_indexes
 Revises: 0011_tryon_feedback_instrumentation
 """
+
 from collections.abc import Sequence
 
 from alembic import op

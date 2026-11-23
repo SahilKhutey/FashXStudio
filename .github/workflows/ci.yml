@@ -36,7 +36,21 @@ jobs:
       - run: python scripts/docs_lint.py
       - run: ruff check .
       - run: mypy .
-      - run: python -m pytest tests -q -p no:cacheprovider -m "not frozen and not integration"
+      - name: Run backend tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests -q -p no:cacheprovider -m "not frozen and not integration" 2>&1 | tee /tmp/pytest_backend.log || {
+            STATUS=$?
+            echo "### Pytest Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^FAILED |^ERROR " /tmp/pytest_backend.log | head -n 100 >> $GITHUB_STEP_SUMMARY
+            tail -n 60 /tmp/pytest_backend.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            FAILED_SUMMARY=$(grep -E "^FAILED " /tmp/pytest_backend.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=Pytest Failures::${FAILED_SUMMARY:-Tests failed}"
+            exit $STATUS
+          }
 
   integration:
     runs-on: ubuntu-latest
@@ -63,20 +77,54 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - run: pip install -e ".[dev]"
       - name: Migration verification (heads, upgrade, downgrade, check)
+        shell: bash
         run: |
+          set -o pipefail
           python -m alembic heads
           python -m alembic upgrade head
           python -m alembic downgrade -1
           python -m alembic upgrade head
-          python -m alembic check
+          python -m alembic check 2>&1 | tee /tmp/alembic_check.log || {
+            STATUS=$?
+            echo "### Alembic Check Failure" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/alembic_check.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            DRIFT_SUMMARY=$(head -n 20 /tmp/alembic_check.log | tr '\n' ' ')
+            echo "::error title=Alembic Check Drift::${DRIFT_SUMMARY:-Alembic check detected drift}"
+            exit $STATUS
+          }
       - name: DB tests must run (no skips)
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest tests -m db -q -rs | tee db.log
+          python -m pytest tests -m db -q -rs 2>&1 | tee db.log || {
+            STATUS=$?
+            echo "### DB Test Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^FAILED |^ERROR " db.log | head -n 100 >> $GITHUB_STEP_SUMMARY
+            tail -n 60 db.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            FAILED_SUMMARY=$(grep -E "^FAILED " db.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=DB Test Failures::${FAILED_SUMMARY:-DB tests failed}"
+            exit $STATUS
+          }
           if grep -q "SKIPPED" db.log; then echo "::error::db tests were skipped"; exit 1; fi
       - name: Run integration test suite
-        run: python -m pytest tests -q -p no:cacheprovider -m "integration and not frozen"
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests -q -p no:cacheprovider -m "integration and not frozen" 2>&1 | tee /tmp/pytest_integration.log || {
+            STATUS=$?
+            echo "### Integration Test Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^FAILED |^ERROR " /tmp/pytest_integration.log | head -n 100 >> $GITHUB_STEP_SUMMARY
+            tail -n 60 /tmp/pytest_integration.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            FAILED_SUMMARY=$(grep -E "^FAILED " /tmp/pytest_integration.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=Integration Test Failures::${FAILED_SUMMARY:-Integration tests failed}"
+            exit $STATUS
+          }
 
   frozen:
     runs-on: ubuntu-latest
@@ -125,6 +173,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AUTH_JWT_SECRET: "ci-test-jwt-secret-key-32-chars-minimum"
+      AUTH_ISSUER: "fashx-test"
+      AUTH_AUDIENCE: "fashx-api"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -132,10 +182,23 @@ jobs:
       - uses: actions/setup-node@v5
         with: { node-version: 20 }
       - run: pip install -e ".[dev]"
-      - run: |
-          python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
-          npx -y openapi-typescript openapi.json -o mobile/src/api/schema.generated.d.ts
-          diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts
+      - name: Generate OpenAPI specification
+        run: python -c "import json; from fashx.main import app; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
+      - name: Generate TypeScript types from OpenAPI spec
+        run: npx -y openapi-typescript@7.13.0 openapi.json -o mobile/src/api/schema.generated.d.ts
+      - name: Verify generated TypeScript types match committed schema
+        shell: bash
+        run: |
+          diff -u mobile/src/api/schema.d.ts mobile/src/api/schema.generated.d.ts > /tmp/schema_diff.txt || {
+            STATUS=$?
+            echo "### Schema Diff" >> $GITHUB_STEP_SUMMARY
+            echo '```diff' >> $GITHUB_STEP_SUMMARY
+            head -n 200 /tmp/schema_diff.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            DIFF_SUMMARY=$(head -n 20 /tmp/schema_diff.txt | tr '\n' ' ')
+            echo "::error title=Schema Diff::${DIFF_SUMMARY:-Schema diff detected}"
+            exit $STATUS
+          }
 
   security:
     runs-on: ubuntu-latest

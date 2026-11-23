@@ -123,7 +123,18 @@ class CatalogSyncService:
             offers: Sequence[MerchantOffer] = (await uow.session.scalars(stmt)).all()
 
             for offer in offers:
+                if getattr(offer, "takedown_status", "NONE") in {
+                    "REQUESTED",
+                    "PROCESSING",
+                    "COMPLETED",
+                    "UNDER_REVIEW",
+                }:
+                    continue
                 offer.in_stock = False
+                offer.status = "OUT_OF_STOCK"
+                offer.availability = "OUT_OF_STOCK"
+                offer.sync_status = "STALE"
+                offer.last_changed_at = datetime.now(UTC)
                 stale_count += 1
 
                 # Reconcile CanonicalGarment if no other in-stock offers exist
@@ -185,18 +196,22 @@ class CatalogSyncService:
                 norm_prod = normalize_product(row)
             except ValidationError as err:
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": str(err),
-                    "field": getattr(err, "field", "unknown"),
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": str(err),
+                        "field": getattr(err, "field", "unknown"),
+                    }
+                )
                 continue
             except Exception as exc:
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": f"Normalization failure: {exc}",
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": f"Normalization failure: {exc}",
+                    }
+                )
                 continue
 
             try:
@@ -223,10 +238,12 @@ class CatalogSyncService:
             except Exception as exc:
                 logger.warning("Failed importing row %d: %s", line_number, exc)
                 report.failed += 1
-                report.errors.append({
-                    "line": line_number,
-                    "error": str(exc),
-                })
+                report.errors.append(
+                    {
+                        "line": line_number,
+                        "error": str(exc),
+                    }
+                )
 
         # Record durable ingestion history in database
         async with uow:

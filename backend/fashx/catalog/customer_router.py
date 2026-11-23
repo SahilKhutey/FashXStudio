@@ -67,8 +67,18 @@ async def _resolve_garment_detail(
 
         offers = await uow.offers.list_for_garment(garment_id)
 
+        # Filter offers: active only and not under takedown
+        active_offers = [
+            o
+            for o in offers
+            if getattr(o, "status", "ACTIVE") == "ACTIVE"
+            and getattr(o, "takedown_status", "NONE") == "NONE"
+        ]
+        if offers and not active_offers:
+            raise EntityNotFoundError("CanonicalGarment", garment_id)
+
         # Collect merchant names
-        merchant_ids = {o.merchant_id for o in offers}
+        merchant_ids = {o.merchant_id for o in active_offers}
         merchants_map: dict[UUID, str] = {}
         for m_id in merchant_ids:
             m = await uow.session.get(Merchant, m_id)
@@ -76,7 +86,7 @@ async def _resolve_garment_detail(
                 merchants_map[m_id] = m.name
 
         # Sort offers: in-stock first, then ascending by price
-        sorted_offers = sorted(offers, key=lambda x: (not x.in_stock, x.price_minor))
+        sorted_offers = sorted(active_offers, key=lambda x: (not x.in_stock, x.price_minor))
 
         # Determine display price and currency: best in-stock, else best offer, else garment price
         in_stock_offers = [o for o in sorted_offers if o.in_stock]

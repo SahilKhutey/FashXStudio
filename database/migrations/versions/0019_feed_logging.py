@@ -3,6 +3,7 @@
 Revision ID: 0019_feed_logging
 Revises: 0018_catalog_sources_and_provenance
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -40,9 +41,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
         ),
     )
-    op.create_index(
-        "ix_impr_user_time", "feed_impressions", ["user_id", "created_at"]
-    )
+    op.create_index("ix_impr_user_time", "feed_impressions", ["user_id", "created_at"])
 
     op.create_table(
         "feed_signals",

@@ -638,6 +638,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initiate photo upload intent */
+        post: operations["initiate_upload_api_v1_media_uploads_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Poll photo upload validation status */
+        get: operations["get_upload_status_api_v1_media_uploads__upload_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/uploads/{upload_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complete upload and trigger validation */
+        post: operations["complete_upload_api_v1_media_uploads__upload_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve validated image metadata */
+        get: operations["get_image_metadata_api_v1_media__image_id__get"];
+        put?: never;
+        post?: never;
+        /** Request deletion of user personal image */
+        delete: operations["delete_image_api_v1_media__image_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/media/{image_id}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate expiring download URL for personal image */
+        post: operations["create_access_url_api_v1_media__image_id__access_url_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/feature-flags": {
         parameters: {
             query?: never;
@@ -656,6 +742,1212 @@ export interface paths {
          * @description Toggle a feature flag / kill switch with audit attribution (Rule 9.10).
          */
         post: operations["update_feature_flag_api_v1_admin_feature_flags_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/merchants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Merchant */
+        post: operations["create_merchant_api_v1_admin_catalog_merchants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/merchants/{merchant_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Merchant */
+        get: operations["get_merchant_api_v1_admin_catalog_merchants__merchant_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/merchants/{merchant_id}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify Merchant */
+        post: operations["verify_merchant_api_v1_admin_catalog_merchants__merchant_id__verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Source */
+        post: operations["create_source_api_v1_admin_catalog_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Source */
+        get: operations["get_source_api_v1_admin_catalog_sources__source_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update Source Status */
+        post: operations["update_source_status_api_v1_admin_catalog_sources__source_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Source Evidence */
+        post: operations["add_source_evidence_api_v1_admin_catalog_sources__source_id__evidence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Source Permissions */
+        get: operations["list_source_permissions_api_v1_admin_catalog_sources__source_id__permissions_get"];
+        put?: never;
+        /** Grant Source Permission */
+        post: operations["grant_source_permission_api_v1_admin_catalog_sources__source_id__permissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Suspend Source */
+        post: operations["suspend_source_api_v1_admin_catalog_sources__source_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resume Source */
+        post: operations["resume_source_api_v1_admin_catalog_sources__source_id__resume_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/takedown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initiate Source Takedown */
+        post: operations["initiate_source_takedown_api_v1_admin_catalog_sources__source_id__takedown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/authorization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check Source Authorization */
+        get: operations["check_source_authorization_api_v1_admin_catalog_sources__source_id__authorization_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/takedowns/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Takedown */
+        get: operations["get_takedown_api_v1_admin_catalog_takedowns__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Health
+         * @description Evaluate current health state of a catalog source based on recent syncs and status.
+         */
+        get: operations["get_source_health_api_v1_admin_catalog_sources__source_id__health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/health-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Source Health
+         * @description Trigger a live diagnostic probe for an authorized catalog source.
+         */
+        post: operations["check_source_health_api_v1_admin_catalog_sources__source_id__health_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Source Sync
+         * @description Execute synchronization (full or incremental) for an authorized catalog source.
+         */
+        post: operations["trigger_source_sync_api_v1_admin_catalog_sources__source_id__sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/sync-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Source Sync Runs
+         * @description List historical and active sync runs for a source.
+         */
+        get: operations["list_source_sync_runs_api_v1_admin_catalog_sources__source_id__sync_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sources/{source_id}/checkpoints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Source Checkpoints
+         * @description List durable synchronization checkpoints for a source.
+         */
+        get: operations["list_source_checkpoints_api_v1_admin_catalog_sources__source_id__checkpoints_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/sync-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Sync Run
+         * @description Retrieve details of a specific sync run execution.
+         */
+        get: operations["get_sync_run_api_v1_admin_catalog_sync_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Ingestion Job
+         * @description Create and trigger a catalog ingestion job.
+         */
+        post: operations["create_ingestion_job_api_v1_admin_catalog_ingestion_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ingestion Job
+         * @description Retrieve status and metadata for an ingestion job.
+         */
+        get: operations["get_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ingestion Job Report
+         * @description Retrieve detailed outcome counts, errors, and image processing summary for an ingestion run.
+         */
+        get: operations["get_ingestion_job_report_api_v1_admin_catalog_ingestion_jobs__run_id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/ingestion-jobs/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel Ingestion Job
+         * @description Cancel / abort an active ingestion job.
+         */
+        post: operations["cancel_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Quarantine Records
+         * @description List quarantined product records with optional source and status filters.
+         */
+        get: operations["list_quarantine_records_api_v1_admin_catalog_quarantine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine/{quarantine_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quarantine Record
+         * @description Retrieve details of a single quarantined product record.
+         */
+        get: operations["get_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quarantine/{quarantine_id}/reprocess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reprocess Quarantine Record
+         * @description Trigger reprocessing of a quarantined product record.
+         */
+        post: operations["reprocess_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__reprocess_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Image Job
+         * @description Start authorized image retrieval, validation, storage, and transformation.
+         */
+        post: operations["create_image_job_api_v1_admin_catalog_images_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Image Asset
+         * @description Inspect image asset metadata and status.
+         */
+        get: operations["get_image_asset_api_v1_admin_catalog_images__asset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/transformations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Image Transformations
+         * @description View transformation history and derivatives for an image asset.
+         */
+        get: operations["list_image_transformations_api_v1_admin_catalog_images__asset_id__transformations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/reprocess": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reprocess Image Asset
+         * @description Reprocess an eligible image asset to regenerate derivatives.
+         */
+        post: operations["reprocess_image_asset_api_v1_admin_catalog_images__asset_id__reprocess_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/{asset_id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Suspend Image Asset
+         * @description Suspend an image asset immediately.
+         */
+        post: operations["suspend_image_asset_api_v1_admin_catalog_images__asset_id__suspend_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/takedowns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Image Takedown
+         * @description Initiate an image takedown, immediately suspend assets, and enqueue deletion jobs.
+         */
+        post: operations["create_image_takedown_api_v1_admin_catalog_images_takedowns_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/images/takedowns/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Image Takedown
+         * @description Check the status and audit details of an image takedown.
+         */
+        get: operations["get_image_takedown_api_v1_admin_catalog_images_takedowns__id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/products/{product_id}/enrich": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queue Product Enrichment
+         * @description Queue a product for fashion attribute enrichment (Rule 6.2.14).
+         */
+        post: operations["queue_product_enrichment_api_v1_admin_catalog_products__product_id__enrich_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/enrichment-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Enrichment Run Status
+         * @description Get the current execution status of an enrichment run.
+         */
+        get: operations["get_enrichment_run_status_api_v1_admin_catalog_enrichment_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/products/{product_id}/enrichment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Current Enrichment
+         * @description Retrieve the current accepted enrichment attributes for a product.
+         */
+        get: operations["get_product_current_enrichment_api_v1_admin_catalog_products__product_id__enrichment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/enrichment-runs/{run_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retry Enrichment Run
+         * @description Retry an eligible failed or rejected enrichment run.
+         */
+        post: operations["retry_enrichment_run_api_v1_admin_catalog_enrichment_runs__run_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Pending Reviews
+         * @description List pending attribute reviews, optionally filtered by merchant tenant.
+         */
+        get: operations["list_pending_reviews_api_v1_admin_catalog_reviews_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews/{review_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Review Detail
+         * @description Get detailed attribute review task.
+         */
+        get: operations["get_review_detail_api_v1_admin_catalog_reviews__review_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/reviews/{review_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Review Decision
+         * @description Submit an audited reviewer decision (APPROVE, CORRECT, REJECT, MARK_UNKNOWN).
+         */
+        post: operations["submit_review_decision_api_v1_admin_catalog_reviews__review_id__decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Connect Merchant Source
+         * @description Register and connect an authorized catalog source.
+         */
+        post: operations["connect_merchant_source_api_v1_merchant_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Sync Status
+         * @description Retrieve operational health, counts, and last synchronization outcome.
+         */
+        get: operations["get_source_sync_status_api_v1_merchant_sources__source_id__status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/operational-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Source Operational Status
+         * @description Toggle source operational status (ENABLE, DISABLE, PAUSE).
+         */
+        patch: operations["update_source_operational_status_api_v1_merchant_sources__source_id__operational_status_patch"];
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Manual Source Sync
+         * @description Trigger manual synchronization with idempotency guarantee.
+         */
+        post: operations["trigger_manual_source_sync_api_v1_merchant_sources__source_id__sync_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Schedule
+         * @description Retrieve synchronization schedule and cadence.
+         */
+        get: operations["get_source_schedule_api_v1_merchant_sources__source_id__schedule_get"];
+        /**
+         * Update Source Schedule
+         * @description Configure synchronization schedule (intervals >= 15m).
+         */
+        put: operations["update_source_schedule_api_v1_merchant_sources__source_id__schedule_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Ingestion Errors
+         * @description Retrieve structured, sanitized error report for ingestion failures.
+         */
+        get: operations["get_source_ingestion_errors_api_v1_merchant_sources__source_id__errors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/quarantine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Quarantined Products
+         * @description Retrieve quarantined records with actionable resolution guidance.
+         */
+        get: operations["get_source_quarantined_products_api_v1_merchant_sources__source_id__quarantine_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/sources/{source_id}/image-permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Source Image Permission Matrix
+         * @description Retrieve granular image and VTO permission matrix and asset counts.
+         */
+        get: operations["get_source_image_permission_matrix_api_v1_merchant_sources__source_id__image_permissions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/products/{product_id}/override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Override Merchant Product Field
+         * @description Apply permitted field overrides to a merchant-owned product.
+         */
+        post: operations["override_merchant_product_field_api_v1_merchant_products__product_id__override_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/offers/{offer_id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Deactivate Merchant Offer
+         * @description Deactivate merchant offer while preserving shared canonical garment.
+         */
+        post: operations["deactivate_merchant_offer_api_v1_merchant_offers__offer_id__deactivate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Merchant Audit Trail
+         * @description Retrieve immutable audit trail scoped to the merchant.
+         */
+        get: operations["get_merchant_audit_trail_api_v1_merchant_audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/sources/{source_id}/takedown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Source Takedown
+         * @description Execute immediate emergency takedown of a catalog source.
+         */
+        post: operations["execute_source_takedown_api_v1_admin_sources__source_id__takedown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Configured Targets
+         * @description Retrieve versioned pilot catalog targets and quality limits.
+         */
+        get: operations["get_configured_targets_api_v1_admin_catalog_targets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Evaluation Run
+         * @description Trigger a comprehensive evaluation run against all catalog targets.
+         */
+        post: operations["start_evaluation_run_api_v1_admin_catalog_evaluations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/evaluations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation Status
+         * @description Retrieve status and summary of a specific evaluation run.
+         */
+        get: operations["get_evaluation_status_api_v1_admin_catalog_evaluations__id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/evaluations/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Evaluation Full Report
+         * @description Retrieve the full detailed evaluation report.
+         */
+        get: operations["get_evaluation_full_report_api_v1_admin_catalog_evaluations__id__report_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Latest Metrics
+         * @description Retrieve latest metric results across all 7 catalog targets.
+         */
+        get: operations["get_latest_metrics_api_v1_admin_catalog_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/source-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * View Source Health And Authorization
+         * @description View source health, live feeds, and authorization compliance details.
+         */
+        get: operations["view_source_health_and_authorization_api_v1_admin_catalog_source_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/quality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * View Product Quality Results
+         * @description View usable product breakdown and rejection counts.
+         */
+        get: operations["view_product_quality_results_api_v1_admin_catalog_quality_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/price-freshness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * View Price Freshness
+         * @description View price freshness metrics and exception counts.
+         */
+        get: operations["view_price_freshness_api_v1_admin_catalog_price_freshness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/link-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * View Link Health
+         * @description View product link health, classifications, and broken link rate.
+         */
+        get: operations["view_link_health_api_v1_admin_catalog_link_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/catalog/image-compliance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * View Image Compliance
+         * @description View image permission traceability and operational rights breakdown.
+         */
+        get: operations["view_image_compliance_api_v1_admin_catalog_image_compliance_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3779,6 +5071,387 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Products
+         * @description Unified shopper search endpoint combining keywords, structured filters, and hybrid ranking.
+         */
+        get: operations["search_products_api_v1_search_products_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/semantic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Semantic Search
+         * @description Natural-language semantic search retrieving products by stylistic intent and meaning.
+         */
+        post: operations["semantic_search_api_v1_search_semantic_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/visual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Visual Search
+         * @description Visual similarity search matching against Phase 06.3 image embeddings.
+         */
+        post: operations["visual_search_api_v1_search_visual_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Query Suggestions
+         * @description Retrieve fast auto-complete query suggestions.
+         */
+        get: operations["query_suggestions_api_v1_search_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/facets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Facets
+         * @description Compute available facet counts for candidate results.
+         */
+        get: operations["search_facets_api_v1_search_facets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Search Session Page
+         * @description Retrieve a stable paginated search result page from a search session snapshot.
+         */
+        get: operations["get_search_session_page_api_v1_search_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/search/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Search Event
+         * @description Record a shopper search interaction event (click, save, handoff).
+         */
+        post: operations["record_search_event_api_v1_search_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Themes */
+        get: operations["list_themes_api_v1_themes_get"];
+        put?: never;
+        /** Create Or Modify Platform Theme */
+        post: operations["create_or_modify_platform_theme_api_v1_themes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/{theme_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Theme */
+        get: operations["get_theme_api_v1_themes__theme_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/themes/{theme_id}/versions/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Theme Version */
+        get: operations["get_theme_version_api_v1_themes__theme_id__versions__version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/layouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Layouts */
+        get: operations["list_layouts_api_v1_layouts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/layouts/{layout_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Layout */
+        get: operations["get_layout_api_v1_layouts__layout_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Components */
+        get: operations["list_components_api_v1_components_get"];
+        put?: never;
+        /** Manage Platform Components */
+        post: operations["manage_platform_components_api_v1_components_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/components/{component_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Component */
+        get: operations["get_component_api_v1_components__component_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Menu Customization */
+        get: operations["get_menu_customization_api_v1_menus__menu_id__customization_get"];
+        /** Update Menu Customization */
+        put: operations["update_menu_customization_api_v1_menus__menu_id__customization_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate Menu Customization */
+        post: operations["validate_menu_customization_api_v1_menus__menu_id__customization_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Menu Customization */
+        post: operations["preview_menu_customization_api_v1_menus__menu_id__customization_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Menu Customization */
+        post: operations["reset_menu_customization_api_v1_menus__menu_id__customization_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Menu Revisions */
+        get: operations["list_menu_revisions_api_v1_menus__menu_id__customization_revisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/revisions/{revision}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Menu Revision */
+        get: operations["get_menu_revision_api_v1_menus__menu_id__customization_revisions__revision__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/menus/{menu_id}/customization/revisions/{revision}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Menu Revision */
+        post: operations["restore_menu_revision_api_v1_menus__menu_id__customization_revisions__revision__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pilot/join": {
         parameters: {
             query?: never;
@@ -5450,6 +7123,29 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** AuthorizationDecisionResponse */
+        AuthorizationDecisionResponse: {
+            /** Decision */
+            decision: string;
+            /** Reason Code */
+            reason_code: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Operation */
+            operation: string;
+            /** Permission Id */
+            permission_id?: string | null;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+        };
         /** BatchSessionEventsRequest */
         BatchSessionEventsRequest: {
             /** Events */
@@ -5924,6 +7620,106 @@ export interface components {
              */
             display_tags: boolean;
         };
+        /**
+         * CatalogAccessMethod
+         * @enum {string}
+         */
+        CatalogAccessMethod: "OAUTH2" | "API_KEY" | "SIGNED_REQUEST" | "WEBHOOK" | "SFTP" | "HTTPS_FEED" | "MANUAL_PARTNER_EXPORT" | "OTHER";
+        /** CatalogAuditEventResponse */
+        CatalogAuditEventResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Actor Id */
+            actor_id: string | null;
+            /** Actor Role */
+            actor_role: string;
+            /** Merchant Id */
+            merchant_id: string | null;
+            /** Source Id */
+            source_id: string | null;
+            /** Entity Type */
+            entity_type: string;
+            /** Entity Id */
+            entity_id: string | null;
+            /** Action */
+            action: string;
+            /** Reason Code */
+            reason_code: string | null;
+            /** Safe Change Summary */
+            safe_change_summary: {
+                [key: string]: unknown;
+            };
+            /** Outcome */
+            outcome: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** CatalogAuditListResponse */
+        CatalogAuditListResponse: {
+            /** Events */
+            events: components["schemas"]["CatalogAuditEventResponse"][];
+            /** Total Count */
+            total_count: number;
+        };
+        /**
+         * CatalogMetricResult
+         * @description Normalized result for a single catalog target or release gate metric.
+         */
+        CatalogMetricResult: {
+            /** Metric Id */
+            metric_id: string;
+            /** Target Value */
+            target_value: number;
+            /** Actual Value */
+            actual_value: number;
+            /** Unit */
+            unit: string;
+            /** Passed */
+            passed: boolean;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /** Numerator */
+            numerator?: number | null;
+            /** Denominator */
+            denominator?: number | null;
+            /** Sample Size */
+            sample_size?: number | null;
+            /** Source Ids */
+            source_ids?: string[];
+            /**
+             * Evaluation Version
+             * @default 1.0
+             */
+            evaluation_version: string;
+            /** Evidence Reference */
+            evidence_reference?: string | null;
+            /** Notes */
+            notes?: string[];
+        };
+        /**
+         * CatalogPermissionCode
+         * @enum {string}
+         */
+        CatalogPermissionCode: "PRODUCT_DATA_READ" | "PRODUCT_DATA_STORE" | "PRODUCT_DISPLAY" | "IMAGE_FETCH" | "IMAGE_DISPLAY" | "IMAGE_STORE" | "IMAGE_AI_PROCESS" | "VTO_PROCESS" | "DERIVATIVE_CREATE" | "DERIVATIVE_STORE" | "DERIVATIVE_DISPLAY" | "MERCHANT_REDIRECT" | "AFFILIATE_ATTRIBUTION";
+        /**
+         * CatalogSourceStatus
+         * @enum {string}
+         */
+        CatalogSourceStatus: "PENDING_REVIEW" | "APPROVED" | "ACTIVE" | "SUSPENDED" | "EXPIRED" | "REVOKED" | "REJECTED";
+        /**
+         * CatalogSourceType
+         * @enum {string}
+         */
+        CatalogSourceType: "MERCHANT_API" | "AFFILIATE_API" | "MERCHANT_FEED" | "PARTNER_EXPORT" | "SHOPIFY_APP" | "OTHER_AUTHORIZED";
         /** CategorySizeItem */
         CategorySizeItem: {
             /** Category Code */
@@ -7117,6 +8913,81 @@ export interface components {
             /** Garment Version */
             garment_version: number;
         };
+        /** EnrichmentQueueResponse */
+        EnrichmentQueueResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Message
+             * @default Enrichment job queued
+             */
+            message: string;
+        };
+        /** EnrichmentResultResponse */
+        EnrichmentResultResponse: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Taxonomy Version */
+            taxonomy_version: string;
+            /** Enrichment Version */
+            enrichment_version: string;
+            /** Status */
+            status: string;
+            /** Category Id */
+            category_id?: string | null;
+            /** Garment Type */
+            garment_type?: string | null;
+            /** Summary Json */
+            summary_json: {
+                [key: string]: unknown;
+            };
+            /** Is Current */
+            is_current: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** EnrichmentRunStatusResponse */
+        EnrichmentRunStatusResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /** Status */
+            status: string;
+            /** Attempt Number */
+            attempt_number: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+        };
         /** EraseAccountResponse */
         EraseAccountResponse: {
             /** User Id */
@@ -7132,6 +9003,116 @@ export interface components {
              */
             message: string;
         };
+        /** EvaluationReport */
+        EvaluationReport: {
+            /**
+             * Evaluation Id
+             * Format: uuid
+             */
+            evaluation_id: string;
+            /** Configuration Version */
+            configuration_version: string;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** All Passed */
+            all_passed: boolean;
+            /** Metric Results */
+            metric_results: {
+                [key: string]: components["schemas"]["CatalogMetricResult"];
+            };
+            usable_product_breakdown: components["schemas"]["UsableProductCheckResult"];
+            /** Release Decision */
+            release_decision: string;
+            /** Blockers */
+            blockers?: string[];
+            /** Evidence References */
+            evidence_references?: string[];
+        };
+        /** EvidenceCreate */
+        EvidenceCreate: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Evidence Type
+             * @default CONTRACT
+             */
+            evidence_type: string;
+            /** Document Reference */
+            document_reference: string;
+            /** Document Sha256 */
+            document_sha256?: string | null;
+            /** Agreement Reference */
+            agreement_reference?: string | null;
+            /** Agreement Version */
+            agreement_version?: string | null;
+            /** Granted By Name */
+            granted_by_name?: string | null;
+            /** Granted By Role */
+            granted_by_role?: string | null;
+            /** Verified By */
+            verified_by?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** @default VERIFIED */
+            verification_status: components["schemas"]["EvidenceVerificationStatus"];
+        };
+        /** EvidenceResponse */
+        EvidenceResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Evidence Type */
+            evidence_type: string;
+            /** Document Reference */
+            document_reference: string;
+            /** Document Sha256 */
+            document_sha256?: string | null;
+            /** Agreement Reference */
+            agreement_reference?: string | null;
+            /** Agreement Version */
+            agreement_version?: string | null;
+            /** Granted By Name */
+            granted_by_name?: string | null;
+            /** Granted By Role */
+            granted_by_role?: string | null;
+            /** Verified By */
+            verified_by?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Verification Status */
+            verification_status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * EvidenceVerificationStatus
+         * @enum {string}
+         */
+        EvidenceVerificationStatus: "PENDING" | "VERIFIED" | "REJECTED" | "SUPERSEDED";
         /**
          * ExplicitPreferencesContract
          * @description User-chosen preferences that can be explicitly toggled and saved (Section 13.4, 13.27, 13.28).
@@ -8098,6 +10079,234 @@ export interface components {
                 [key: string]: string;
             } | null;
         };
+        /** ImageAssetResponse */
+        ImageAssetResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Source Product Id */
+            source_product_id: string;
+            /** Source Variant Id */
+            source_variant_id?: string | null;
+            /** Source Reference */
+            source_reference?: string | null;
+            /** Original Storage Key */
+            original_storage_key?: string | null;
+            /** Original Sha256 */
+            original_sha256?: string | null;
+            /** Normalized Sha256 */
+            normalized_sha256?: string | null;
+            /** Perceptual Hash */
+            perceptual_hash?: string | null;
+            /** Original Mime Type */
+            original_mime_type?: string | null;
+            /** Original Width */
+            original_width?: number | null;
+            /** Original Height */
+            original_height?: number | null;
+            /** Original Bytes */
+            original_bytes?: number | null;
+            /** Status */
+            status: string;
+            /** Quality Score */
+            quality_score?: string | null;
+            /** Quality Notes */
+            quality_notes?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Deleted At */
+            deleted_at?: string | null;
+        };
+        /** ImageJobCreateRequest */
+        ImageJobCreateRequest: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Source Product Id */
+            source_product_id: string;
+            /** Image Url */
+            image_url: string;
+            /** Category */
+            category: string;
+            /** Source Variant Id */
+            source_variant_id?: string | null;
+            /** Canonical Garment Id */
+            canonical_garment_id?: string | null;
+        };
+        /** ImageJobResponse */
+        ImageJobResponse: {
+            /** Success */
+            success: boolean;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Status */
+            status: string;
+            /** Original Storage Key */
+            original_storage_key?: string | null;
+            /** Transformations */
+            transformations?: string[];
+            /** Quality Score */
+            quality_score?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Error Message */
+            error_message?: string | null;
+        };
+        /** ImagePermissionMatrixResponse */
+        ImagePermissionMatrixResponse: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Fetch Permitted */
+            fetch_permitted: boolean;
+            /** Store Permitted */
+            store_permitted: boolean;
+            /** Display Permitted */
+            display_permitted: boolean;
+            /** Ai Processing Permitted */
+            ai_processing_permitted: boolean;
+            /** Vto Permitted */
+            vto_permitted: boolean;
+            /** Derivatives Retained */
+            derivatives_retained: boolean;
+            /** Total Assets Count */
+            total_assets_count: number;
+            /** Active Assets Count */
+            active_assets_count: number;
+            /** Suspended Assets Count */
+            suspended_assets_count: number;
+            /** Warning Messages */
+            warning_messages?: string[];
+        };
+        /** ImageTakedownCreateRequest */
+        ImageTakedownCreateRequest: {
+            /** Reason Code */
+            reason_code: string;
+            /**
+             * Scope Type
+             * @default SOURCE
+             */
+            scope_type: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Scope Target */
+            scope_target?: string | null;
+            /** Audit Metadata */
+            audit_metadata?: {
+                [key: string]: unknown;
+            };
+        };
+        /** ImageTakedownResponse */
+        ImageTakedownResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Scope Type */
+            scope_type: string;
+            /** Scope Target */
+            scope_target?: string | null;
+            /** Reason Code */
+            reason_code: string;
+            /** Status */
+            status: string;
+            /** Audit Metadata */
+            audit_metadata?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+        };
+        /** ImageTransformationResponse */
+        ImageTransformationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Transformation Type */
+            transformation_type: string;
+            /** Transformation Version */
+            transformation_version: string;
+            /** Processor Name */
+            processor_name: string;
+            /** Processor Version */
+            processor_version?: string | null;
+            /** Storage Key */
+            storage_key: string;
+            /** Output Mime Type */
+            output_mime_type: string;
+            /** Output Width */
+            output_width: number;
+            /** Output Height */
+            output_height: number;
+            /** Output Bytes */
+            output_bytes: number;
+            /** Output Sha256 */
+            output_sha256: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /**
          * ImplementationDependencyGroup
          * @description Implementation Sequencing by Dependency Order (Visual Design — 1 Section 1.20).
@@ -8120,6 +10329,17 @@ export interface components {
              * @default Inferred from browsing history. Does not alter your explicit style choices.
              */
             observation_notice: string;
+        };
+        /** IngestErrorListResponse */
+        IngestErrorListResponse: {
+            /** Errors */
+            errors: components["schemas"]["IngestRunErrorResponse"][];
+            /** Total Count */
+            total_count: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /** IngestProductRequest */
         IngestProductRequest: {
@@ -8185,6 +10405,147 @@ export interface components {
             price_minor: number;
             /** Currency */
             currency: string;
+        };
+        /** IngestRunErrorResponse */
+        IngestRunErrorResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ingest Run Id
+             * Format: uuid
+             */
+            ingest_run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Error Code */
+            error_code: string;
+            /** Error Category */
+            error_category: string;
+            /** Failed Stage */
+            failed_stage: string;
+            /** Source Product Reference */
+            source_product_reference: string | null;
+            /** Safe Error Message */
+            safe_error_message: string;
+            /** Retryable */
+            retryable: boolean;
+            /** Attempt Number */
+            attempt_number: number;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Resolved At */
+            resolved_at: string | null;
+        };
+        /**
+         * IngestionJobCreateRequest
+         * @description Admin request to launch a catalog ingestion run.
+         */
+        IngestionJobCreateRequest: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Mode
+             * @description Sync mode: full | incremental | manual
+             * @default incremental
+             */
+            mode: string;
+            /**
+             * Dry Run
+             * @description Simulate ingestion without DB commit
+             * @default false
+             */
+            dry_run: boolean;
+            /**
+             * Limit Per Page
+             * @default 100
+             */
+            limit_per_page: number;
+        };
+        /**
+         * IngestionJobReportResponse
+         * @description Detailed summary metrics for an ingestion run.
+         */
+        IngestionJobReportResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Counts */
+            counts: {
+                [key: string]: unknown;
+            };
+            /** Rejection Reasons */
+            rejection_reasons: {
+                [key: string]: unknown;
+            };
+            /** Image Counts */
+            image_counts: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error?: string | null;
+        };
+        /**
+         * IngestionJobResponse
+         * @description Schema for ingestion run execution details.
+         */
+        IngestionJobResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Sync Mode */
+            sync_mode?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Counts */
+            counts: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error?: string | null;
         };
         /**
          * InteractionInputMode
@@ -8488,6 +10849,44 @@ export interface components {
             /** Image Uri */
             image_uri: string;
         };
+        /** ManualSyncRequest */
+        ManualSyncRequest: {
+            /** @default INCREMENTAL */
+            sync_mode: components["schemas"]["database__models__catalog_operations__SyncMode"];
+            /** Idempotency Key */
+            idempotency_key?: string | null;
+            /**
+             * Force
+             * @default false
+             */
+            force: boolean;
+        };
+        /** ManualSyncResponse */
+        ManualSyncResponse: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Sync Mode */
+            sync_mode: string;
+            /** Status */
+            status: string;
+            /** Idempotency Key */
+            idempotency_key: string | null;
+            /** Is Duplicate Request */
+            is_duplicate_request: boolean;
+            /**
+             * Enqueued At
+             * Format: date-time
+             */
+            enqueued_at: string;
+        };
         /**
          * MapClusterContract
          * @description Aggregate cluster grouping proximate markers (Section 11.17).
@@ -8687,6 +11086,35 @@ export interface components {
          * @enum {string}
          */
         MeasurementSource: "user_entered" | "cv_estimated" | "manual";
+        /** MediaAccessUrlResponse */
+        MediaAccessUrlResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Url */
+            url: string;
+            /**
+             * Expires In Seconds
+             * @default 60
+             */
+            expires_in_seconds: number;
+        };
+        /** MediaDeletionResponse */
+        MediaDeletionResponse: {
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /**
+             * Status
+             * @default DELETION_PENDING
+             * @constant
+             */
+            status: "DELETION_PENDING";
+        };
         /**
          * MediaItemContract
          * @description Individual media asset specification (Section 9.6).
@@ -8716,12 +11144,207 @@ export interface components {
              */
             order: number;
         };
+        /** MediaMetadataResponse */
+        MediaMetadataResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Purpose */
+            purpose: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "AVAILABLE" | "DELETION_PENDING" | "DELETED" | "QUARANTINED";
+            /** Content Type */
+            content_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Width */
+            width: number;
+            /** Height */
+            height: number;
+            /** Sha256 Normalized */
+            sha256_normalized: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /**
          * MediaType
          * @description Media asset categorization (Section 9.6).
          * @enum {string}
          */
         MediaType: "image" | "thumbnail" | "detail" | "lifestyle" | "model" | "video" | "view_360";
+        /** MerchantCreate */
+        MerchantCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Merchant Type
+             * @default brand
+             */
+            merchant_type: string;
+            /** Legal Name */
+            legal_name: string;
+            /** Display Name */
+            display_name?: string | null;
+            /** Website */
+            website?: string | null;
+            /**
+             * Country Code
+             * @default IN
+             */
+            country_code: string;
+            /** Registration Reference */
+            registration_reference?: string | null;
+            /** Primary Contact Id */
+            primary_contact_id?: string | null;
+            /** Technical Contact Id */
+            technical_contact_id?: string | null;
+            /** Takedown Contact Id */
+            takedown_contact_id?: string | null;
+        };
+        /** MerchantOfferDeactivateRequest */
+        MerchantOfferDeactivateRequest: {
+            /** Reason */
+            reason?: string | null;
+        };
+        /** MerchantOfferDeactivateResponse */
+        MerchantOfferDeactivateResponse: {
+            /**
+             * Offer Id
+             * Format: uuid
+             */
+            offer_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /**
+             * Garment Id
+             * Format: uuid
+             */
+            garment_id: string;
+            /** Offer Status */
+            offer_status: string;
+            /** Canonical Garment Active */
+            canonical_garment_active: boolean;
+            /**
+             * Deactivated At
+             * Format: date-time
+             */
+            deactivated_at: string;
+        };
+        /** MerchantProductOverrideRequest */
+        MerchantProductOverrideRequest: {
+            /** Field Name */
+            field_name: string;
+            /** Override Value */
+            override_value: {
+                [key: string]: unknown;
+            };
+            /** Reason */
+            reason?: string | null;
+        };
+        /** MerchantProductOverrideResponse */
+        MerchantProductOverrideResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /**
+             * Merchant Product Id
+             * Format: uuid
+             */
+            merchant_product_id: string;
+            /** Field Name */
+            field_name: string;
+            /** Override Value */
+            override_value: {
+                [key: string]: unknown;
+            };
+            /** Previous Value */
+            previous_value: {
+                [key: string]: unknown;
+            } | null;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** MerchantResponse */
+        MerchantResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Merchant Type */
+            merchant_type: string;
+            /** Legal Name */
+            legal_name?: string | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Country Code */
+            country_code: string;
+            /** Registration Reference */
+            registration_reference?: string | null;
+            /** Verification Status */
+            verification_status: string;
+            /** Primary Contact Id */
+            primary_contact_id?: string | null;
+            /** Technical Contact Id */
+            technical_contact_id?: string | null;
+            /** Takedown Contact Id */
+            takedown_contact_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** MerchantVerificationRequest */
+        MerchantVerificationRequest: {
+            verification_status: components["schemas"]["MerchantVerificationStatus"];
+            /** Reason */
+            reason: string;
+            /** Reviewer Id */
+            reviewer_id?: string | null;
+        };
+        /**
+         * MerchantVerificationStatus
+         * @enum {string}
+         */
+        MerchantVerificationStatus: "UNVERIFIED" | "UNDER_REVIEW" | "VERIFIED" | "REJECTED" | "SUSPENDED";
         /**
          * MixMatchContract
          * @description Mix & Match experiment matrix (Section 10.16, 10.17).
@@ -9371,6 +11994,11 @@ export interface components {
             scrim: number;
         };
         /**
+         * OperationalStatus
+         * @enum {string}
+         */
+        OperationalStatus: "ENABLED" | "DISABLED" | "PAUSED" | "SUSPENDED";
+        /**
          * OutfitBuilderLayoutType
          * @description Styling studio 3-way layout adaptation (Section 14.35 & 14.36).
          * @enum {string}
@@ -9643,6 +12271,83 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** PermissionCreate */
+        PermissionCreate: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            permission_code: components["schemas"]["CatalogPermissionCode"];
+            /** Granted By */
+            granted_by: string;
+            /** Evidence Id */
+            evidence_id?: string | null;
+            /** Scope Categories */
+            scope_categories?: string[];
+            /** Scope Markets */
+            scope_markets?: string[];
+            /** Processor Restrictions */
+            processor_restrictions?: string[];
+            /** Storage Limit Days */
+            storage_limit_days?: number | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+        };
+        /** PermissionResponse */
+        PermissionResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Permission Code */
+            permission_code: string;
+            /** Permission Status */
+            permission_status: string;
+            /** Granted By */
+            granted_by: string;
+            /** Evidence Id */
+            evidence_id?: string | null;
+            /**
+             * Scope Categories
+             * @default []
+             */
+            scope_categories: string[];
+            /**
+             * Scope Markets
+             * @default []
+             */
+            scope_markets: string[];
+            /**
+             * Processor Restrictions
+             * @default []
+             */
+            processor_restrictions: string[];
+            /** Storage Limit Days */
+            storage_limit_days?: number | null;
+            /**
+             * Effective At
+             * Format: date-time
+             */
+            effective_at: string;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Revoked At */
+            revoked_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /**
          * PersonalCollectionContract
          * @description User-created grouping for organizing saved looks and fashion (Section 13.66, 13.67).
@@ -9755,6 +12460,29 @@ export interface components {
             context?: {
                 [key: string]: unknown;
             };
+        };
+        /** PilotTargetLimits */
+        PilotTargetLimits: {
+            /**
+             * Minimum Live Authorized Sources
+             * @default 1
+             */
+            minimum_live_authorized_sources: number;
+            /**
+             * Minimum Usable Offers
+             * @default 1000
+             */
+            minimum_usable_offers: number;
+            /**
+             * Expansion Minimum Offers
+             * @default 2000
+             */
+            expansion_minimum_offers: number;
+            /**
+             * Expansion Maximum Offers
+             * @default 5000
+             */
+            expansion_maximum_offers: number;
         };
         /**
          * PostAIFeedbackRequestContract
@@ -10345,6 +13073,65 @@ export interface components {
             product_id: string;
             reviews: components["schemas"]["ProductReviewsContract"];
         };
+        /** ProductSearchResponse */
+        ProductSearchResponse: {
+            /**
+             * Search Id
+             * Format: uuid
+             */
+            search_id: string;
+            /** Query */
+            query?: string | null;
+            /** Items */
+            items?: components["schemas"]["ProductSearchResultItem"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /** Applied Filters */
+            applied_filters?: {
+                [key: string]: unknown;
+            };
+            /** Suggestions */
+            suggestions?: string[];
+            /** Facets */
+            facets?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Sort
+             * @default relevance
+             */
+            sort: string;
+        };
+        /** ProductSearchResultItem */
+        ProductSearchResultItem: {
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Merchant Product Id
+             * Format: uuid
+             */
+            merchant_product_id: string;
+            /** Title */
+            title: string;
+            brand: components["schemas"]["SearchBrandInfo"];
+            price: components["schemas"]["SearchPriceInfo"];
+            /** Availability */
+            availability: string;
+            /** Matched Attributes */
+            matched_attributes?: string[];
+            /** Primary Image Url */
+            primary_image_url?: string | null;
+            /** Similarity Score */
+            similarity_score?: number | null;
+        };
         /**
          * ProductVariantGroupContract
          * @description Group of variant choices for a dimension (Section 7.25).
@@ -10458,6 +13245,157 @@ export interface components {
          * @enum {string}
          */
         QualityCategory: "foundation" | "shell" | "components" | "fashion" | "shopping" | "discovery" | "styling" | "geography" | "ai" | "personal" | "responsive" | "accessibility" | "qa";
+        /** QualityTargetLimits */
+        QualityTargetLimits: {
+            /**
+             * Minimum Fresh Price Percentage
+             * @default 95
+             */
+            minimum_fresh_price_percentage: number;
+            /**
+             * Maximum Broken Link Percentage Exclusive
+             * @default 1
+             */
+            maximum_broken_link_percentage_exclusive: number;
+            /**
+             * Maximum Unauthorized Sources
+             * @default 0
+             */
+            maximum_unauthorized_sources: number;
+            /**
+             * Minimum Image Permission Traceability Percentage
+             * @default 100
+             */
+            minimum_image_permission_traceability_percentage: number;
+        };
+        /**
+         * QuarantineListResponse
+         * @description Paginated list of quarantined product records.
+         */
+        QuarantineListResponse: {
+            /** Items */
+            items: components["schemas"]["QuarantineRecordResponse"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /**
+         * QuarantineRecordResponse
+         * @description Sanitized quarantined product record.
+         */
+        QuarantineRecordResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Ingest Run Id
+             * Format: uuid
+             */
+            ingest_run_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Product Id */
+            source_product_id?: string | null;
+            /** Reason Code */
+            reason_code: string;
+            /** Field Name */
+            field_name?: string | null;
+            /** Safe Record Reference */
+            safe_record_reference?: {
+                [key: string]: unknown;
+            } | null;
+            /** Record Hash */
+            record_hash?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Resolution Note */
+            resolution_note?: string | null;
+        };
+        /** QuarantineReportListResponse */
+        QuarantineReportListResponse: {
+            /** Records */
+            records: components["schemas"]["QuarantinedProductResponse"][];
+            /** Total Count */
+            total_count: number;
+        };
+        /**
+         * QuarantineReprocessResponse
+         * @description Result of attempting to reprocess a quarantined record.
+         */
+        QuarantineReprocessResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Message */
+            message: string;
+        };
+        /** QuarantineResolutionGuidance */
+        QuarantineResolutionGuidance: {
+            /** Reason Code */
+            reason_code: string;
+            /** Severity */
+            severity: string;
+            /** Summary */
+            summary: string;
+            /** Recommended Action */
+            recommended_action: string;
+        };
+        /** QuarantinedProductResponse */
+        QuarantinedProductResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Ingest Run Id
+             * Format: uuid
+             */
+            ingest_run_id: string;
+            /** Source Product Id */
+            source_product_id: string | null;
+            /** Reason Code */
+            reason_code: string;
+            /** Field Name */
+            field_name: string | null;
+            guidance: components["schemas"]["QuarantineResolutionGuidance"];
+            /**
+             * First Seen At
+             * Format: date-time
+             */
+            first_seen_at: string;
+            /** Status */
+            status: string;
+        };
         /**
          * RadiusScale
          * @description Border radius scale (Section 2.18).
@@ -11206,6 +14144,39 @@ export interface components {
              */
             utilization_pct: number;
         };
+        /** ReviewDecisionRequest */
+        ReviewDecisionRequest: {
+            /** Action */
+            action: string;
+            /** Corrected Value */
+            corrected_value?: string | null;
+            /**
+             * Reason
+             * @default Decision recorded by reviewer
+             */
+            reason: string;
+        };
+        /** ReviewDecisionResponse */
+        ReviewDecisionResponse: {
+            /**
+             * Review Id
+             * Format: uuid
+             */
+            review_id: string;
+            /** Status */
+            status: string;
+            /** Attribute Id */
+            attribute_id: string;
+            /** Current Value */
+            current_value?: string | null;
+            /** Reviewed By */
+            reviewed_by: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+        };
         /**
          * ReviewDistributionItemContract
          * @description Histogram bar for star rating distribution (Section 9.21).
@@ -11223,6 +14194,43 @@ export interface components {
              * @default 0
              */
             percentage: number;
+        };
+        /** ReviewItemResponse */
+        ReviewItemResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Product Id
+             * Format: uuid
+             */
+            product_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Attribute Id */
+            attribute_id: string;
+            /** Proposed Value */
+            proposed_value?: string | null;
+            /** Current Value */
+            current_value?: string | null;
+            /** Status */
+            status: string;
+            /** Confidence */
+            confidence?: number | null;
+            /** Flags */
+            flags?: string[];
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** RevokeConsentRequest */
         RevokeConsentRequest: {
@@ -11337,6 +14345,29 @@ export interface components {
              * @default 0
              */
             right_px: number;
+        };
+        /** SamplingConfig */
+        SamplingConfig: {
+            /**
+             * Method
+             * @default stratified_random
+             */
+            method: string;
+            /**
+             * Require Reproducible Seed
+             * @default true
+             */
+            require_reproducible_seed: boolean;
+            /**
+             * Default Seed
+             * @default 42
+             */
+            default_seed: number;
+            /**
+             * Default Sample Size
+             * @default 100
+             */
+            default_sample_size: number;
         };
         /**
          * SaveOutfitRequestContract
@@ -11793,6 +14824,22 @@ export interface components {
              */
             is_offline: boolean;
         };
+        /** SearchBrandInfo */
+        SearchBrandInfo: {
+            /** Id */
+            id?: string | null;
+            /** Name */
+            name: string;
+        };
+        /** SearchFacetsResponse */
+        SearchFacetsResponse: {
+            /** Facets */
+            facets?: {
+                [key: string]: {
+                    [key: string]: unknown;
+                }[];
+            };
+        };
         /**
          * SearchHomeTemplateSpecContract
          * @description S01: Search home gateway template spec (Section 8.16).
@@ -11808,6 +14855,42 @@ export interface components {
             explore_categories?: {
                 [key: string]: string;
             }[];
+        };
+        /**
+         * SearchInteractionEventRequest
+         * @description Interaction tracking payload.
+         */
+        SearchInteractionEventRequest: {
+            /** Session Id */
+            session_id?: string | null;
+            /**
+             * Event Type
+             * @description Event type identifier (e.g. SEARCH_RESULT_CLICKED)
+             */
+            event_type: string;
+            /** Query */
+            query?: string | null;
+            /** Filter Key */
+            filter_key?: string | null;
+            /** Filter Value */
+            filter_value?: string | null;
+            /** Product Id */
+            product_id?: string | null;
+            /** Merchant Product Id */
+            merchant_product_id?: string | null;
+            /** Rank Position */
+            rank_position?: number | null;
+            /** Metadata Json */
+            metadata_json?: {
+                [key: string]: unknown;
+            };
+        };
+        /** SearchPriceInfo */
+        SearchPriceInfo: {
+            /** Amount */
+            amount: string;
+            /** Currency */
+            currency: string;
         };
         /**
          * SearchResultCountsContract
@@ -11851,6 +14934,29 @@ export interface components {
          * @enum {string}
          */
         SearchResultType: "all" | "products" | "looks" | "brands" | "styles" | "trends";
+        /** SearchSessionResponse */
+        SearchSessionResponse: {
+            /**
+             * Session Id
+             * Format: uuid
+             */
+            session_id: string;
+            /** Query */
+            query?: string | null;
+            /**
+             * Total Results
+             * @default 0
+             */
+            total_results: number;
+            /** Applied Filters */
+            applied_filters?: {
+                [key: string]: unknown;
+            };
+            /** Items */
+            items?: components["schemas"]["ProductSearchResultItem"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
         /**
          * SearchSuggestionContract
          * @description Categorized suggestion item for autocomplete (Section 8.18).
@@ -11865,6 +14971,13 @@ export interface components {
             count?: number | null;
             /** Category */
             category?: string | null;
+        };
+        /** SearchSuggestionsResponse */
+        SearchSuggestionsResponse: {
+            /** Prefix */
+            prefix: string;
+            /** Suggestions */
+            suggestions?: string[];
         };
         /** SellerCreateRequest */
         SellerCreateRequest: {
@@ -12016,6 +15129,30 @@ export interface components {
              * @description Disabled or inactive content
              */
             disabled: string;
+        };
+        /**
+         * SemanticSearchRequest
+         * @description Natural language semantic search request.
+         */
+        SemanticSearchRequest: {
+            /**
+             * Query
+             * @description Natural language search prompt
+             */
+            query: string;
+            /**
+             * Filters
+             * @description Structured filter constraints
+             */
+            filters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Limit
+             * @description Result page size
+             * @default 20
+             */
+            limit: number;
         };
         /**
          * SemanticSpacing
@@ -12374,6 +15511,362 @@ export interface components {
          * @enum {string}
          */
         SortOption: "relevance" | "newest" | "price_asc" | "price_desc" | "popularity";
+        /** SourceConnectionRequest */
+        SourceConnectionRequest: {
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /**
+             * Source Type
+             * @default MERCHANT_API
+             */
+            source_type: string;
+            /**
+             * Adapter Name
+             * @default generic_merchant_api
+             */
+            adapter_name: string;
+            /**
+             * Adapter Version
+             * @default 1.0.0
+             */
+            adapter_version: string;
+            /**
+             * Access Method
+             * @default API_KEY
+             */
+            access_method: string;
+            /** Credential Secret Ref */
+            credential_secret_ref?: string | null;
+            /** Market Codes */
+            market_codes?: string[];
+            /** Category Codes */
+            category_codes?: string[];
+            /**
+             * Refresh Hours
+             * @default 24
+             */
+            refresh_hours: number;
+        };
+        /** SourceConnectionResponse */
+        SourceConnectionResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Source Type */
+            source_type: string;
+            /** Adapter Name */
+            adapter_name: string | null;
+            /** Adapter Version */
+            adapter_version: string | null;
+            /** Access Method */
+            access_method: string | null;
+            /** Masked Credential Ref */
+            masked_credential_ref: string | null;
+            /** Source Status */
+            source_status: string;
+            /** Operational Status */
+            operational_status: string;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SourceCreate */
+        SourceCreate: {
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** @default MERCHANT_API */
+            source_type: components["schemas"]["CatalogSourceType"];
+            /** Source Owner */
+            source_owner?: string | null;
+            /** Provider Name */
+            provider_name?: string | null;
+            /** Source Description */
+            source_description?: string | null;
+            /** @default API_KEY */
+            access_method: components["schemas"]["CatalogAccessMethod"];
+            /** Credential Secret Ref */
+            credential_secret_ref?: string | null;
+            /** Market Codes */
+            market_codes?: string[];
+            /** Category Codes */
+            category_codes?: string[];
+            /**
+             * Refresh Hours
+             * @default 24
+             */
+            refresh_hours: number;
+            /**
+             * Max Rps
+             * @default 2
+             */
+            max_rps: number;
+            /** Terms Url */
+            terms_url?: string | null;
+            /** Takedown Contact */
+            takedown_contact?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Next Review At */
+            next_review_at?: string | null;
+        };
+        /**
+         * SourceErrorCode
+         * @enum {string}
+         */
+        SourceErrorCode: "authentication" | "authorization" | "rate_limited" | "transient" | "timeout" | "not_found" | "invalid_request" | "cursor_expired" | "schema_changed" | "permission_revoked";
+        /**
+         * SourceHealthReport
+         * @description Health and operational telemetry for a catalog source.
+         */
+        SourceHealthReport: {
+            /** Source Slug */
+            source_slug: string;
+            state: components["schemas"]["SourceHealthState"];
+            /** Last Check At */
+            last_check_at?: string | null;
+            /** Last Successful Sync At */
+            last_successful_sync_at?: string | null;
+            /** Last Failed Sync At */
+            last_failed_sync_at?: string | null;
+            /**
+             * Consecutive Failures
+             * @default 0
+             */
+            consecutive_failures: number;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            last_error_code?: components["schemas"]["SourceErrorCode"] | null;
+            /**
+             * Message
+             * @default Healthy
+             */
+            message: string;
+        };
+        /**
+         * SourceHealthState
+         * @enum {string}
+         */
+        SourceHealthState: "unknown" | "healthy" | "degraded" | "rate_limited" | "auth_failed" | "stale" | "disabled";
+        /** SourceOperationalStatusRequest */
+        SourceOperationalStatusRequest: {
+            target_status: components["schemas"]["OperationalStatus"];
+            /** Reason */
+            reason: string;
+        };
+        /** SourceOperationalStatusResponse */
+        SourceOperationalStatusResponse: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Operational Status */
+            operational_status: string;
+            /** Is Enabled */
+            is_enabled: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Message */
+            message: string;
+        };
+        /** SourceResponse */
+        SourceResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Merchant Id */
+            merchant_id?: string | null;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** Source Type */
+            source_type?: string | null;
+            /** Source Owner */
+            source_owner?: string | null;
+            /** Provider Name */
+            provider_name?: string | null;
+            /** Source Description */
+            source_description?: string | null;
+            /** Access Method */
+            access_method?: string | null;
+            /** Credential Secret Ref */
+            credential_secret_ref?: string | null;
+            /** Source Status */
+            source_status: string;
+            /**
+             * Market Codes
+             * @default []
+             */
+            market_codes: string[];
+            /**
+             * Category Codes
+             * @default []
+             */
+            category_codes: string[];
+            /** Refresh Hours */
+            refresh_hours: number;
+            /** Max Rps */
+            max_rps: number;
+            /** Terms Url */
+            terms_url?: string | null;
+            /** Takedown Contact */
+            takedown_contact?: string | null;
+            /** Effective At */
+            effective_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /** Next Review At */
+            next_review_at?: string | null;
+            /** Last Successful Sync At */
+            last_successful_sync_at?: string | null;
+            /** Last Authorization Check At */
+            last_authorization_check_at?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /** SourceScheduleRequest */
+        SourceScheduleRequest: {
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /** @default INCREMENTAL */
+            sync_mode: components["schemas"]["database__models__catalog_operations__SyncMode"];
+            /**
+             * Interval Minutes
+             * @default 60
+             */
+            interval_minutes: number;
+            /** Cron Expression */
+            cron_expression?: string | null;
+            /**
+             * Timezone
+             * @default UTC
+             */
+            timezone: string;
+        };
+        /** SourceScheduleResponse */
+        SourceScheduleResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Merchant Id
+             * Format: uuid
+             */
+            merchant_id: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Sync Mode */
+            sync_mode: string;
+            /** Interval Minutes */
+            interval_minutes: number;
+            /** Cron Expression */
+            cron_expression: string | null;
+            /** Timezone */
+            timezone: string;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Last Scheduled At */
+            last_scheduled_at: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** SourceStatusUpdate */
+        SourceStatusUpdate: {
+            target_status: components["schemas"]["CatalogSourceStatus"];
+            /** Reason */
+            reason: string;
+            /** Reviewer Id */
+            reviewer_id?: string | null;
+        };
+        /** SourceTakedownRequest */
+        SourceTakedownRequest: {
+            /** Reason Code */
+            reason_code: string;
+            /** Reason Text */
+            reason_text: string;
+            /**
+             * Purge Images
+             * @default true
+             */
+            purge_images: boolean;
+        };
+        /** SourceTakedownResponse */
+        SourceTakedownResponse: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Takedown Status */
+            takedown_status: string;
+            /** Jobs Cancelled Count */
+            jobs_cancelled_count: number;
+            /** Offers Deactivated Count */
+            offers_deactivated_count: number;
+            /** Images Purged Count */
+            images_purged_count: number;
+            /**
+             * Completed At
+             * Format: date-time
+             */
+            completed_at: string;
+        };
         /**
          * SpacingScale
          * @description 4px base increment spacing matrix (Section 2.13).
@@ -12724,6 +16217,143 @@ export interface components {
          */
         SuggestionType: "query" | "product" | "brand" | "style" | "trend" | "category";
         /**
+         * SyncCheckpointResponse
+         * @description Schema representing durable checkpoint state for a source.
+         */
+        SyncCheckpointResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Checkpoint Type */
+            checkpoint_type: string;
+            /** Cursor Data */
+            cursor_data?: {
+                [key: string]: unknown;
+            } | null;
+            /** Watermark */
+            watermark?: string | null;
+            /** Provider Version */
+            provider_version?: string | null;
+            /** Last Success At */
+            last_success_at?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SyncRunResponse
+         * @description Schema representing a catalog synchronization execution record.
+         */
+        SyncRunResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Mode */
+            mode: string;
+            /** Status */
+            status: string;
+            /** Snapshot Id */
+            snapshot_id?: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Pages Fetched */
+            pages_fetched: number;
+            /** Products Seen */
+            products_seen: number;
+            /** Products Inserted */
+            products_inserted: number;
+            /** Products Updated */
+            products_updated: number;
+            /** Products Rejected */
+            products_rejected: number;
+            /** Error Code */
+            error_code?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SyncStatusDashboardResponse */
+        SyncStatusDashboardResponse: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Name */
+            source_name: string;
+            /** Operational Status */
+            operational_status: string;
+            /** Source Status */
+            source_status: string;
+            /** Last Sync Status */
+            last_sync_status?: string | null;
+            /** Last Sync Mode */
+            last_sync_mode?: string | null;
+            /** Last Successful Sync At */
+            last_successful_sync_at?: string | null;
+            /** Last Failed Sync At */
+            last_failed_sync_at?: string | null;
+            /** Duration Seconds */
+            duration_seconds?: number | null;
+            /** Counts */
+            counts?: {
+                [key: string]: unknown;
+            };
+            /** Last Error */
+            last_error?: string | null;
+            /**
+             * Is Healthy
+             * @default true
+             */
+            is_healthy: boolean;
+        };
+        /**
+         * SyncTriggerRequest
+         * @description Admin request payload to trigger catalog source synchronization.
+         */
+        SyncTriggerRequest: {
+            /**
+             * @description Synchronization mode (full or incremental)
+             * @default full
+             */
+            mode: components["schemas"]["fashx__catalog__acquisition__contracts_v2__SyncMode"];
+            /**
+             * Limit Per Page
+             * @description Page batch size
+             * @default 100
+             */
+            limit_per_page: number;
+            /**
+             * Apply
+             * @description Whether to persist changes or run as dry-run
+             * @default true
+             */
+            apply: boolean;
+        };
+        /**
          * TabContract
          * @description A single tab in a tab group (Section 4.17).
          */
@@ -12780,6 +16410,66 @@ export interface components {
          * @enum {string}
          */
         TabMode: "route_based" | "state_based";
+        /**
+         * TakedownReasonCode
+         * @enum {string}
+         */
+        TakedownReasonCode: "MERCHANT_REQUEST" | "LICENSE_EXPIRED" | "LICENSE_REVOKED" | "IMAGE_RIGHTS_DISPUTE" | "DATA_RIGHTS_DISPUTE" | "PROVIDER_TERMINATION" | "CREDENTIAL_COMPROMISE" | "SECURITY_INCIDENT" | "INCORRECT_PRODUCT_DATA" | "LEGAL_REQUEST" | "OTHER";
+        /** TakedownResponse */
+        TakedownResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Reason Code */
+            reason_code: string;
+            /** Requested By */
+            requested_by: string;
+            /** Request Reference */
+            request_reference?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Acknowledged At */
+            acknowledged_at?: string | null;
+            /** Completed At */
+            completed_at?: string | null;
+            /**
+             * Affected Product Count
+             * @default 0
+             */
+            affected_product_count: number;
+            /**
+             * Affected Asset Count
+             * @default 0
+             */
+            affected_asset_count: number;
+            /** Assigned Reviewer */
+            assigned_reviewer?: string | null;
+            /** Resolution Notes */
+            resolution_notes?: string | null;
+        };
+        /** TargetConfig */
+        TargetConfig: {
+            /**
+             * Version
+             * @default 1.0
+             */
+            version: string;
+            pilot?: components["schemas"]["PilotTargetLimits"];
+            quality?: components["schemas"]["QualityTargetLimits"];
+            sampling?: components["schemas"]["SamplingConfig"];
+        };
         /**
          * TargetSizeTokens
          * @description Accessibility minimum touch targets (Section 2.16 & WCAG 2.5.5/2.5.8).
@@ -13455,6 +17145,83 @@ export interface components {
             /** Delivery Region */
             delivery_region?: string | null;
         };
+        /** UploadCompleteRequest */
+        UploadCompleteRequest: {
+            /**
+             * Client Checksum Sha256
+             * @description Optional client SHA-256 checksum confirmation
+             */
+            client_checksum_sha256?: string | null;
+        };
+        /** UploadInitiateRequest */
+        UploadInitiateRequest: {
+            /**
+             * Purpose
+             * @description Declared purpose for the personal media asset
+             * @example VTO_PERSONAL_PHOTO
+             * @enum {string}
+             */
+            purpose: "PROFILE_PHOTO" | "VTO_PERSONAL_PHOTO";
+            /**
+             * Filename
+             * @description Original client filename (metadata only, not used for storage key)
+             * @example personal-photo.jpg
+             */
+            filename: string;
+            /**
+             * Content Type
+             * @description Declared MIME content type
+             * @example image/jpeg
+             */
+            content_type: string;
+            /**
+             * Declared Size Bytes
+             * @description Declared file size in bytes (10KB to 10MB)
+             * @example 2457600
+             */
+            declared_size_bytes: number;
+            /**
+             * Client Checksum Sha256
+             * @description Optional client-computed SHA-256 checksum
+             */
+            client_checksum_sha256?: string | null;
+        };
+        /** UploadInitiateResponse */
+        UploadInitiateResponse: {
+            /**
+             * Upload Id
+             * Format: uuid
+             */
+            upload_id: string;
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /** Upload Url */
+            upload_url: string;
+            /**
+             * Method
+             * @default PUT
+             * @constant
+             */
+            method: "PUT";
+            /** Required Headers */
+            required_headers: {
+                [key: string]: string;
+            };
+            /**
+             * Expires In Seconds
+             * @default 300
+             */
+            expires_in_seconds: number;
+            /**
+             * Status
+             * @default PENDING_UPLOAD
+             * @constant
+             */
+            status: "PENDING_UPLOAD";
+        };
         /** UploadPhotoResponse */
         UploadPhotoResponse: {
             /**
@@ -13479,6 +17246,69 @@ export interface components {
             skin_tone?: {
                 [key: string]: unknown;
             } | null;
+        };
+        /** UploadStatusResponse */
+        UploadStatusResponse: {
+            /**
+             * Upload Id
+             * Format: uuid
+             */
+            upload_id: string;
+            /**
+             * Image Id
+             * Format: uuid
+             */
+            image_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING_UPLOAD" | "VALIDATING" | "AVAILABLE" | "REJECTED" | "FAILED" | "EXPIRED" | "CANCELLED";
+            /** Message */
+            message?: string | null;
+        };
+        /** UsableProductCheckResult */
+        UsableProductCheckResult: {
+            /**
+             * Usable Offers Count
+             * @default 0
+             */
+            usable_offers_count: number;
+            /**
+             * Canonical Garments Count
+             * @default 0
+             */
+            canonical_garments_count: number;
+            /**
+             * Product Variants Count
+             * @default 0
+             */
+            product_variants_count: number;
+            /**
+             * Excluded Duplicates Count
+             * @default 0
+             */
+            excluded_duplicates_count: number;
+            /**
+             * Excluded Quarantined Count
+             * @default 0
+             */
+            excluded_quarantined_count: number;
+            /**
+             * Excluded Inactive Count
+             * @default 0
+             */
+            excluded_inactive_count: number;
+            /**
+             * Excluded Unauthorized Source Count
+             * @default 0
+             */
+            excluded_unauthorized_source_count: number;
+            /**
+             * Passed All
+             * @default false
+             */
+            passed_all: boolean;
         };
         /** UserPhotoItem */
         UserPhotoItem: {
@@ -13770,6 +17600,31 @@ export interface components {
             include_a11y: boolean;
         };
         /**
+         * VisualSearchRequest
+         * @description Image-based visual similarity search request.
+         */
+        VisualSearchRequest: {
+            /**
+             * Query Image Asset Id
+             * Format: uuid
+             * @description UUID of reference image asset
+             */
+            query_image_asset_id: string;
+            /**
+             * Filters
+             * @description Structured filter constraints
+             */
+            filters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Limit
+             * @description Result page size
+             * @default 20
+             */
+            limit: number;
+        };
+        /**
          * VisualTrackStatusContract
          * @description Master status of the entire VD-0 through VD-16 Visual Design Track (Section 16.61).
          */
@@ -13948,6 +17803,16 @@ export interface components {
              */
             max: number;
         };
+        /**
+         * SyncMode
+         * @enum {string}
+         */
+        database__models__catalog_operations__SyncMode: "INCREMENTAL" | "FULL" | "VALIDATION_ONLY";
+        /**
+         * SyncMode
+         * @enum {string}
+         */
+        fashx__catalog__acquisition__contracts_v2__SyncMode: "full" | "incremental";
         /**
          * BreadcrumbItemContract
          * @description Canonical hierarchy breadcrumb item (Section 9.51).
@@ -15227,6 +19092,198 @@ export interface operations {
             };
         };
     };
+    initiate_upload_api_v1_media_uploads_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadInitiateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadInitiateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_upload_status_api_v1_media_uploads__upload_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_upload_api_v1_media_uploads__upload_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                upload_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UploadCompleteRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_metadata_api_v1_media__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaMetadataResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_image_api_v1_media__image_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaDeletionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_access_url_api_v1_media__image_id__access_url_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaAccessUrlResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_feature_flags_api_v1_admin_feature_flags_get: {
         parameters: {
             query?: never;
@@ -15278,6 +19335,2068 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_merchant_api_v1_admin_catalog_merchants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_api_v1_admin_catalog_merchants__merchant_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                merchant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_merchant_api_v1_admin_catalog_merchants__merchant_id__verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                merchant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_source_api_v1_admin_catalog_sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_api_v1_admin_catalog_sources__source_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_source_status_api_v1_admin_catalog_sources__source_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceStatusUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_source_evidence_api_v1_admin_catalog_sources__source_id__evidence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvidenceCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_permissions_api_v1_admin_catalog_sources__source_id__permissions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    grant_source_permission_api_v1_admin_catalog_sources__source_id__permissions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PermissionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_source_api_v1_admin_catalog_sources__source_id__suspend_post: {
+        parameters: {
+            query: {
+                reason: string;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resume_source_api_v1_admin_catalog_sources__source_id__resume_post: {
+        parameters: {
+            query: {
+                reason: string;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    initiate_source_takedown_api_v1_admin_catalog_sources__source_id__takedown_post: {
+        parameters: {
+            query: {
+                reason_code: components["schemas"]["TakedownReasonCode"];
+                requested_by: string;
+                request_reference?: string | null;
+                resolution_notes?: string | null;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_source_authorization_api_v1_admin_catalog_sources__source_id__authorization_get: {
+        parameters: {
+            query: {
+                operation: components["schemas"]["CatalogPermissionCode"];
+                product_id?: string | null;
+                category?: string | null;
+                market?: string | null;
+                processor_id?: string | null;
+                correlation_id?: string | null;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthorizationDecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_takedown_api_v1_admin_catalog_takedowns__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_health_api_v1_admin_catalog_sources__source_id__health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_source_health_api_v1_admin_catalog_sources__source_id__health_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_source_sync_api_v1_admin_catalog_sources__source_id__sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SyncTriggerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_sync_runs_api_v1_admin_catalog_sources__source_id__sync_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_source_checkpoints_api_v1_admin_catalog_sources__source_id__checkpoints_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncCheckpointResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sync_run_api_v1_admin_catalog_sync_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_ingestion_job_api_v1_admin_catalog_ingestion_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IngestionJobCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ingestion_job_report_api_v1_admin_catalog_ingestion_jobs__run_id__report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_ingestion_job_api_v1_admin_catalog_ingestion_jobs__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_quarantine_records_api_v1_admin_catalog_quarantine_get: {
+        parameters: {
+            query?: {
+                source_id?: string | null;
+                status?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineRecordResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reprocess_quarantine_record_api_v1_admin_catalog_quarantine__quarantine_id__reprocess_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                quarantine_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineReprocessResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_image_job_api_v1_admin_catalog_images_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImageJobCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_asset_api_v1_admin_catalog_images__asset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageAssetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_image_transformations_api_v1_admin_catalog_images__asset_id__transformations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTransformationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reprocess_image_asset_api_v1_admin_catalog_images__asset_id__reprocess_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageJobResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suspend_image_asset_api_v1_admin_catalog_images__asset_id__suspend_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageAssetResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_image_takedown_api_v1_admin_catalog_images_takedowns_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImageTakedownCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_image_takedown_api_v1_admin_catalog_images_takedowns__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageTakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    queue_product_enrichment_api_v1_admin_catalog_products__product_id__enrich_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentQueueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_enrichment_run_status_api_v1_admin_catalog_enrichment_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentRunStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_current_enrichment_api_v1_admin_catalog_products__product_id__enrichment_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_enrichment_run_api_v1_admin_catalog_enrichment_runs__run_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrichmentRunStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_pending_reviews_api_v1_admin_catalog_reviews_get: {
+        parameters: {
+            query?: {
+                merchant_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review_detail_api_v1_admin_catalog_reviews__review_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewItemResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_review_decision_api_v1_admin_catalog_reviews__review_id__decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDecisionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    connect_merchant_source_api_v1_merchant_sources_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceConnectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_sync_status_api_v1_merchant_sources__source_id__status_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncStatusDashboardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_source_operational_status_api_v1_merchant_sources__source_id__operational_status_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceOperationalStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceOperationalStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_manual_source_sync_api_v1_merchant_sources__source_id__sync_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualSyncRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManualSyncResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_schedule_api_v1_merchant_sources__source_id__schedule_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceScheduleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_source_schedule_api_v1_merchant_sources__source_id__schedule_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceScheduleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_ingestion_errors_api_v1_merchant_sources__source_id__errors_get: {
+        parameters: {
+            query?: {
+                run_id?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestErrorListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_quarantined_products_api_v1_merchant_sources__source_id__quarantine_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuarantineReportListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_source_image_permission_matrix_api_v1_merchant_sources__source_id__image_permissions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImagePermissionMatrixResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    override_merchant_product_field_api_v1_merchant_products__product_id__override_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantProductOverrideRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantProductOverrideResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deactivate_merchant_offer_api_v1_merchant_offers__offer_id__deactivate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path: {
+                offer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MerchantOfferDeactivateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantOfferDeactivateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_merchant_audit_trail_api_v1_merchant_audit_get: {
+        parameters: {
+            query?: {
+                source_id?: string | null;
+                entity_type?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: {
+                "X-Merchant-ID"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogAuditListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_source_takedown_api_v1_admin_sources__source_id__takedown_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SourceTakedownRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceTakedownResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_configured_targets_api_v1_admin_catalog_targets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetConfig"];
+                };
+            };
+        };
+    };
+    start_evaluation_run_api_v1_admin_catalog_evaluations_post: {
+        parameters: {
+            query?: {
+                sample_size?: number | null;
+                random_seed?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_status_api_v1_admin_catalog_evaluations__id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_full_report_api_v1_admin_catalog_evaluations__id__report_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_metrics_api_v1_admin_catalog_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: components["schemas"]["CatalogMetricResult"];
+                    };
+                };
+            };
+        };
+    };
+    view_source_health_and_authorization_api_v1_admin_catalog_source_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    view_product_quality_results_api_v1_admin_catalog_quality_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsableProductCheckResult"];
+                };
+            };
+        };
+    };
+    view_price_freshness_api_v1_admin_catalog_price_freshness_get: {
+        parameters: {
+            query?: {
+                sample_size?: number;
+                random_seed?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    view_link_health_api_v1_admin_catalog_link_health_get: {
+        parameters: {
+            query?: {
+                sample_size?: number;
+                random_seed?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    view_image_compliance_api_v1_admin_catalog_image_compliance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -20218,6 +26337,785 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VisualTrackStatusContract"];
+                };
+            };
+        };
+    };
+    search_products_api_v1_search_products_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                category_id?: string | null;
+                brand_id?: string | null;
+                color_id?: string | null;
+                occasion_id?: string | null;
+                size?: string | null;
+                min_price?: number | string | null;
+                max_price?: number | string | null;
+                currency?: string;
+                in_stock?: boolean | null;
+                sort?: "relevance" | "price_low" | "price_high" | "newest" | "recently_updated" | "popularity" | "similarity";
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    semantic_search_api_v1_search_semantic_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SemanticSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    visual_search_api_v1_search_visual_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VisualSearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    query_suggestions_api_v1_search_suggestions_get: {
+        parameters: {
+            query?: {
+                prefix?: string | null;
+                q?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchSuggestionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_facets_api_v1_search_facets_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                category_id?: string | null;
+                brand_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchFacetsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_search_session_page_api_v1_search_sessions__session_id__get: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_search_event_api_v1_search_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchInteractionEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_themes_api_v1_themes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    create_or_modify_platform_theme_api_v1_themes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-user-role"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_theme_api_v1_themes__theme_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                theme_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_theme_version_api_v1_themes__theme_id__versions__version__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                theme_id: string;
+                version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_layouts_api_v1_layouts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_layout_api_v1_layouts__layout_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                layout_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_components_api_v1_components_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    manage_platform_components_api_v1_components_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-user-role"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_component_api_v1_components__component_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                component_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_menu_customization_api_v1_menus__menu_id__customization_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_menu_customization_api_v1_menus__menu_id__customization_put: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+                "if-match"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_menu_customization_api_v1_menus__menu_id__customization_validate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_menu_customization_api_v1_menus__menu_id__customization_preview_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_menu_customization_api_v1_menus__menu_id__customization_reset_post: {
+        parameters: {
+            query?: {
+                reset_tokens?: boolean;
+                reset_layout?: boolean;
+            };
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_menu_revisions_api_v1_menus__menu_id__customization_revisions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_menu_revision_api_v1_menus__menu_id__customization_revisions__revision__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+                revision: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_menu_revision_api_v1_menus__menu_id__customization_revisions__revision__restore_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-organization-id"?: string | null;
+            };
+            path: {
+                menu_id: string;
+                revision: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

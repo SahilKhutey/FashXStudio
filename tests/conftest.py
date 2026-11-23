@@ -114,7 +114,7 @@ def setup_test_identity_override():
     from fashx.api.v1.me import get_profile_uow
     from fashx.main import app as main_app
     from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
-    from fashx.security.deps import get_identity_repo
+    from fashx.security.deps import get_identity_repo, get_principal
     from fashx.security.identity import InMemoryIdentityRepo
 
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", poolclass=StaticPool)
@@ -200,9 +200,13 @@ def setup_test_identity_override():
         get_analytics_session_factory,
         get_session_factory,
         get_db_session,
+        get_principal,
     ):
         main_app.dependency_overrides.pop(fn, None)
-    asyncio.run(engine.dispose())
+    try:
+        asyncio.run(engine.dispose())
+    except Exception:
+        pass
 
 
 @pytest.fixture

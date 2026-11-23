@@ -43,6 +43,10 @@ class AcquisitionBatch:
     total_found: int | None = None
 
 
+# Alias for compatibility with v2 naming
+SourceBatch = AcquisitionBatch
+
+
 @runtime_checkable
 class CatalogSourceAdapter(Protocol):
     """Protocol defining the interface for all store-specific catalog adapters."""

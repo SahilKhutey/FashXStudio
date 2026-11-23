@@ -64,13 +64,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_worker_dead_letters_created_at", table_name="worker_dead_letters"
-    )
-    op.drop_index(
-        "ix_worker_dead_letters_status", table_name="worker_dead_letters"
-    )
-    op.drop_index(
-        "ix_worker_dead_letters_task_id", table_name="worker_dead_letters"
-    )
+    op.drop_index("ix_worker_dead_letters_created_at", table_name="worker_dead_letters")
+    op.drop_index("ix_worker_dead_letters_status", table_name="worker_dead_letters")
+    op.drop_index("ix_worker_dead_letters_task_id", table_name="worker_dead_letters")
     op.drop_table("worker_dead_letters")

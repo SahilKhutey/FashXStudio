@@ -3,6 +3,7 @@
 Revision ID: 0014_auth_identities
 Revises: 0013_onboarding_profiles
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -20,9 +21,13 @@ def upgrade() -> None:
         sa.Column("id", sa.Uuid(), primary_key=True),
         sa.Column("issuer", sa.String(255), nullable=False),
         sa.Column("subject", sa.String(255), nullable=False),
-        sa.Column("user_id", sa.Uuid(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Uuid(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("role", sa.String(32), nullable=False, server_default="user"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column("disabled_at", sa.DateTime(timezone=True), nullable=True),
         sa.UniqueConstraint("issuer", "subject", name="uq_auth_identities_issuer_subject"),
     )

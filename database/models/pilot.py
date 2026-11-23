@@ -21,7 +21,9 @@ class PilotInvite(Base):
 
     code_hash: Mapped[str] = mapped_column(Text, primary_key=True)
     cohort: Mapped[str] = mapped_column(Text, nullable=False)
-    channel: Mapped[str] = mapped_column(Text, nullable=False)  # campus | community | referral | other
+    channel: Mapped[str] = mapped_column(
+        Text, nullable=False
+    )  # campus | community | referral | other
     user_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
@@ -48,17 +50,13 @@ class PilotParticipant(Base):
 
 class PilotSurveyResponse(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "pilot_survey_responses"
-    __table_args__ = (
-        UniqueConstraint("user_id", "survey_key", name="uq_survey_once"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "survey_key", name="uq_survey_once"),)
 
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     survey_key: Mapped[str] = mapped_column(Text, nullable=False)
-    answers: Mapped[dict] = mapped_column(
-        JSONB().with_variant(JSON, "sqlite"), nullable=False
-    )
+    answers: Mapped[dict] = mapped_column(JSONB().with_variant(JSON, "sqlite"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

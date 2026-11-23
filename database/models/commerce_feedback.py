@@ -48,9 +48,7 @@ class WardrobeItem(Base, UUIDPrimaryKeyMixin):
 
 class BuyClick(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "buy_clicks"
-    __table_args__ = (
-        Index("ix_buy_clicks_clicked_at", "clicked_at"),
-    )
+    __table_args__ = (Index("ix_buy_clicks_clicked_at", "clicked_at"),)
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     garment_id: Mapped[UUID] = mapped_column(
@@ -124,9 +122,7 @@ class DomainEvent(Base, UUIDPrimaryKeyMixin):
 
     event_type: Mapped[str] = mapped_column(String(128), nullable=False)
     schema_version: Mapped[int] = mapped_column(default=1, nullable=False)
-    user_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL")
-    )
+    user_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     object_type: Mapped[str | None] = mapped_column(String(64))
     object_id: Mapped[UUID | None] = mapped_column()
     trace_id: Mapped[UUID | None] = mapped_column(index=True)

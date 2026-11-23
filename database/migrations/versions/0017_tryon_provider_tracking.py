@@ -3,6 +3,7 @@
 Revision ID: 0017_tryon_provider_tracking
 Revises: 0016_media_objects
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -15,7 +16,9 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    op.add_column("tryon_jobs", sa.Column("attempts", sa.Integer(), nullable=False, server_default="1"))
+    op.add_column(
+        "tryon_jobs", sa.Column("attempts", sa.Integer(), nullable=False, server_default="1")
+    )
     op.add_column("tryon_jobs", sa.Column("provider", sa.Text(), nullable=True))
     op.create_table(
         "tryon_usage",

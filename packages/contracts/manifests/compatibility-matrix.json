@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-11-21T10:00:00Z",
+  "theme_layout_compatibility": {
+    "theme-minimal": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+    "theme-luxury": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+    "theme-rustic": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+    "theme-contemporary": ["layout-list", "layout-grid", "layout-image-cards", "layout-editorial"],
+    "theme-vibrant": ["layout-list", "layout-grid", "layout-image-cards"],
+    "theme-editorial": ["layout-editorial", "layout-list", "layout-grid"]
+  },
+  "layout_slot_matrix": {
+    "layout-list": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+    "layout-grid": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+    "layout-image-cards": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"],
+    "layout-editorial": ["menu.root", "header", "navigation", "content", "category.header", "category.items", "footer"]
+  },
+  "supported_breakpoints": ["320px", "375px", "768px", "1024px", "1440px"],
+  "limits": {
+    "max_components": 100,
+    "max_configuration_bytes": 524288,
+    "max_nesting_depth": 8
+  }
+}

@@ -28,9 +28,20 @@ def _fk_name(bind, table: str, ref_table: str, column: str) -> str | None:
 def upgrade() -> None:
     # 1. Update consent_records with mobile consent columns (fail-closed, adults only, check constraint)
     with op.batch_alter_table("consent_records") as b:
-        b.add_column(sa.Column("consent_version", sa.String(length=16), nullable=False, server_default="2026.1"))
+        b.add_column(
+            sa.Column(
+                "consent_version", sa.String(length=16), nullable=False, server_default="2026.1"
+            )
+        )
         b.add_column(sa.Column("is_18_or_older", sa.Boolean(), nullable=True))
-        b.add_column(sa.Column("consented_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()))
+        b.add_column(
+            sa.Column(
+                "consented_at",
+                sa.DateTime(timezone=True),
+                nullable=False,
+                server_default=sa.func.now(),
+            )
+        )
         b.create_check_constraint(
             "ck_consent_granted_requires_adult",
             "granted IS NOT TRUE OR is_18_or_older IS TRUE",
@@ -41,10 +52,19 @@ def upgrade() -> None:
     op.create_table(
         "style_quiz_picks",
         sa.Column("id", sa.UUID(), primary_key=True),
-        sa.Column("user_id", sa.UUID(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("garment_id", sa.UUID(), sa.ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.UUID(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
+        sa.Column(
+            "garment_id",
+            sa.UUID(),
+            sa.ForeignKey("canonical_garments.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("liked", sa.Boolean(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.UniqueConstraint("user_id", "garment_id", name="uq_style_quiz_picks_user_garment"),
     )
     op.create_index("ix_style_quiz_picks_user_id", "style_quiz_picks", ["user_id"])

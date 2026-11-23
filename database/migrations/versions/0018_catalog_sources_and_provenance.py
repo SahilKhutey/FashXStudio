@@ -3,6 +3,7 @@
 Revision ID: 0018_catalog_sources_and_provenance
 Revises: 0017_tryon_provider_tracking
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -24,10 +25,14 @@ def upgrade() -> None:
         sa.Column("slug", sa.Text(), nullable=False, unique=True),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("kind", sa.Text(), nullable=False),  # api | feed_url | file_drop | manual
-        sa.Column("status", sa.Text(), nullable=False, server_default="pending"),  # pending | cleared | suspended
+        sa.Column(
+            "status", sa.Text(), nullable=False, server_default="pending"
+        ),  # pending | cleared | suspended
         sa.Column("rights_display", sa.Boolean(), nullable=False, server_default=sa.false()),
         sa.Column("rights_tryon", sa.Boolean(), nullable=False, server_default=sa.false()),
-        sa.Column("image_policy", sa.Text(), nullable=False, server_default="hotlink"),  # hotlink | mirror
+        sa.Column(
+            "image_policy", sa.Text(), nullable=False, server_default="hotlink"
+        ),  # hotlink | mirror
         sa.Column("refresh_hours", sa.Integer(), nullable=False, server_default="24"),
         sa.Column("max_rps", sa.Numeric(5, 2), nullable=False, server_default="2"),
         sa.Column("terms_url", sa.Text(), nullable=True),
@@ -41,9 +46,13 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.CheckConstraint("status in ('pending','cleared','suspended')", name="ck_source_status"),
-        sa.CheckConstraint("kind in ('api','feed_url','file_drop','manual')", name="ck_source_kind"),
+        sa.CheckConstraint(
+            "kind in ('api','feed_url','file_drop','manual')", name="ck_source_kind"
+        ),
         sa.CheckConstraint("image_policy in ('hotlink','mirror')", name="ck_source_image_policy"),
-        sa.CheckConstraint("rights_tryon = false OR image_policy = 'mirror'", name="ck_tryon_requires_mirror"),
+        sa.CheckConstraint(
+            "rights_tryon = false OR image_policy = 'mirror'", name="ck_tryon_requires_mirror"
+        ),
     )
 
     # 2. Seed initial demo source for existing test data
@@ -55,15 +64,32 @@ def upgrade() -> None:
     )
 
     # 3. Add provenance columns to merchant_products
-    op.add_column("merchant_products", sa.Column("source_id", sa.Uuid(), sa.ForeignKey("catalog_sources.id", ondelete="SET NULL"), nullable=True))
+    op.add_column(
+        "merchant_products",
+        sa.Column(
+            "source_id",
+            sa.Uuid(),
+            sa.ForeignKey("catalog_sources.id", ondelete="SET NULL"),
+            nullable=True,
+        ),
+    )
     op.add_column("merchant_products", sa.Column("item_group_id", sa.Text(), nullable=True))
     op.add_column("merchant_products", sa.Column("content_hash", sa.Text(), nullable=True))
-    op.add_column("merchant_products", sa.Column("status", sa.Text(), nullable=False, server_default="active"))
-    op.add_column("merchant_products", sa.Column("last_seen_at", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("merchant_products", sa.Column("price_checked_at", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "merchant_products", sa.Column("status", sa.Text(), nullable=False, server_default="active")
+    )
+    op.add_column(
+        "merchant_products", sa.Column("last_seen_at", sa.DateTime(timezone=True), nullable=True)
+    )
+    op.add_column(
+        "merchant_products",
+        sa.Column("price_checked_at", sa.DateTime(timezone=True), nullable=True),
+    )
 
     op.execute(
-        sa.text(f"UPDATE merchant_products SET source_id = '{SEED_DEMO_SOURCE_ID}' WHERE source_id IS NULL")
+        sa.text(
+            f"UPDATE merchant_products SET source_id = '{SEED_DEMO_SOURCE_ID}' WHERE source_id IS NULL"
+        )
     )
 
     op.create_check_constraint(

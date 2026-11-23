@@ -1,0 +1,351 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-11-21T10:00:00Z",
+  "components": [
+    {
+      "schema_version": "1.0.0",
+      "id": "restaurant-header",
+      "name": "Restaurant Header",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "header",
+      "allowed_slots": ["menu.root", "header"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "show_logo": { "type": "boolean" },
+          "show_cover_photo": { "type": "boolean" },
+          "show_hours": { "type": "boolean" },
+          "show_address": { "type": "boolean" },
+          "show_phone": { "type": "boolean" },
+          "alignment": { "type": "string", "enum": ["left", "center", "right"] }
+        }
+      },
+      "default_props": {
+        "show_logo": true,
+        "show_cover_photo": true,
+        "show_hours": true,
+        "show_address": true,
+        "show_phone": false,
+        "alignment": "center"
+      },
+      "accessibility": { "role": "banner", "keyboard_navigable": true, "aria_label_required": false },
+      "renderer": "RestaurantHeaderRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "category-navigation",
+      "name": "Category Navigation",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "navigation",
+      "allowed_slots": ["menu.root", "navigation"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "style": { "type": "string", "enum": ["pills", "tabs", "sticky-bar", "sidebar"] },
+          "show_item_counts": { "type": "boolean" },
+          "sticky": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "style": "pills",
+        "show_item_counts": false,
+        "sticky": true
+      },
+      "accessibility": { "role": "navigation", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "CategoryNavigationRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "category-section",
+      "name": "Category Section",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "layout",
+      "allowed_slots": ["content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "show_description": { "type": "boolean" },
+          "collapsible": { "type": "boolean" },
+          "initially_expanded": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "show_description": true,
+        "collapsible": false,
+        "initially_expanded": true
+      },
+      "accessibility": { "role": "region", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "CategorySectionRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "menu-item-card",
+      "name": "Menu Item Card",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "item",
+      "allowed_slots": ["content", "category.items"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "show_image": { "type": "boolean" },
+          "image_aspect_ratio": { "type": "string", "enum": ["1/1", "4/3", "16/9", "3/2"] },
+          "show_description": { "type": "boolean" },
+          "show_allergens": { "type": "boolean" },
+          "show_dietary_badges": { "type": "boolean" },
+          "show_calories": { "type": "boolean" },
+          "card_clickable": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "show_image": true,
+        "image_aspect_ratio": "4/3",
+        "show_description": true,
+        "show_allergens": true,
+        "show_dietary_badges": true,
+        "show_calories": false,
+        "card_clickable": true
+      },
+      "accessibility": { "role": "article", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "MenuItemCardRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "menu-item-detail",
+      "name": "Menu Item Detail Modal",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "item",
+      "allowed_slots": ["content", "category.items"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enable_modal": { "type": "boolean" },
+          "show_nutrition": { "type": "boolean" },
+          "show_ingredients": { "type": "boolean" },
+          "allow_special_instructions": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "enable_modal": true,
+        "show_nutrition": true,
+        "show_ingredients": true,
+        "allow_special_instructions": false
+      },
+      "accessibility": { "role": "dialog", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "MenuItemDetailRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "search-bar",
+      "name": "Live Search Bar",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "header",
+      "allowed_slots": ["header", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "placeholder": { "type": "string" },
+          "highlight_matches": { "type": "boolean" },
+          "min_search_length": { "type": "integer", "minimum": 1, "maximum": 5 }
+        }
+      },
+      "default_props": {
+        "placeholder": "Search dishes, drinks, or ingredients...",
+        "highlight_matches": true,
+        "min_search_length": 2
+      },
+      "accessibility": { "role": "searchbox", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "SearchBarRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "dietary-filters",
+      "name": "Dietary Preference Filters",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "navigation",
+      "allowed_slots": ["header", "navigation", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "show_vegan": { "type": "boolean" },
+          "show_vegetarian": { "type": "boolean" },
+          "show_gluten_free": { "type": "boolean" },
+          "show_halal": { "type": "boolean" },
+          "multiselect": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "show_vegan": true,
+        "show_vegetarian": true,
+        "show_gluten_free": true,
+        "show_halal": true,
+        "multiselect": true
+      },
+      "accessibility": { "role": "toolbar", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "DietaryFiltersRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "featured-carousel",
+      "name": "Featured Highlights Carousel",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "layout",
+      "allowed_slots": ["content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "autoplay": { "type": "boolean" },
+          "autoplay_speed_ms": { "type": "integer", "minimum": 1000, "maximum": 10000 },
+          "max_items": { "type": "integer", "minimum": 1, "maximum": 10 }
+        }
+      },
+      "default_props": {
+        "title": "Chef's Specials",
+        "autoplay": false,
+        "autoplay_speed_ms": 4000,
+        "max_items": 5
+      },
+      "accessibility": { "role": "region", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "FeaturedCarouselRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "restaurant-footer",
+      "name": "Restaurant Footer",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "footer",
+      "allowed_slots": ["menu.root", "footer"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "show_social_links": { "type": "boolean" },
+          "show_allergen_notice": { "type": "boolean" },
+          "show_powered_by": { "type": "boolean" },
+          "custom_notice_text": { "type": "string", "maxLength": 500 }
+        }
+      },
+      "default_props": {
+        "show_social_links": true,
+        "show_allergen_notice": true,
+        "show_powered_by": true,
+        "custom_notice_text": "Please inform our staff of any allergies or dietary restrictions prior to ordering."
+      },
+      "accessibility": { "role": "contentinfo", "keyboard_navigable": true, "aria_label_required": false },
+      "renderer": "RestaurantFooterRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "allergen-badge-group",
+      "name": "Allergen Badges",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "item",
+      "allowed_slots": ["category.items", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "display_mode": { "type": "string", "enum": ["icons", "text", "both"] },
+          "size": { "type": "string", "enum": ["small", "medium"] }
+        }
+      },
+      "default_props": {
+        "display_mode": "both",
+        "size": "small"
+      },
+      "accessibility": { "role": "group", "keyboard_navigable": false, "aria_label_required": true },
+      "renderer": "AllergenBadgeGroupRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "price-display",
+      "name": "Price Display",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "item",
+      "allowed_slots": ["category.items", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currency_symbol": { "type": "string" },
+          "show_currency_code": { "type": "boolean" },
+          "strikethrough_promotional": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "currency_symbol": "$",
+        "show_currency_code": false,
+        "strikethrough_promotional": true
+      },
+      "accessibility": { "role": "text", "keyboard_navigable": false, "aria_label_required": false },
+      "renderer": "PriceDisplayRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "order-action-button",
+      "name": "Order Action Button",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "item",
+      "allowed_slots": ["category.items", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "style": { "type": "string", "enum": ["button", "icon-only", "floating"] },
+          "allow_quantity_stepper": { "type": "boolean" }
+        }
+      },
+      "default_props": {
+        "label": "Add to Order",
+        "style": "button",
+        "allow_quantity_stepper": true
+      },
+      "accessibility": { "role": "button", "keyboard_navigable": true, "aria_label_required": true },
+      "renderer": "OrderActionButtonRenderer"
+    },
+    {
+      "schema_version": "1.0.0",
+      "id": "badge-notification",
+      "name": "Section Notification Badge",
+      "version": "1.0.0",
+      "status": "active",
+      "category": "feedback",
+      "allowed_slots": ["category.header", "content"],
+      "property_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string", "maxLength": 100 },
+          "variant": { "type": "string", "enum": ["info", "success", "warning", "accent"] }
+        }
+      },
+      "default_props": {
+        "text": "Special Offer",
+        "variant": "accent"
+      },
+      "accessibility": { "role": "status", "keyboard_navigable": false, "aria_label_required": false },
+      "renderer": "BadgeNotificationRenderer"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 Revision ID: 0015_outbox_messages
 Revises: 0014_auth_identities
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -36,13 +37,9 @@ def upgrade() -> None:
         sa.Column("published_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_error", sa.Text(), nullable=True),
     )
-    op.create_index(
-        "ix_outbox_messages_next_attempt_at", "outbox_messages", ["next_attempt_at"]
-    )
+    op.create_index("ix_outbox_messages_next_attempt_at", "outbox_messages", ["next_attempt_at"])
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_outbox_messages_next_attempt_at", table_name="outbox_messages"
-    )
+    op.drop_index("ix_outbox_messages_next_attempt_at", table_name="outbox_messages")
     op.drop_table("outbox_messages")

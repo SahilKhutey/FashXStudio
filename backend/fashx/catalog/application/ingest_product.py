@@ -279,7 +279,9 @@ class IngestMerchantProductUseCase:
             # 4. Optional Image Ingestion
             image_id = None
             if cmd.image_url:
-                img_hash = cmd.content_hash or hashlib.sha256(cmd.image_url.encode("utf-8")).hexdigest()
+                img_hash = (
+                    cmd.content_hash or hashlib.sha256(cmd.image_url.encode("utf-8")).hexdigest()
+                )
                 existing_img = await self.uow.images.get_by_hash(img_hash)
                 if existing_img is None:
                     g_img = GarmentImage(

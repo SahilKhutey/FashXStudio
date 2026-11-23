@@ -1,0 +1,37 @@
+taxonomy_id: fashx-fashion-taxonomy
+version: "1.0.0"
+
+missing_values:
+  states:
+    UNKNOWN:
+      description: "Value is not known or could not be determined"
+    NOT_PROVIDED:
+      description: "Source feed/merchant did not supply the attribute"
+    NOT_APPLICABLE:
+      description: "Attribute does not apply to this category (e.g. neckline on handbag)"
+    NOT_DETECTED:
+      description: "Automated extraction did not identify a value"
+    CONFLICTING:
+      description: "Different sources or pipelines disagree on attribute value"
+    PENDING_REVIEW:
+      description: "Human or automated verification is required before confirming"
+    OTHER:
+      description: "Known value outside current taxonomy vocabulary"
+
+  provenance_sources:
+    - MERCHANT
+    - SOURCE_FEED
+    - RULE_BASED
+    - AI_IMAGE
+    - AI_TEXT
+    - HUMAN_REVIEW
+    - USER_FEEDBACK
+
+  conflict_resolution_priority:
+    - HUMAN_REVIEW
+    - MERCHANT
+    - SOURCE_FEED
+    - RULE_BASED
+    - AI_IMAGE
+    - AI_TEXT
+    - UNKNOWN

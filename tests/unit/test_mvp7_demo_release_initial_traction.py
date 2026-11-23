@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from unittest.mock import patch
 from uuid import uuid4
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
@@ -15,19 +13,6 @@ from fashx.pilot.router import hash_invite_code
 from fashx.security.deps import get_identity_repo
 from fashx.security.identity import InMemoryIdentityRepo
 from tests.conftest import make_token
-
-
-@pytest.fixture(autouse=True)
-def override_pilot_db_session():
-    """Route pilot endpoint database access through test SQLite session."""
-    session_factory = app.dependency_overrides[get_analytics_session_factory]()
-
-    async def _sqlite_db_session():
-        async with session_factory() as session:
-            yield session
-
-    with patch("fashx.pilot.router.get_db_session", _sqlite_db_session):
-        yield
 
 
 def test_pilot_invite_redemption_and_duplicate_join_guard() -> None:
