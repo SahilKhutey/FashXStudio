@@ -209,6 +209,7 @@ class MerchantProduct(Base, UUIDPrimaryKeyMixin):
         UniqueConstraint("merchant_id", "source_product_id", name="uq_merchant_product_source"),
         Index("ix_product_group", "source_id", "item_group_id"),
         Index("uq_product_source_pid", "source_id", "source_product_id", unique=True),
+        Index("ix_merchant_products_merchant_status", "merchant_id", "status"),
     )
 
     merchant_id: Mapped[UUID] = mapped_column(
@@ -361,7 +362,7 @@ class MerchantOffer(Base, UUIDPrimaryKeyMixin):
         ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=True
     )
     source_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("catalog_sources.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("catalog_sources.id", ondelete="SET NULL"), nullable=True
     )
     ingest_run_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("ingest_runs.id", ondelete="SET NULL"), nullable=True
