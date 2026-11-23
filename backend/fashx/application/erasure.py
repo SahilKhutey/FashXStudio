@@ -52,6 +52,8 @@ ACCOUNT_TABLES: list[str] = [
     "shopper_profiles",
     "profile_category_sizes",
     "profile_measurements",
+    "product_search_events",
+    "search_sessions",
 ]
 
 CORE_AUTH: list[str] = [

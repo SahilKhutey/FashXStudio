@@ -40,6 +40,8 @@ General user account state, preferences, shopping activity, and consent history.
 | `tryon_feedback` | User qualitative feedback on try-on generation | Active account | Hard-delete on account erasure |
 | `feed_exclusions` | Items hidden or dismissed from personal discovery | Active account | Hard-delete on account erasure |
 | `feed_impressions` | Impression logs for personalized ranking | 30 days rolling | Hard-delete on account erasure |
+| `product_search_events` | Search interactions, clicks, and queries | 30 days rolling | Hard-delete on account erasure |
+| `search_sessions` | Search session tokens, cursors, and filter states | Session lifetime | Hard-delete on account erasure |
 
 ### 2.3 Anonymized Operational Logs (`ANONYMIZE_TABLES`)
 Records where personal identification is decoupled while preserving aggregate statistical trends.

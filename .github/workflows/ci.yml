@@ -98,10 +98,33 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest tests -m db -q -rs | tee db.log
+          python -m pytest tests -m db -q -rs 2>&1 | tee db.log || {
+            STATUS=$?
+            echo "### DB Test Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^FAILED |^ERROR " db.log | head -n 100 >> $GITHUB_STEP_SUMMARY
+            tail -n 60 db.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            FAILED_SUMMARY=$(grep -E "^FAILED " db.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=DB Test Failures::${FAILED_SUMMARY:-DB tests failed}"
+            exit $STATUS
+          }
           if grep -q "SKIPPED" db.log; then echo "::error::db tests were skipped"; exit 1; fi
       - name: Run integration test suite
-        run: python -m pytest tests -q -p no:cacheprovider -m "integration and not frozen"
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests -q -p no:cacheprovider -m "integration and not frozen" 2>&1 | tee /tmp/pytest_integration.log || {
+            STATUS=$?
+            echo "### Integration Test Failures" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E "^FAILED |^ERROR " /tmp/pytest_integration.log | head -n 100 >> $GITHUB_STEP_SUMMARY
+            tail -n 60 /tmp/pytest_integration.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            FAILED_SUMMARY=$(grep -E "^FAILED " /tmp/pytest_integration.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=Integration Test Failures::${FAILED_SUMMARY:-Integration tests failed}"
+            exit $STATUS
+          }
 
   frozen:
     runs-on: ubuntu-latest
