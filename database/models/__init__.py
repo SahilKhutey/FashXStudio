@@ -165,9 +165,11 @@ from .tenant import (
 )
 from .tryon import (
     TryOnArtifact,
+    TryOnDeadLetter,
     TryOnInputAuthorizationSnapshot,
     TryOnInputValidation,
     TryOnJob,
+    TryOnJobEvent,
     TryOnProviderAttempt,
     TryOnUsage,
 )
@@ -323,4 +325,6 @@ __all__ = [
     "TryOnInputValidation",
     "TryOnInputAuthorizationSnapshot",
     "TryOnProviderAttempt",
+    "TryOnJobEvent",
+    "TryOnDeadLetter",
 ]

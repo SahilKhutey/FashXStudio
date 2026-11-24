@@ -1,6 +1,7 @@
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import and_, desc, or_, select, update
@@ -8,9 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from database.models.tryon import (
     TryOnArtifact,
+    TryOnDeadLetter,
     TryOnInputAuthorizationSnapshot,
     TryOnInputValidation,
     TryOnJob,
+    TryOnJobEvent,
     TryOnProviderAttempt,
     TryOnUsage,
 )
@@ -141,6 +144,280 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
                 TryOnJob.status == expected_status,
             )
             .values(**values)
+        )
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
+
+    async def transition_with_version_and_event(
+        self,
+        job_id: UUID,
+        expected_status: str,
+        target_status: str,
+        expected_version: int | None = None,
+        worker_id: str | None = None,
+        lease_token: UUID | None = None,
+        actor_type: str = "WORKER",
+        reason_code: str | None = None,
+        metadata: dict[str, object] | None = None,
+        now: datetime | None = None,
+    ) -> bool:
+        from uuid import uuid4
+        now_ts = now or datetime.now(UTC)
+        values: dict[str, object] = {
+            "status": target_status,
+            "updated_at": now_ts,
+            "version": TryOnJob.version + 1,
+        }
+        if target_status.lower() in ("completed", "failed", "cancelled", "expired"):
+            values["completed_at"] = now_ts
+            values["locked_by"] = None
+            values["locked_at"] = None
+            values["lock_expires_at"] = None
+            values["worker_id"] = None
+            values["lease_token"] = None
+            values["lease_expires_at"] = None
+            if target_status.lower() == "failed":
+                values["failed_at"] = now_ts
+
+        conditions = [
+            TryOnJob.id == job_id,
+            or_(
+                TryOnJob.status == expected_status,
+                TryOnJob.status == expected_status.lower(),
+                TryOnJob.status == expected_status.upper(),
+            ),
+        ]
+        if expected_version is not None:
+            conditions.append(TryOnJob.version == expected_version)
+        if worker_id is not None:
+            conditions.append(or_(TryOnJob.worker_id == worker_id, TryOnJob.locked_by == worker_id))
+        if lease_token is not None:
+            conditions.append(TryOnJob.lease_token == lease_token)
+
+        stmt = update(TryOnJob).where(and_(*conditions)).values(**values)
+        res = await self.session.execute(stmt)
+        if res.rowcount != 1:
+            return False
+
+        event = TryOnJobEvent(
+            id=uuid4(),
+            job_id=job_id,
+            from_state=expected_status,
+            to_state=target_status,
+            event_type="JOB_STATE_TRANSITION",
+            reason_code=reason_code,
+            actor_type=actor_type,
+            worker_id=worker_id,
+            metadata_json=metadata or {},
+            created_at=now_ts,
+        )
+        self.session.add(event)
+        await self.flush()
+        return True
+
+    async def claim_with_lease(
+        self,
+        job_id: UUID,
+        worker_id: str,
+        lease_token: UUID,
+        lease_expires_at: datetime,
+        now: datetime | None = None,
+    ) -> bool:
+        now_ts = now or datetime.now(UTC)
+        stmt = (
+            update(TryOnJob)
+            .where(
+                TryOnJob.id == job_id,
+                or_(
+                    TryOnJob.status == "queued",
+                    TryOnJob.status == "QUEUED",
+                    TryOnJob.status == "retry_pending",
+                    TryOnJob.status == "RETRY_PENDING",
+                ),
+                or_(
+                    TryOnJob.lease_expires_at.is_(None),
+                    TryOnJob.lease_expires_at < now_ts,
+                    TryOnJob.lock_expires_at.is_(None),
+                    TryOnJob.lock_expires_at < now_ts,
+                ),
+            )
+            .values(
+                status="PROCESSING",
+                worker_id=worker_id,
+                locked_by=worker_id,
+                lease_token=lease_token,
+                lease_expires_at=lease_expires_at,
+                lock_expires_at=lease_expires_at,
+                heartbeat_at=now_ts,
+                locked_at=now_ts,
+                version=TryOnJob.version + 1,
+                updated_at=now_ts,
+            )
+        )
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
+
+    async def record_heartbeat(
+        self,
+        job_id: UUID,
+        worker_id: str,
+        lease_token: UUID,
+        new_lease_expires_at: datetime,
+        now: datetime | None = None,
+    ) -> bool:
+        now_ts = now or datetime.now(UTC)
+        stmt = (
+            update(TryOnJob)
+            .where(
+                TryOnJob.id == job_id,
+                or_(TryOnJob.worker_id == worker_id, TryOnJob.locked_by == worker_id),
+                TryOnJob.lease_token == lease_token,
+                or_(
+                    TryOnJob.lease_expires_at > now_ts,
+                    TryOnJob.lock_expires_at > now_ts,
+                ),
+            )
+            .values(
+                heartbeat_at=now_ts,
+                lease_expires_at=new_lease_expires_at,
+                lock_expires_at=new_lease_expires_at,
+                updated_at=now_ts,
+            )
+        )
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
+
+    async def update_retry_pending(
+        self,
+        job_id: UUID,
+        retry_count: int,
+        next_retry_at: datetime,
+        last_error_code: str | None = None,
+        now: datetime | None = None,
+    ) -> bool:
+        now_ts = now or datetime.now(UTC)
+        stmt = (
+            update(TryOnJob)
+            .where(TryOnJob.id == job_id)
+            .values(
+                status="RETRY_PENDING",
+                retry_count=retry_count,
+                next_retry_at=next_retry_at,
+                last_error_code=last_error_code,
+                last_error_at=now_ts,
+                worker_id=None,
+                locked_by=None,
+                lease_token=None,
+                lease_expires_at=None,
+                lock_expires_at=None,
+                version=TryOnJob.version + 1,
+                updated_at=now_ts,
+            )
+        )
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
+
+    async def update_status_and_event(
+        self,
+        job_id: UUID,
+        expected_status: str,
+        new_status: str,
+        actor_type: str = "SYSTEM",
+        actor_id: str | None = None,
+        reason_code: str | None = None,
+        metadata: dict[str, object] | None = None,
+        now: datetime | None = None,
+    ) -> bool:
+        from uuid import uuid4
+        now_ts = now or datetime.now(UTC)
+        values: dict[str, object] = {
+            "status": new_status,
+            "version": TryOnJob.version + 1,
+            "updated_at": now_ts,
+        }
+        if new_status.upper() in ("COMPLETED", "FAILED", "CANCELLED", "EXPIRED"):
+            values["completed_at"] = now_ts
+            values["locked_by"] = None
+            values["worker_id"] = None
+            values["lease_token"] = None
+            values["lease_expires_at"] = None
+            values["lock_expires_at"] = None
+            if new_status.upper() == "FAILED":
+                values["failed_at"] = now_ts
+            elif new_status.upper() == "CANCELLED":
+                values["cancel_requested_at"] = now_ts
+
+        stmt = (
+            update(TryOnJob)
+            .where(
+                TryOnJob.id == job_id,
+                or_(
+                    TryOnJob.status == expected_status,
+                    TryOnJob.status == expected_status.lower(),
+                    TryOnJob.status == expected_status.upper(),
+                ),
+            )
+            .values(**values)
+        )
+        res = await self.session.execute(stmt)
+        if res.rowcount != 1:
+            return False
+
+        event = TryOnJobEvent(
+            id=uuid4(),
+            job_id=job_id,
+            from_state=expected_status,
+            to_state=new_status,
+            event_type="JOB_STATUS_UPDATE",
+            reason_code=reason_code,
+            actor_type=actor_type,
+            worker_id=actor_id,
+            metadata_json=metadata or {},
+            created_at=now_ts,
+        )
+        self.session.add(event)
+        await self.flush()
+        return True
+
+    async def find_recovery_candidates(
+        self,
+        now: datetime | None = None,
+        limit: int = 100,
+    ) -> list[TryOnJob]:
+        terminal = ["completed", "COMPLETED", "failed", "FAILED", "cancelled", "CANCELLED", "expired", "EXPIRED"]
+        stmt = (
+            select(TryOnJob)
+            .where(TryOnJob.status.not_in(terminal))
+            .order_by(TryOnJob.created_at.asc())
+            .limit(limit)
+        )
+        res = await self.session.scalars(stmt)
+        return list(res.all())
+
+    async def schedule_recovery(
+        self,
+        job_id: UUID,
+        reason: str = "WORKER_LEASE_EXPIRED",
+        now: datetime | None = None,
+    ) -> bool:
+        now_ts = now or datetime.now(UTC)
+        stmt = (
+            update(TryOnJob)
+            .where(TryOnJob.id == job_id)
+            .values(
+                status="QUEUED",
+                worker_id=None,
+                locked_by=None,
+                lease_token=None,
+                lease_expires_at=None,
+                lock_expires_at=None,
+                version=TryOnJob.version + 1,
+                updated_at=now_ts,
+            )
         )
         res = await self.session.execute(stmt)
         await self.flush()
@@ -482,6 +759,64 @@ class TryOnProviderAttemptRepository(BaseRepository[TryOnProviderAttempt]):
         return attempt
 
 
+class TryOnJobEventRepository(BaseRepository[TryOnJobEvent]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnJobEvent)
+
+    async def get_by_job_id(self, job_id: UUID) -> list[TryOnJobEvent]:
+        stmt = (
+            select(TryOnJobEvent)
+            .where(TryOnJobEvent.job_id == job_id)
+            .order_by(TryOnJobEvent.created_at.asc())
+        )
+        res = await self.session.scalars(stmt)
+        return list(res.all())
+
+
+class TryOnDeadLetterRepository(BaseRepository[TryOnDeadLetter]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnDeadLetter)
+
+    async def create_dead_letter(self, record: Any) -> TryOnDeadLetter:
+        dlq = TryOnDeadLetter(
+            id=record.id,
+            job_id=record.job_id,
+            source=record.source,
+            failure_stage=record.failure_stage,
+            error_code=record.error_code,
+            error_summary=record.error_summary,
+            attempt_number=record.attempt_number,
+            original_message_id=record.original_message_id,
+            payload_reference=record.payload_reference,
+            status=record.status.value if hasattr(record.status, "value") else str(record.status),
+            created_at=record.created_at,
+        )
+        self.session.add(dlq)
+        await self.flush()
+        return dlq
+
+    async def update_dlq_status(
+        self,
+        dead_letter_id: UUID,
+        status: str,
+        resolved_by: str | None = None,
+        resolution_note: str | None = None,
+        resolved_at: datetime | None = None,
+    ) -> bool:
+        values: dict[str, object] = {"status": status}
+        if resolved_by:
+            values["resolved_by"] = resolved_by
+        if resolution_note:
+            values["resolution_note"] = resolution_note
+        if resolved_at:
+            values["resolved_at"] = resolved_at
+
+        stmt = update(TryOnDeadLetter).where(TryOnDeadLetter.id == dead_letter_id).values(**values)
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
+
+
 class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of work managing TryOn aggregate persistence."""
 
@@ -498,6 +833,8 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         self._validations: TryOnInputValidationRepository | None = None
         self._auth_snapshots: TryOnInputAuthorizationSnapshotRepository | None = None
         self._provider_attempts: TryOnProviderAttemptRepository | None = None
+        self._events: TryOnJobEventRepository | None = None
+        self._dead_letters: TryOnDeadLetterRepository | None = None
 
     async def __aenter__(self) -> "TryOnUnitOfWork":
         await super().__aenter__()
@@ -507,6 +844,8 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         self._validations = None
         self._auth_snapshots = None
         self._provider_attempts = None
+        self._events = None
+        self._dead_letters = None
         return self
 
     @property
@@ -548,3 +887,15 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         if self._provider_attempts is None:
             self._provider_attempts = TryOnProviderAttemptRepository(self.session)
         return self._provider_attempts
+
+    @property
+    def events(self) -> TryOnJobEventRepository:
+        if self._events is None:
+            self._events = TryOnJobEventRepository(self.session)
+        return self._events
+
+    @property
+    def dead_letters(self) -> TryOnDeadLetterRepository:
+        if self._dead_letters is None:
+            self._dead_letters = TryOnDeadLetterRepository(self.session)
+        return self._dead_letters

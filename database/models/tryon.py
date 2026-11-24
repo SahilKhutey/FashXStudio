@@ -65,6 +65,19 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
     progress_stage: Mapped[str | None] = mapped_column(String(64), default="waiting_for_worker", nullable=True)
     lock_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    max_retries: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    next_retry_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    worker_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    lease_token: Mapped[UUID | None] = mapped_column(nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancel_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
@@ -211,4 +224,57 @@ class TryOnProviderAttempt(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+class TryOnJobEvent(Base, UUIDPrimaryKeyMixin):
+    """Append-only audit event for virtual try-on job state transitions (Phase 07.5)."""
+
+    __tablename__ = "tryon_job_events"
+    __table_args__ = (
+        Index("ix_tryon_job_events_job_time", "job_id", "created_at"),
+    )
+
+    job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    from_state: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    to_state: Mapped[str] = mapped_column(String(50), nullable=False)
+    event_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    reason_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    actor_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    worker_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    attempt_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    metadata_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
+    """Durable record of failed jobs, exhausted retries, or corrupt payloads for operational triage (Phase 07.5)."""
+
+    __tablename__ = "tryon_dead_letters"
+    __table_args__ = (
+        Index("ix_tryon_dead_letters_status_created", "status", "created_at"),
+        Index("ix_tryon_dead_letters_job", "job_id"),
+    )
+
+    job_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    source: Mapped[str] = mapped_column(String(100), nullable=False)
+    failure_stage: Mapped[str] = mapped_column(String(50), nullable=False)
+    error_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    error_summary: Mapped[str] = mapped_column(String(500), nullable=False)
+    attempt_number: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    original_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    payload_reference: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="OPEN", nullable=False, index=True)
+    resolution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    resolved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
 
