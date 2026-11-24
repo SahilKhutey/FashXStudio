@@ -67,6 +67,11 @@ def validate_release_config(config: ReleaseConfig) -> None:
                 f"{config.app_env.capitalize()} requires PostgreSQL database (got: {config.database_url})"
             )
 
+        if config.tryon_provider == "fashn_selfhost":
+            raise ValueError(
+                f"{config.app_env.capitalize()} requires approved implemented tryon_provider (fashn_selfhost is not implemented)"
+            )
+
     if config.app_env == "production":
         if parsed_redis.scheme != "rediss":
             raise ValueError(

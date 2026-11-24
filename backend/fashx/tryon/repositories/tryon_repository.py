@@ -6,7 +6,13 @@ from uuid import UUID
 from sqlalchemy import and_, desc, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from database.models.tryon import TryOnArtifact, TryOnJob, TryOnUsage
+from database.models.tryon import (
+    TryOnArtifact,
+    TryOnInputAuthorizationSnapshot,
+    TryOnInputValidation,
+    TryOnJob,
+    TryOnUsage,
+)
 from fashx.core.repository import BaseRepository
 from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
 
@@ -271,6 +277,86 @@ class TryOnUsageRepository(BaseRepository[TryOnUsage]):
         return usage
 
 
+class TryOnInputValidationRepository(BaseRepository[TryOnInputValidation]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnInputValidation)
+
+    async def get_by_job_id(self, job_id: UUID) -> Sequence[TryOnInputValidation]:
+        stmt = select(TryOnInputValidation).where(TryOnInputValidation.tryon_job_id == job_id)
+        res = await self.session.scalars(stmt)
+        return res.all()
+
+    async def record_validation(
+        self,
+        *,
+        tryon_job_id: UUID,
+        role: str,
+        asset_id: UUID,
+        asset_version: str,
+        policy_version: str,
+        status: str,
+        original_sha256: str | None = None,
+        normalized_sha256: str | None = None,
+        technical_metadata: dict | None = None,
+        visual_metadata: dict | None = None,
+        issues: list | None = None,
+        validated_at: datetime | None = None,
+    ) -> TryOnInputValidation:
+        record = TryOnInputValidation(
+            tryon_job_id=tryon_job_id,
+            role=role,
+            asset_id=asset_id,
+            asset_version=asset_version,
+            policy_version=policy_version,
+            status=status,
+            original_sha256=original_sha256,
+            normalized_sha256=normalized_sha256,
+            technical_metadata=technical_metadata or {},
+            visual_metadata=visual_metadata or {},
+            issues=issues or [],
+            validated_at=validated_at or datetime.now(UTC),
+        )
+        self.add(record)
+        await self.flush()
+        return record
+
+
+class TryOnInputAuthorizationSnapshotRepository(BaseRepository[TryOnInputAuthorizationSnapshot]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnInputAuthorizationSnapshot)
+
+    async def get_by_job_id(self, job_id: UUID) -> Sequence[TryOnInputAuthorizationSnapshot]:
+        stmt = select(TryOnInputAuthorizationSnapshot).where(
+            TryOnInputAuthorizationSnapshot.tryon_job_id == job_id
+        )
+        res = await self.session.scalars(stmt)
+        return res.all()
+
+    async def record_snapshot(
+        self,
+        *,
+        tryon_job_id: UUID,
+        authorization_type: str,
+        subject_id: UUID,
+        permission_scope: str,
+        policy_version: str,
+        result: str,
+        evidence_revision: str | None = None,
+    ) -> TryOnInputAuthorizationSnapshot:
+        snapshot = TryOnInputAuthorizationSnapshot(
+            tryon_job_id=tryon_job_id,
+            authorization_type=authorization_type,
+            subject_id=subject_id,
+            permission_scope=permission_scope,
+            policy_version=policy_version,
+            result=result,
+            evidence_revision=evidence_revision,
+        )
+        self.add(snapshot)
+        await self.flush()
+        return snapshot
+
+
 class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of work managing TryOn aggregate persistence."""
 
@@ -284,12 +370,16 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         self._jobs: TryOnJobRepository | None = None
         self._artifacts: TryOnArtifactRepository | None = None
         self._usage: TryOnUsageRepository | None = None
+        self._validations: TryOnInputValidationRepository | None = None
+        self._auth_snapshots: TryOnInputAuthorizationSnapshotRepository | None = None
 
     async def __aenter__(self) -> "TryOnUnitOfWork":
         await super().__aenter__()
         self._jobs = None
         self._artifacts = None
         self._usage = None
+        self._validations = None
+        self._auth_snapshots = None
         return self
 
     @property
@@ -313,3 +403,15 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         if self._usage is None:
             self._usage = TryOnUsageRepository(self.session)
         return self._usage
+
+    @property
+    def validations(self) -> TryOnInputValidationRepository:
+        if self._validations is None:
+            self._validations = TryOnInputValidationRepository(self.session)
+        return self._validations
+
+    @property
+    def auth_snapshots(self) -> TryOnInputAuthorizationSnapshotRepository:
+        if self._auth_snapshots is None:
+            self._auth_snapshots = TryOnInputAuthorizationSnapshotRepository(self.session)
+        return self._auth_snapshots

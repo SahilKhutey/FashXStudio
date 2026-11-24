@@ -19,6 +19,7 @@ class TryOnOutput:
     provider_job_id: str
     latency_ms: int
     cost_usd_est: float | None = None
+    credits_used: float | None = None
 
 
 class TryOnError(Exception):

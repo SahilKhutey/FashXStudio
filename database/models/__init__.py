@@ -163,7 +163,13 @@ from .tenant import (
     TenantUsage,
     WidgetSession,
 )
-from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
+from .tryon import (
+    TryOnArtifact,
+    TryOnInputAuthorizationSnapshot,
+    TryOnInputValidation,
+    TryOnJob,
+    TryOnUsage,
+)
 
 __all__ = [
     "Base",
@@ -313,4 +319,6 @@ __all__ = [
     "MenuCustomizationRecord",
     "CustomizationRevisionRecord",
     "ConfigurationMigrationRecord",
+    "TryOnInputValidation",
+    "TryOnInputAuthorizationSnapshot",
 ]

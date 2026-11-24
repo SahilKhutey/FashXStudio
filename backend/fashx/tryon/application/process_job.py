@@ -54,10 +54,12 @@ class ProcessTryOnJobUseCase:
         adapter: Any | None = None,
         storage: Any | None = None,
         breaker: Any | None = None,
+        validation_service: Any | None = None,
     ) -> None:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
+        self.validation_service = validation_service
         if adapter is not None:
             self.adapter = adapter
         else:
@@ -325,7 +327,41 @@ class ProcessTryOnJobUseCase:
                 failure_reason=f"invalid_garment_image_bytes: {exc}",
             )
 
-        # Pre-inference consent revalidation
+        # Mandatory Phase 07.3 Input Validation Gate
+        if self.validation_service is not None:
+            photo_asset_id = getattr(job, "profile_photo_id", None) or job.user_id
+            from fashx.tryon.validation.contracts import ValidationRequest
+
+            val_req = ValidationRequest(
+                user_id=job.user_id,
+                shopper_asset_id=photo_asset_id,
+                product_id=job.garment_id,
+                garment_category=garment_category,
+            )
+            val_result = await self.validation_service.validate_and_record(
+                job_id=job.id, request=val_req
+            )
+            if not val_result.can_submit:
+                issue = (
+                    val_result.shopper.issues[0]
+                    if val_result.shopper.issues
+                    else (val_result.garment.issues[0] if val_result.garment.issues else None)
+                )
+                err_code = issue.code if issue else "validation_rejected"
+                user_msg = issue.user_message if issue else "Input validation failed."
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.fail(job.id, err_code, user_msg)
+                    if hasattr(self.tryon_uow, "usage"):
+                        await self.tryon_uow.usage.record("failed", error_code=err_code)
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job.id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason=err_code,
+                )
+
+        # Pre-inference consent revalidation (Time-of-use recheck)
         async with self.profile_uow:
             has_consent_before_inference = await self.profile_uow.consents.has_consent(
                 job.user_id, "body_photo"

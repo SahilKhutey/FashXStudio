@@ -102,3 +102,63 @@ class TryOnUsage(Base, UUIDPrimaryKeyMixin):
     cost_usd_est: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
 
     __table_args__ = (Index("ix_tryon_usage_created", "created_at"),)
+
+
+class TryOnInputValidation(Base, UUIDPrimaryKeyMixin):
+    """Immutable audit record of image validation outcomes for a tryon job (Phase 07.3)."""
+
+    __tablename__ = "tryon_input_validations"
+    __table_args__ = (
+        Index("ix_tryon_input_job", "tryon_job_id"),
+        Index("ix_tryon_input_asset", "asset_id", "asset_version"),
+        Index("ix_tryon_input_status", "status", "validated_at"),
+        UniqueConstraint(
+            "tryon_job_id",
+            "role",
+            "asset_id",
+            "asset_version",
+            "policy_version",
+            name="uq_tryon_input_validations_idempotency",
+        ),
+    )
+
+    tryon_job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    asset_id: Mapped[UUID] = mapped_column(nullable=False)
+    asset_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    original_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    normalized_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    technical_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    visual_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    issues: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    validated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnInputAuthorizationSnapshot(Base, UUIDPrimaryKeyMixin):
+    """Time-of-check authorization and consent snapshot for a tryon job (Phase 07.3)."""
+
+    __tablename__ = "tryon_input_authorization_snapshots"
+    __table_args__ = (
+        Index("ix_tryon_auth_snapshot_job", "tryon_job_id"),
+        Index("ix_tryon_auth_snapshot_subject", "subject_id", "authorization_type"),
+    )
+
+    tryon_job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    authorization_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    subject_id: Mapped[UUID] = mapped_column(nullable=False)
+    permission_scope: Mapped[str] = mapped_column(String(64), nullable=False)
+    evidence_revision: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    checked_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    result: Mapped[str] = mapped_column(String(32), nullable=False)

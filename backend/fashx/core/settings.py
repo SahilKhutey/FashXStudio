@@ -129,6 +129,33 @@ class Settings(BaseSettings):
     )
     fashn_model: str = Field(default="tryon-v1.6", validation_alias="FASHN_MODEL")
     fashn_mode: str | None = Field(default=None, validation_alias="FASHN_MODE")
+    fashn_connect_timeout_seconds: float = Field(
+        default=5.0, validation_alias="FASHN_CONNECT_TIMEOUT_SECONDS"
+    )
+    fashn_request_timeout_seconds: float = Field(
+        default=30.0, validation_alias="FASHN_REQUEST_TIMEOUT_SECONDS"
+    )
+    fashn_read_timeout_seconds: float = Field(
+        default=15.0, validation_alias="FASHN_READ_TIMEOUT_SECONDS"
+    )
+    fashn_submit_max_retries: int = Field(
+        default=0, validation_alias="FASHN_SUBMIT_MAX_RETRIES"
+    )
+    fashn_status_max_retries: int = Field(
+        default=3, validation_alias="FASHN_STATUS_MAX_RETRIES"
+    )
+    fashn_poll_interval_seconds: float = Field(
+        default=3.0, validation_alias="FASHN_POLL_INTERVAL_SECONDS"
+    )
+    fashn_prediction_timeout_seconds: int = Field(
+        default=180, validation_alias="FASHN_PREDICTION_TIMEOUT_SECONDS"
+    )
+    fashn_max_concurrent_predictions: int = Field(
+        default=2, validation_alias="FASHN_MAX_CONCURRENT_PREDICTIONS"
+    )
+    fashn_max_submissions_per_minute: int = Field(
+        default=10, validation_alias="FASHN_MAX_SUBMISSIONS_PER_MINUTE"
+    )
     tryon_timeout_s: int = Field(default=90, validation_alias="TRYON_TIMEOUT_S")
     tryon_max_attempts: int = Field(default=3, validation_alias="TRYON_MAX_ATTEMPTS")
     tryon_user_daily_cap: int = Field(default=20, validation_alias="TRYON_USER_DAILY_CAP")
@@ -237,8 +264,23 @@ class Settings(BaseSettings):
             raise ValueError("AUTH_JWT_SECRET required in local auth mode")
         if self.auth_mode == "cognito" and (not self.cognito_user_pool_id or not self.cognito_app_client_id):
             raise ValueError("COGNITO_USER_POOL_ID and COGNITO_APP_CLIENT_ID required when AUTH_MODE=cognito")
-        if self.tryon_provider == "fashn_api" and not self.fashn_api_key:
-            raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
+        if self.tryon_provider == "fashn_api":
+            if not self.fashn_api_key or not self.fashn_api_key.get_secret_value().strip():
+                raise ValueError("FASHN_API_KEY required when TRYON_PROVIDER=fashn_api")
+            if not self.fashn_base_url.startswith("https://"):
+                raise ValueError("FASHN_BASE_URL must use HTTPS")
+            if self.fashn_connect_timeout_seconds <= 0 or self.fashn_request_timeout_seconds <= 0 or self.fashn_read_timeout_seconds <= 0:
+                raise ValueError("FASHN timeouts must be positive")
+            if self.fashn_submit_max_retries < 0 or self.fashn_status_max_retries < 0:
+                raise ValueError("FASHN retries cannot be negative")
+            if self.fashn_poll_interval_seconds <= 0:
+                raise ValueError("FASHN_POLL_INTERVAL_SECONDS must be positive")
+            if self.fashn_prediction_timeout_seconds <= 0:
+                raise ValueError("FASHN_PREDICTION_TIMEOUT_SECONDS must be positive")
+            if self.fashn_max_concurrent_predictions <= 0:
+                raise ValueError("FASHN_MAX_CONCURRENT_PREDICTIONS must be positive")
+            if self.fashn_max_submissions_per_minute <= 0:
+                raise ValueError("FASHN_MAX_SUBMISSIONS_PER_MINUTE must be positive")
         if self.is_staging:
             if self.env != "staging":
                 raise ValueError("Staging requires ENV=staging")
