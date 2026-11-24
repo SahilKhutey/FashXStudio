@@ -1,3 +1,7 @@
+"""Legacy human visual evaluation models and summary metrics (for backward compatibility)."""
+
+from __future__ import annotations
+
 import statistics
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -48,7 +52,6 @@ class HumanVisualRating:
             raise ValueError(
                 f"Purchase confidence must be between 1 and 5; got {self.purchase_confidence}"
             )
-        # Deduplicate and sort tags
         self.issue_tags = sorted(set(self.issue_tags))
 
 
@@ -67,11 +70,7 @@ def summarize_visual_ratings(
     ratings: Sequence[HumanVisualRating],
     acceptable_threshold: str = "accurate",
 ) -> VisualEvaluationSummary:
-    """Summarizes human visual realism evaluations into release gate metrics.
-
-    Note: This measures visual fidelity and user-perceived realism of the VTO output.
-    It does NOT measure or claim objective physical fit or sizing correctness.
-    """
+    """Summarizes human visual realism evaluations into release gate metrics."""
     threshold_score = ACCURACY_SCORES.get(acceptable_threshold, 4)
     total = len(ratings)
 
@@ -111,9 +110,7 @@ def summarize_visual_ratings(
         round(statistics.mean(accuracy_scores_list), 2) if accuracy_scores_list else None
     )
     mean_purchase_conf = (
-        round(statistics.mean(purchase_confidences_list), 2)
-        if purchase_confidences_list
-        else None
+        round(statistics.mean(purchase_confidences_list), 2) if purchase_confidences_list else None
     )
 
     return VisualEvaluationSummary(

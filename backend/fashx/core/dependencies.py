@@ -77,6 +77,13 @@ def get_tryon_adapter() -> TryOnAdapter:
             mode=s.fashn_mode,
             cost_usd_est=s.tryon_est_cost_usd,
             timeout_s=float(s.tryon_timeout_s),
+            connect_timeout_seconds=s.fashn_connect_timeout_seconds,
+            request_timeout_seconds=s.fashn_request_timeout_seconds,
+            read_timeout_seconds=s.fashn_read_timeout_seconds,
+            status_max_retries=s.fashn_status_max_retries,
+            poll_interval_seconds=s.fashn_poll_interval_seconds,
+            max_concurrent_predictions=s.fashn_max_concurrent_predictions,
+            max_submissions_per_minute=s.fashn_max_submissions_per_minute,
             environment=s.env,
         )
     elif s.tryon_provider == "fashn_selfhost":

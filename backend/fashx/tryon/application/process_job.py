@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import logging
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -12,12 +13,22 @@ from fashx.core.errors import EntityNotFoundError
 from fashx.ml.prep import prepare_for_provider
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.tryon.artifact_metadata import inspect_artifact
+from fashx.tryon.domain.state_machine import ProviderAttemptStatus
+from fashx.tryon.output_validation import validate_provider_output
 from fashx.tryon.ports import InferenceInput
 from fashx.tryon.quality_validator import PostInferenceQualityValidator
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from fashx.tryon.watermarker import SyntheticWatermarker
 
 log = logging.getLogger(__name__)
+
+
+async def _run_maybe_thread(func: Any, *args: Any, **kwargs: Any) -> Any:
+    try:
+        asyncio.get_running_loop()
+        return await asyncio.to_thread(func, *args, **kwargs)
+    except RuntimeError:
+        return func(*args, **kwargs)
 
 
 def _validate_image_bytes(data: bytes | None, label: str) -> None:
@@ -54,10 +65,12 @@ class ProcessTryOnJobUseCase:
         adapter: Any | None = None,
         storage: Any | None = None,
         breaker: Any | None = None,
+        validation_service: Any | None = None,
     ) -> None:
         self.tryon_uow = tryon_uow
         self.profile_uow = profile_uow
         self.catalog_uow = catalog_uow
+        self.validation_service = validation_service
         if adapter is not None:
             self.adapter = adapter
         else:
@@ -325,7 +338,41 @@ class ProcessTryOnJobUseCase:
                 failure_reason=f"invalid_garment_image_bytes: {exc}",
             )
 
-        # Pre-inference consent revalidation
+        # Mandatory Phase 07.3 Input Validation Gate
+        if self.validation_service is not None:
+            photo_asset_id = getattr(job, "profile_photo_id", None) or job.user_id
+            from fashx.tryon.validation.contracts import ValidationRequest
+
+            val_req = ValidationRequest(
+                user_id=job.user_id,
+                shopper_asset_id=photo_asset_id,
+                product_id=job.garment_id,
+                garment_category=garment_category,
+            )
+            val_result = await self.validation_service.validate_and_record(
+                job_id=job.id, request=val_req
+            )
+            if not val_result.can_submit:
+                issue = (
+                    val_result.shopper.issues[0]
+                    if val_result.shopper.issues
+                    else (val_result.garment.issues[0] if val_result.garment.issues else None)
+                )
+                err_code = issue.code if issue else "validation_rejected"
+                user_msg = issue.user_message if issue else "Input validation failed."
+                async with self.tryon_uow:
+                    await self.tryon_uow.jobs.fail(job.id, err_code, user_msg)
+                    if hasattr(self.tryon_uow, "usage"):
+                        await self.tryon_uow.usage.record("failed", error_code=err_code)
+                    await self.tryon_uow.commit()
+                return ProcessJobResult(
+                    job_id=job.id,
+                    status="failed",
+                    artifact_key=job.artifact_key,
+                    failure_reason=err_code,
+                )
+
+        # Pre-inference consent revalidation (Time-of-use recheck)
         async with self.profile_uow:
             has_consent_before_inference = await self.profile_uow.consents.has_consent(
                 job.user_id, "body_photo"
@@ -343,16 +390,20 @@ class ProcessTryOnJobUseCase:
                 failure_reason="consent_revoked",
             )
 
-        # 4. Model Inference with Circuit Breaker and Two-Phase Provider (Rule I06 & Rule I08)
+        # 4. Model Inference with Circuit Breaker and Provider Attempts (Rule 7.4.15 - 7.4.18)
         async with self.tryon_uow:
-            await self.tryon_uow.jobs.update_status(job_id, "inference")
+            await self.tryon_uow.jobs.update_status(job_id, "submitting")
+            job_cur = await self.tryon_uow.jobs.get_by_id(job_id)
+            if job_cur and hasattr(job_cur, "progress_stage"):
+                job_cur.progress_stage = "submitting_to_provider"
             await self.tryon_uow.commit()
 
         cost_usd_est: float | None = 0.0
-        provider_name = getattr(self.adapter, "provider", "mock")
+        provider_name = getattr(self.adapter, "provider", "fashn_api")
         model_version = getattr(self.adapter, "model_version", "tryon-v1.6")
         pipeline_version = getattr(self.adapter, "pipeline_version", "pilot-pipe-v1")
         latency_ms = 0.0
+        attempt_record = None
 
         if hasattr(self.adapter, "submit") and hasattr(self.adapter, "collect"):
             try:
@@ -374,23 +425,77 @@ class ProcessTryOnJobUseCase:
                         garment_jpeg=prepare_for_provider(garment_bytes),
                         category=cat_arg,
                     )
-                    if inspect.iscoroutinefunction(self.adapter.submit):
-                        provider_job_id = await self.adapter.submit(req)
-                    else:
-                        provider_job_id = await asyncio.to_thread(self.adapter.submit, req)
 
+                    # Persist provider attempt before POST (Rule 7.4.16)
+                    async with self.tryon_uow:
+                        if hasattr(self.tryon_uow, "provider_attempts"):
+                            existing_attempts = await self.tryon_uow.provider_attempts.get_by_job_id(job.id)
+                            att_num = len(existing_attempts) + 1
+                            attempt_record = await self.tryon_uow.provider_attempts.create_attempt(
+                                job_id=job.id,
+                                attempt_number=att_num,
+                                provider=provider_name,
+                                model_version=model_version,
+                                status=ProviderAttemptStatus.SUBMITTING.value,
+                                request_hash=getattr(job, "request_hash", None) or "unhashed",
+                            )
+                            attempt_record.submitted_at = datetime.now(UTC)
+                        await self.tryon_uow.commit()
+
+                    try:
+                        if inspect.iscoroutinefunction(self.adapter.submit):
+                            provider_job_id = await self.adapter.submit(req)
+                        else:
+                            provider_job_id = await _run_maybe_thread(self.adapter.submit, req)
+                    except Exception as submit_exc:
+                        # Ambiguous submission: record UNKNOWN and SUBMISSION_UNKNOWN (Rule 7.4.16)
+                        async with self.tryon_uow:
+                            if attempt_record and hasattr(self.tryon_uow, "provider_attempts"):
+                                await self.tryon_uow.provider_attempts.update_status(
+                                    attempt_record.id,
+                                    status=ProviderAttemptStatus.UNKNOWN.value,
+                                    safe_error_detail=str(submit_exc),
+                                )
+                            await self.tryon_uow.jobs.update_status(
+                                job.id, "submission_unknown", failure_reason="submission_timeout"
+                            )
+                            job_up = await self.tryon_uow.jobs.get_by_id(job.id)
+                            if job_up and hasattr(job_up, "progress_stage"):
+                                job_up.progress_stage = "submission_unknown"
+                            await self.tryon_uow.commit()
+
+                        return ProcessJobResult(
+                            job_id=job.id,
+                            status="submission_unknown",
+                            artifact_key=job.artifact_key,
+                            failure_reason=f"submission_unknown: {submit_exc}",
+                        )
+
+                    # Persist provider job ID immediately upon acceptance (Rule 7.4.17)
                     async with self.tryon_uow:
                         await self.tryon_uow.jobs.set_provider_job(
                             job.id, provider_name, provider_job_id
                         )
-                        job.provider_job_id = provider_job_id
-                        job.provider = provider_name
+                        job_up = await self.tryon_uow.jobs.get_by_id(job.id)
+                        if job_up:
+                            job_up.provider_job_id = provider_job_id
+                            job_up.provider = provider_name
+                            job_up.provider_submitted_at = datetime.now(UTC)
+                            job_up.status = "submitted"
+                            if hasattr(job_up, "progress_stage"):
+                                job_up.progress_stage = "provider_inference"
+                        if attempt_record and hasattr(self.tryon_uow, "provider_attempts"):
+                            await self.tryon_uow.provider_attempts.update_status(
+                                attempt_record.id,
+                                status=ProviderAttemptStatus.ACCEPTED.value,
+                                provider_job_id=provider_job_id,
+                            )
                         await self.tryon_uow.commit()
 
                 if inspect.iscoroutinefunction(self.adapter.collect):
                     out = await self.adapter.collect(provider_job_id, deadline_s=deadline_s)
                 else:
-                    out = await asyncio.to_thread(
+                    out = await _run_maybe_thread(
                         self.adapter.collect, provider_job_id, deadline_s=deadline_s
                     )
                 if self.breaker:
@@ -401,10 +506,31 @@ class ProcessTryOnJobUseCase:
                 cost_usd_est = out.cost_usd_est
                 model_version = out.model
                 provider_name = out.provider
+
+                if attempt_record and hasattr(self.tryon_uow, "provider_attempts"):
+                    async with self.tryon_uow:
+                        await self.tryon_uow.provider_attempts.update_status(
+                            attempt_record.id,
+                            status=ProviderAttemptStatus.COMPLETED.value,
+                            completed_at=datetime.now(UTC),
+                        )
+                        await self.tryon_uow.commit()
+
             except TryOnError as err:
                 if err.code in ("provider_unavailable", "provider_unreachable", "provider_timeout"):
                     if self.breaker:
                         self.breaker.failure()
+
+                if attempt_record and hasattr(self.tryon_uow, "provider_attempts"):
+                    async with self.tryon_uow:
+                        await self.tryon_uow.provider_attempts.update_status(
+                            attempt_record.id,
+                            status=ProviderAttemptStatus.FAILED.value,
+                            provider_error_code=err.code,
+                            safe_error_detail=err.user_message or str(err),
+                            completed_at=datetime.now(UTC),
+                        )
+                        await self.tryon_uow.commit()
 
                 max_attempts = 3
                 attempts = getattr(job, "attempts", 1)
@@ -492,7 +618,34 @@ class ProcessTryOnJobUseCase:
                 failure_reason="consent_revoked",
             )
 
-        # 6. Post-Inference Quality Validation on provider output (Rule I10)
+        # 6. Provider Output Image Validation (Rule 7.4.20)
+        async with self.tryon_uow:
+            await self.tryon_uow.jobs.update_status(job_id, "validating_output")
+            job_val = await self.tryon_uow.jobs.get_by_id(job_id)
+            if job_val and hasattr(job_val, "progress_stage"):
+                job_val.progress_stage = "validating_output"
+            await self.tryon_uow.commit()
+
+        try:
+            val_out = validate_provider_output(rendered_bytes)
+            rendered_bytes = val_out.data
+        except ValueError as val_err:
+            log.warning("Output validation failed for job %s: %s", job_id, val_err)
+            async with self.tryon_uow:
+                await self.tryon_uow.jobs.update_status(
+                    job_id, "failed", failure_reason="output_validation_failed"
+                )
+                if hasattr(self.tryon_uow, "usage"):
+                    await self.tryon_uow.usage.record("failed", error_code="output_validation_failed")
+                await self.tryon_uow.commit()
+            return ProcessJobResult(
+                job_id=job_id,
+                status="failed",
+                artifact_key=job.artifact_key,
+                failure_reason="output_validation_failed",
+            )
+
+        # 7. Post-Inference Quality Validation on provider output (Rule I10)
         async with self.tryon_uow:
             await self.tryon_uow.jobs.update_status(job_id, "quality_check")
             await self.tryon_uow.commit()
@@ -630,9 +783,16 @@ class ProcessTryOnJobUseCase:
                     content_type=metadata.content_type,
                     content_sha256=metadata.content_sha256,
                     quality_reasons=quality_reasons_list,
+                    provider=provider_name,
+                    provider_model_version=model_version,
+                    output_sha256=metadata.content_sha256,
+                    processing_latency_ms=int(latency_ms),
                 )
                 self.tryon_uow.artifacts.add(artifact)
                 await self.tryon_uow.jobs.update_status(job_id, "completed")
+                if job_record:
+                    job_record.progress_stage = "completed"
+                    job_record.provider_completed_at = datetime.now(UTC)
                 if hasattr(self.tryon_uow, "usage"):
                     await self.tryon_uow.usage.record(
                         "completed",

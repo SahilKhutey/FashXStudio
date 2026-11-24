@@ -163,7 +163,25 @@ from .tenant import (
     TenantUsage,
     WidgetSession,
 )
-from .tryon import TryOnArtifact, TryOnJob, TryOnUsage
+from .tryon import (
+    TryOnArtifact,
+    TryOnBudget,
+    TryOnBudgetReservation,
+    TryOnDeadLetter,
+    TryOnEvaluationCategoryGate,
+    TryOnEvaluationDataset,
+    TryOnEvaluationItem,
+    TryOnEvaluationRating,
+    TryOnEvaluationRun,
+    TryOnInputAuthorizationSnapshot,
+    TryOnInputValidation,
+    TryOnJob,
+    TryOnJobEvent,
+    TryOnProviderAttempt,
+    TryOnProviderUsage,
+    TryOnResultCache,
+    TryOnUsage,
+)
 
 __all__ = [
     "Base",
@@ -313,4 +331,18 @@ __all__ = [
     "MenuCustomizationRecord",
     "CustomizationRevisionRecord",
     "ConfigurationMigrationRecord",
+    "TryOnInputValidation",
+    "TryOnInputAuthorizationSnapshot",
+    "TryOnProviderAttempt",
+    "TryOnJobEvent",
+    "TryOnDeadLetter",
+    "TryOnResultCache",
+    "TryOnProviderUsage",
+    "TryOnBudget",
+    "TryOnBudgetReservation",
+    "TryOnEvaluationDataset",
+    "TryOnEvaluationRun",
+    "TryOnEvaluationItem",
+    "TryOnEvaluationRating",
+    "TryOnEvaluationCategoryGate",
 ]
