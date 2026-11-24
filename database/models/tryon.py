@@ -56,14 +56,22 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)
     provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     request_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    provider_submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    provider_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    provider_submitted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    provider_completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now(), nullable=True
+    )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     validation_policy_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
     error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    progress_stage: Mapped[str | None] = mapped_column(String(64), default="waiting_for_worker", nullable=True)
+    progress_stage: Mapped[str | None] = mapped_column(
+        String(64), default="waiting_for_worker", nullable=True
+    )
     lock_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     retry_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -73,10 +81,14 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     worker_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     lease_token: Mapped[UUID | None] = mapped_column(nullable=True)
-    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    cancel_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancel_requested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
@@ -214,7 +226,9 @@ class TryOnProviderAttempt(Base, UUIDPrimaryKeyMixin):
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
     model_version: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(32), nullable=False)  # PREPARED, SUBMITTING, ACCEPTED, UNKNOWN, COMPLETED, FAILED
+    status: Mapped[str] = mapped_column(
+        String(32), nullable=False
+    )  # PREPARED, SUBMITTING, ACCEPTED, UNKNOWN, COMPLETED, FAILED
     provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     provider_error_code: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -230,9 +244,7 @@ class TryOnJobEvent(Base, UUIDPrimaryKeyMixin):
     """Append-only audit event for virtual try-on job state transitions (Phase 07.5)."""
 
     __tablename__ = "tryon_job_events"
-    __table_args__ = (
-        Index("ix_tryon_job_events_job_time", "job_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_tryon_job_events_job_time", "job_id", "created_at"),)
 
     job_id: Mapped[UUID] = mapped_column(
         ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
@@ -278,3 +290,167 @@ class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class TryOnResultCache(Base, UUIDPrimaryKeyMixin):
+    """Durable cache record for reusable Virtual Try-On results (Phase 07.6)."""
+
+    __tablename__ = "tryon_result_cache"
+    __table_args__ = (
+        Index("ix_tryon_result_cache_key", "cache_key", unique=True),
+        Index("ix_tryon_result_cache_owner", "owner_user_id"),
+        Index("ix_tryon_result_cache_product", "canonical_product_id"),
+        Index("ix_tryon_result_cache_status_expires", "status", "expires_at"),
+        Index("ix_tryon_result_cache_meta_expires", "metadata_expires_at"),
+    )
+
+    cache_key: Mapped[str] = mapped_column(String(64), nullable=False)
+    owner_user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    canonical_product_id: Mapped[UUID] = mapped_column(
+        ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False
+    )
+    shopper_asset_id: Mapped[UUID] = mapped_column(nullable=False)
+    shopper_asset_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    garment_asset_id: Mapped[UUID] = mapped_column(nullable=False)
+    garment_image_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    shopper_image_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    garment_image_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_model: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    config_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    preprocessing_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    policy_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    garment_category: Mapped[str] = mapped_column(String(64), nullable=False)
+    output_options_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    result_storage_uri: Mapped[str] = mapped_column(Text, nullable=False)
+    result_storage_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    result_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    source_job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), default="ACTIVE", nullable=False)
+    invalidation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    hit_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_hit_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    metadata_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class TryOnProviderUsage(Base, UUIDPrimaryKeyMixin):
+    """Fine-grained audit ledger for third-party inference provider charges (Phase 07.6)."""
+
+    __tablename__ = "tryon_provider_usage"
+    __table_args__ = (
+        Index("ix_tryon_provider_usage_provider", "provider"),
+        Index("ix_tryon_provider_usage_created", "created_at"),
+        Index("ix_tryon_provider_usage_job", "tryon_job_id"),
+        UniqueConstraint(
+            "provider",
+            "provider_request_id",
+            "operation",
+            name="uq_tryon_provider_usage_dedup",
+        ),
+    )
+
+    tryon_job_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_model: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    operation: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    units_consumed: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("1.0"), nullable=False
+    )
+    unit_cost_usd: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("0.0"), nullable=False
+    )
+    total_cost_usd: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("0.0"), nullable=False
+    )
+    currency: Mapped[str] = mapped_column(String(8), default="USD", nullable=False)
+    latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    raw_usage_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnBudget(Base, UUIDPrimaryKeyMixin):
+    """Multi-tier budget allocations and spend tracking (Phase 07.6)."""
+
+    __tablename__ = "tryon_budgets"
+    __table_args__ = (
+        Index("ix_tryon_budgets_scope", "scope_type", "scope_id"),
+        Index("ix_tryon_budgets_period", "period", "period_start"),
+        UniqueConstraint(
+            "scope_type",
+            "scope_id",
+            "period",
+            "period_start",
+            name="uq_tryon_budgets_scope_period",
+        ),
+    )
+
+    scope_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    scope_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    period: Mapped[str] = mapped_column(String(32), nullable=False)
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    hard_limit_amount: Mapped[Decimal] = mapped_column(Numeric(12, 4), nullable=False)
+    warn_threshold_pct: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), default=Decimal("70.00"), nullable=False
+    )
+    crit_threshold_pct: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), default=Decimal("90.00"), nullable=False
+    )
+    current_spend_usd: Mapped[Decimal] = mapped_column(
+        Numeric(12, 4), default=Decimal("0.0000"), nullable=False
+    )
+    reserved_spend_usd: Mapped[Decimal] = mapped_column(
+        Numeric(12, 4), default=Decimal("0.0000"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), default="ACTIVE", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class TryOnBudgetReservation(Base, UUIDPrimaryKeyMixin):
+    """Atomic pre-inference budget reservations (Phase 07.6)."""
+
+    __tablename__ = "tryon_budget_reservations"
+    __table_args__ = (
+        Index("ix_tryon_reservations_budget", "budget_id"),
+        Index("ix_tryon_reservations_job", "tryon_job_id"),
+        Index("ix_tryon_reservations_status_expires", "status", "expires_at"),
+    )
+
+    budget_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_budgets.id", ondelete="CASCADE"), nullable=False
+    )
+    tryon_job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
+    )
+    reserved_amount_usd: Mapped[Decimal] = mapped_column(Numeric(10, 4), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="RESERVED", nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    committed_amount_usd: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
