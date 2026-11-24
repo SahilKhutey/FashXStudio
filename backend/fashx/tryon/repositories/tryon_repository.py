@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import and_, desc, or_, select
+from sqlalchemy import and_, desc, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from database.models.tryon import (
@@ -11,10 +11,12 @@ from database.models.tryon import (
     TryOnInputAuthorizationSnapshot,
     TryOnInputValidation,
     TryOnJob,
+    TryOnProviderAttempt,
     TryOnUsage,
 )
 from fashx.core.repository import BaseRepository
 from fashx.core.unit_of_work import SqlAlchemyUnitOfWork
+from fashx.tryon.domain.state_machine import validate_transition
 
 
 class TryOnJobRepository(BaseRepository[TryOnJob]):
@@ -66,6 +68,9 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
         configuration_hash: str = "default",
         queue_name: str = "tryon-jobs",
         provider: str | None = None,
+        request_hash: str | None = None,
+        validation_policy_version: str | None = None,
+        progress_stage: str | None = "waiting_for_worker",
         id_: UUID | None = None,
     ) -> TryOnJob:
         existing = await self.get_by_user_and_idempotency(user_id, idempotency_key)
@@ -85,6 +90,9 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
             configuration_hash=configuration_hash,
             queue_name=queue_name,
             provider=provider,
+            request_hash=request_hash,
+            validation_policy_version=validation_policy_version,
+            progress_stage=progress_stage,
             attempts=1,
             attempt_count=0,
             cancel_requested=False,
@@ -94,6 +102,49 @@ class TryOnJobRepository(BaseRepository[TryOnJob]):
         self.add(job)
         await self.flush()
         return job
+
+    async def transition_if_owned(
+        self,
+        *,
+        job_id: UUID,
+        worker_id: str,
+        expected_status: str,
+        new_status: str,
+        progress_stage: str | None = None,
+        failure_reason: str | None = None,
+        error_code: str | None = None,
+    ) -> bool:
+        """Atomically transitions job state if owned by current worker. Prevents stale worker overwrites."""
+        validate_transition(expected_status, new_status)
+
+        values: dict[str, object] = {
+            "status": new_status,
+            "updated_at": datetime.now(UTC),
+        }
+        if progress_stage:
+            values["progress_stage"] = progress_stage
+        if failure_reason:
+            values["failure_reason"] = failure_reason
+        if error_code:
+            values["error_code"] = error_code
+        if new_status in ("completed", "failed", "cancelled", "blocked_by_permission"):
+            values["completed_at"] = datetime.now(UTC)
+            values["locked_by"] = None
+            values["locked_at"] = None
+            values["lock_expires_at"] = None
+
+        stmt = (
+            update(TryOnJob)
+            .where(
+                TryOnJob.id == job_id,
+                TryOnJob.locked_by == worker_id,
+                TryOnJob.status == expected_status,
+            )
+            .values(**values)
+        )
+        res = await self.session.execute(stmt)
+        await self.flush()
+        return res.rowcount == 1
 
     async def update_status(
         self,
@@ -357,6 +408,80 @@ class TryOnInputAuthorizationSnapshotRepository(BaseRepository[TryOnInputAuthori
         return snapshot
 
 
+class TryOnProviderAttemptRepository(BaseRepository[TryOnProviderAttempt]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, TryOnProviderAttempt)
+
+    async def get_by_job_id(self, job_id: UUID) -> Sequence[TryOnProviderAttempt]:
+        stmt = (
+            select(TryOnProviderAttempt)
+            .where(TryOnProviderAttempt.job_id == job_id)
+            .order_by(TryOnProviderAttempt.attempt_number.asc())
+        )
+        res = await self.session.scalars(stmt)
+        return res.all()
+
+    async def get_latest_attempt(self, job_id: UUID) -> TryOnProviderAttempt | None:
+        stmt = (
+            select(TryOnProviderAttempt)
+            .where(TryOnProviderAttempt.job_id == job_id)
+            .order_by(desc(TryOnProviderAttempt.attempt_number))
+            .limit(1)
+        )
+        return await self.session.scalar(stmt)
+
+    async def create_attempt(
+        self,
+        *,
+        job_id: UUID,
+        attempt_number: int,
+        provider: str,
+        model_version: str,
+        status: str,
+        request_hash: str,
+        provider_job_id: str | None = None,
+    ) -> TryOnProviderAttempt:
+        attempt = TryOnProviderAttempt(
+            job_id=job_id,
+            attempt_number=attempt_number,
+            provider=provider,
+            model_version=model_version,
+            status=status,
+            request_hash=request_hash,
+            provider_job_id=provider_job_id,
+        )
+        self.add(attempt)
+        await self.flush()
+        return attempt
+
+    async def update_status(
+        self,
+        attempt_id: UUID,
+        status: str,
+        *,
+        provider_job_id: str | None = None,
+        provider_error_code: str | None = None,
+        safe_error_detail: str | None = None,
+        submitted_at: datetime | None = None,
+        completed_at: datetime | None = None,
+    ) -> TryOnProviderAttempt | None:
+        attempt = await self.get_by_id(attempt_id)
+        if attempt:
+            attempt.status = status
+            if provider_job_id is not None:
+                attempt.provider_job_id = provider_job_id
+            if provider_error_code is not None:
+                attempt.provider_error_code = provider_error_code
+            if safe_error_detail is not None:
+                attempt.safe_error_detail = safe_error_detail
+            if submitted_at is not None:
+                attempt.submitted_at = submitted_at
+            if completed_at is not None:
+                attempt.completed_at = completed_at
+            await self.flush()
+        return attempt
+
+
 class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
     """Unit of work managing TryOn aggregate persistence."""
 
@@ -372,6 +497,7 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         self._usage: TryOnUsageRepository | None = None
         self._validations: TryOnInputValidationRepository | None = None
         self._auth_snapshots: TryOnInputAuthorizationSnapshotRepository | None = None
+        self._provider_attempts: TryOnProviderAttemptRepository | None = None
 
     async def __aenter__(self) -> "TryOnUnitOfWork":
         await super().__aenter__()
@@ -380,6 +506,7 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         self._usage = None
         self._validations = None
         self._auth_snapshots = None
+        self._provider_attempts = None
         return self
 
     @property
@@ -415,3 +542,9 @@ class TryOnUnitOfWork(SqlAlchemyUnitOfWork):
         if self._auth_snapshots is None:
             self._auth_snapshots = TryOnInputAuthorizationSnapshotRepository(self.session)
         return self._auth_snapshots
+
+    @property
+    def provider_attempts(self) -> TryOnProviderAttemptRepository:
+        if self._provider_attempts is None:
+            self._provider_attempts = TryOnProviderAttemptRepository(self.session)
+        return self._provider_attempts

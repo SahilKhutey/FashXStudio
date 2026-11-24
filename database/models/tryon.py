@@ -55,6 +55,16 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     last_error: Mapped[str | None] = mapped_column(Text)
     provider: Mapped[str | None] = mapped_column(Text, nullable=True)
     provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    request_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    provider_submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    provider_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    validation_policy_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    progress_stage: Mapped[str | None] = mapped_column(String(64), default="waiting_for_worker", nullable=True)
+    lock_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
@@ -78,6 +88,12 @@ class TryOnArtifact(Base, UUIDPrimaryKeyMixin):
     content_sha256: Mapped[str | None] = mapped_column(String(64), index=True)
     quality_reasons: Mapped[list[str] | None] = mapped_column(JSON, default=list, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    provider_model_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    source_image_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    garment_image_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    output_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    processing_latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     @property
     def safe_quality_reasons(self) -> list[str]:
@@ -162,3 +178,37 @@ class TryOnInputAuthorizationSnapshot(Base, UUIDPrimaryKeyMixin):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     result: Mapped[str] = mapped_column(String(32), nullable=False)
+
+
+class TryOnProviderAttempt(Base, UUIDPrimaryKeyMixin):
+    """Auditable record of an inference attempt dispatched to a third-party VTO provider (Phase 07.4)."""
+
+    __tablename__ = "tryon_provider_attempts"
+    __table_args__ = (
+        Index("ix_tryon_provider_attempt_job", "job_id"),
+        Index("ix_tryon_provider_attempt_status", "status", "created_at"),
+        Index("ix_tryon_provider_attempt_prov_job", "provider", "provider_job_id"),
+        UniqueConstraint(
+            "job_id",
+            "attempt_number",
+            name="uq_tryon_provider_attempt_job_num",
+        ),
+    )
+
+    job_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)  # PREPARED, SUBMITTING, ACCEPTED, UNKNOWN, COMPLETED, FAILED
+    provider_job_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_error_code: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    safe_error_detail: Mapped[str | None] = mapped_column(Text, nullable=True)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+

@@ -13,10 +13,6 @@ from fashx.security.deps import Principal, get_principal
 from fashx.tryon.application.get_job_status import (
     GetTryOnJobStatusUseCase,
 )
-from fashx.tryon.application.submit_job import (
-    SubmitTryOnJobCommand,
-    SubmitTryOnJobUseCase,
-)
 from fashx.tryon.repositories.tryon_repository import TryOnUnitOfWork
 from schemas.common.enums import TryOnFailureReason, TryOnStatus
 
@@ -36,9 +32,13 @@ def get_catalog_uow() -> CatalogUnitOfWork:
 
 
 class CreateTryOnJobRequest(BaseModel):
-    user_id: UUID | None = None
-    garment_id: UUID
+    product_id: UUID | None = None
+    garment_id: UUID | None = None
+    offer_id: UUID | None = None
+    shopper_image_asset_id: UUID | None = None
     photo_id: UUID | None = None
+    garment_image_asset_id: UUID | None = None
+    user_id: UUID | None = None
     render_config: dict[str, Any] | None = None
 
 
@@ -48,6 +48,9 @@ class TryOnJobSubmissionResponse(BaseModel):
     artifact_key: str
     is_cached: bool
     result_url: str | None = None
+    progress_stage: str | None = "waiting_for_worker"
+    reused: bool | None = False
+    status_url: str | None = None
 
 
 class TryOnJobStatusResponse(BaseModel):
@@ -116,34 +119,45 @@ async def submit_tryon_job(
             detail="Virtual try-on processing is temporarily disabled for maintenance",
         )
 
-    effective_user_id = request.user_id or UUID(principal.user_id)
-    if str(effective_user_id) != principal.user_id:
+    effective_user_id = UUID(principal.user_id)
+    if request.user_id and str(request.user_id) != principal.user_id:
         from fashx.security.errors import forbidden
 
         raise forbidden("Forbidden: user_id mismatch")
 
-    async with catalog_uow:
-        garment = await catalog_uow.canonical_garments.get_by_id(request.garment_id)
-        if garment is not None and not getattr(garment, "tryon_supported", True):
-            from fashx.core.errors import ValidationError
+    product_uuid = request.product_id or request.garment_id
+    if product_uuid is None:
+        from fashx.core.errors import ValidationError
 
-            raise ValidationError(
-                "This garment is not supported for virtual try-on", field="garment_id"
-            )
+        raise ValidationError("product_id or garment_id is required", field="product_id")
 
-    from fashx.tryon.ports_dispatch import CeleryTryOnJobDispatcher
+    shopper_asset_uuid = request.shopper_image_asset_id or request.photo_id
+    if shopper_asset_uuid is None:
+        # Fall back to user's active portrait photo if neither provided
+        async with profile_uow:
+            active_photo = await profile_uow.photos.get_active_photo(effective_user_id, "tryon_reference")
+            if active_photo is None:
+                from fashx.core.errors import ValidationError
 
-    use_case = SubmitTryOnJobUseCase(
+                raise ValidationError(
+                    "User does not have an active portrait photo uploaded.", field="shopper_image_asset_id"
+                )
+            shopper_asset_uuid = active_photo.id
+
+    from fashx.tryon.application.accept_job import AcceptTryOnCommand, AcceptTryOnJobUseCase
+
+    use_case = AcceptTryOnJobUseCase(
         tryon_uow=tryon_uow,
         profile_uow=profile_uow,
         catalog_uow=catalog_uow,
         adapter=adapter,
-        dispatcher=CeleryTryOnJobDispatcher(),
     )
-    cmd = SubmitTryOnJobCommand(
+    cmd = AcceptTryOnCommand(
         user_id=effective_user_id,
-        garment_id=request.garment_id,
-        photo_id=request.photo_id,
+        product_id=product_uuid,
+        offer_id=request.offer_id,
+        shopper_asset_id=shopper_asset_uuid,
+        garment_asset_id=request.garment_image_asset_id,
         idempotency_key=idempotency_key,
         render_config=request.render_config,
     )
@@ -154,6 +168,9 @@ async def submit_tryon_job(
         artifact_key=result.artifact_key,
         is_cached=result.is_cached,
         result_url=result.result_url,
+        progress_stage=result.progress_stage,
+        reused=result.reused,
+        status_url=result.status_url,
     )
 
 

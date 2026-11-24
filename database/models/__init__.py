@@ -168,6 +168,7 @@ from .tryon import (
     TryOnInputAuthorizationSnapshot,
     TryOnInputValidation,
     TryOnJob,
+    TryOnProviderAttempt,
     TryOnUsage,
 )
 
@@ -321,4 +322,5 @@ __all__ = [
     "ConfigurationMigrationRecord",
     "TryOnInputValidation",
     "TryOnInputAuthorizationSnapshot",
+    "TryOnProviderAttempt",
 ]
