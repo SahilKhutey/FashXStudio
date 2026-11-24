@@ -454,3 +454,155 @@ class TryOnBudgetReservation(Base, UUIDPrimaryKeyMixin):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
+
+
+class TryOnEvaluationDataset(Base, UUIDPrimaryKeyMixin):
+    """Dataset benchmark metadata and protocol release record (Phase 07.7)."""
+
+    __tablename__ = "tryon_evaluation_datasets"
+    __table_args__ = (Index("ix_tryon_eval_dataset_version", "version", unique=True),)
+
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    version: Mapped[str] = mapped_column(String(50), nullable=False)
+    protocol_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    manifest_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
+    total_pairs: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), default="ACTIVE", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnEvaluationRun(Base, UUIDPrimaryKeyMixin):
+    """Frozen provider/configuration evaluation run (Phase 07.7)."""
+
+    __tablename__ = "tryon_evaluation_runs"
+    __table_args__ = (
+        Index("ix_tryon_eval_runs_run_id", "run_id", unique=True),
+        Index("ix_tryon_eval_runs_dataset", "dataset_version"),
+    )
+
+    run_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    dataset_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_model: Mapped[str] = mapped_column(String(64), nullable=False)
+    provider_model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    configuration_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    preprocessing_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    policy_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(64), default="default", nullable=False)
+    git_commit_sha: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    spending_ceiling_usd: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("50.0000"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), default="RUNNING", nullable=False)
+    total_pairs: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    completed_pairs: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    job_success_rate: Mapped[float | None] = mapped_column(Float, nullable=True)
+    p95_inference_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total_cost_usd: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("0.0000"), nullable=False
+    )
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class TryOnEvaluationItem(Base, UUIDPrimaryKeyMixin):
+    """Individual evaluation pair execution record within a benchmark run (Phase 07.7)."""
+
+    __tablename__ = "tryon_evaluation_items"
+    __table_args__ = (
+        Index("ix_tryon_eval_items_run", "run_id"),
+        Index("ix_tryon_eval_items_pair", "pair_id"),
+        UniqueConstraint("run_id", "pair_id", name="uq_tryon_eval_items_run_pair"),
+    )
+
+    run_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_evaluation_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    pair_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    tryon_job_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    input_validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    job_status: Mapped[str] = mapped_column(String(32), nullable=False)
+    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    inference_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    end_to_end_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cost_usd: Mapped[Decimal] = mapped_column(
+        Numeric(10, 4), default=Decimal("0.0000"), nullable=False
+    )
+    output_storage_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
+    output_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    ssim_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    color_delta_e: Mapped[float | None] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnEvaluationRating(Base, UUIDPrimaryKeyMixin):
+    """Independent human quality rating for an evaluation item (Phase 07.7)."""
+
+    __tablename__ = "tryon_evaluation_ratings"
+    __table_args__ = (
+        Index("ix_tryon_eval_ratings_item", "evaluation_item_id"),
+        Index("ix_tryon_eval_ratings_reviewer", "reviewer_id"),
+        UniqueConstraint(
+            "evaluation_item_id", "reviewer_id", name="uq_tryon_eval_ratings_item_reviewer"
+        ),
+    )
+
+    evaluation_item_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_evaluation_items.id", ondelete="CASCADE"), nullable=False
+    )
+    reviewer_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    garment_preservation: Mapped[int] = mapped_column(Integer, nullable=False)
+    body_alignment: Mapped[int] = mapped_column(Integer, nullable=False)
+    artifact_quality: Mapped[int] = mapped_column(Integer, nullable=False)
+    identity_preservation: Mapped[int] = mapped_column(Integer, nullable=False)
+    visual_plausibility: Mapped[int] = mapped_column(Integer, nullable=False)
+    non_misleading: Mapped[int] = mapped_column(Integer, nullable=False)
+    weighted_score: Mapped[float] = mapped_column(Float, nullable=False)
+    critical_issue: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    decision: Mapped[str] = mapped_column(String(32), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
+    """Category quality gate decision and threshold audit record (Phase 07.7)."""
+
+    __tablename__ = "tryon_evaluation_category_gates"
+    __table_args__ = (
+        Index("ix_tryon_eval_cat_gates_cat", "category"),
+        Index("ix_tryon_eval_cat_gates_run", "run_id"),
+        UniqueConstraint("category", "run_id", name="uq_tryon_eval_cat_gates_cat_run"),
+    )
+
+    category: Mapped[str] = mapped_column(String(64), nullable=False)
+    run_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_evaluation_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    sample_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    job_success_rate: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_garment_preservation: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_body_alignment: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_artifact_quality: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_identity_preservation: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_visual_plausibility: Mapped[float] = mapped_column(Float, nullable=False)
+    mean_non_misleading: Mapped[float] = mapped_column(Float, nullable=False)
+    reviewer_rejection_rate: Mapped[float] = mapped_column(Float, nullable=False)
+    critical_misleading_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    gate_failures: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    approved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
