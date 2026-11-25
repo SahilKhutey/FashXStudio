@@ -164,6 +164,8 @@ from .tenant import (
     WidgetSession,
 )
 from .tryon import (
+    FitRecommendation,
+    MerchantVerifiedSizeChart,
     TryOnArtifact,
     TryOnBudget,
     TryOnBudgetReservation,
@@ -173,6 +175,7 @@ from .tryon import (
     TryOnEvaluationItem,
     TryOnEvaluationRating,
     TryOnEvaluationRun,
+    TryOnFeedbackReview,
     TryOnInputAuthorizationSnapshot,
     TryOnInputValidation,
     TryOnJob,
@@ -345,4 +348,7 @@ __all__ = [
     "TryOnEvaluationItem",
     "TryOnEvaluationRating",
     "TryOnEvaluationCategoryGate",
+    "FitRecommendation",
+    "TryOnFeedbackReview",
+    "MerchantVerifiedSizeChart",
 ]

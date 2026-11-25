@@ -3,7 +3,7 @@
 # Developer Log: Phase 07 VTO Production Architecture & Engineering Notes
 
 **Author**: Coding Agent  
-**Date**: November 24, 2026  
+**Date**: November 25, 2026  
 **Repository**: `FashXStudio`  
 **Branch**: `feat/phase04.5-photo-upload`  
 
@@ -34,13 +34,23 @@
   - `Sarees`, `Lehengas`: Automatically marked `BLOCKED` until dedicated multi-piece drape evidence is established.
   - Shoppers selecting blocked categories receive clear, empathetic notices without backend error crashes.
 
+### 1.4 Strict Separation of Visual Simulation from Fit Prediction (Phase 07.8)
+- **Design Dilemma**: Sizing and fit claims (e.g. "AI confirmed size", "guaranteed fit") are easy to imply when displaying a realistic rendered image on a body, leading to shopper dissatisfaction and high return rates.
+- **Decision**: Visual Try-On is strictly an aesthetic visual simulation; Fit Prediction is an independent evidence-backed calculation based on verified dimensions and ease rules.
+- **Resolution**:
+  - VTO response explicitly carries `result_type: VISUAL_TRY_ON`, `fit_verified: false`, and `disclaimer_code: VISUAL_TRYON_NOT_FIT_VERIFICATION`.
+  - Fit Recommendation engine strictly rejects virtual try-on images as input evidence (`FitEvidenceSecurityError`).
+  - Size charts must declare measurement basis (`BODY` vs `GARMENT`).
+  - Missing or stale measurements fail closed to `INSUFFICIENT_DATA` rather than guessing a size.
+  - Problem reports capture 9 structured reason codes without mutating job status or granting model-training consent.
+
 ---
 
 ## 2. Engineering Challenges & Solutions
 
 ### 2.1 Python Site-Packages `tests` Clash on Windows
 - **Issue**: Running `import tests.unit...` caused Python 3.12 to resolve the top-level `tests` package from global `site-packages\tests\__init__.py` (installed by the `ultralytics` package), failing with `PermissionError: Access is denied: ...\Ultralytics\settings.json`.
-- **Solution**: Test runners (`run_all_cost_control_tests.py`, `run_all_evaluation_tests.py`) utilize `importlib.util.spec_from_file_location` and register modules under distinct names, bypassing site-packages namespace collision.
+- **Solution**: Test runners (`run_all_cost_control_tests.py`, `run_all_evaluation_tests.py`, `run_all_separation_tests.py`) utilize `importlib.util.spec_from_file_location` and register modules under distinct names, bypassing site-packages namespace collision.
 
 ### 2.2 Windows Sandbox Asyncio IOCP Deadlocks
 - **Issue**: Calling `asyncio.run()` in a tight loop inside the Windows execution sandbox causes the ProactorEventLoop to hang when managing IOCP completions without socket handles.
@@ -52,6 +62,7 @@
   - `0052_add_tryon_reliability_events_and_dlq`
   - `0053_add_tryon_cache_and_cost_controls`
   - `0054_add_tryon_quality_evaluation`
+  - `0055_add_vto_fit_separation_and_size_charts`
 - **Verification**: Verified using Python runtime AST introspection and migration loader checks. Live execution against PostgreSQL 16 container runs in GitHub Actions CI as required by Rule 14.
 
 ---
@@ -68,7 +79,10 @@ python tests/unit/tryon/cache/run_all_cost_control_tests.py
 # 3. Phase 07.7 Quality Evaluation Test Suite (24 tests)
 python tests/unit/tryon/evaluation/run_all_evaluation_tests.py
 
-# 4. Code Formatting and Linting
+# 4. Phase 07.8 Separation & Disclosure Test Suite (67 tests)
+python tests/unit/tryon/separation/run_all_separation_tests.py
+
+# 5. Code Formatting, Linting and Documentation
 ruff check backend/ database/ tests/
 python scripts/docs_lint.py
 ```

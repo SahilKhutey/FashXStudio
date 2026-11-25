@@ -606,3 +606,94 @@ class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+class FitRecommendation(Base, UUIDPrimaryKeyMixin):
+    """Evidence-backed size recommendation record separate from visual try-on (Phase 07.8)."""
+
+    __tablename__ = "fit_recommendations"
+    __table_args__ = (
+        Index("ix_fit_recommendations_user", "user_id"),
+        Index("ix_fit_recommendations_product", "product_id"),
+        Index("ix_fit_recommendations_created", "created_at"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id: Mapped[UUID] = mapped_column(
+        ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False
+    )
+    merchant_offer_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchant_offers.id", ondelete="SET NULL"), nullable=True
+    )
+    outcome: Mapped[str] = mapped_column(String(32), nullable=False)
+    recommended_size: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    alternative_sizes: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    explanation_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    evidence_json: Mapped[list[dict]] = mapped_column(JSON, default=list, nullable=False)
+    fit_model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    is_valid: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TryOnFeedbackReview(Base, UUIDPrimaryKeyMixin):
+    """Internal investigation, triage and root cause classification for try-on complaints (Phase 07.8)."""
+
+    __tablename__ = "tryon_feedback_reviews"
+    __table_args__ = (
+        Index("ix_tryon_feedback_reviews_feedback", "feedback_id"),
+        Index("ix_tryon_feedback_reviews_reviewer", "reviewer_id"),
+        Index("ix_tryon_feedback_reviews_status", "status"),
+    )
+
+    feedback_id: Mapped[UUID] = mapped_column(
+        ForeignKey("tryon_feedback.id", ondelete="CASCADE"), nullable=False
+    )
+    reviewer_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    root_cause: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    severity: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    resolution_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    linked_evaluation_item_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("tryon_evaluation_items.id", ondelete="SET NULL"), nullable=True
+    )
+    category_action_required: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class MerchantVerifiedSizeChart(Base, UUIDPrimaryKeyMixin):
+    """Merchant-sourced size chart revision with explicit measurement basis and provenance (Phase 07.8)."""
+
+    __tablename__ = "merchant_verified_size_charts"
+    __table_args__ = (
+        Index("ix_merchant_size_charts_merchant", "merchant_id"),
+        Index("ix_merchant_size_charts_garment", "canonical_garment_id"),
+        Index("ix_merchant_size_charts_product", "merchant_product_id"),
+        Index("ix_merchant_size_charts_status", "status"),
+    )
+
+    merchant_id: Mapped[UUID] = mapped_column(ForeignKey("merchants.id", ondelete="CASCADE"), nullable=False)
+    canonical_garment_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("canonical_garments.id", ondelete="SET NULL"), nullable=True
+    )
+    merchant_product_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    merchant_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    basis: Mapped[str] = mapped_column(String(16), nullable=False)  # BODY | GARMENT
+    unit: Mapped[str] = mapped_column(String(8), nullable=False)  # CM | INCH
+    status: Mapped[str] = mapped_column(String(32), default="VERIFIED", nullable=False)
+    source_reference: Mapped[str] = mapped_column(String(512), nullable=False)
+    source_revision: Mapped[str] = mapped_column(String(64), nullable=False)
+    rows_json: Mapped[list[dict]] = mapped_column(JSON, default=list, nullable=False)
+    chart_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    last_verified_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
