@@ -154,6 +154,17 @@ from .profile import (
     UserPreference,
     UserStyleProfile,
 )
+from .size_charts import (
+    InventorySnapshotRecord,
+    MeasurementFieldDefinitionRecord,
+    ProductSizeChartRecord,
+    SizeChartEventRecord,
+    SizeChartMeasurementRecord,
+    SizeChartQuarantineRecord,
+    SizeChartRevisionRecord,
+    SizeChartRowRecord,
+    SizeSystemDefinitionRecord,
+)
 from .tenant import (
     Tenant,
     TenantDomain,
@@ -351,4 +362,13 @@ __all__ = [
     "FitRecommendation",
     "TryOnFeedbackReview",
     "MerchantVerifiedSizeChart",
+    "SizeSystemDefinitionRecord",
+    "MeasurementFieldDefinitionRecord",
+    "ProductSizeChartRecord",
+    "SizeChartRevisionRecord",
+    "SizeChartRowRecord",
+    "SizeChartMeasurementRecord",
+    "InventorySnapshotRecord",
+    "SizeChartEventRecord",
+    "SizeChartQuarantineRecord",
 ]
