@@ -571,24 +571,29 @@ def test_erasure_classification_matches_database(db_engine):
 
 @pytest.mark.db
 def test_loop_tables_all_have_user_id_column(db_engine):
-    """Verify that every table deleted or anonymized by user_id in loops actually has a user_id column."""
+    """Verify that every table deleted or anonymized in loops has its configured user-id column."""
     from fashx.application.erasure import (
         ACCOUNT_TABLES,
         ANONYMIZE_TABLES,
         BIOMETRIC_TABLES,
+        USER_ID_COLUMN_OVERRIDES,
     )
 
     loop_tables = BIOMETRIC_TABLES + ACCOUNT_TABLES + ANONYMIZE_TABLES
     with db_engine.connect() as conn:
-        existing_cols = conn.execute(
-            text(
-                "SELECT table_name FROM information_schema.columns "
-                "WHERE table_schema = 'public' AND column_name = 'user_id'"
-            )
-        ).scalars().all()
-    user_id_tables = set(existing_cols)
+        existing_cols = set(
+            conn.execute(
+                text(
+                    "SELECT table_name, column_name FROM information_schema.columns "
+                    "WHERE table_schema = 'public'"
+                )
+            ).fetchall()
+        )
     for tbl in loop_tables:
-        assert tbl in user_id_tables, f"Table '{tbl}' in erasure loop is missing a 'user_id' column"
+        user_col = USER_ID_COLUMN_OVERRIDES.get(tbl, "user_id")
+        assert (tbl, user_col) in existing_cols, (
+            f"Table '{tbl}' in erasure loop is missing column '{user_col}'"
+        )
 
 
 @pytest.mark.db

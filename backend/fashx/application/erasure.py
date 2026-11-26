@@ -15,6 +15,7 @@ from fashx.integration.outbox import OutboxMessage
 
 # Single source of truth for table classification (Rule I16, Gate G4)
 BIOMETRIC_TABLES: list[str] = [
+    "tryon_result_cache",
     "tryon_jobs",
     "profile_artifacts",
     "profile_photo_jobs",
@@ -75,6 +76,11 @@ RETAINED_MINIMAL: list[str] = [
     "erasure_tombstones",
     "account_deletion_jobs",
 ]
+
+# Tables whose user foreign-key column is named differently from "user_id"
+USER_ID_COLUMN_OVERRIDES: dict[str, str] = {
+    "tryon_result_cache": "owner_user_id",
+}
 
 
 class ErasureIncomplete(RuntimeError):
@@ -185,9 +191,10 @@ async def erase_biometrics(
     session = getattr(uow, "session", None)
     if session is not None:
         for tbl in BIOMETRIC_TABLES:
+            user_col = USER_ID_COLUMN_OVERRIDES.get(tbl, "user_id")
             await _exec(
                 session,
-                f'DELETE FROM "{tbl}" WHERE user_id = :uid',
+                f'DELETE FROM "{tbl}" WHERE {user_col} = :uid',
                 user_id,
                 tbl,
                 counts,
@@ -280,9 +287,10 @@ async def erase_account(
 
             # 3. Hard-delete user account tables
             for tbl in ACCOUNT_TABLES:
+                user_col = USER_ID_COLUMN_OVERRIDES.get(tbl, "user_id")
                 await _exec(
                     session,
-                    f'DELETE FROM "{tbl}" WHERE user_id = :uid',
+                    f'DELETE FROM "{tbl}" WHERE {user_col} = :uid',
                     user_id,
                     tbl,
                     counts,
