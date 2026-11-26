@@ -17,8 +17,8 @@
 - Shopper & merchant REST API endpoints (`/products/{id}/size-chart`, `/revisions`, `/variants`, `/size-systems`)
 - Mobile UI contracts and components in `mobile/src/features/product-size/`
 - Full 15-document documentation suite in `docs/phase-08/8.1-product-size-data/`
-- Automated test catalogue: 40 unit and domain tests executed via `run_all_size_chart_tests.py`
-**Status**: 🟢 CODE AND TESTS PASS (Phase 08.1 Suite: 40 passed, 0 failed; Phase 07 Regression Suite: 260 passed, 0 failed) / 🟡 POSTGRES DAEMON UNVERIFIED LOCALLY (Rule 14: Local Windows environment operates without Docker/PostgreSQL; live SQL migrations and container integration verified in GitHub Actions CI)
+- Automated test catalogue: 44 unit, repository, service, and API tests executed via `run_all_size_chart_tests.py` and `pytest --noconftest`; 24 mobile Jest suites (179 tests)
+**Status**: 🟢 CODE AND TESTS PASS (Phase 08.1 Suite: 44 passed, 0 failed; Phase 07 Regression Suite: 260 passed, 0 failed; Mobile Jest: 24/24 suites, 179/179 tests; `mypy .` & `ruff check .` clean) / 🟡 POSTGRES DAEMON UNVERIFIED LOCALLY (Rule 14: Local Windows environment operates without Docker/PostgreSQL; live SQL migrations and container integration verified in GitHub Actions CI)
 
 ---
 
@@ -83,16 +83,17 @@
 
 ## 2. Test Execution & Verification
 
-### 2.1 Phase 08.1 Unit & Domain Suite
-- **Command**: `python tests/unit/catalog/size_charts/run_all_size_chart_tests.py`
+### 2.1 Phase 08.1 Unit, Service & API Suite
+- **Command**: `python -u tests/unit/catalog/size_charts/run_all_size_chart_tests.py`
 - **Output**:
   ```
-  Total Tests Run: 40
-  Passed:          40
+  Total Tests Run: 44
+  Passed:          44
   Failed:          0
-  Elapsed Time:    1.66s
+  Elapsed Time:    6.28s
   OVERALL VERDICT: ALL TESTS PASSED (100% GREEN)
   ```
+- **Pytest (noconftest)**: `python -m pytest --noconftest tests/unit/catalog/size_charts -q -p no:cacheprovider` -> `44 passed, 2 warnings in 6.82s`
 
 ### 2.2 Phase 07 Master Exit Gate Regression Suite
 - **Command**: `python tests/unit/tryon/run_phase07_exit_gate.py`
@@ -101,14 +102,10 @@
   Total Sub-phases Evaluated: 7
   Total Tests Passed:         260
   Total Tests Failed:         0
-  Total Wall-clock Time:      12.31s
+  Total Wall-clock Time:      17.05s
   Status:                     ALL PHASE 07 GATES PASSED [LOCAL / SANDBOX]
   ```
 
-### 2.3 Linter & Documentation Validation
-- **Command**: `ruff check backend/fashx/catalog/size_charts/ database/models/size_charts.py database/migrations/versions/0056_add_product_size_data_and_revisions.py tests/unit/catalog/size_charts/ ; python scripts/docs_lint.py`
-- **Output**:
-  ```
-  All checks passed!
-  docs lint ok
-  ```
+### 2.3 Linter, Static Analysis, Security & Mobile Verification
+- **Backend**: `ruff check .` -> `All checks passed!`, `python scripts/docs_lint.py` -> `docs lint ok`, `mypy .` -> `Success: no issues found in 1672 source files`, `bandit -r backend/fashx/catalog/size_charts/ -ll -ii` -> `No issues identified`
+- **Mobile**: `npx tsc --noEmit` (clean), `npx eslint . --max-warnings 0` (clean), `npx jest --ci` -> `Test Suites: 24 passed, 24 total; Tests: 179 passed, 179 total`

@@ -12,22 +12,22 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from backend.fashx.tryon.billing.budget_service import (
+from fashx.tryon.billing.budget_service import (
     BudgetExceededError,
     BudgetScope,
     ReservationStatus,
     TryOnBudgetService,
 )
-from backend.fashx.tryon.billing.cost_service import (
+from fashx.tryon.billing.cost_service import (
     TryOnCostService,
 )
-from backend.fashx.tryon.billing.usage import (
+from fashx.tryon.billing.usage import (
     OperationStatus,
     ProviderOperation,
     ProviderUsageRecord,
     TryOnProviderUsageService,
 )
-from backend.fashx.tryon.monitoring.anomaly_detection import (
+from fashx.tryon.monitoring.anomaly_detection import (
     BudgetAlertLevel,
     TryOnAnomalyDetector,
 )

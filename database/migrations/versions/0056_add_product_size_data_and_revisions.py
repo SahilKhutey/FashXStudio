@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table(
         "size_system_definitions",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("code", sa.String(length=64), nullable=False, unique=True),
+        sa.Column("code", sa.String(length=64), nullable=False),
         sa.Column("system_type", sa.String(length=32), nullable=False),
         sa.Column(
             "merchant_id",
@@ -37,6 +37,7 @@ def upgrade() -> None:
         sa.Column("labels_json", sa.JSON(), nullable=False),
         sa.Column("display_name", sa.String(length=128), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.UniqueConstraint("code", name="uq_size_system_code"),
     )
     op.create_index("ix_size_system_merchant", "size_system_definitions", ["merchant_id"])
 
@@ -44,13 +45,14 @@ def upgrade() -> None:
     op.create_table(
         "measurement_field_definitions",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("code", sa.String(length=32), nullable=False, unique=True),
+        sa.Column("code", sa.String(length=32), nullable=False),
         sa.Column("display_name", sa.String(length=64), nullable=False),
         sa.Column("allowed_categories_json", sa.JSON(), nullable=False),
         sa.Column("minimum_cm", sa.Numeric(precision=6, scale=2), nullable=False),
         sa.Column("maximum_cm", sa.Numeric(precision=6, scale=2), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.UniqueConstraint("code", name="uq_measurement_field_code"),
     )
 
     # 3. product_size_charts
@@ -62,7 +64,6 @@ def upgrade() -> None:
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("merchant_products.id", ondelete="CASCADE"),
             nullable=False,
-            unique=True,
         ),
         sa.Column(
             "merchant_id",
@@ -74,6 +75,7 @@ def upgrade() -> None:
         sa.Column("chart_status", sa.String(length=32), nullable=False, server_default="AVAILABLE"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.UniqueConstraint("merchant_product_id", name="uq_product_size_charts_product"),
     )
     op.create_index("ix_product_size_charts_merchant", "product_size_charts", ["merchant_id"])
     op.create_index("ix_product_size_charts_product", "product_size_charts", ["merchant_product_id"])

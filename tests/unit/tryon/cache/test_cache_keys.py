@@ -9,7 +9,7 @@ import uuid
 
 import pytest
 
-from backend.fashx.tryon.cache.keys import (
+from fashx.tryon.cache.keys import (
     TryOnCacheIdentity,
     compute_cache_key,
 )

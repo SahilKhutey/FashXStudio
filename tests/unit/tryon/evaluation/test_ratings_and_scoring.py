@@ -8,7 +8,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from backend.fashx.tryon.evaluation.ratings import (
+from fashx.tryon.evaluation.ratings import (
     HumanQualityRating,
     ReviewDecision,
     aggregate_item_ratings,

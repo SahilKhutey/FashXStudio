@@ -130,7 +130,7 @@ export function ProductSizeChart({ chart, onUnitChange }: ProductSizeChartProps)
           </View>
 
           {rows.map((row) => {
-            const measMap = new Map(row.measurements.map((m) => [m.field_code, m.value]));
+            const measMap = new Map(row.measurements.map((m) => [m.field_code, m]));
             return (
               <View key={row.merchant_size} style={styles.row}>
                 <Text style={[styles.cell, styles.sizeCell, styles.sizeColumn]}>
@@ -138,10 +138,22 @@ export function ProductSizeChart({ chart, onUnitChange }: ProductSizeChartProps)
                   {row.mapped_size ? ` (${row.mapped_size})` : ""}
                 </Text>
                 {fieldOrder.map((f) => {
-                  const val = measMap.get(f.code);
+                  const m = measMap.get(f.code);
+                  let displayVal = "—";
+                  if (m) {
+                    if (activeUnit === m.unit) {
+                      displayVal = `${m.value}`;
+                    } else if (activeUnit === "INCH") {
+                      displayVal = `${Number((m.normalized_cm / 2.54).toFixed(2))}`;
+                    } else if (activeUnit === "MM") {
+                      displayVal = `${Number((m.normalized_cm * 10).toFixed(2))}`;
+                    } else {
+                      displayVal = `${Number(m.normalized_cm.toFixed(2))}`;
+                    }
+                  }
                   return (
                     <Text key={f.code} style={styles.cell}>
-                      {val !== undefined && val !== null ? `${val}` : "—"}
+                      {displayVal}
                     </Text>
                   );
                 })}

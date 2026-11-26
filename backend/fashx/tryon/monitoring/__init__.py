@@ -1,11 +1,11 @@
 """Virtual Try-On Monitoring and Anomaly Detection Module."""
 
-from backend.fashx.tryon.monitoring.anomaly_detection import (
+from fashx.tryon.monitoring.anomaly_detection import (
     BudgetAlertLevel,
     BudgetEvaluation,
     TryOnAnomalyDetector,
 )
-from backend.fashx.tryon.monitoring.metrics import (
+from fashx.tryon.monitoring.metrics import (
     record_budget_reservation,
     record_budget_utilization,
     record_cache_lookup,

@@ -14,6 +14,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fashx.catalog.router import router as catalog_router
 from fashx.catalog.search.router import router as search_router
+from fashx.catalog.size_charts.router import router as size_charts_router
+from fashx.catalog.size_charts.router import systems_router as size_systems_router
 from fashx.commerce_wardrobe.router import router as commerce_wardrobe_router
 from fashx.config.router import router as config_router
 from fashx.core.logging import configure_logging
@@ -113,6 +115,12 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(catalog_metrics_router, prefix="/api/v1")
     app.include_router(
         customer_garment_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
+    app.include_router(
+        size_charts_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
+    )
+    app.include_router(
+        size_systems_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
     )
     app.include_router(
         catalog_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))]

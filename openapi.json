@@ -5197,6 +5197,332 @@
         }
       }
     },
+    "/api/v1/products/{product_id}/size-chart": {
+      "get": {
+        "tags": [
+          "size-charts"
+        ],
+        "summary": "Get Product Size Chart",
+        "description": "Retrieve verified merchant-sourced size chart for a given product.\n\nReturns 200 with verified chart if present, or 200 with an explicit UNAVAILABLE state\nif the merchant has not supplied a verified chart.",
+        "operationId": "get_product_size_chart_api_v1_products__product_id__size_chart_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MeasurementUnit"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Preferred unit for display (CM/INCH)",
+              "title": "Unit"
+            },
+            "description": "Preferred unit for display (CM/INCH)"
+          },
+          {
+            "name": "system",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Preferred target sizing system (e.g. US, UK, EU)",
+              "title": "System"
+            },
+            "description": "Preferred target sizing system (e.g. US, UK, EU)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ProductSizeChartResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SizeChartUnavailableResponse"
+                    }
+                  ],
+                  "title": "Response Get Product Size Chart Api V1 Products  Product Id  Size Chart Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "size-charts"
+        ],
+        "summary": "Ingest Product Size Chart",
+        "description": "Ingest, validate, fingerprint, and version a merchant-provided size chart.",
+        "operationId": "ingest_product_size_chart_api_v1_products__product_id__size_chart_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "merchant_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID of the merchant submitting the chart",
+              "title": "Merchant Id"
+            },
+            "description": "ID of the merchant submitting the chart"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Garment taxonomy category",
+              "default": "GENERAL",
+              "title": "Category"
+            },
+            "description": "Garment taxonomy category"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SizeChartRevisionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductSizeChartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/size-chart/revisions": {
+      "get": {
+        "tags": [
+          "size-charts"
+        ],
+        "summary": "List Size Chart Revisions",
+        "description": "List historical revisions and fingerprints for a product's size chart.",
+        "operationId": "list_size_chart_revisions_api_v1_products__product_id__size_chart_revisions_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SizeChartRevisionSummary"
+                  },
+                  "title": "Response List Size Chart Revisions Api V1 Products  Product Id  Size Chart Revisions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/availability": {
+      "get": {
+        "tags": [
+          "size-charts"
+        ],
+        "summary": "Get Product Variant Availability",
+        "description": "Retrieve current purchasable variant availability and stock freshness.",
+        "operationId": "get_product_variant_availability_api_v1_products__product_id__availability_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductVariantAvailability"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/variants": {
+      "get": {
+        "tags": [
+          "size-charts"
+        ],
+        "summary": "Get Product Variant Availability",
+        "description": "Retrieve current purchasable variant availability and stock freshness.",
+        "operationId": "get_product_variant_availability_api_v1_products__product_id__variants_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductVariantAvailability"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/size-systems": {
+      "get": {
+        "tags": [
+          "size-systems"
+        ],
+        "summary": "List Registered Size Systems",
+        "description": "List all registered regional and category sizing systems.",
+        "operationId": "list_registered_size_systems_api_v1_size_systems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SizeSystemListItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Registered Size Systems Api V1 Size Systems Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/catalog/products": {
       "post": {
         "tags": [
@@ -5880,6 +6206,52 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TryOnResultUrlResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tryon/presentation-policy": {
+      "get": {
+        "tags": [
+          "try-on"
+        ],
+        "summary": "Get Tryon Presentation Policy",
+        "description": "Retrieve server-authoritative presentation policy, disclaimers, and copy.",
+        "operationId": "get_tryon_presentation_policy_api_v1_tryon_presentation_policy_get",
+        "parameters": [
+          {
+            "name": "fit_recommendation_available",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Fit Recommendation Available"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Tryon Presentation Policy Api V1 Tryon Presentation Policy Get"
                 }
               }
             }
@@ -18055,6 +18427,21 @@
         ],
         "title": "AuthorizationDecisionResponse"
       },
+      "AvailabilityStatus": {
+        "type": "string",
+        "enum": [
+          "IN_STOCK",
+          "LOW_STOCK",
+          "OUT_OF_STOCK",
+          "UNKNOWN",
+          "DISCONTINUED",
+          "DELISTED",
+          "TAKEDOWN",
+          "PREORDER"
+        ],
+        "title": "AvailabilityStatus",
+        "description": "Inventory and purchasable availability state for a product variant."
+      },
       "BatchSessionEventsRequest": {
         "properties": {
           "events": {
@@ -20388,7 +20775,7 @@
       },
       "CreateTryOnJobRequest": {
         "properties": {
-          "user_id": {
+          "product_id": {
             "anyOf": [
               {
                 "type": "string",
@@ -20398,12 +20785,43 @@
                 "type": "null"
               }
             ],
-            "title": "User Id"
+            "title": "Product Id"
           },
           "garment_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Garment Id"
+          },
+          "offer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Id"
+          },
+          "shopper_image_asset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shopper Image Asset Id"
           },
           "photo_id": {
             "anyOf": [
@@ -20416,6 +20834,30 @@
               }
             ],
             "title": "Photo Id"
+          },
+          "garment_image_asset_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Garment Image Asset Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
           },
           "render_config": {
             "anyOf": [
@@ -20431,9 +20873,6 @@
           }
         },
         "type": "object",
-        "required": [
-          "garment_id"
-        ],
         "title": "CreateTryOnJobRequest"
       },
       "CrossSystemScreenResponsiveContract": {
@@ -26410,6 +26849,18 @@
         "title": "MapViewportContract",
         "description": "Camera orientation and bounds of the map canvas (Section 11.9, 11.18)."
       },
+      "MappingStatus": {
+        "type": "string",
+        "enum": [
+          "NATIVE",
+          "VERIFIED",
+          "VERIFIED_MAPPING",
+          "UNMAPPED",
+          "NEEDS_REVIEW"
+        ],
+        "title": "MappingStatus",
+        "description": "Verification status of a size label mapping across systems."
+      },
       "MarkerCategory": {
         "type": "string",
         "enum": [
@@ -26618,6 +27069,16 @@
         ],
         "title": "MeResponse"
       },
+      "MeasurementBasis": {
+        "type": "string",
+        "enum": [
+          "BODY",
+          "GARMENT",
+          "UNKNOWN"
+        ],
+        "title": "MeasurementBasis",
+        "description": "Whether measurements describe the human body or the finished physical garment."
+      },
       "MeasurementResponse": {
         "properties": {
           "id": {
@@ -26677,6 +27138,17 @@
           "manual"
         ],
         "title": "MeasurementSource"
+      },
+      "MeasurementUnit": {
+        "type": "string",
+        "enum": [
+          "CM",
+          "MM",
+          "IN",
+          "INCH"
+        ],
+        "title": "MeasurementUnit",
+        "description": "Supported physical measurement units for linear dimensions."
       },
       "MediaAccessUrlResponse": {
         "properties": {
@@ -30814,6 +31286,160 @@
           "availability"
         ],
         "title": "ProductSearchResultItem"
+      },
+      "ProductSizeChartResponse": {
+        "properties": {
+          "chart_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Chart Id"
+          },
+          "merchant_product_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Merchant Product Id"
+          },
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version",
+            "default": 1
+          },
+          "content_fingerprint": {
+            "type": "string",
+            "title": "Content Fingerprint",
+            "default": ""
+          },
+          "size_system": {
+            "$ref": "#/components/schemas/SizeSystemRef"
+          },
+          "measurement_basis": {
+            "$ref": "#/components/schemas/MeasurementBasis"
+          },
+          "display_unit": {
+            "$ref": "#/components/schemas/MeasurementUnit",
+            "default": "CM"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SizeChartStatus",
+            "default": "AVAILABLE"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "title": "Is Stale",
+            "default": false
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/SourceProvenance"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SizeChartRowResponse"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "last_verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Verified At"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Size charts are supplied directly by the merchant. Virtual try-on does not verify physical garment fit or dimensions."
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "chart_id",
+          "merchant_product_id",
+          "merchant_id",
+          "size_system",
+          "measurement_basis",
+          "provenance"
+        ],
+        "title": "ProductSizeChartResponse",
+        "description": "Public shopper-facing size chart response."
+      },
+      "ProductVariantAvailability": {
+        "properties": {
+          "merchant_product_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Merchant Product Id"
+          },
+          "overall_status": {
+            "$ref": "#/components/schemas/AvailabilityStatus",
+            "default": "UNKNOWN"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/VariantStockItem"
+            },
+            "type": "array",
+            "title": "Variants"
+          },
+          "last_checked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Checked At"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "merchant_product_id"
+        ],
+        "title": "ProductVariantAvailability",
+        "description": "Aggregate product availability across all merchant variants."
       },
       "ProductVariantGroupContract": {
         "properties": {
@@ -35921,6 +36547,501 @@
         ],
         "title": "SignedImageResponse"
       },
+      "SizeChartRevisionCreate": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "merchant_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Product Id"
+          },
+          "chart_status": {
+            "$ref": "#/components/schemas/SizeChartStatus",
+            "default": "AVAILABLE"
+          },
+          "size_system": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SizeSystemRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "size_system_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size System Code"
+          },
+          "measurement_basis": {
+            "$ref": "#/components/schemas/MeasurementBasis"
+          },
+          "default_unit": {
+            "$ref": "#/components/schemas/MeasurementUnit",
+            "default": "CM"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SizeChartRow"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "measurement_basis"
+        ],
+        "title": "SizeChartRevisionCreate",
+        "description": "Payload to ingest a new merchant size chart revision."
+      },
+      "SizeChartRevisionSummary": {
+        "properties": {
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "content_fingerprint": {
+            "type": "string",
+            "title": "Content Fingerprint"
+          },
+          "is_current": {
+            "type": "boolean",
+            "title": "Is Current",
+            "default": false
+          },
+          "size_system_code": {
+            "type": "string",
+            "title": "Size System Code"
+          },
+          "measurement_basis": {
+            "$ref": "#/components/schemas/MeasurementBasis"
+          },
+          "default_unit": {
+            "$ref": "#/components/schemas/MeasurementUnit"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "source_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Revision"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "version",
+          "content_fingerprint",
+          "size_system_code",
+          "measurement_basis",
+          "default_unit",
+          "created_at"
+        ],
+        "title": "SizeChartRevisionSummary",
+        "description": "Summary of a historical size chart revision."
+      },
+      "SizeChartRow": {
+        "properties": {
+          "merchant_size": {
+            "type": "string",
+            "title": "Merchant Size",
+            "description": "Original merchant size label: S, M, 38, etc."
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order",
+            "default": 0
+          },
+          "measurements": {
+            "items": {
+              "$ref": "#/components/schemas/SizeMeasurement"
+            },
+            "type": "array",
+            "title": "Measurements"
+          },
+          "chest": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chest"
+          },
+          "waist": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Waist"
+          },
+          "hip": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hip"
+          },
+          "length": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Length"
+          },
+          "shoulder": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shoulder"
+          },
+          "inseam": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inseam"
+          },
+          "additional_measurements": {
+            "items": {},
+            "type": "array",
+            "title": "Additional Measurements"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "merchant_size"
+        ],
+        "title": "SizeChartRow",
+        "description": "A row in a merchant's size chart corresponding to one merchant size label."
+      },
+      "SizeChartRowResponse": {
+        "properties": {
+          "merchant_size": {
+            "type": "string",
+            "title": "Merchant Size"
+          },
+          "mapped_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mapped Size"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order",
+            "default": 0
+          },
+          "measurements": {
+            "items": {
+              "$ref": "#/components/schemas/SizeMeasurementResponse"
+            },
+            "type": "array",
+            "title": "Measurements"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "merchant_size"
+        ],
+        "title": "SizeChartRowResponse",
+        "description": "Size chart row formatted for consumer response."
+      },
+      "SizeChartStatus": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "VERIFIED",
+          "MISSING",
+          "INVALID",
+          "NEEDS_REVIEW",
+          "UNVERIFIED",
+          "STALE",
+          "WITHDRAWN"
+        ],
+        "title": "SizeChartStatus",
+        "description": "Lifecycle and verification status of a merchant size chart."
+      },
+      "SizeChartUnavailableResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "UNAVAILABLE"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "The merchant has not provided a verified size chart for this product."
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Virtual try-on does not verify physical garment fit or dimensions."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "SizeChartUnavailableResponse",
+        "description": "Deterministic response when no verified chart is available."
+      },
+      "SizeMeasurement": {
+        "properties": {
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "field_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Code"
+          },
+          "attribute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attribute"
+          },
+          "original_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Value"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "original_unit": {
+            "$ref": "#/components/schemas/MeasurementUnit",
+            "default": "CM"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeasurementUnit"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "normalized_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Value",
+            "description": "Normalized value in CM"
+          },
+          "normalized_unit": {
+            "$ref": "#/components/schemas/MeasurementUnit",
+            "default": "CM"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "SizeMeasurement",
+        "description": "An individual linear measurement value with original and normalized units."
+      },
+      "SizeMeasurementResponse": {
+        "properties": {
+          "field_code": {
+            "type": "string",
+            "title": "Field Code"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Value"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/MeasurementUnit"
+          },
+          "normalized_cm": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Normalized Cm"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "field_code",
+          "display_name",
+          "value",
+          "unit",
+          "normalized_cm"
+        ],
+        "title": "SizeMeasurementResponse",
+        "description": "Measurement value formatted for consumer response."
+      },
       "SizeSystem": {
         "type": "string",
         "enum": [
@@ -35931,6 +37052,105 @@
           "INTL"
         ],
         "title": "SizeSystem"
+      },
+      "SizeSystemListItem": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "system_type": {
+            "type": "string",
+            "title": "System Type"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "market": {
+            "type": "string",
+            "title": "Market"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Labels"
+          },
+          "mapping_status": {
+            "type": "string",
+            "title": "Mapping Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "system_type",
+          "category",
+          "market",
+          "labels",
+          "mapping_status"
+        ],
+        "title": "SizeSystemListItem",
+        "description": "Registered regional or category sizing system summary."
+      },
+      "SizeSystemRef": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "system_type": {
+            "type": "string",
+            "title": "System Type",
+            "default": "REGIONAL_STANDARD"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "mapping_status": {
+            "$ref": "#/components/schemas/MappingStatus",
+            "default": "NATIVE"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "SizeSystemRef",
+        "description": "Reference to the size system classification."
       },
       "SizingScale": {
         "properties": {
@@ -36543,6 +37763,87 @@
           "message"
         ],
         "title": "SourceOperationalStatusResponse"
+      },
+      "SourceProvenance": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id",
+            "description": "Authorized merchant source identifier"
+          },
+          "source_type": {
+            "type": "string",
+            "title": "Source Type",
+            "description": "API, FEED_URL, PARTNER_EXPORT, MANUAL",
+            "default": "API"
+          },
+          "source_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Revision",
+            "description": "Source feed revision or batch hash"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "retrieved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieved At"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "source_id"
+        ],
+        "title": "SourceProvenance",
+        "description": "Source provenance and audit metadata for merchant size data."
       },
       "SourceResponse": {
         "properties": {
@@ -39205,6 +40506,50 @@
               }
             ],
             "title": "Artifact Id"
+          },
+          "result_type": {
+            "type": "string",
+            "title": "Result Type",
+            "default": "VISUAL_TRY_ON"
+          },
+          "is_ai_generated": {
+            "type": "boolean",
+            "title": "Is Ai Generated",
+            "default": true
+          },
+          "fit_verified": {
+            "type": "boolean",
+            "title": "Fit Verified",
+            "default": false
+          },
+          "fit_prediction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fit Prediction Id"
+          },
+          "disclaimer_code": {
+            "type": "string",
+            "title": "Disclaimer Code",
+            "default": "VISUAL_TRYON_NOT_FIT_VERIFICATION"
+          },
+          "presentation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Presentation"
           }
         },
         "type": "object",
@@ -39246,6 +40591,41 @@
               }
             ],
             "title": "Result Url"
+          },
+          "progress_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress Stage",
+            "default": "waiting_for_worker"
+          },
+          "reused": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reused",
+            "default": false
+          },
+          "status_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Url"
           }
         },
         "type": "object",
@@ -40397,6 +41777,69 @@
         ],
         "title": "VariantState",
         "description": "Variant selection and availability state (Section 7.26)."
+      },
+      "VariantStockItem": {
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "title": "Variant Id"
+          },
+          "size_label": {
+            "type": "string",
+            "title": "Size Label"
+          },
+          "colour_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Colour Label"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AvailabilityStatus",
+            "default": "UNKNOWN"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "title": "Is Stale",
+            "default": false
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed At"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "variant_id",
+          "size_label"
+        ],
+        "title": "VariantStockItem",
+        "description": "Current availability observation for an individual variant."
       },
       "VariantType": {
         "type": "string",

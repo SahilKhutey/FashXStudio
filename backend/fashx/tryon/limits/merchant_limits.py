@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from backend.fashx.tryon.limits.redis_limiter import SlidingWindowRateLimiter
-from backend.fashx.tryon.limits.user_limits import TryOnRateLimitExceeded
+from fashx.tryon.limits.redis_limiter import SlidingWindowRateLimiter
+from fashx.tryon.limits.user_limits import TryOnRateLimitExceeded
 
 
 class MerchantRateLimiter:

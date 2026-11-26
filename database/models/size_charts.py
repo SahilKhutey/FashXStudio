@@ -32,7 +32,7 @@ class SizeSystemDefinitionRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_size_system_merchant", "merchant_id"),
     )
 
-    code: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
     system_type: Mapped[str] = mapped_column(String(32), nullable=False)
     merchant_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("merchants.id", ondelete="CASCADE"), nullable=True
@@ -43,24 +43,26 @@ class SizeSystemDefinitionRecord(Base, UUIDPrimaryKeyMixin):
     mapping_status: Mapped[str] = mapped_column(String(32), nullable=False, default="UNMAPPED")
     labels_json: Mapped[list] = mapped_column(JSON, nullable=False)
     display_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class MeasurementFieldDefinitionRecord(Base, UUIDPrimaryKeyMixin):
     """Registered garment-specific measurement fields and range constraints."""
 
     __tablename__ = "measurement_field_definitions"
-    __table_args__ = (
-        UniqueConstraint("code", name="uq_measurement_field_code"),
-    )
+    __table_args__ = (UniqueConstraint("code", name="uq_measurement_field_code"),)
 
-    code: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
+    code: Mapped[str] = mapped_column(String(32), nullable=False)
     display_name: Mapped[str] = mapped_column(String(64), nullable=False)
     allowed_categories_json: Mapped[list] = mapped_column(JSON, nullable=False)
     minimum_cm: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
     maximum_cm: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class ProductSizeChartRecord(Base, UUIDPrimaryKeyMixin):
@@ -70,17 +72,20 @@ class ProductSizeChartRecord(Base, UUIDPrimaryKeyMixin):
     __table_args__ = (
         UniqueConstraint("merchant_product_id", name="uq_product_size_charts_product"),
         Index("ix_product_size_charts_merchant", "merchant_id"),
+        Index("ix_product_size_charts_product", "merchant_product_id"),
     )
 
     merchant_product_id: Mapped[UUID] = mapped_column(
-        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("merchant_products.id", ondelete="CASCADE"), nullable=False
     )
     merchant_id: Mapped[UUID] = mapped_column(
-        ForeignKey("merchants.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("merchants.id", ondelete="CASCADE"), nullable=False
     )
     current_revision_id: Mapped[UUID | None] = mapped_column(nullable=True)
     chart_status: Mapped[str] = mapped_column(String(32), nullable=False, default="AVAILABLE")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
@@ -96,14 +101,15 @@ class SizeChartRevisionRecord(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "size_chart_revisions"
     __table_args__ = (
         UniqueConstraint("chart_id", "version", name="uq_size_chart_revision_version"),
+        Index("ix_size_chart_revisions_chart", "chart_id"),
         Index("ix_size_chart_revisions_product", "merchant_product_id"),
         Index("ix_size_chart_revisions_fingerprint", "content_fingerprint"),
     )
 
     chart_id: Mapped[UUID] = mapped_column(
-        ForeignKey("product_size_charts.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("product_size_charts.id", ondelete="CASCADE"), nullable=False
     )
-    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
+    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     schema_version: Mapped[str] = mapped_column(String(20), nullable=False, default="1.0")
     size_system_code: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -117,7 +123,9 @@ class SizeChartRevisionRecord(Base, UUIDPrimaryKeyMixin):
     is_current: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     retrieved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
     chart: Mapped[ProductSizeChartRecord] = relationship(back_populates="revisions")
     rows: Mapped[list[SizeChartRowRecord]] = relationship(
@@ -135,7 +143,7 @@ class SizeChartRowRecord(Base, UUIDPrimaryKeyMixin):
     )
 
     revision_id: Mapped[UUID] = mapped_column(
-        ForeignKey("size_chart_revisions.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("size_chart_revisions.id", ondelete="CASCADE"), nullable=False
     )
     merchant_size: Mapped[str] = mapped_column(String(64), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -156,7 +164,7 @@ class SizeChartMeasurementRecord(Base, UUIDPrimaryKeyMixin):
     )
 
     row_id: Mapped[UUID] = mapped_column(
-        ForeignKey("size_chart_rows.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("size_chart_rows.id", ondelete="CASCADE"), nullable=False
     )
     field_code: Mapped[str] = mapped_column(String(32), nullable=False)
     original_value: Mapped[float] = mapped_column(Numeric(8, 2), nullable=False)
@@ -177,14 +185,18 @@ class InventorySnapshotRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_inventory_snapshots_observed", "observed_at"),
     )
 
-    variant_id: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
+    variant_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False)
     size_label: Mapped[str] = mapped_column(String(64), nullable=False)
     colour_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
     sku: Mapped[str | None] = mapped_column(String(128), nullable=True)
     availability_status: Mapped[str] = mapped_column(String(32), nullable=False)
-    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    source_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    observed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    source_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class SizeChartEventRecord(Base, UUIDPrimaryKeyMixin):
@@ -197,13 +209,15 @@ class SizeChartEventRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_size_chart_events_created", "created_at"),
     )
 
-    chart_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
-    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
+    chart_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False)
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     previous_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     new_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     change_summary_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
 
 class SizeChartQuarantineRecord(Base, UUIDPrimaryKeyMixin):
@@ -216,11 +230,13 @@ class SizeChartQuarantineRecord(Base, UUIDPrimaryKeyMixin):
         Index("ix_size_chart_quarantine_status", "review_status"),
     )
 
-    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
-    merchant_id: Mapped[UUID] = mapped_column(nullable=False, index=True)
+    merchant_product_id: Mapped[UUID] = mapped_column(nullable=False)
+    merchant_id: Mapped[UUID] = mapped_column(nullable=False)
     source_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     source_revision: Mapped[str | None] = mapped_column(String(128), nullable=True)
     raw_payload_json: Mapped[dict] = mapped_column(JSON, nullable=False)
     error_codes_json: Mapped[list] = mapped_column(JSON, nullable=False)
     review_status: Mapped[str] = mapped_column(String(32), nullable=False, default="PENDING")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

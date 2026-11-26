@@ -21,12 +21,12 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.fashx.tryon.cache.expiry import (
+from fashx.tryon.cache.expiry import (
     get_default_expires_at,
     get_default_metadata_expires_at,
     is_cache_expired,
 )
-from backend.fashx.tryon.cache.keys import (
+from fashx.tryon.cache.keys import (
     TryOnCacheIdentity,
     compute_cache_key,
     compute_output_options_hash,
