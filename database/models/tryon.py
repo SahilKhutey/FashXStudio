@@ -609,29 +609,56 @@ class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
 
 
 class FitRecommendation(Base, UUIDPrimaryKeyMixin):
-    """Evidence-backed size recommendation record separate from visual try-on (Phase 07.8)."""
+    """Evidence-backed size recommendation record separate from visual try-on (Phase 07.8 + 08.3)."""
 
     __tablename__ = "fit_recommendations"
     __table_args__ = (
         Index("ix_fit_recommendations_user", "user_id"),
         Index("ix_fit_recommendations_product", "product_id"),
         Index("ix_fit_recommendations_created", "created_at"),
+        Index("ix_fit_recommendations_offer", "merchant_offer_id"),
+        Index("ix_fit_recommendations_chart", "size_chart_id"),
+        Index("ix_fit_recommendations_valid", "user_id", "is_valid"),
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     product_id: Mapped[UUID] = mapped_column(
         ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False
     )
+    merchant_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchants.id", ondelete="SET NULL"), nullable=True
+    )
+    merchant_product_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchant_products.id", ondelete="SET NULL"), nullable=True
+    )
     merchant_offer_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("merchant_offers.id", ondelete="SET NULL"), nullable=True
     )
-    outcome: Mapped[str] = mapped_column(String(32), nullable=False)
-    recommended_size: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    variant_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    size_chart_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("product_size_charts.id", ondelete="SET NULL"), nullable=True
+    )
+    size_chart_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    shopper_measurement_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    category_policy_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    fit_algorithm_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    fit_preference_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_permission_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    outcome: Mapped[str] = mapped_column(String(40), nullable=False)
+    recommendation_status: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    recommended_size: Mapped[str | None] = mapped_column(String(64), nullable=True)
     alternative_sizes: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     explanation_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    reason_codes_json: Mapped[list[str]] = mapped_column(
+        JSON, default=list, server_default="[]", nullable=False
+    )
     evidence_json: Mapped[list[dict]] = mapped_column(JSON, default=list, nullable=False)
     fit_model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    internal_confidence_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 3), nullable=True)
     is_valid: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    invalidation_reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

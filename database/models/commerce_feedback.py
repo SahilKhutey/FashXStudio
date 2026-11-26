@@ -65,20 +65,60 @@ class FitFeedback(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "fit_feedback"
     __table_args__ = (
         Index("ix_fit_feedback_brand_size", "brand_id", "category", "fit_type", "size_label"),
+        Index("ix_fit_feedback_recommendation", "recommendation_id"),
+        UniqueConstraint("recommendation_id", "user_id", name="uq_fit_feedback_rec_user"),
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     garment_id: Mapped[UUID] = mapped_column(
         ForeignKey("canonical_garments.id", ondelete="RESTRICT")
     )
-    brand_id: Mapped[UUID] = mapped_column(ForeignKey("brands.id", ondelete="RESTRICT"))
+    brand_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("brands.id", ondelete="RESTRICT"), nullable=True
+    )
     buy_click_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("buy_clicks.id", ondelete="SET NULL")
     )
+    recommendation_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("fit_recommendations.id", ondelete="CASCADE"), nullable=True
+    )
+    merchant_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchants.id", ondelete="SET NULL"), nullable=True
+    )
+    merchant_offer_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchant_offers.id", ondelete="SET NULL"), nullable=True
+    )
+    size_chart_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("product_size_charts.id", ondelete="SET NULL"), nullable=True
+    )
+    size_chart_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
     category: Mapped[str] = mapped_column(String(64), nullable=False)
     fit_type: Mapped[str | None] = mapped_column(String(64))
     size_label: Mapped[str] = mapped_column(String(64), nullable=False)
     verdict: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    purchase_status: Mapped[str] = mapped_column(
+        String(32), default="UNKNOWN", server_default="UNKNOWN", nullable=False
+    )
+    tried_on: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false"), nullable=False
+    )
+    kept_item: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    selected_different_size: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false"), nullable=False
+    )
+    feedback_basis: Mapped[str] = mapped_column(
+        String(32),
+        default="RECOMMENDATION_ONLY",
+        server_default="RECOMMENDATION_ONLY",
+        nullable=False,
+    )
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    review_status: Mapped[str] = mapped_column(
+        String(32), default="UNVERIFIED", server_default="UNVERIFIED", nullable=False
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

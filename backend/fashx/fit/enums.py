@@ -1,0 +1,129 @@
+"""Controlled enumerations for Phase 08.3 Fit Recommendation Logic."""
+
+from __future__ import annotations
+
+from enum import StrEnum
+
+
+class RecommendationStatus(StrEnum):
+    """Business status for evidence-based size recommendations."""
+
+    RECOMMENDED = "RECOMMENDED"
+    INSUFFICIENT_INFORMATION = "INSUFFICIENT_INFORMATION"
+    POSSIBLE_ALTERNATIVES = "POSSIBLE_ALTERNATIVES"
+    NO_AVAILABLE_SIZE = "NO_AVAILABLE_SIZE"
+    UNSUPPORTED_CATEGORY = "UNSUPPORTED_CATEGORY"
+    STALE_DATA = "STALE_DATA"
+    CONFLICTING_DATA = "CONFLICTING_DATA"
+
+
+class MeasurementBasis(StrEnum):
+    """Distinguishes human body dimensions from finished garment dimensions."""
+
+    BODY = "BODY"
+    GARMENT = "GARMENT"
+    UNKNOWN = "UNKNOWN"
+
+
+class FitPreference(StrEnum):
+    """Subjective shopper fit preference."""
+
+    SLIM = "SLIM"
+    REGULAR = "REGULAR"
+    RELAXED = "RELAXED"
+    OVERSIZED = "OVERSIZED"
+    NO_PREFERENCE = "NO_PREFERENCE"
+
+
+class FitReasonCode(StrEnum):
+    """Machine-readable reason codes mapped to approved shopper explanations."""
+
+    WITHIN_PUBLISHED_RANGE = "WITHIN_PUBLISHED_RANGE"
+    ALL_REQUIRED_MEASUREMENTS_MATCH = "ALL_REQUIRED_MEASUREMENTS_MATCH"
+    MULTIPLE_SIZES_MATCH = "MULTIPLE_SIZES_MATCH"
+    MISSING_REQUIRED_MEASUREMENT = "MISSING_REQUIRED_MEASUREMENT"
+    NO_MERCHANT_CHART = "NO_MERCHANT_CHART"
+    CHART_BASIS_UNSUPPORTED = "CHART_BASIS_UNSUPPORTED"
+    PREFERENCE_NOT_EVALUATED = "PREFERENCE_NOT_EVALUATED"
+    CATEGORY_NOT_VALIDATED = "CATEGORY_NOT_VALIDATED"
+    NO_MATCHING_SIZE = "NO_MATCHING_SIZE"
+    STALE_CHART = "STALE_CHART"
+    STALE_SHOPPER_MEASUREMENT = "STALE_SHOPPER_MEASUREMENT"
+    CHART_CONFLICT = "CHART_CONFLICT"
+    PERMISSION_INVALID = "PERMISSION_INVALID"
+    VARIANT_UNAVAILABLE = "VARIANT_UNAVAILABLE"
+    EASE_POLICY_MISSING = "EASE_POLICY_MISSING"
+    EASE_WITHIN_POLICY = "EASE_WITHIN_POLICY"
+    OUTSIDE_EASE_POLICY = "OUTSIDE_EASE_POLICY"
+
+
+class MissingDataCode(StrEnum):
+    """First-class missing/conflicting evidence classification codes."""
+
+    SHOPPER_MEASUREMENT_MISSING = "SHOPPER_MEASUREMENT_MISSING"
+    SIZE_CHART_MISSING = "SIZE_CHART_MISSING"
+    MEASUREMENT_BASIS_UNKNOWN = "MEASUREMENT_BASIS_UNKNOWN"
+    CHART_STALE = "CHART_STALE"
+    CHART_CONFLICT = "CHART_CONFLICT"
+    CATEGORY_UNSUPPORTED = "CATEGORY_UNSUPPORTED"
+    VARIANT_UNAVAILABLE = "VARIANT_UNAVAILABLE"
+    SHOPPER_MEASUREMENT_STALE = "SHOPPER_MEASUREMENT_STALE"
+    FIT_POLICY_MISSING = "FIT_POLICY_MISSING"
+    PERMISSION_INVALID = "PERMISSION_INVALID"
+
+
+class ConfidenceType(StrEnum):
+    """Distinguishes internal evidence completeness scores from calibrated probabilities."""
+
+    INTERNAL_EVIDENCE_SCORE = "INTERNAL_EVIDENCE_SCORE"
+    CALIBRATED_PROBABILITY = "CALIBRATED_PROBABILITY"
+
+
+class FitFeedbackReason(StrEnum):
+    """Structured shopper feedback options for fit guidance."""
+
+    SIZE_TOO_SMALL = "SIZE_TOO_SMALL"
+    SIZE_TOO_LARGE = "SIZE_TOO_LARGE"
+    FIT_TOO_TIGHT = "FIT_TOO_TIGHT"
+    FIT_TOO_LOOSE = "FIT_TOO_LOOSE"
+    LENGTH_TOO_SHORT = "LENGTH_TOO_SHORT"
+    LENGTH_TOO_LONG = "LENGTH_TOO_LONG"
+    SIZE_CHART_INACCURATE = "SIZE_CHART_INACCURATE"
+    RECOMMENDATION_UNHELPFUL = "RECOMMENDATION_UNHELPFUL"
+    OTHER = "OTHER"
+
+
+class PurchaseStatus(StrEnum):
+    """Shopper purchase context captured on feedback submission."""
+
+    PURCHASED = "PURCHASED"
+    NOT_PURCHASED = "NOT_PURCHASED"
+    UNKNOWN = "UNKNOWN"
+
+
+class FeedbackReviewStatus(StrEnum):
+    """Triage and human-review status for shopper fit feedback."""
+
+    PENDING_REVIEW = "PENDING_REVIEW"
+    UNVERIFIED = "UNVERIFIED"
+    CLASSIFIED = "CLASSIFIED"
+    DISMISSED = "DISMISSED"
+
+
+class EvaluationSplit(StrEnum):
+    """Strict evaluation dataset split preventing data leakage."""
+
+    DEVELOPMENT = "DEVELOPMENT"
+    VALIDATION = "VALIDATION"
+    TEST = "TEST"
+
+
+class EvaluationLabel(StrEnum):
+    """Ground-truth label taxonomy for manually labelled fit evaluation datasets."""
+
+    RECOMMENDED_SIZE = "RECOMMENDED_SIZE"
+    ALTERNATIVE_ACCEPTABLE = "ALTERNATIVE_ACCEPTABLE"
+    NO_MATCH = "NO_MATCH"
+    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+    CONFLICTING_EVIDENCE = "CONFLICTING_EVIDENCE"
+    UNSUPPORTED_CATEGORY = "UNSUPPORTED_CATEGORY"

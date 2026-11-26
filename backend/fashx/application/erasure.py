@@ -32,6 +32,7 @@ ACCOUNT_TABLES: list[str] = [
     "wardrobe_items",
     "buy_clicks",
     "fit_feedback",
+    "fit_recommendations",
     "tryon_feedback",
     "feed_exclusions",
     "feed_impressions",

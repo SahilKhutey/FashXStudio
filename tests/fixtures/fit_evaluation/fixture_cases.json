@@ -1,0 +1,63 @@
+{
+  "dataset_version": "fixture-dev-08.3-v1",
+  "note": "Synthetic engineering test fixtures only. Not real shopper or real product evidence.",
+  "cases": [
+    {
+      "case_id": "FIX-DEV-001",
+      "split": "DEVELOPMENT",
+      "shopper_key": "fixture_shopper_dev_1",
+      "merchant_id": "merch_a",
+      "product_id": "prod_a_1",
+      "merchant_offer_id": "offer_a_1",
+      "category": "TSHIRTS",
+      "variant_id": "var_a_1_m",
+      "size_chart_revision": 1,
+      "measurement_basis": "BODY",
+      "expected_label": "RECOMMENDED_SIZE",
+      "expected_size": "M",
+      "acceptable_sizes": ["M"],
+      "reviewer_id": "fixture_engineer",
+      "labelled_at": "2026-11-26T00:00:00+00:00",
+      "evidence_reference": "fixture://dev/case-001",
+      "is_synthetic": true
+    },
+    {
+      "case_id": "FIX-VAL-001",
+      "split": "VALIDATION",
+      "shopper_key": "fixture_shopper_val_1",
+      "merchant_id": "merch_b",
+      "product_id": "prod_b_1",
+      "merchant_offer_id": "offer_b_1",
+      "category": "TSHIRTS",
+      "variant_id": "var_b_1_l",
+      "size_chart_revision": 2,
+      "measurement_basis": "BODY",
+      "expected_label": "RECOMMENDED_SIZE",
+      "expected_size": "L",
+      "acceptable_sizes": ["L"],
+      "reviewer_id": "fixture_engineer",
+      "labelled_at": "2026-11-26T00:00:00+00:00",
+      "evidence_reference": "fixture://val/case-001",
+      "is_synthetic": true
+    },
+    {
+      "case_id": "FIX-TEST-001",
+      "split": "TEST",
+      "shopper_key": "fixture_shopper_test_1",
+      "merchant_id": "merch_heldout",
+      "product_id": "prod_h_1",
+      "merchant_offer_id": "offer_h_1",
+      "category": "TSHIRTS",
+      "variant_id": null,
+      "size_chart_revision": 1,
+      "measurement_basis": "BODY",
+      "expected_label": "NO_MATCH",
+      "expected_size": null,
+      "acceptable_sizes": [],
+      "reviewer_id": "fixture_engineer",
+      "labelled_at": "2026-11-26T00:00:00+00:00",
+      "evidence_reference": "fixture://test/case-001",
+      "is_synthetic": true
+    }
+  ]
+}

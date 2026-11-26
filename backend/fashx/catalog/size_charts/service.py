@@ -294,6 +294,13 @@ class SizeChartService:
             change_summary={"fingerprint": fingerprint, "rows_count": len(prepared_rows)},
         )
 
+        if self.session is not None and next_version > 1:
+            from fashx.fit.repository import FitRecommendationRepository
+
+            await FitRecommendationRepository(self.session).invalidate_for_chart(
+                chart.id, reason="SIZE_CHART_CHANGED"
+            )
+
         return await self._format_response(chart, revision)
 
     async def get_product_size_chart(
