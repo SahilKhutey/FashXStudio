@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from backend.fashx.tryon.evaluation.image_metrics import (
+from fashx.tryon.evaluation.image_metrics import (
     compare_aligned_regions,
 )
 

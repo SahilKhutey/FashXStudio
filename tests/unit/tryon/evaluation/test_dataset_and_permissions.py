@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from backend.fashx.tryon.evaluation.contracts import (
+from fashx.tryon.evaluation.contracts import (
     DatasetPartition,
     EvaluationDifficulty,
     EvaluationPair,

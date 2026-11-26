@@ -5,12 +5,12 @@ Covers GATE-001 through GATE-012.
 
 from __future__ import annotations
 
-from backend.fashx.tryon.evaluation.category_gate import (
+from fashx.tryon.evaluation.category_gate import (
     CategoryMetrics,
     evaluate_category,
     get_category_rejection_message,
 )
-from backend.fashx.tryon.evaluation.contracts import (
+from fashx.tryon.evaluation.contracts import (
     CategoryStatus,
     is_vto_category_allowed,
 )

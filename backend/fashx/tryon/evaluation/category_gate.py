@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 
-from backend.fashx.tryon.evaluation.contracts import CategoryStatus
+from fashx.tryon.evaluation.contracts import CategoryStatus
 
 logger = logging.getLogger(__name__)
 

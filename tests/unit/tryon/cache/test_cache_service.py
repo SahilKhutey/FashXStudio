@@ -11,15 +11,15 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from backend.fashx.tryon.cache.invalidation import (
+from fashx.tryon.cache.invalidation import (
     CacheInvalidationService,
     InvalidationReason,
 )
-from backend.fashx.tryon.cache.keys import (
+from fashx.tryon.cache.keys import (
     TryOnCacheIdentity,
     compute_cache_key,
 )
-from backend.fashx.tryon.cache.service import (
+from fashx.tryon.cache.service import (
     CacheSecurityError,
     TryOnCacheService,
 )

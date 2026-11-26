@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fashx.catalog.repositories.catalog_repository import CatalogUnitOfWork
 from fashx.core.database import get_session_factory
 from fashx.core.dependencies import get_storage, get_tryon_adapter
+from fashx.presentation.claims import get_presentation_policy
 from fashx.profile.repositories.profile_repository import ProfileUnitOfWork
 from fashx.security.deps import Principal, get_principal
 from fashx.tryon.application.get_job_status import (
@@ -65,6 +66,12 @@ class TryOnJobStatusResponse(BaseModel):
     provider: str | None = None
     reference_photo_url: str | None = None
     artifact_id: UUID | None = None
+    result_type: str = "VISUAL_TRY_ON"
+    is_ai_generated: bool = True
+    fit_verified: bool = False
+    fit_prediction_id: UUID | None = None
+    disclaimer_code: str = "VISUAL_TRYON_NOT_FIT_VERIFICATION"
+    presentation: dict[str, Any] | None = None
 
 
 class TryOnJobListItem(BaseModel):
@@ -258,6 +265,12 @@ async def get_tryon_job_status(
         provider=res.provider,
         reference_photo_url=reference_photo_url,
         artifact_id=res.artifact_id,
+        result_type="VISUAL_TRY_ON",
+        is_ai_generated=True,
+        fit_verified=False,
+        fit_prediction_id=None,
+        disclaimer_code="VISUAL_TRYON_NOT_FIT_VERIFICATION",
+        presentation=get_presentation_policy("VISUAL_TRY_ON")["presentation"],
     )
 
 
@@ -380,3 +393,15 @@ async def get_tryon_job_result(
             result_url=signed_url,
             expires_in=3600,
         )
+
+
+@router.get("/presentation-policy")
+async def get_tryon_presentation_policy(
+    fit_recommendation_available: bool = False,
+) -> dict[str, Any]:
+    """Retrieve server-authoritative presentation policy, disclaimers, and copy."""
+    return get_presentation_policy(
+        result_type="VISUAL_TRY_ON",
+        fit_recommendation_available=fit_recommendation_available,
+    )
+

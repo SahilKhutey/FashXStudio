@@ -368,6 +368,238 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fit Profile
+         * @description Retrieve authenticated shopper's fit profile and per-category policy readiness.
+         */
+        get: operations["get_fit_profile_api_v1_profile_fit_get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Fit Profile
+         * @description Delete shopper's fit profile measurements, history, and preferences.
+         */
+        delete: operations["delete_fit_profile_api_v1_profile_fit_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Fit Measurements
+         * @description Add or record manual body measurements requiring FIT_PROFILE_STORAGE consent.
+         */
+        post: operations["add_fit_measurements_api_v1_profile_fit_measurements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/{field}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Fit Measurement
+         * @description Delete a single measurement owned by the authenticated shopper.
+         */
+        delete: operations["delete_fit_measurement_api_v1_profile_fit_measurements__field__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Fit Measurement
+         * @description Update a single measurement using optimistic concurrency (`expected_version`).
+         */
+        patch: operations["update_fit_measurement_api_v1_profile_fit_measurements__field__patch"];
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/{field}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Fit Measurement
+         * @description Confirm an existing or aged measurement remains current.
+         */
+        post: operations["confirm_fit_measurement_api_v1_profile_fit_measurements__field__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Measurement History
+         * @description Retrieve owner-scoped measurement change history.
+         */
+        get: operations["list_measurement_history_api_v1_profile_fit_measurements_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Default Fit Preference
+         * @description Update subjective default fit preference without requiring body measurements.
+         */
+        put: operations["update_default_fit_preference_api_v1_profile_fit_preferences_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/preferences/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Category Fit Preference
+         * @description Set subjective fit style preference for one garment category independently.
+         */
+        put: operations["update_category_fit_preference_api_v1_profile_fit_preferences__category__put"];
+        post?: never;
+        /**
+         * Clear Category Fit Preference
+         * @description Clear subjective fit preference for one category without affecting others.
+         */
+        delete: operations["clear_category_fit_preference_api_v1_profile_fit_preferences__category__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/policies/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Category Fit Policy
+         * @description Retrieve required vs optional measurement guidance for a category.
+         */
+        get: operations["get_category_fit_policy_api_v1_profile_fit_policies__category__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Measurement Definitions
+         * @description List plain-language shopper measurement explanations and tape positioning guidance.
+         */
+        get: operations["get_measurement_definitions_api_v1_profile_fit_definitions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fit Consents
+         * @description Retrieve purpose-specific fit profile consent statuses.
+         */
+        get: operations["get_fit_consents_api_v1_profile_fit_consents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/consents/{purpose}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Fit Consent
+         * @description Grant or withdraw purpose-specific fit profile consent.
+         */
+        put: operations["update_fit_consent_api_v1_profile_fit_consents__purpose__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/users": {
         parameters: {
             query?: never;
@@ -1974,6 +2206,113 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/products/{product_id}/size-chart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Size Chart
+         * @description Retrieve verified merchant-sourced size chart for a given product.
+         *
+         *     Returns 200 with verified chart if present, or 200 with an explicit UNAVAILABLE state
+         *     if the merchant has not supplied a verified chart.
+         */
+        get: operations["get_product_size_chart_api_v1_products__product_id__size_chart_get"];
+        put?: never;
+        /**
+         * Ingest Product Size Chart
+         * @description Ingest, validate, fingerprint, and version a merchant-provided size chart.
+         */
+        post: operations["ingest_product_size_chart_api_v1_products__product_id__size_chart_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/size-chart/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Size Chart Revisions
+         * @description List historical revisions and fingerprints for a product's size chart.
+         */
+        get: operations["list_size_chart_revisions_api_v1_products__product_id__size_chart_revisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Variant Availability
+         * @description Retrieve current purchasable variant availability and stock freshness.
+         */
+        get: operations["get_product_variant_availability_api_v1_products__product_id__availability_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Variant Availability
+         * @description Retrieve current purchasable variant availability and stock freshness.
+         */
+        get: operations["get_product_variant_availability_api_v1_products__product_id__variants_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/size-systems": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Registered Size Systems
+         * @description List all registered regional and category sizing systems.
+         */
+        get: operations["list_registered_size_systems_api_v1_size_systems_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/catalog/products": {
         parameters: {
             query?: never;
@@ -2229,6 +2568,26 @@ export interface paths {
          * @description Retrieve short-lived authorized signed result URL for a completed try-on job.
          */
         get: operations["get_tryon_job_result_api_v1_tryon_jobs__job_id__result_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tryon/presentation-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Tryon Presentation Policy
+         * @description Retrieve server-authoritative presentation policy, disclaimers, and copy.
+         */
+        get: operations["get_tryon_presentation_policy_api_v1_tryon_presentation_policy_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7146,6 +7505,12 @@ export interface components {
              */
             evaluated_at: string;
         };
+        /**
+         * AvailabilityStatus
+         * @description Inventory and purchasable availability state for a product variant.
+         * @enum {string}
+         */
+        AvailabilityStatus: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "UNKNOWN" | "DISCONTINUED" | "DELISTED" | "TAKEDOWN" | "PREORDER";
         /** BatchSessionEventsRequest */
         BatchSessionEventsRequest: {
             /** Events */
@@ -7720,6 +8085,44 @@ export interface components {
          * @enum {string}
          */
         CatalogSourceType: "MERCHANT_API" | "AFFILIATE_API" | "MERCHANT_FEED" | "PARTNER_EXPORT" | "SHOPIFY_APP" | "OTHER_AUTHORIZED";
+        /**
+         * CategoryFitPreferenceItem
+         * @description Subjective fit preference for a garment category.
+         */
+        CategoryFitPreferenceItem: {
+            /** Category */
+            category: string;
+            fit_preference: components["schemas"]["FitPreference"];
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /**
+         * CategoryPreferenceUpdateRequest
+         * @description Set subjective fit preference for a single garment category.
+         */
+        CategoryPreferenceUpdateRequest: {
+            fit_preference: components["schemas"]["FitPreference"];
+        };
+        /**
+         * CategoryReadinessItem
+         * @description Per-category policy readiness summary without blocking product browsing.
+         */
+        CategoryReadinessItem: {
+            /** Category */
+            category: string;
+            /** Status */
+            status: string;
+            /** Policy Version */
+            policy_version?: string | null;
+            /** Required Fields */
+            required_fields?: string[];
+            /** Optional Fields */
+            optional_fields?: string[];
+            /** Missing Fields */
+            missing_fields?: string[];
+            /** Message */
+            message: string;
+        };
         /** CategorySizeItem */
         CategorySizeItem: {
             /** Category Code */
@@ -8056,6 +8459,11 @@ export interface components {
              */
             updated_at: string;
         };
+        /**
+         * ConsentPurpose
+         * @enum {string}
+         */
+        ConsentPurpose: "fit_profile_storage" | "fit_recommendation_processing" | "third_party_fit_processing" | "model_training";
         /** ConsentResponse */
         ConsentResponse: {
             /**
@@ -8252,15 +8660,20 @@ export interface components {
         };
         /** CreateTryOnJobRequest */
         CreateTryOnJobRequest: {
-            /** User Id */
-            user_id?: string | null;
-            /**
-             * Garment Id
-             * Format: uuid
-             */
-            garment_id: string;
+            /** Product Id */
+            product_id?: string | null;
+            /** Garment Id */
+            garment_id?: string | null;
+            /** Offer Id */
+            offer_id?: string | null;
+            /** Shopper Image Asset Id */
+            shopper_image_asset_id?: string | null;
             /** Photo Id */
             photo_id?: string | null;
+            /** Garment Image Asset Id */
+            garment_image_asset_id?: string | null;
+            /** User Id */
+            user_id?: string | null;
             /** Render Config */
             render_config?: {
                 [key: string]: unknown;
@@ -9799,6 +10212,44 @@ export interface components {
          * @enum {string}
          */
         FilterType: "checkbox" | "radio" | "range" | "swatch";
+        /**
+         * FitConsentStatusResponse
+         * @description Purpose-specific consent statuses for fit profile data.
+         */
+        FitConsentStatusResponse: {
+            /**
+             * Fit Profile Storage
+             * @default false
+             */
+            fit_profile_storage: boolean;
+            /**
+             * Fit Recommendation Processing
+             * @default false
+             */
+            fit_recommendation_processing: boolean;
+            /**
+             * Third Party Fit Processing
+             * @default false
+             */
+            third_party_fit_processing: boolean;
+            /**
+             * Model Training
+             * @default false
+             */
+            model_training: boolean;
+        };
+        /**
+         * FitConsentUpdateRequest
+         * @description Grant or withdraw purpose-specific fit profile consent.
+         */
+        FitConsentUpdateRequest: {
+            /** Granted */
+            granted: boolean;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /** Consent Version */
+            consent_version?: string | null;
+        };
         /** FitFeedbackRequest */
         FitFeedbackRequest: {
             /**
@@ -9851,6 +10302,49 @@ export interface components {
             brand_recommendation: string;
             /** Total Observations */
             total_observations: number;
+        };
+        /**
+         * FitPreference
+         * @enum {string}
+         */
+        FitPreference: "SLIM" | "REGULAR" | "RELAXED" | "OVERSIZED" | "NO_PREFERENCE";
+        /**
+         * FitProfileResponse
+         * @description Shopper-controlled fit profile response.
+         */
+        FitProfileResponse: {
+            /** Status */
+            status: string;
+            /** Profile Id */
+            profile_id: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** @default CM */
+            preferred_unit: components["schemas"]["ProfileUnit"];
+            /** @default NO_PREFERENCE */
+            default_fit_preference: components["schemas"]["FitPreference"];
+            /** Preference Updated At */
+            preference_updated_at?: string | null;
+            /** Measurements */
+            measurements?: components["schemas"]["ShopperMeasurementResponse"][];
+            /** Category Preferences */
+            category_preferences?: components["schemas"]["CategoryFitPreferenceItem"][];
+            /** Category Readiness */
+            category_readiness?: {
+                [key: string]: components["schemas"]["CategoryReadinessItem"];
+            };
+            /** Consents */
+            consents?: {
+                [key: string]: boolean;
+            };
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /**
          * FitVerdict
@@ -10980,6 +11474,12 @@ export interface components {
             bounding_box?: number[] | null;
         };
         /**
+         * MappingStatus
+         * @description Verification status of a size label mapping across systems.
+         * @enum {string}
+         */
+        MappingStatus: "NATIVE" | "VERIFIED" | "VERIFIED_MAPPING" | "UNMAPPED" | "NEEDS_REVIEW";
+        /**
          * MarkerCategory
          * @description Semantic category classification for map markers (Section 11.15).
          * @enum {string}
@@ -11058,6 +11558,101 @@ export interface components {
             roles: string[];
             onboarding: components["schemas"]["OnboardingStatus"];
         };
+        /**
+         * MeasurementBasis
+         * @description Whether measurements describe the human body or the finished physical garment.
+         * @enum {string}
+         */
+        MeasurementBasis: "BODY" | "GARMENT" | "UNKNOWN";
+        /**
+         * MeasurementBatchRequest
+         * @description Atomic batch of shopper body measurements (no client shopper_id accepted).
+         */
+        MeasurementBatchRequest: {
+            /** Measurements */
+            measurements: components["schemas"]["MeasurementInput"][];
+        };
+        /**
+         * MeasurementDefinitionResponse
+         * @description Public guidance metadata explaining how to measure a body field.
+         */
+        MeasurementDefinitionResponse: {
+            /** Code */
+            code: string;
+            /** Display Name */
+            display_name: string;
+            /** Explanation */
+            explanation: string;
+            /** Tape Positioning */
+            tape_positioning: string;
+            /** How To Hold */
+            how_to_hold: string;
+            /** Example Input */
+            example_input: string;
+            /** Measurement Type */
+            measurement_type: string;
+            /** Supported Categories */
+            supported_categories: string[];
+            /** Default Unit */
+            default_unit: string;
+            /**
+             * Is Optional Contextual
+             * @default false
+             */
+            is_optional_contextual: boolean;
+        };
+        /**
+         * MeasurementHistoryItem
+         * @description Audit trail entry for a change to a measurement field.
+         */
+        MeasurementHistoryItem: {
+            /** Id */
+            id: string;
+            /** Measurement Id */
+            measurement_id?: string | null;
+            /** Field */
+            field: string;
+            /** Previous Value */
+            previous_value?: string | null;
+            previous_unit?: components["schemas"]["ProfileUnit"] | null;
+            /** New Value */
+            new_value?: string | null;
+            new_unit?: components["schemas"]["ProfileUnit"] | null;
+            /** Normalized Value */
+            normalized_value?: string | null;
+            /** Change Source */
+            change_source: string;
+            /**
+             * Changed At
+             * Format: date-time
+             */
+            changed_at: string;
+        };
+        /**
+         * MeasurementInput
+         * @description Single shopper-entered body measurement.
+         */
+        MeasurementInput: {
+            /** Field */
+            field: string;
+            /** Value */
+            value: number | string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Measured At */
+            measured_at?: string | null;
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+        };
+        /**
+         * MeasurementMethod
+         * @enum {string}
+         */
+        MeasurementMethod: "SELF_MEASURED" | "ASSISTED_MEASUREMENT" | "OTHER";
         /** MeasurementResponse */
         MeasurementResponse: {
             /**
@@ -11085,7 +11680,55 @@ export interface components {
          * MeasurementSource
          * @enum {string}
          */
-        MeasurementSource: "user_entered" | "cv_estimated" | "manual";
+        "MeasurementSource-Input": "user_entered" | "cv_estimated" | "manual";
+        /**
+         * MeasurementSource
+         * @enum {string}
+         */
+        "MeasurementSource-Output": "MANUAL" | "IMPORTED";
+        /**
+         * MeasurementStatus
+         * @enum {string}
+         */
+        MeasurementStatus: "NOT_PROVIDED" | "PROVIDED" | "NEEDS_REVIEW" | "EXPIRED" | "WITHDRAWN";
+        /**
+         * MeasurementSubject
+         * @description Phase 08.2 invariant: Shopper profile measurements always describe BODY.
+         * @enum {string}
+         */
+        MeasurementSubject: "BODY";
+        /**
+         * MeasurementUnit
+         * @description Supported physical measurement units for linear dimensions.
+         * @enum {string}
+         */
+        MeasurementUnit: "CM" | "MM" | "IN" | "INCH";
+        /**
+         * MeasurementUpdateRequest
+         * @description Optimistically locked update to a single existing measurement.
+         */
+        MeasurementUpdateRequest: {
+            /** Value */
+            value: number | string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Measured At */
+            measured_at?: string | null;
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * MeasurementValidationStatus
+         * @description Explicit outcome states for body measurement range and plausibility checks.
+         * @enum {string}
+         */
+        MeasurementValidationStatus: "ACCEPTED" | "WARNING" | "NEEDS_CONFIRMATION" | "REJECTED";
         /** MediaAccessUrlResponse */
         MediaAccessUrlResponse: {
             /**
@@ -12534,6 +13177,14 @@ export interface components {
             /** Value */
             value: string;
         };
+        /**
+         * PreferenceUpdateRequest
+         * @description Update subjective default fit preference and/or preferred display unit.
+         */
+        PreferenceUpdateRequest: {
+            default_fit_preference: components["schemas"]["FitPreference"];
+            preferred_unit?: components["schemas"]["ProfileUnit"] | null;
+        };
         /** PreferencesRequest */
         PreferencesRequest: {
             /**
@@ -13133,6 +13784,67 @@ export interface components {
             similarity_score?: number | null;
         };
         /**
+         * ProductSizeChartResponse
+         * @description Public shopper-facing size chart response.
+         */
+        ProductSizeChartResponse: {
+            /** Chart Id */
+            chart_id: string;
+            /** Merchant Product Id */
+            merchant_product_id: string;
+            /** Merchant Id */
+            merchant_id: string;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+            /**
+             * Content Fingerprint
+             * @default
+             */
+            content_fingerprint: string;
+            size_system: components["schemas"]["SizeSystemRef"];
+            measurement_basis: components["schemas"]["MeasurementBasis"];
+            /** @default CM */
+            display_unit: components["schemas"]["MeasurementUnit"];
+            /** @default AVAILABLE */
+            status: components["schemas"]["SizeChartStatus"];
+            /**
+             * Is Stale
+             * @default false
+             */
+            is_stale: boolean;
+            provenance: components["schemas"]["SourceProvenance"];
+            /** Rows */
+            rows?: components["schemas"]["SizeChartRowResponse"][];
+            /** Last Verified At */
+            last_verified_at?: string | null;
+            /**
+             * Disclaimer
+             * @default Size charts are supplied directly by the merchant. Virtual try-on does not verify physical garment fit or dimensions.
+             */
+            disclaimer: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * ProductVariantAvailability
+         * @description Aggregate product availability across all merchant variants.
+         */
+        ProductVariantAvailability: {
+            /** Merchant Product Id */
+            merchant_product_id: string;
+            /** @default UNKNOWN */
+            overall_status: components["schemas"]["AvailabilityStatus"];
+            /** Variants */
+            variants?: components["schemas"]["VariantStockItem"][];
+            /** Last Checked At */
+            last_checked_at?: string | null;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
          * ProductVariantGroupContract
          * @description Group of variant choices for a dimension (Section 7.25).
          */
@@ -13222,6 +13934,12 @@ export interface components {
             /** @default loaded */
             state: components["schemas"]["PersonalState"];
         };
+        /**
+         * ProfileUnit
+         * @description Supported input and normalized units for body measurements.
+         * @enum {string}
+         */
+        ProfileUnit: "CM" | "MM" | "IN" | "KG";
         /** QualityAuditResponse */
         QualityAuditResponse: {
             /** Total Garments */
@@ -13685,7 +14403,7 @@ export interface components {
             /** Unit */
             unit: string;
             /** @default user_entered */
-            source: components["schemas"]["MeasurementSource"];
+            source: components["schemas"]["MeasurementSource-Input"];
             /** Confidence */
             confidence?: number | null;
         };
@@ -15286,6 +16004,73 @@ export interface components {
              */
             total_price: number;
         };
+        /**
+         * ShopperMeasurementResponse
+         * @description Shopper measurement representation retaining original and normalized units plus timestamps.
+         */
+        ShopperMeasurementResponse: {
+            /** Id */
+            id: string;
+            /** Field */
+            field: string;
+            /** @default BODY */
+            measurement_subject: components["schemas"]["MeasurementSubject"];
+            /** Value */
+            value: string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Normalized Value */
+            normalized_value: string;
+            normalized_unit: components["schemas"]["ProfileUnit"];
+            /** @default MANUAL */
+            source: components["schemas"]["MeasurementSource-Output"];
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /** @default PROVIDED */
+            status: components["schemas"]["MeasurementStatus"];
+            /** @default ACCEPTED */
+            validation_status: components["schemas"]["MeasurementValidationStatus"];
+            /** Validation Message */
+            validation_message?: string | null;
+            /**
+             * Policy Version
+             * @default 1.0
+             */
+            policy_version: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Verified At */
+            verified_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /**
+             * Needs Confirmation
+             * @default false
+             */
+            needs_confirmation: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
+        };
         /** ShopperProfileCreate */
         ShopperProfileCreate: {
             /** Height Cm */
@@ -15453,10 +16238,234 @@ export interface components {
             expires_at?: string | null;
         };
         /**
+         * SizeChartRevisionCreate
+         * @description Payload to ingest a new merchant size chart revision.
+         */
+        SizeChartRevisionCreate: {
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** Merchant Product Id */
+            merchant_product_id?: string | null;
+            /** @default AVAILABLE */
+            chart_status: components["schemas"]["SizeChartStatus"];
+            size_system?: components["schemas"]["SizeSystemRef"] | null;
+            /** Size System Code */
+            size_system_code?: string | null;
+            measurement_basis: components["schemas"]["MeasurementBasis"];
+            /** @default CM */
+            default_unit: components["schemas"]["MeasurementUnit"];
+            source?: components["schemas"]["SourceProvenance"] | null;
+            /** Rows */
+            rows?: components["schemas"]["SizeChartRow"][];
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * SizeChartRevisionSummary
+         * @description Summary of a historical size chart revision.
+         */
+        SizeChartRevisionSummary: {
+            /** Version */
+            version: number;
+            /** Content Fingerprint */
+            content_fingerprint: string;
+            /**
+             * Is Current
+             * @default false
+             */
+            is_current: boolean;
+            /** Size System Code */
+            size_system_code: string;
+            measurement_basis: components["schemas"]["MeasurementBasis"];
+            default_unit: components["schemas"]["MeasurementUnit"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Source Id */
+            source_id?: string | null;
+            /** Source Revision */
+            source_revision?: string | null;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * SizeChartRow
+         * @description A row in a merchant's size chart corresponding to one merchant size label.
+         */
+        SizeChartRow: {
+            /**
+             * Merchant Size
+             * @description Original merchant size label: S, M, 38, etc.
+             */
+            merchant_size: string;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Measurements */
+            measurements?: components["schemas"]["SizeMeasurement"][];
+            /** Chest */
+            chest?: number | string | null;
+            /** Waist */
+            waist?: number | string | null;
+            /** Hip */
+            hip?: number | string | null;
+            /** Length */
+            length?: number | string | null;
+            /** Shoulder */
+            shoulder?: number | string | null;
+            /** Inseam */
+            inseam?: number | string | null;
+            /** Additional Measurements */
+            additional_measurements?: unknown[];
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * SizeChartRowResponse
+         * @description Size chart row formatted for consumer response.
+         */
+        SizeChartRowResponse: {
+            /** Merchant Size */
+            merchant_size: string;
+            /** Mapped Size */
+            mapped_size?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+            /** Measurements */
+            measurements?: components["schemas"]["SizeMeasurementResponse"][];
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * SizeChartStatus
+         * @description Lifecycle and verification status of a merchant size chart.
+         * @enum {string}
+         */
+        SizeChartStatus: "AVAILABLE" | "VERIFIED" | "MISSING" | "INVALID" | "NEEDS_REVIEW" | "UNVERIFIED" | "STALE" | "WITHDRAWN";
+        /**
+         * SizeChartUnavailableResponse
+         * @description Deterministic response when no verified chart is available.
+         */
+        SizeChartUnavailableResponse: {
+            /** Product Id */
+            product_id: string;
+            /**
+             * Status
+             * @default UNAVAILABLE
+             */
+            status: string;
+            /**
+             * Message
+             * @default The merchant has not provided a verified size chart for this product.
+             */
+            message: string;
+            /**
+             * Disclaimer
+             * @default Virtual try-on does not verify physical garment fit or dimensions.
+             */
+            disclaimer: string;
+        };
+        /**
+         * SizeMeasurement
+         * @description An individual linear measurement value with original and normalized units.
+         */
+        SizeMeasurement: {
+            /** Field */
+            field?: string | null;
+            /** Field Code */
+            field_code?: string | null;
+            /** Attribute */
+            attribute?: string | null;
+            /** Original Value */
+            original_value?: number | string | null;
+            /** Value */
+            value?: number | string | null;
+            /** @default CM */
+            original_unit: components["schemas"]["MeasurementUnit"];
+            unit?: components["schemas"]["MeasurementUnit"] | null;
+            /**
+             * Normalized Value
+             * @description Normalized value in CM
+             */
+            normalized_value?: number | string | null;
+            /** @default CM */
+            normalized_unit: components["schemas"]["MeasurementUnit"];
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * SizeMeasurementResponse
+         * @description Measurement value formatted for consumer response.
+         */
+        SizeMeasurementResponse: {
+            /** Field Code */
+            field_code: string;
+            /** Display Name */
+            display_name: string;
+            /** Value */
+            value: string;
+            unit: components["schemas"]["MeasurementUnit"];
+            /** Normalized Cm */
+            normalized_cm: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
          * SizeSystem
          * @enum {string}
          */
         SizeSystem: "IN" | "US" | "UK" | "EU" | "INTL";
+        /**
+         * SizeSystemListItem
+         * @description Registered regional or category sizing system summary.
+         */
+        SizeSystemListItem: {
+            /** Code */
+            code: string;
+            /** System Type */
+            system_type: string;
+            /** Category */
+            category: string;
+            /** Market */
+            market: string;
+            /** Display Name */
+            display_name?: string | null;
+            /** Labels */
+            labels: string[];
+            /** Mapping Status */
+            mapping_status: string;
+        };
+        /**
+         * SizeSystemRef
+         * @description Reference to the size system classification.
+         */
+        SizeSystemRef: {
+            /** Code */
+            code: string;
+            /**
+             * System Type
+             * @default REGIONAL_STANDARD
+             */
+            system_type: string;
+            /** Type */
+            type?: string | null;
+            /** Display Name */
+            display_name?: string | null;
+            /** @default NATIVE */
+            mapping_status: components["schemas"]["MappingStatus"];
+        } & {
+            [key: string]: unknown;
+        };
         /**
          * SizingScale
          * @description Component standard heights/sizes (Section 2.15).
@@ -15647,10 +16656,7 @@ export interface components {
          * @enum {string}
          */
         SourceErrorCode: "authentication" | "authorization" | "rate_limited" | "transient" | "timeout" | "not_found" | "invalid_request" | "cursor_expired" | "schema_changed" | "permission_revoked";
-        /**
-         * SourceHealthReport
-         * @description Health and operational telemetry for a catalog source.
-         */
+        /** SourceHealthReport */
         SourceHealthReport: {
             /** Source Slug */
             source_slug: string;
@@ -15704,6 +16710,40 @@ export interface components {
             updated_at: string;
             /** Message */
             message: string;
+        };
+        /**
+         * SourceProvenance
+         * @description Source provenance and audit metadata for merchant size data.
+         */
+        SourceProvenance: {
+            /**
+             * Source Id
+             * @description Authorized merchant source identifier
+             */
+            source_id: string;
+            /**
+             * Source Type
+             * @description API, FEED_URL, PARTNER_EXPORT, MANUAL
+             * @default API
+             */
+            source_type: string;
+            /**
+             * Source Revision
+             * @description Source feed revision or batch hash
+             */
+            source_revision?: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /** Retrieved At */
+            retrieved_at?: string | null;
+            /** Verified At */
+            verified_at?: string | null;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            } | null;
+        } & {
+            [key: string]: unknown;
         };
         /** SourceResponse */
         SourceResponse: {
@@ -16876,6 +17916,32 @@ export interface components {
             reference_photo_url?: string | null;
             /** Artifact Id */
             artifact_id?: string | null;
+            /**
+             * Result Type
+             * @default VISUAL_TRY_ON
+             */
+            result_type: string;
+            /**
+             * Is Ai Generated
+             * @default true
+             */
+            is_ai_generated: boolean;
+            /**
+             * Fit Verified
+             * @default false
+             */
+            fit_verified: boolean;
+            /** Fit Prediction Id */
+            fit_prediction_id?: string | null;
+            /**
+             * Disclaimer Code
+             * @default VISUAL_TRYON_NOT_FIT_VERIFICATION
+             */
+            disclaimer_code: string;
+            /** Presentation */
+            presentation?: {
+                [key: string]: unknown;
+            } | null;
         };
         /** TryOnJobSubmissionResponse */
         TryOnJobSubmissionResponse: {
@@ -16891,6 +17957,18 @@ export interface components {
             is_cached: boolean;
             /** Result Url */
             result_url?: string | null;
+            /**
+             * Progress Stage
+             * @default waiting_for_worker
+             */
+            progress_stage: string | null;
+            /**
+             * Reused
+             * @default false
+             */
+            reused: boolean | null;
+            /** Status Url */
+            status_url?: string | null;
         };
         /** TryOnResultUrlResponse */
         TryOnResultUrlResponse: {
@@ -17386,6 +18464,31 @@ export interface components {
          * @enum {string}
          */
         VariantState: "available" | "selected" | "unavailable" | "disabled" | "loading";
+        /**
+         * VariantStockItem
+         * @description Current availability observation for an individual variant.
+         */
+        VariantStockItem: {
+            /** Variant Id */
+            variant_id: string;
+            /** Size Label */
+            size_label: string;
+            /** Colour Label */
+            colour_label?: string | null;
+            /** Sku */
+            sku?: string | null;
+            /** @default UNKNOWN */
+            status: components["schemas"]["AvailabilityStatus"];
+            /**
+             * Is Stale
+             * @default false
+             */
+            is_stale: boolean;
+            /** Observed At */
+            observed_at?: string | null;
+        } & {
+            [key: string]: unknown;
+        };
         /**
          * VariantType
          * @description Product variant attribute dimensions (Section 7.25).
@@ -18537,6 +19640,407 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeatureAvailability"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fit_profile_api_v1_profile_fit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+        };
+    };
+    delete_fit_profile_api_v1_profile_fit_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    add_fit_measurements_api_v1_profile_fit_measurements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_fit_measurement_api_v1_profile_fit_measurements__field__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_fit_measurement_api_v1_profile_fit_measurements__field__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperMeasurementResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_fit_measurement_api_v1_profile_fit_measurements__field__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperMeasurementResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_measurement_history_api_v1_profile_fit_measurements_history_get: {
+        parameters: {
+            query?: {
+                /** @description Optional field code filter */
+                field?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasurementHistoryItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_default_fit_preference_api_v1_profile_fit_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferenceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_category_fit_preference_api_v1_profile_fit_preferences__category__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryPreferenceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryFitPreferenceItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_category_fit_preference_api_v1_profile_fit_preferences__category__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_category_fit_policy_api_v1_profile_fit_policies__category__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryReadinessItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_measurement_definitions_api_v1_profile_fit_definitions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasurementDefinitionResponse"][];
+                };
+            };
+        };
+    };
+    get_fit_consents_api_v1_profile_fit_consents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitConsentStatusResponse"];
+                };
+            };
+        };
+    };
+    update_fit_consent_api_v1_profile_fit_consents__purpose__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purpose: components["schemas"]["ConsentPurpose"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FitConsentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitConsentStatusResponse"];
                 };
             };
             /** @description Validation Error */
@@ -21432,6 +22936,195 @@ export interface operations {
             };
         };
     };
+    get_product_size_chart_api_v1_products__product_id__size_chart_get: {
+        parameters: {
+            query?: {
+                /** @description Preferred unit for display (CM/INCH) */
+                unit?: components["schemas"]["MeasurementUnit"] | null;
+                /** @description Preferred target sizing system (e.g. US, UK, EU) */
+                system?: string | null;
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSizeChartResponse"] | components["schemas"]["SizeChartUnavailableResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingest_product_size_chart_api_v1_products__product_id__size_chart_post: {
+        parameters: {
+            query: {
+                /** @description ID of the merchant submitting the chart */
+                merchant_id: string;
+                /** @description Garment taxonomy category */
+                category?: string;
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SizeChartRevisionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductSizeChartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_size_chart_revisions_api_v1_products__product_id__size_chart_revisions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SizeChartRevisionSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_variant_availability_api_v1_products__product_id__availability_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductVariantAvailability"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_variant_availability_api_v1_products__product_id__variants_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductVariantAvailability"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_registered_size_systems_api_v1_size_systems_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SizeSystemListItem"][];
+                };
+            };
+        };
+    };
     ingest_product_api_v1_catalog_products_post: {
         parameters: {
             query?: never;
@@ -21893,6 +23586,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TryOnResultUrlResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tryon_presentation_policy_api_v1_tryon_presentation_policy_get: {
+        parameters: {
+            query?: {
+                fit_recommendation_available?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

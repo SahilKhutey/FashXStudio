@@ -16,7 +16,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Protocol
 
-from backend.fashx.tryon.evaluation.contracts import (
+from fashx.tryon.evaluation.contracts import (
     EvaluationPair,
     EvaluationRunConfig,
     ExpectedOutcome,

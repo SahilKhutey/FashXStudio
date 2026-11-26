@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     DateTime,
     ForeignKey,
     Index,
@@ -90,11 +91,20 @@ class TryOnFeedback(Base, UUIDPrimaryKeyMixin):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     tryon_job_id: Mapped[UUID] = mapped_column(ForeignKey("tryon_jobs.id", ondelete="CASCADE"))
-    visual_accuracy: Mapped[str] = mapped_column(String(32), nullable=False)
+    visual_accuracy: Mapped[str | None] = mapped_column(String(32), nullable=True)
     purchase_confidence: Mapped[int | None] = mapped_column(Integer)
     provider: Mapped[str | None] = mapped_column(String(64), nullable=True)
     issue_tags: Mapped[list[str]] = mapped_column(
         JSON, nullable=False, default=list, server_default=text("'[]'")
+    )
+    # Phase 07.8 additions
+    reason_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    details: Mapped[str | None] = mapped_column(Text, nullable=True)
+    include_in_quality_review: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false"), nullable=False
+    )
+    review_status: Mapped[str] = mapped_column(
+        String(32), default="RECEIVED", server_default="RECEIVED", nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

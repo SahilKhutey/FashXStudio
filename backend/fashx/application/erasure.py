@@ -52,6 +52,9 @@ ACCOUNT_TABLES: list[str] = [
     "shopper_profiles",
     "profile_category_sizes",
     "profile_measurements",
+    "profile_measurement_history",
+    "category_fit_preferences",
+    "profile_audit_events",
     "product_search_events",
     "search_sessions",
 ]

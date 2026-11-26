@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from backend.fashx.tryon.limits.redis_limiter import SlidingWindowRateLimiter
+from fashx.tryon.limits.redis_limiter import SlidingWindowRateLimiter
 
 
 class TryOnRateLimitExceeded(Exception):

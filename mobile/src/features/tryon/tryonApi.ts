@@ -83,16 +83,62 @@ export async function getTryOnArtifact(
 /**
  * Submits post-try-on visual accuracy and purchase confidence feedback.
  */
-export async function submitTryOnFeedback(
-  params: TryOnFeedbackParams
-): Promise<{ status: string }> {
-  return api<{ status: string }>("/feedback/tryon", {
+export interface ReportMisleadingTryOnParams {
+  jobId: string;
+  reasonCode: string;
+  details?: string;
+  includeInQualityReview: boolean;
+}
+
+export interface ReportMisleadingTryOnResponse {
+  feedback_id: string;
+  job_id: string;
+  user_id: string;
+  reason_code: string;
+  status: string;
+  include_in_quality_review: boolean;
+  message: string;
+  created_at: string;
+}
+
+export interface TryOnPresentationPolicyResponse {
+  presentation: {
+    result_type: string;
+    is_ai_generated: boolean;
+    fit_verified: boolean;
+    fit_prediction_id: string | null;
+    disclaimer_code: string;
+    fit_recommendation_available: boolean;
+    fit_guaranteed: boolean;
+    policy_version: string;
+    copy: Record<string, string>;
+  };
+}
+
+/**
+ * Reports an inaccurate, distorted, or misleading Virtual Try-On result (Phase 07.8).
+ */
+export async function reportMisleadingTryOn(
+  params: ReportMisleadingTryOnParams
+): Promise<ReportMisleadingTryOnResponse> {
+  return api<ReportMisleadingTryOnResponse>(`/tryon/jobs/${params.jobId}/feedback`, {
     method: "POST",
     body: JSON.stringify({
-      user_id: params.userId,
-      tryon_job_id: params.jobId,
-      visual_accuracy: params.visualAccuracy,
-      purchase_confidence: params.purchaseConfidence ?? null,
+      reason_code: params.reasonCode,
+      details: params.details,
+      include_in_quality_review: params.includeInQualityReview,
     }),
   });
 }
+
+/**
+ * Retrieves the server-authoritative presentation policy and disclosures (Phase 07.8).
+ */
+export async function getTryOnPresentationPolicy(
+  fitRecommendationAvailable = false
+): Promise<TryOnPresentationPolicyResponse> {
+  return api<TryOnPresentationPolicyResponse>(
+    `/tryon/presentation-policy?fit_recommendation_available=${fitRecommendationAvailable}`
+  );
+}
+

@@ -12,12 +12,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from backend.fashx.tryon.evaluation.contracts import (
+from fashx.tryon.evaluation.contracts import (
     EvaluationPair,
     EvaluationRunConfig,
     ExpectedOutcome,
 )
-from backend.fashx.tryon.evaluation.runner import (
+from fashx.tryon.evaluation.runner import (
     EvaluationItemResult,
     TryOnEvaluationRunner,
 )
