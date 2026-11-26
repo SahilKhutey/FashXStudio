@@ -28,6 +28,10 @@ class TryOnJob(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_jobs"
     __table_args__ = (
         Index("ix_tryon_jobs_user_id", "user_id", "created_at"),
+        Index("ix_tryon_jobs_status_created", "status", "created_at"),
+        Index("ix_tryon_jobs_prov_job", "provider", "provider_job_id"),
+        Index("ix_tryon_jobs_recovery", "status", "next_retry_at", "lease_expires_at"),
+        Index("ix_tryon_jobs_stale", "status", "heartbeat_at"),
         UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
         UniqueConstraint("artifact_key", name="uq_tryon_jobs_artifact_key"),
     )
