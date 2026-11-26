@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react-native";
 
 import {
   evaluateFitRecommendation,
@@ -13,6 +12,91 @@ import type { FitRecommendationResult } from "../src/features/fit/types/fit";
 jest.mock("../src/api/client", () => ({
   api: jest.fn(),
 }));
+
+interface TestNode {
+  props: Record<string, unknown>;
+  children: (TestNode | string)[];
+  findAll: (predicate: (node: TestNode) => boolean) => TestNode[];
+}
+
+interface RendererInstance {
+  root: TestNode;
+  update: (element: React.ReactElement) => void;
+}
+
+const TestRenderer = require("react-test-renderer") as {
+  create: (element: React.ReactElement) => RendererInstance;
+  act: (callback: () => void | Promise<void>) => Promise<void>;
+};
+
+function textOf(node: TestNode | string): string {
+  if (typeof node === "string") return node;
+  return (node.children ?? []).map(textOf).join("");
+}
+
+async function renderTree(element: React.ReactElement) {
+  let renderer!: RendererInstance;
+  await TestRenderer.act(async () => {
+    renderer = TestRenderer.create(element);
+  });
+
+  const getByTestId = (testID: string): TestNode => {
+    const matches = renderer.root.findAll((node) => node.props.testID === testID);
+    const hit = matches[0];
+    if (!hit) throw new Error(`Unable to find node with testID: ${testID}`);
+    return hit;
+  };
+
+  const getByText = (matcher: string | RegExp): TestNode => {
+    const matches = renderer.root.findAll((node) => {
+      if (node.children.length > 0 && node.children.every((c) => typeof c === "string")) {
+        const direct = textOf(node);
+        return typeof matcher === "string" ? direct === matcher : matcher.test(direct);
+      }
+      return false;
+    });
+    const hit = matches[0];
+    if (!hit) throw new Error(`Unable to find node with text: ${String(matcher)}`);
+    return hit;
+  };
+
+  const queryByText = (matcher: string | RegExp): TestNode | null => {
+    const matches = renderer.root.findAll((node) => {
+      if (node.children.length > 0 && node.children.every((c) => typeof c === "string")) {
+        const direct = textOf(node);
+        return typeof matcher === "string" ? direct === matcher : matcher.test(direct);
+      }
+      return false;
+    });
+    return matches[0] ?? null;
+  };
+
+  const press = async (node: TestNode) => {
+    await TestRenderer.act(async () => {
+      const handler = node.props.onPress as (() => void) | undefined;
+      if (handler) {
+        handler();
+      } else {
+        const pressables = renderer.root.findAll(
+          (n) =>
+            typeof n.props.onPress === "function" &&
+            n.findAll((c) => c === node).length > 0,
+        );
+        const owner = pressables[pressables.length - 1];
+        if (!owner) throw new Error("Node is not pressable");
+        (owner.props.onPress as () => void)();
+      }
+    });
+  };
+
+  const rerender = async (next: React.ReactElement) => {
+    await TestRenderer.act(async () => {
+      renderer.update(next);
+    });
+  };
+
+  return { getByTestId, getByText, queryByText, press, rerender };
+}
 
 const BASE_REC: FitRecommendationResult = {
   recommendation_id: "rec-1",
@@ -89,16 +173,14 @@ describe("Phase 08.3 Mobile: Fit Recommendation Logic", () => {
   });
 
   it("renders recommended size with merchant chart evidence without uncalibrated score %", async () => {
-    const { getByTestId, queryByText, getByText } = await render(
+    const { getByTestId, queryByText, getByText } = await renderTree(
       <FitRecommendationCard recommendation={BASE_REC} />,
     );
 
-    expect(getByTestId("recommended-size-label")).toHaveTextContent("Size M");
+    expect(textOf(getByTestId("recommended-size-label"))).toContain("Size M");
     expect(getByTestId("fit-evidence-list")).toBeTruthy();
     expect(getByText(/Chart revision: 4/)).toBeTruthy();
-    expect(getByTestId("fit-disclaimer")).toHaveTextContent(
-      /does not guarantee physical fit/i,
-    );
+    expect(textOf(getByTestId("fit-disclaimer"))).toMatch(/does not guarantee physical fit/i);
     expect(queryByText(/0\.910|91%/)).toBeNull();
   });
 
@@ -112,7 +194,7 @@ describe("Phase 08.3 Mobile: Fit Recommendation Logic", () => {
       next_actions: ["Add the missing measurement in your Fit Profile."],
     };
 
-    const { getByTestId, getByText, rerender } = await render(
+    const { getByTestId, getByText, rerender } = await renderTree(
       <FitRecommendationCard recommendation={missingRec} />,
     );
     expect(getByTestId("fit-recommendation-INSUFFICIENT_INFORMATION")).toBeTruthy();
@@ -128,14 +210,14 @@ describe("Phase 08.3 Mobile: Fit Recommendation Logic", () => {
       ],
     };
     await rerender(<FitRecommendationCard recommendation={altRec} />);
-    expect(getByTestId("alternative-sizes-label")).toHaveTextContent("Options: M or L");
+    expect(textOf(getByTestId("alternative-sizes-label"))).toContain("Options: M or L");
   });
 
   it("handles loading, error retry, and feedback submission", async () => {
     const onRetry = jest.fn();
     const onSubmitFeedback = jest.fn();
 
-    const { getByTestId, getByText, rerender } = await render(
+    const { getByTestId, getByText, press, rerender } = await renderTree(
       <FitRecommendationCard recommendation={null} loading={true} />,
     );
     expect(getByTestId("fit-recommendation-loading")).toBeTruthy();
@@ -148,7 +230,7 @@ describe("Phase 08.3 Mobile: Fit Recommendation Logic", () => {
         onRetry={onRetry}
       />,
     );
-    await fireEvent.press(getByText("Retry"));
+    await press(getByText("Retry"));
     expect(onRetry).toHaveBeenCalledTimes(1);
 
     await rerender(
@@ -157,8 +239,8 @@ describe("Phase 08.3 Mobile: Fit Recommendation Logic", () => {
         onSubmitFeedback={onSubmitFeedback}
       />,
     );
-    await fireEvent.press(getByText("Too tight"));
-    await fireEvent.press(getByText("Submit feedback"));
+    await press(getByText("Too tight"));
+    await press(getByText("Submit feedback"));
     expect(onSubmitFeedback).toHaveBeenCalledWith(
       "rec-1",
       expect.objectContaining({ reason: "FIT_TOO_TIGHT", tried_on: false }),

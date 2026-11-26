@@ -16,9 +16,12 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, UUIDPrimaryKeyMixin
+
+JSONBType = JSON().with_variant(JSONB(), "postgresql")
 
 
 class TryOnJob(Base, UUIDPrimaryKeyMixin):
@@ -164,7 +167,7 @@ class TryOnInputValidation(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     role: Mapped[str] = mapped_column(String(16), nullable=False)
     asset_id: Mapped[UUID] = mapped_column(nullable=False)
@@ -173,9 +176,9 @@ class TryOnInputValidation(Base, UUIDPrimaryKeyMixin):
     normalized_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    technical_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
-    visual_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
-    issues: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    technical_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
+    visual_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
+    issues: Mapped[list] = mapped_column(JSONBType, default=list, nullable=False)
     validated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -192,7 +195,7 @@ class TryOnInputAuthorizationSnapshot(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     authorization_type: Mapped[str] = mapped_column(String(32), nullable=False)
     subject_id: Mapped[UUID] = mapped_column(nullable=False)
@@ -221,7 +224,7 @@ class TryOnProviderAttempt(Base, UUIDPrimaryKeyMixin):
     )
 
     job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -256,7 +259,7 @@ class TryOnJobEvent(Base, UUIDPrimaryKeyMixin):
     actor_type: Mapped[str] = mapped_column(String(32), nullable=False)
     worker_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     attempt_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    metadata_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    metadata_json: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -268,7 +271,6 @@ class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_dead_letters"
     __table_args__ = (
         Index("ix_tryon_dead_letters_status_created", "status", "created_at"),
-        Index("ix_tryon_dead_letters_job", "job_id"),
     )
 
     job_id: Mapped[UUID | None] = mapped_column(
@@ -280,7 +282,7 @@ class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
     error_summary: Mapped[str] = mapped_column(String(500), nullable=False)
     attempt_number: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     original_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    payload_reference: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    payload_reference: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="OPEN", nullable=False, index=True)
     resolution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     resolved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -360,11 +362,11 @@ class TryOnProviderUsage(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True
     )
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
     provider_model: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     operation: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     units_consumed: Mapped[Decimal] = mapped_column(
@@ -379,7 +381,7 @@ class TryOnProviderUsage(Base, UUIDPrimaryKeyMixin):
     currency: Mapped[str] = mapped_column(String(8), default="USD", nullable=False)
     latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    raw_usage_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    raw_usage_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -525,7 +527,7 @@ class TryOnEvaluationItem(Base, UUIDPrimaryKeyMixin):
     )
     pair_id: Mapped[str] = mapped_column(String(100), nullable=False)
     tryon_job_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True
     )
     input_validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
     job_status: Mapped[str] = mapped_column(String(32), nullable=False)
@@ -600,7 +602,7 @@ class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
     mean_non_misleading: Mapped[float] = mapped_column(Float, nullable=False)
     reviewer_rejection_rate: Mapped[float] = mapped_column(Float, nullable=False)
     critical_misleading_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    gate_failures: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    gate_failures: Mapped[list] = mapped_column(JSONBType, default=list, nullable=False)
     approved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(

@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react-native";
 
 import {
   fetchProductSizeChart,
@@ -16,6 +15,76 @@ import type {
 jest.mock("../src/api/client", () => ({
   api: jest.fn(),
 }));
+
+interface TestNode {
+  props: Record<string, unknown>;
+  children: (TestNode | string)[];
+  findAll: (predicate: (node: TestNode) => boolean) => TestNode[];
+}
+
+interface RendererInstance {
+  root: TestNode;
+  update: (element: React.ReactElement) => void;
+}
+
+const TestRenderer = require("react-test-renderer") as {
+  create: (element: React.ReactElement) => RendererInstance;
+  act: (callback: () => void | Promise<void>) => Promise<void>;
+};
+
+function textOf(node: TestNode | string): string {
+  if (typeof node === "string") return node;
+  return (node.children ?? []).map(textOf).join("");
+}
+
+async function renderTree(element: React.ReactElement) {
+  let renderer!: RendererInstance;
+  await TestRenderer.act(async () => {
+    renderer = TestRenderer.create(element);
+  });
+
+  const getByText = (matcher: string | RegExp): TestNode => {
+    const matches = renderer.root.findAll((node) => {
+      if (typeof node.props.children === "string" || Array.isArray(node.props.children)) {
+        const direct = textOf(node);
+        return typeof matcher === "string" ? direct === matcher : matcher.test(direct);
+      }
+      return false;
+    });
+    const textMatches = matches.filter((n) => n.children.every((c) => typeof c === "string"));
+    const hit = textMatches[0] ?? matches[0];
+    if (!hit) throw new Error(`Unable to find node with text: ${String(matcher)}`);
+    return hit;
+  };
+
+  const getByLabelText = (label: string): TestNode => {
+    const matches = renderer.root.findAll((node) => node.props.accessibilityLabel === label);
+    const hit = matches[0];
+    if (!hit) throw new Error(`Unable to find node with accessibilityLabel: ${label}`);
+    return hit;
+  };
+
+  const press = async (node: TestNode) => {
+    await TestRenderer.act(async () => {
+      const handler = node.props.onPress as (() => void) | undefined;
+      if (handler) {
+        handler();
+      } else {
+        // Walk up rendered children if Text was found inside TouchableOpacity
+        const pressables = renderer.root.findAll(
+          (n) =>
+            typeof n.props.onPress === "function" &&
+            n.findAll((c) => c === node).length > 0,
+        );
+        const owner = pressables[pressables.length - 1];
+        if (!owner) throw new Error("Node is not pressable");
+        (owner.props.onPress as () => void)();
+      }
+    });
+  };
+
+  return { getByText, getByLabelText, press };
+}
 
 describe("Phase 08.1 Mobile: Product Size Data", () => {
   beforeEach(() => {
@@ -91,7 +160,7 @@ describe("Phase 08.1 Mobile: Product Size Data", () => {
     };
 
     it("renders fail-closed unavailable card and VTO disclaimer when chart is unavailable", async () => {
-      const { getByText } = await render(
+      const { getByText } = await renderTree(
         <ProductSizeChart
           chart={{
             product_id: "prod-1",
@@ -107,7 +176,7 @@ describe("Phase 08.1 Mobile: Product Size Data", () => {
 
     it("renders chart measurements, unmapped warning, and converts CM to IN on toggle", async () => {
       const onUnitChange = jest.fn();
-      const { getByText } = await render(
+      const { getByText, press } = await renderTree(
         <ProductSizeChart chart={sampleChart} onUnitChange={onUnitChange} />,
       );
 
@@ -115,7 +184,7 @@ describe("Phase 08.1 Mobile: Product Size Data", () => {
       expect(getByText(/Showing merchant's native INTL_ALPHA sizes/)).toBeTruthy();
       expect(getByText(/does not establish verified physical fit/)).toBeTruthy();
 
-      await fireEvent.press(getByText("IN"));
+      await press(getByText("IN"));
       expect(onUnitChange).toHaveBeenCalledWith("INCH");
       expect(getByText("40")).toBeTruthy();
     });
@@ -141,15 +210,15 @@ describe("Phase 08.1 Mobile: Product Size Data", () => {
 
     it("allows selecting IN_STOCK sizes and marks OUT_OF_STOCK disabled", async () => {
       const onSelectSize = jest.fn();
-      const { getByLabelText } = await render(
+      const { getByLabelText, press } = await renderTree(
         <AvailableSizes variants={variants} selectedSize="M" onSelectSize={onSelectSize} />,
       );
 
-      await fireEvent.press(getByLabelText("Size M, IN STOCK"));
+      await press(getByLabelText("Size M, IN STOCK"));
       expect(onSelectSize).toHaveBeenCalledWith("M");
 
       const soldOutPill = getByLabelText("Size L, SOLD OUT");
-      expect(soldOutPill.props.accessibilityState.disabled).toBe(true);
+      expect((soldOutPill.props.accessibilityState as { disabled: boolean }).disabled).toBe(true);
     });
   });
 });

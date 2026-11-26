@@ -39754,7 +39754,8 @@
           "source_slug",
           "state"
         ],
-        "title": "SourceHealthReport"
+        "title": "SourceHealthReport",
+        "description": "Health and operational telemetry for a catalog source."
       },
       "SourceHealthState": {
         "type": "string",

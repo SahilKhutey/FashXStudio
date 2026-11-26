@@ -85,7 +85,7 @@ export function ReportTryOnModal({
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.modalCard} accessible={true} accessibilityRole="dialog">
+        <View style={styles.modalCard} accessible={true} role="dialog" accessibilityViewIsModal={true}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Report a problem with this try-on</Text>
             <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel="Close report dialog">
