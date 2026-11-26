@@ -26,6 +26,7 @@ from fashx.gateway.errors import install_exception_handlers
 from fashx.gateway.middleware import RequestContextMiddleware
 from fashx.health.router import healthz_router
 from fashx.health.router import router as health_router
+from fashx.profile.fit_router import router as fit_profile_router
 from fashx.profile.router import router as profile_router
 from fashx.recommendation.feed_router import feed_router
 from fashx.recommendation.router import router as recommendation_router
@@ -105,6 +106,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(fit_profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(media_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     from fashx.admin.router import router as admin_router

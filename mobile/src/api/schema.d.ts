@@ -368,6 +368,238 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fit Profile
+         * @description Retrieve authenticated shopper's fit profile and per-category policy readiness.
+         */
+        get: operations["get_fit_profile_api_v1_profile_fit_get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Fit Profile
+         * @description Delete shopper's fit profile measurements, history, and preferences.
+         */
+        delete: operations["delete_fit_profile_api_v1_profile_fit_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Fit Measurements
+         * @description Add or record manual body measurements requiring FIT_PROFILE_STORAGE consent.
+         */
+        post: operations["add_fit_measurements_api_v1_profile_fit_measurements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/{field}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Fit Measurement
+         * @description Delete a single measurement owned by the authenticated shopper.
+         */
+        delete: operations["delete_fit_measurement_api_v1_profile_fit_measurements__field__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Fit Measurement
+         * @description Update a single measurement using optimistic concurrency (`expected_version`).
+         */
+        patch: operations["update_fit_measurement_api_v1_profile_fit_measurements__field__patch"];
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/{field}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Fit Measurement
+         * @description Confirm an existing or aged measurement remains current.
+         */
+        post: operations["confirm_fit_measurement_api_v1_profile_fit_measurements__field__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/measurements/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Measurement History
+         * @description Retrieve owner-scoped measurement change history.
+         */
+        get: operations["list_measurement_history_api_v1_profile_fit_measurements_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Default Fit Preference
+         * @description Update subjective default fit preference without requiring body measurements.
+         */
+        put: operations["update_default_fit_preference_api_v1_profile_fit_preferences_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/preferences/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Category Fit Preference
+         * @description Set subjective fit style preference for one garment category independently.
+         */
+        put: operations["update_category_fit_preference_api_v1_profile_fit_preferences__category__put"];
+        post?: never;
+        /**
+         * Clear Category Fit Preference
+         * @description Clear subjective fit preference for one category without affecting others.
+         */
+        delete: operations["clear_category_fit_preference_api_v1_profile_fit_preferences__category__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/policies/{category}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Category Fit Policy
+         * @description Retrieve required vs optional measurement guidance for a category.
+         */
+        get: operations["get_category_fit_policy_api_v1_profile_fit_policies__category__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Measurement Definitions
+         * @description List plain-language shopper measurement explanations and tape positioning guidance.
+         */
+        get: operations["get_measurement_definitions_api_v1_profile_fit_definitions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fit Consents
+         * @description Retrieve purpose-specific fit profile consent statuses.
+         */
+        get: operations["get_fit_consents_api_v1_profile_fit_consents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profile/fit/consents/{purpose}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Fit Consent
+         * @description Grant or withdraw purpose-specific fit profile consent.
+         */
+        put: operations["update_fit_consent_api_v1_profile_fit_consents__purpose__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/users": {
         parameters: {
             query?: never;
@@ -7853,6 +8085,44 @@ export interface components {
          * @enum {string}
          */
         CatalogSourceType: "MERCHANT_API" | "AFFILIATE_API" | "MERCHANT_FEED" | "PARTNER_EXPORT" | "SHOPIFY_APP" | "OTHER_AUTHORIZED";
+        /**
+         * CategoryFitPreferenceItem
+         * @description Subjective fit preference for a garment category.
+         */
+        CategoryFitPreferenceItem: {
+            /** Category */
+            category: string;
+            fit_preference: components["schemas"]["FitPreference"];
+            /** Updated At */
+            updated_at?: string | null;
+        };
+        /**
+         * CategoryPreferenceUpdateRequest
+         * @description Set subjective fit preference for a single garment category.
+         */
+        CategoryPreferenceUpdateRequest: {
+            fit_preference: components["schemas"]["FitPreference"];
+        };
+        /**
+         * CategoryReadinessItem
+         * @description Per-category policy readiness summary without blocking product browsing.
+         */
+        CategoryReadinessItem: {
+            /** Category */
+            category: string;
+            /** Status */
+            status: string;
+            /** Policy Version */
+            policy_version?: string | null;
+            /** Required Fields */
+            required_fields?: string[];
+            /** Optional Fields */
+            optional_fields?: string[];
+            /** Missing Fields */
+            missing_fields?: string[];
+            /** Message */
+            message: string;
+        };
         /** CategorySizeItem */
         CategorySizeItem: {
             /** Category Code */
@@ -8189,6 +8459,11 @@ export interface components {
              */
             updated_at: string;
         };
+        /**
+         * ConsentPurpose
+         * @enum {string}
+         */
+        ConsentPurpose: "fit_profile_storage" | "fit_recommendation_processing" | "third_party_fit_processing" | "model_training";
         /** ConsentResponse */
         ConsentResponse: {
             /**
@@ -9937,6 +10212,44 @@ export interface components {
          * @enum {string}
          */
         FilterType: "checkbox" | "radio" | "range" | "swatch";
+        /**
+         * FitConsentStatusResponse
+         * @description Purpose-specific consent statuses for fit profile data.
+         */
+        FitConsentStatusResponse: {
+            /**
+             * Fit Profile Storage
+             * @default false
+             */
+            fit_profile_storage: boolean;
+            /**
+             * Fit Recommendation Processing
+             * @default false
+             */
+            fit_recommendation_processing: boolean;
+            /**
+             * Third Party Fit Processing
+             * @default false
+             */
+            third_party_fit_processing: boolean;
+            /**
+             * Model Training
+             * @default false
+             */
+            model_training: boolean;
+        };
+        /**
+         * FitConsentUpdateRequest
+         * @description Grant or withdraw purpose-specific fit profile consent.
+         */
+        FitConsentUpdateRequest: {
+            /** Granted */
+            granted: boolean;
+            /** Is 18 Or Older */
+            is_18_or_older?: boolean | null;
+            /** Consent Version */
+            consent_version?: string | null;
+        };
         /** FitFeedbackRequest */
         FitFeedbackRequest: {
             /**
@@ -9989,6 +10302,49 @@ export interface components {
             brand_recommendation: string;
             /** Total Observations */
             total_observations: number;
+        };
+        /**
+         * FitPreference
+         * @enum {string}
+         */
+        FitPreference: "SLIM" | "REGULAR" | "RELAXED" | "OVERSIZED" | "NO_PREFERENCE";
+        /**
+         * FitProfileResponse
+         * @description Shopper-controlled fit profile response.
+         */
+        FitProfileResponse: {
+            /** Status */
+            status: string;
+            /** Profile Id */
+            profile_id: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /** @default CM */
+            preferred_unit: components["schemas"]["ProfileUnit"];
+            /** @default NO_PREFERENCE */
+            default_fit_preference: components["schemas"]["FitPreference"];
+            /** Preference Updated At */
+            preference_updated_at?: string | null;
+            /** Measurements */
+            measurements?: components["schemas"]["ShopperMeasurementResponse"][];
+            /** Category Preferences */
+            category_preferences?: components["schemas"]["CategoryFitPreferenceItem"][];
+            /** Category Readiness */
+            category_readiness?: {
+                [key: string]: components["schemas"]["CategoryReadinessItem"];
+            };
+            /** Consents */
+            consents?: {
+                [key: string]: boolean;
+            };
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /**
          * FitVerdict
@@ -11208,6 +11564,95 @@ export interface components {
          * @enum {string}
          */
         MeasurementBasis: "BODY" | "GARMENT" | "UNKNOWN";
+        /**
+         * MeasurementBatchRequest
+         * @description Atomic batch of shopper body measurements (no client shopper_id accepted).
+         */
+        MeasurementBatchRequest: {
+            /** Measurements */
+            measurements: components["schemas"]["MeasurementInput"][];
+        };
+        /**
+         * MeasurementDefinitionResponse
+         * @description Public guidance metadata explaining how to measure a body field.
+         */
+        MeasurementDefinitionResponse: {
+            /** Code */
+            code: string;
+            /** Display Name */
+            display_name: string;
+            /** Explanation */
+            explanation: string;
+            /** Tape Positioning */
+            tape_positioning: string;
+            /** How To Hold */
+            how_to_hold: string;
+            /** Example Input */
+            example_input: string;
+            /** Measurement Type */
+            measurement_type: string;
+            /** Supported Categories */
+            supported_categories: string[];
+            /** Default Unit */
+            default_unit: string;
+            /**
+             * Is Optional Contextual
+             * @default false
+             */
+            is_optional_contextual: boolean;
+        };
+        /**
+         * MeasurementHistoryItem
+         * @description Audit trail entry for a change to a measurement field.
+         */
+        MeasurementHistoryItem: {
+            /** Id */
+            id: string;
+            /** Measurement Id */
+            measurement_id?: string | null;
+            /** Field */
+            field: string;
+            /** Previous Value */
+            previous_value?: string | null;
+            previous_unit?: components["schemas"]["ProfileUnit"] | null;
+            /** New Value */
+            new_value?: string | null;
+            new_unit?: components["schemas"]["ProfileUnit"] | null;
+            /** Normalized Value */
+            normalized_value?: string | null;
+            /** Change Source */
+            change_source: string;
+            /**
+             * Changed At
+             * Format: date-time
+             */
+            changed_at: string;
+        };
+        /**
+         * MeasurementInput
+         * @description Single shopper-entered body measurement.
+         */
+        MeasurementInput: {
+            /** Field */
+            field: string;
+            /** Value */
+            value: number | string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Measured At */
+            measured_at?: string | null;
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+        };
+        /**
+         * MeasurementMethod
+         * @enum {string}
+         */
+        MeasurementMethod: "SELF_MEASURED" | "ASSISTED_MEASUREMENT" | "OTHER";
         /** MeasurementResponse */
         MeasurementResponse: {
             /**
@@ -11235,13 +11680,55 @@ export interface components {
          * MeasurementSource
          * @enum {string}
          */
-        MeasurementSource: "user_entered" | "cv_estimated" | "manual";
+        "MeasurementSource-Input": "user_entered" | "cv_estimated" | "manual";
+        /**
+         * MeasurementSource
+         * @enum {string}
+         */
+        "MeasurementSource-Output": "MANUAL" | "IMPORTED";
+        /**
+         * MeasurementStatus
+         * @enum {string}
+         */
+        MeasurementStatus: "NOT_PROVIDED" | "PROVIDED" | "NEEDS_REVIEW" | "EXPIRED" | "WITHDRAWN";
+        /**
+         * MeasurementSubject
+         * @description Phase 08.2 invariant: Shopper profile measurements always describe BODY.
+         * @enum {string}
+         */
+        MeasurementSubject: "BODY";
         /**
          * MeasurementUnit
          * @description Supported physical measurement units for linear dimensions.
          * @enum {string}
          */
         MeasurementUnit: "CM" | "MM" | "IN" | "INCH";
+        /**
+         * MeasurementUpdateRequest
+         * @description Optimistically locked update to a single existing measurement.
+         */
+        MeasurementUpdateRequest: {
+            /** Value */
+            value: number | string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Measured At */
+            measured_at?: string | null;
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /**
+             * Confirm Unusual
+             * @default false
+             */
+            confirm_unusual: boolean;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * MeasurementValidationStatus
+         * @description Explicit outcome states for body measurement range and plausibility checks.
+         * @enum {string}
+         */
+        MeasurementValidationStatus: "ACCEPTED" | "WARNING" | "NEEDS_CONFIRMATION" | "REJECTED";
         /** MediaAccessUrlResponse */
         MediaAccessUrlResponse: {
             /**
@@ -12690,6 +13177,14 @@ export interface components {
             /** Value */
             value: string;
         };
+        /**
+         * PreferenceUpdateRequest
+         * @description Update subjective default fit preference and/or preferred display unit.
+         */
+        PreferenceUpdateRequest: {
+            default_fit_preference: components["schemas"]["FitPreference"];
+            preferred_unit?: components["schemas"]["ProfileUnit"] | null;
+        };
         /** PreferencesRequest */
         PreferencesRequest: {
             /**
@@ -13439,6 +13934,12 @@ export interface components {
             /** @default loaded */
             state: components["schemas"]["PersonalState"];
         };
+        /**
+         * ProfileUnit
+         * @description Supported input and normalized units for body measurements.
+         * @enum {string}
+         */
+        ProfileUnit: "CM" | "MM" | "IN" | "KG";
         /** QualityAuditResponse */
         QualityAuditResponse: {
             /** Total Garments */
@@ -13902,7 +14403,7 @@ export interface components {
             /** Unit */
             unit: string;
             /** @default user_entered */
-            source: components["schemas"]["MeasurementSource"];
+            source: components["schemas"]["MeasurementSource-Input"];
             /** Confidence */
             confidence?: number | null;
         };
@@ -15502,6 +16003,73 @@ export interface components {
              * @default 0
              */
             total_price: number;
+        };
+        /**
+         * ShopperMeasurementResponse
+         * @description Shopper measurement representation retaining original and normalized units plus timestamps.
+         */
+        ShopperMeasurementResponse: {
+            /** Id */
+            id: string;
+            /** Field */
+            field: string;
+            /** @default BODY */
+            measurement_subject: components["schemas"]["MeasurementSubject"];
+            /** Value */
+            value: string;
+            unit: components["schemas"]["ProfileUnit"];
+            /** Normalized Value */
+            normalized_value: string;
+            normalized_unit: components["schemas"]["ProfileUnit"];
+            /** @default MANUAL */
+            source: components["schemas"]["MeasurementSource-Output"];
+            /** @default SELF_MEASURED */
+            measurement_method: components["schemas"]["MeasurementMethod"];
+            /** @default PROVIDED */
+            status: components["schemas"]["MeasurementStatus"];
+            /** @default ACCEPTED */
+            validation_status: components["schemas"]["MeasurementValidationStatus"];
+            /** Validation Message */
+            validation_message?: string | null;
+            /**
+             * Policy Version
+             * @default 1.0
+             */
+            policy_version: string;
+            /**
+             * Schema Version
+             * @default 1.0
+             */
+            schema_version: string;
+            /**
+             * Measured At
+             * Format: date-time
+             */
+            measured_at: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Verified At */
+            verified_at?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            /**
+             * Needs Confirmation
+             * @default false
+             */
+            needs_confirmation: boolean;
+            /**
+             * Version
+             * @default 1
+             */
+            version: number;
         };
         /** ShopperProfileCreate */
         ShopperProfileCreate: {
@@ -19072,6 +19640,407 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeatureAvailability"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fit_profile_api_v1_profile_fit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+        };
+    };
+    delete_fit_profile_api_v1_profile_fit_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    add_fit_measurements_api_v1_profile_fit_measurements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementBatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_fit_measurement_api_v1_profile_fit_measurements__field__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_fit_measurement_api_v1_profile_fit_measurements__field__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperMeasurementResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_fit_measurement_api_v1_profile_fit_measurements__field__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                field: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperMeasurementResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_measurement_history_api_v1_profile_fit_measurements_history_get: {
+        parameters: {
+            query?: {
+                /** @description Optional field code filter */
+                field?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasurementHistoryItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_default_fit_preference_api_v1_profile_fit_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferenceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_category_fit_preference_api_v1_profile_fit_preferences__category__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CategoryPreferenceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryFitPreferenceItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_category_fit_preference_api_v1_profile_fit_preferences__category__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_category_fit_policy_api_v1_profile_fit_policies__category__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                category: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryReadinessItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_measurement_definitions_api_v1_profile_fit_definitions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasurementDefinitionResponse"][];
+                };
+            };
+        };
+    };
+    get_fit_consents_api_v1_profile_fit_consents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitConsentStatusResponse"];
+                };
+            };
+        };
+    };
+    update_fit_consent_api_v1_profile_fit_consents__purpose__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purpose: components["schemas"]["ConsentPurpose"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FitConsentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitConsentStatusResponse"];
                 };
             };
             /** @description Validation Error */

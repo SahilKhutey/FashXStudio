@@ -186,6 +186,9 @@ class ShopperProfile(Base, UUIDPrimaryKeyMixin):
     height_cm: Mapped[float | None] = mapped_column(Numeric(5, 1), nullable=True)
     weight_kg: Mapped[float | None] = mapped_column(Numeric(5, 1), nullable=True)
     preferred_size_system: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    preferred_measurement_unit: Mapped[str] = mapped_column(
+        String(8), default="CM", server_default="CM", nullable=False
+    )
     preferred_fit: Mapped[str | None] = mapped_column(String(24), nullable=True)
     style_preferences: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     preferred_colors: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
@@ -221,11 +224,13 @@ class ProfileCategorySize(Base, UUIDPrimaryKeyMixin):
 
 
 class ProfileMeasurement(Base, UUIDPrimaryKeyMixin):
-    """Optional physical measurements stored only with justified feature requirement and explicit consent."""
+    """Shopper-controlled body measurements stored with explicit consent, basis, and versioning."""
 
     __tablename__ = "profile_measurements"
     __table_args__ = (
         CheckConstraint("value_cm > 0", name="ck_profile_measurements_value"),
+        CheckConstraint("version >= 1", name="ck_profile_measurements_version"),
+        UniqueConstraint("user_id", "measurement_type", name="uq_profile_measurements_user_type"),
         Index("ix_profile_measurements_user_type", "user_id", "measurement_type"),
     )
 
@@ -233,9 +238,107 @@ class ProfileMeasurement(Base, UUIDPrimaryKeyMixin):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     measurement_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    measurement_subject: Mapped[str] = mapped_column(
+        String(16), default="BODY", server_default="BODY", nullable=False
+    )
     value_cm: Mapped[float] = mapped_column(Numeric(6, 2), nullable=False)
-    source: Mapped[str] = mapped_column(String(24), default="USER_ENTERED", nullable=False)
+    original_value: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    original_unit: Mapped[str] = mapped_column(
+        String(8), default="CM", server_default="CM", nullable=False
+    )
+    normalized_value: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    normalized_unit: Mapped[str] = mapped_column(
+        String(8), default="CM", server_default="CM", nullable=False
+    )
+    source: Mapped[str] = mapped_column(String(24), default="MANUAL", nullable=False)
+    measurement_method: Mapped[str] = mapped_column(
+        String(32), default="SELF_MEASURED", server_default="SELF_MEASURED", nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(24), default="PROVIDED", server_default="PROVIDED", nullable=False
+    )
+    validation_status: Mapped[str] = mapped_column(
+        String(24), default="ACCEPTED", server_default="ACCEPTED", nullable=False
+    )
+    policy_version: Mapped[str] = mapped_column(
+        String(20), default="1.0", server_default="1.0", nullable=False
+    )
+    schema_version: Mapped[str] = mapped_column(
+        String(20), default="1.0", server_default="1.0", nullable=False
+    )
+    measured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     recorded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     consent_record_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+
+
+class ProfileMeasurementHistory(Base, UUIDPrimaryKeyMixin):
+    """Immutable audit trail of changes to a shopper's body measurements."""
+
+    __tablename__ = "profile_measurement_history"
+    __table_args__ = (
+        Index("ix_profile_meas_history_user_field", "user_id", "field_code"),
+        Index("ix_profile_meas_history_changed", "changed_at"),
+    )
+
+    measurement_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    field_code: Mapped[str] = mapped_column(String(32), nullable=False)
+    previous_value: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    previous_unit: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    new_value: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    new_unit: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    normalized_value: Mapped[float | None] = mapped_column(Numeric(8, 2), nullable=True)
+    change_source: Mapped[str] = mapped_column(String(32), default="SHOPPER_UPDATE", nullable=False)
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class CategoryFitPreference(Base, UUIDPrimaryKeyMixin):
+    """Shopper subjective fit style preference (SLIM, REGULAR, RELAXED, etc.) per garment category."""
+
+    __tablename__ = "category_fit_preferences"
+    __table_args__ = (
+        UniqueConstraint("user_id", "category", name="uq_category_fit_preferences_user_cat"),
+        Index("ix_category_fit_preferences_user", "user_id"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    category: Mapped[str] = mapped_column(String(64), nullable=False)
+    fit_preference: Mapped[str] = mapped_column(String(24), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class ProfileAuditEvent(Base, UUIDPrimaryKeyMixin):
+    """Sanitized security and privacy audit log for fit profile events (no PII measurement numbers)."""
+
+    __tablename__ = "profile_audit_events"
+    __table_args__ = (
+        Index("ix_profile_audit_events_user", "user_id"),
+        Index("ix_profile_audit_events_created", "created_at"),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(nullable=False)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    details_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

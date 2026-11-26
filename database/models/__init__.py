@@ -143,10 +143,13 @@ from .pilot import (
 )
 from .profile import (
     BodyProfile,
+    CategoryFitPreference,
     OnboardingProfile,
     ProfileArtifact,
+    ProfileAuditEvent,
     ProfileCategorySize,
     ProfileMeasurement,
+    ProfileMeasurementHistory,
     ProfilePhotoJob,
     ShopperProfile,
     SkinToneResult,
@@ -244,6 +247,9 @@ __all__ = [
     "ShopperProfile",
     "ProfileCategorySize",
     "ProfileMeasurement",
+    "ProfileMeasurementHistory",
+    "CategoryFitPreference",
+    "ProfileAuditEvent",
     "OnboardingProfile",
     "ProfilePhotoJob",
     "SkinToneResult",
