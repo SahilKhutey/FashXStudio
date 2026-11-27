@@ -24,7 +24,16 @@ async def test_feed_endpoint_pagination_and_fields() -> None:
         existing = await profile_uow.users.get_by_id(user_id)
         if not existing:
             profile_uow.users.add(User(id=user_id))
-            await profile_uow.commit()
+        await profile_uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=True)
+        await profile_uow.photos.create(
+            user_id=user_id,
+            photo_type="tryon_reference",
+            storage_key=f"u/{user_id}/photos/portrait.jpg",
+            status="accepted",
+            ready_for_tryon=True,
+            content_sha256="sha-slice2",
+        )
+        await profile_uow.commit()
 
     res = client.get("/api/v1/feed?limit=5")
     assert res.status_code == 200
@@ -62,7 +71,16 @@ async def test_tryon_jobs_rejects_unsupported_garment_with_422() -> None:
         existing = await profile_uow.users.get_by_id(user_id)
         if not existing:
             profile_uow.users.add(User(id=user_id))
-            await profile_uow.commit()
+        await profile_uow.consents.upsert(user_id=user_id, data_type="body_photo", granted=True)
+        await profile_uow.photos.create(
+            user_id=user_id,
+            photo_type="tryon_reference",
+            storage_key=f"u/{user_id}/photos/portrait.jpg",
+            status="accepted",
+            ready_for_tryon=True,
+            content_sha256="sha-slice2",
+        )
+        await profile_uow.commit()
 
     unsupported_id = uuid4()
     catalog_uow = app.dependency_overrides[get_catalog_uow]()
