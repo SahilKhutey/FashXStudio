@@ -1,10 +1,12 @@
 DELETE /api/v1/me
 DELETE /api/v1/media/{image_id}
 DELETE /api/v1/products/{product_id}/feedback
+DELETE /api/v1/products/{product_id}/saved
 DELETE /api/v1/profile/fit
 DELETE /api/v1/profile/fit/measurements/{field}
 DELETE /api/v1/profile/fit/preferences/{category}
 DELETE /api/v1/profile/{user_id}/photos/{photo_id}
+DELETE /api/v1/shopper/preferences
 DELETE /api/v1/visual/personal/saved/{item_type}/{item_id}
 DELETE /api/v1/visual/styling/builder/{outfit_id}/slot/{slot_id}
 DELETE /api/v1/visual/styling/saved-looks/{look_id}
@@ -62,6 +64,8 @@ GET /api/v1/features/runtime
 GET /api/v1/features/{feature_id}
 GET /api/v1/feed
 GET /api/v1/feedback/brands/{brand_id}/calibration
+GET /api/v1/feedback/consents
+GET /api/v1/feedback/metrics
 GET /api/v1/fit/recommendations/{recommendation_id}
 GET /api/v1/fit/recommendations/{recommendation_id}/feedback
 GET /api/v1/garments/{garment_id}
@@ -84,6 +88,8 @@ GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
 GET /api/v1/products/{product_id}/availability
 GET /api/v1/products/{product_id}/feedback
+GET /api/v1/products/{product_id}/reaction
+GET /api/v1/products/{product_id}/saved
 GET /api/v1/products/{product_id}/size-chart
 GET /api/v1/products/{product_id}/size-chart/revisions
 GET /api/v1/products/{product_id}/variants
@@ -283,6 +289,7 @@ POST /api/v1/customers/{customer_id}/consents
 POST /api/v1/customers/{customer_id}/preferences
 POST /api/v1/fashion/taxonomy
 POST /api/v1/feed/signals
+POST /api/v1/feedback/events
 POST /api/v1/feedback/fit
 POST /api/v1/feedback/tryon
 POST /api/v1/fit/recommendations
@@ -294,6 +301,7 @@ POST /api/v1/menus/{menu_id}/customization/preview
 POST /api/v1/menus/{menu_id}/customization/reset
 POST /api/v1/menus/{menu_id}/customization/revisions/{revision}/restore
 POST /api/v1/menus/{menu_id}/customization/validate
+POST /api/v1/merchant-offers/{offer_id}/outbound
 POST /api/v1/merchant/offers/{offer_id}/deactivate
 POST /api/v1/merchant/products/{product_id}/override
 POST /api/v1/merchant/sources
@@ -327,6 +335,7 @@ POST /api/v1/trends/observations
 POST /api/v1/trends/{trend_id}/activate
 POST /api/v1/tryon/jobs
 POST /api/v1/tryon/jobs/{job_id}/cancel
+POST /api/v1/tryon/jobs/{job_id}/feedback
 POST /api/v1/visual/ai/feedback
 POST /api/v1/visual/ai/session
 POST /api/v1/visual/ai/session/{session_id}/message
@@ -361,9 +370,12 @@ POST /pilot/survey
 PUT /api/v1/commerce/products/{product_id}/brand
 PUT /api/v1/customers/{customer_id}/preferences
 PUT /api/v1/fashion/products/{product_id}/classification
+PUT /api/v1/feedback/consents/{purpose}
 PUT /api/v1/me/consents/{data_type}
 PUT /api/v1/menus/{menu_id}/customization
 PUT /api/v1/merchant/sources/{source_id}/schedule
+PUT /api/v1/products/{product_id}/reaction
+PUT /api/v1/products/{product_id}/saved
 PUT /api/v1/profile/consents/{data_type}
 PUT /api/v1/profile/fit/consents/{purpose}
 PUT /api/v1/profile/fit/preferences

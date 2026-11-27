@@ -2578,7 +2578,11 @@ export interface paths {
         get: operations["get_shopper_ranking_preferences_api_v1_shopper_preferences_get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Reset Personalization Preferences
+         * @description Clear shopper personalization projections and invalidate ranking cache.
+         */
+        delete: operations["reset_personalization_preferences_api_v1_shopper_preferences_delete"];
         options?: never;
         head?: never;
         /**
@@ -2586,6 +2590,178 @@ export interface paths {
          * @description Update the authenticated shopper's ranking preferences and invalidate cache.
          */
         patch: operations["update_shopper_ranking_preferences_api_v1_shopper_preferences_patch"];
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Reaction
+         * @description Retrieve the authenticated shopper's current reaction for a product.
+         */
+        get: operations["get_product_reaction_api_v1_products__product_id__reaction_get"];
+        /**
+         * Set Product Reaction
+         * @description Set the shopper's current reaction (LIKE, DISLIKE, NONE) idempotently.
+         */
+        put: operations["set_product_reaction_api_v1_products__product_id__reaction_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/saved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Saved Product
+         * @description Read current saved state for a product.
+         */
+        get: operations["get_saved_product_api_v1_products__product_id__saved_get"];
+        /**
+         * Save Product
+         * @description Save a product idempotently for the authenticated shopper.
+         */
+        put: operations["save_product_api_v1_products__product_id__saved_put"];
+        post?: never;
+        /**
+         * Unsave Product
+         * @description Remove saved state for a product idempotently.
+         */
+        delete: operations["unsave_product_api_v1_products__product_id__saved_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Feedback Event
+         * @description Ingest a feedback or interaction event with idempotency and consent checks.
+         */
+        post: operations["submit_feedback_event_api_v1_feedback_events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tryon/jobs/{job_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Vto Quality Feedback
+         * @description Submit VTO visual quality feedback without polluting product preference.
+         */
+        post: operations["submit_vto_quality_feedback_api_v1_tryon_jobs__job_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/merchant-offers/{offer_id}/outbound": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Merchant Outbound
+         * @description Record a merchant outbound redirect intent event (never reported as a purchase).
+         */
+        post: operations["record_merchant_outbound_api_v1_merchant_offers__offer_id__outbound_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Feedback Consents
+         * @description List current purpose-specific feedback/personalization consents.
+         */
+        get: operations["list_feedback_consents_api_v1_feedback_consents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/consents/{purpose}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update Feedback Consent
+         * @description Grant or withdraw a purpose-specific consent; withdrawal clears caches & projections.
+         */
+        put: operations["update_feedback_consent_api_v1_feedback_consents__purpose__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/feedback/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Feedback Metrics
+         * @description Read feedback ingestion, bias, and personalization coverage metrics.
+         */
+        get: operations["get_feedback_metrics_api_v1_feedback_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/ranking/preview": {
@@ -8654,7 +8830,7 @@ export interface components {
          * ConsentPurpose
          * @enum {string}
          */
-        ConsentPurpose: "fit_profile_storage" | "fit_recommendation_processing" | "third_party_fit_processing" | "model_training";
+        "ConsentPurpose-Output": "ESSENTIAL_SERVICE" | "PERSONALIZED_RANKING" | "PRODUCT_ANALYTICS" | "VTO_THIRD_PARTY_PROCESSING" | "FIT_PROFILE_PROCESSING" | "FEEDBACK_EVALUATION" | "MODEL_TRAINING";
         /** ConsentResponse */
         ConsentResponse: {
             /**
@@ -8671,11 +8847,43 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** ConsentStateResponse */
+        ConsentStateResponse: {
+            purpose: components["schemas"]["ConsentPurpose-Output"];
+            /** Status */
+            status: string;
+            /** Policy Version */
+            policy_version: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /** Withdrawn At */
+            withdrawn_at?: string | null;
+        };
         /** ConsentUpdate */
         ConsentUpdate: {
             data_type: components["schemas"]["DataType"];
             /** Granted */
             granted: boolean;
+        };
+        /** ConsentUpdateRequest */
+        ConsentUpdateRequest: {
+            /** Granted */
+            granted: boolean;
+            /**
+             * Policy Version
+             * @default 2026.1
+             */
+            policy_version: string;
+            /**
+             * Source
+             * @default app
+             */
+            source: string;
         };
         /**
          * ContainerMaxWidths
@@ -10333,6 +10541,64 @@ export interface components {
              * @default false
              */
             requires_confirmation: boolean;
+        };
+        /**
+         * FeedbackEventRequest
+         * @description Client-submitted interaction or feedback event (shopper identity from auth).
+         */
+        FeedbackEventRequest: {
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Subject Type */
+            subject_type: string;
+            /** Subject Id */
+            subject_id: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /**
+             * Source
+             * @default mobile
+             */
+            source: string;
+            /** Session Id */
+            session_id?: string | null;
+            /** Context */
+            context?: {
+                [key: string]: unknown;
+            };
+        };
+        /** FeedbackEventResponse */
+        FeedbackEventResponse: {
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /**
+             * Deduplicated
+             * @default false
+             */
+            deduplicated: boolean;
         };
         /**
          * FeedbackReviewStatus
@@ -12981,6 +13247,32 @@ export interface components {
          * @enum {string}
          */
         OperationalStatus: "ENABLED" | "DISABLED" | "PAUSED" | "SUSPENDED";
+        /** OutboundClickRequest */
+        OutboundClickRequest: {
+            /** Event Id */
+            event_id?: string | null;
+            /** Product Id */
+            product_id: string;
+            /**
+             * Source
+             * @default PRODUCT_DETAIL
+             */
+            source: string;
+        };
+        /** OutboundClickResponse */
+        OutboundClickResponse: {
+            /** Redirect Id */
+            redirect_id: string;
+            /** Merchant Offer Id */
+            merchant_offer_id: string;
+            /** Product Id */
+            product_id: string;
+            /**
+             * Recorded
+             * @default true
+             */
+            recorded: boolean;
+        };
         /**
          * OutfitBuilderLayoutType
          * @description Styling studio 3-way layout adaptation (Section 14.35 & 14.36).
@@ -14724,6 +15016,31 @@ export interface components {
             /** Rating Count */
             rating_count?: number | null;
         };
+        /** ReactionResponse */
+        ReactionResponse: {
+            /** Product Id */
+            product_id: string;
+            reaction: components["schemas"]["ReactionState"];
+            /**
+             * Status
+             * @default RECORDED
+             */
+            status: string;
+        };
+        /**
+         * ReactionState
+         * @enum {string}
+         */
+        ReactionState: "NONE" | "LIKE" | "DISLIKE";
+        /** ReactionUpdateRequest */
+        ReactionUpdateRequest: {
+            reaction: components["schemas"]["ReactionState"];
+            /**
+             * Idempotency Key
+             * Format: uuid
+             */
+            idempotency_key: string;
+        };
         /**
          * RecentSearchContract
          * @description User search history entry (Section 8.20).
@@ -15650,6 +15967,16 @@ export interface components {
             /** Collection Tag */
             collection_tag?: string | null;
         };
+        /** SaveProductRequest */
+        SaveProductRequest: {
+            /**
+             * Idempotency Key
+             * Format: uuid
+             */
+            idempotency_key: string;
+            /** Merchant Offer Id */
+            merchant_offer_id?: string | null;
+        };
         /**
          * SaveState
          * @description Save interaction lifecycle (Section 6.28 & 6.29).
@@ -15845,6 +16172,22 @@ export interface components {
             availability: string;
             /** Saved At */
             saved_at: string;
+        };
+        /** SavedProductResponse */
+        SavedProductResponse: {
+            /** Product Id */
+            product_id: string;
+            /** Merchant Offer Id */
+            merchant_offer_id?: string | null;
+            /** Is Saved */
+            is_saved: boolean;
+            /** Saved At */
+            saved_at?: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * SavedProductsTemplateSpecContract
@@ -19025,6 +19368,34 @@ export interface components {
              */
             quality_reasons: string[];
         };
+        /** VTOQualityFeedbackRequest */
+        VTOQualityFeedbackRequest: {
+            /** Event Id */
+            event_id?: string | null;
+            rating: components["schemas"]["VTOQualityRating"];
+            /** Issue Codes */
+            issue_codes?: string[];
+            /** Comment */
+            comment?: string | null;
+        };
+        /** VTOQualityFeedbackResponse */
+        VTOQualityFeedbackResponse: {
+            /** Job Id */
+            job_id: string;
+            rating: components["schemas"]["VTOQualityRating"];
+            /** Issue Codes */
+            issue_codes: string[];
+            /**
+             * Status
+             * @default RECORDED
+             */
+            status: string;
+        };
+        /**
+         * VTOQualityRating
+         * @enum {string}
+         */
+        VTOQualityRating: "VERY_GOOD" | "GOOD" | "AVERAGE" | "POOR" | "VERY_POOR";
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -19571,6 +19942,11 @@ export interface components {
             total_observations: number;
         };
         /**
+         * ConsentPurpose
+         * @enum {string}
+         */
+        fashx__feedback__enums__ConsentPurpose: "ESSENTIAL_SERVICE" | "PERSONALIZED_RANKING" | "PRODUCT_ANALYTICS" | "VTO_THIRD_PARTY_PROCESSING" | "FIT_PROFILE_PROCESSING" | "FEEDBACK_EVALUATION" | "MODEL_TRAINING";
+        /**
          * FitFeedbackResponse
          * @description Persisted feedback summary tied to a recommendation snapshot.
          */
@@ -19620,6 +19996,11 @@ export interface components {
          * @enum {string}
          */
         fashx__fit__enums__MeasurementBasis: "BODY" | "GARMENT" | "UNKNOWN";
+        /**
+         * ConsentPurpose
+         * @enum {string}
+         */
+        fashx__profile__fit_schemas__ConsentPurpose: "fit_profile_storage" | "fit_recommendation_processing" | "third_party_fit_processing" | "model_training";
         /**
          * FitPreference
          * @enum {string}
@@ -20879,7 +21260,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                purpose: components["schemas"]["ConsentPurpose"];
+                purpose: components["schemas"]["fashx__profile__fit_schemas__ConsentPurpose"];
             };
             cookie?: never;
         };
@@ -24380,6 +24761,28 @@ export interface operations {
             };
         };
     };
+    reset_personalization_preferences_api_v1_shopper_preferences_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     update_shopper_ranking_preferences_api_v1_shopper_preferences_patch: {
         parameters: {
             query?: never;
@@ -24409,6 +24812,349 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_reaction_api_v1_products__product_id__reaction_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_product_reaction_api_v1_products__product_id__reaction_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReactionUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_saved_product_api_v1_products__product_id__saved_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_product_api_v1_products__product_id__saved_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveProductRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unsave_product_api_v1_products__product_id__saved_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_feedback_event_api_v1_feedback_events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackEventResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_vto_quality_feedback_api_v1_tryon_jobs__job_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VTOQualityFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VTOQualityFeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_merchant_outbound_api_v1_merchant_offers__offer_id__outbound_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OutboundClickRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutboundClickResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_feedback_consents_api_v1_feedback_consents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentStateResponse"][];
+                };
+            };
+        };
+    };
+    update_feedback_consent_api_v1_feedback_consents__purpose__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purpose: components["schemas"]["fashx__feedback__enums__ConsentPurpose"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentStateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_feedback_metrics_api_v1_feedback_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

@@ -132,6 +132,14 @@ from .erasure import ErasureTombstone
 from .experiment import ExperimentExposure
 from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
+from .feedback import (
+    FeedbackEventRecord,
+    FeedbackOutboxRecord,
+    FeedbackProcessingRecord,
+    ShopperConsentRecord,
+    ShopperProductReactionRecord,
+    ShopperSavedProductRecord,
+)
 from .fit import (
     FitEvaluationCaseRecord,
     FitEvaluationRunRecord,
@@ -397,4 +405,10 @@ __all__ = [
     "RankingPreferenceRecord",
     "RankingEventRecord",
     "RankingEvaluationRunRecord",
+    "FeedbackEventRecord",
+    "FeedbackProcessingRecord",
+    "FeedbackOutboxRecord",
+    "ShopperProductReactionRecord",
+    "ShopperSavedProductRecord",
+    "ShopperConsentRecord",
 ]

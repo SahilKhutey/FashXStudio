@@ -82,6 +82,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
 
     install_exception_handlers(app)
     from fashx.account.router import router as account_router
+    from fashx.api.v1.feedback import router as feedback_router
     from fashx.api.v1.me import router as me_router
     from fashx.api.v1.onboarding import router as onboarding_router
     from fashx.api.v1.ranking import admin_router as ranking_admin_router
@@ -135,6 +136,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
         recommendation_router, prefix="/api/v1", dependencies=[Depends(get_principal)]
     )
     app.include_router(ranking_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(feedback_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(
         ranking_admin_router, prefix="/api/v1", dependencies=[Depends(require_role("admin"))]
     )

@@ -1330,7 +1330,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/ConsentPurpose"
+              "$ref": "#/components/schemas/fashx__profile__fit_schemas__ConsentPurpose"
             }
           }
         ],
@@ -6797,6 +6797,28 @@
           }
         }
       },
+      "delete": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Reset Personalization Preferences",
+        "description": "Clear shopper personalization projections and invalidate ranking cache.",
+        "operationId": "reset_personalization_preferences_api_v1_shopper_preferences_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Reset Personalization Preferences Api V1 Shopper Preferences Delete"
+                }
+              }
+            }
+          }
+        }
+      },
       "patch": {
         "tags": [
           "ranking"
@@ -6831,6 +6853,485 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/reaction": {
+      "put": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Set Product Reaction",
+        "description": "Set the shopper's current reaction (LIKE, DISLIKE, NONE) idempotently.",
+        "operationId": "set_product_reaction_api_v1_products__product_id__reaction_put",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactionUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Get Product Reaction",
+        "description": "Retrieve the authenticated shopper's current reaction for a product.",
+        "operationId": "get_product_reaction_api_v1_products__product_id__reaction_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/saved": {
+      "put": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Save Product",
+        "description": "Save a product idempotently for the authenticated shopper.",
+        "operationId": "save_product_api_v1_products__product_id__saved_put",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Unsave Product",
+        "description": "Remove saved state for a product idempotently.",
+        "operationId": "unsave_product_api_v1_products__product_id__saved_delete",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Get Saved Product",
+        "description": "Read current saved state for a product.",
+        "operationId": "get_saved_product_api_v1_products__product_id__saved_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedProductResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feedback/events": {
+      "post": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Submit Feedback Event",
+        "description": "Ingest a feedback or interaction event with idempotency and consent checks.",
+        "operationId": "submit_feedback_event_api_v1_feedback_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackEventRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackEventResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tryon/jobs/{job_id}/feedback": {
+      "post": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Submit Vto Quality Feedback",
+        "description": "Submit VTO visual quality feedback without polluting product preference.",
+        "operationId": "submit_vto_quality_feedback_api_v1_tryon_jobs__job_id__feedback_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VTOQualityFeedbackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VTOQualityFeedbackResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/merchant-offers/{offer_id}/outbound": {
+      "post": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Record Merchant Outbound",
+        "description": "Record a merchant outbound redirect intent event (never reported as a purchase).",
+        "operationId": "record_merchant_outbound_api_v1_merchant_offers__offer_id__outbound_post",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutboundClickRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundClickResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feedback/consents": {
+      "get": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "List Feedback Consents",
+        "description": "List current purpose-specific feedback/personalization consents.",
+        "operationId": "list_feedback_consents_api_v1_feedback_consents_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConsentStateResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Feedback Consents Api V1 Feedback Consents Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feedback/consents/{purpose}": {
+      "put": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Update Feedback Consent",
+        "description": "Grant or withdraw a purpose-specific consent; withdrawal clears caches & projections.",
+        "operationId": "update_feedback_consent_api_v1_feedback_consents__purpose__put",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/fashx__feedback__enums__ConsentPurpose"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentStateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/feedback/metrics": {
+      "get": {
+        "tags": [
+          "feedback-loop"
+        ],
+        "summary": "Get Feedback Metrics",
+        "description": "Read feedback ingestion, bias, and personalization coverage metrics.",
+        "operationId": "get_feedback_metrics_api_v1_feedback_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Feedback Metrics Api V1 Feedback Metrics Get"
                 }
               }
             }
@@ -21527,13 +22028,16 @@
         ],
         "title": "ConsentItemResponse"
       },
-      "ConsentPurpose": {
+      "ConsentPurpose-Output": {
         "type": "string",
         "enum": [
-          "fit_profile_storage",
-          "fit_recommendation_processing",
-          "third_party_fit_processing",
-          "model_training"
+          "ESSENTIAL_SERVICE",
+          "PERSONALIZED_RANKING",
+          "PRODUCT_ANALYTICS",
+          "VTO_THIRD_PARTY_PROCESSING",
+          "FIT_PROFILE_PROCESSING",
+          "FEEDBACK_EVALUATION",
+          "MODEL_TRAINING"
         ],
         "title": "ConsentPurpose"
       },
@@ -21578,6 +22082,51 @@
         ],
         "title": "ConsentResponse"
       },
+      "ConsentStateResponse": {
+        "properties": {
+          "purpose": {
+            "$ref": "#/components/schemas/ConsentPurpose-Output"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "policy_version": {
+            "type": "string",
+            "title": "Policy Version"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recorded At"
+          },
+          "withdrawn_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Withdrawn At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "purpose",
+          "status",
+          "policy_version",
+          "revision",
+          "recorded_at"
+        ],
+        "title": "ConsentStateResponse"
+      },
       "ConsentUpdate": {
         "properties": {
           "data_type": {
@@ -21594,6 +22143,34 @@
           "granted"
         ],
         "title": "ConsentUpdate"
+      },
+      "ConsentUpdateRequest": {
+        "properties": {
+          "granted": {
+            "type": "boolean",
+            "title": "Granted"
+          },
+          "policy_version": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Policy Version",
+            "default": "2026.1"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Source",
+            "default": "app"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "granted"
+        ],
+        "title": "ConsentUpdateRequest"
       },
       "ContainerMaxWidths": {
         "properties": {
@@ -25367,6 +25944,109 @@
         ],
         "title": "FeedbackEventContract",
         "description": "Resolved feedback event with delivery mechanism and a11y live level (Section 15.68 - 15.70)."
+      },
+      "FeedbackEventRequest": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "event_type": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Event Type"
+          },
+          "subject_type": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Subject Type"
+          },
+          "subject_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Subject Id"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "schema_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Source",
+            "default": "mobile"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_id",
+          "event_type",
+          "subject_type",
+          "subject_id",
+          "occurred_at"
+        ],
+        "title": "FeedbackEventRequest",
+        "description": "Client-submitted interaction or feedback event (shopper identity from auth)."
+      },
+      "FeedbackEventResponse": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          },
+          "deduplicated": {
+            "type": "boolean",
+            "title": "Deduplicated",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "status",
+          "received_at"
+        ],
+        "title": "FeedbackEventResponse"
       },
       "FeedbackReviewStatus": {
         "type": "string",
@@ -30916,6 +31596,69 @@
         ],
         "title": "OperationalStatus"
       },
+      "OutboundClickRequest": {
+        "properties": {
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Id"
+          },
+          "product_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Product Id"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Source",
+            "default": "PRODUCT_DETAIL"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "OutboundClickRequest"
+      },
+      "OutboundClickResponse": {
+        "properties": {
+          "redirect_id": {
+            "type": "string",
+            "title": "Redirect Id"
+          },
+          "merchant_offer_id": {
+            "type": "string",
+            "title": "Merchant Offer Id"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "recorded": {
+            "type": "boolean",
+            "title": "Recorded",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "redirect_id",
+          "merchant_offer_id",
+          "product_id"
+        ],
+        "title": "OutboundClickResponse"
+      },
       "OutfitBuilderLayoutType": {
         "type": "string",
         "enum": [
@@ -34807,6 +35550,56 @@
         "title": "RatingSpecContract",
         "description": "Star rating specification contract (Section 5.40)."
       },
+      "ReactionResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "reaction": {
+            "$ref": "#/components/schemas/ReactionState"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "RECORDED"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "reaction"
+        ],
+        "title": "ReactionResponse"
+      },
+      "ReactionState": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "LIKE",
+          "DISLIKE"
+        ],
+        "title": "ReactionState"
+      },
+      "ReactionUpdateRequest": {
+        "properties": {
+          "reaction": {
+            "$ref": "#/components/schemas/ReactionState"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Idempotency Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reaction",
+          "idempotency_key"
+        ],
+        "title": "ReactionUpdateRequest"
+      },
       "RecentSearchContract": {
         "properties": {
           "query": {
@@ -36851,6 +37644,33 @@
         "title": "SaveOutfitRequestContract",
         "description": "Payload to persist an outfit as a saved look."
       },
+      "SaveProductRequest": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Idempotency Key"
+          },
+          "merchant_offer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Offer Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "idempotency_key"
+        ],
+        "title": "SaveProductRequest"
+      },
       "SaveState": {
         "type": "string",
         "enum": [
@@ -37294,6 +38114,53 @@
         ],
         "title": "SavedProductContract",
         "description": "Saved product representation communicating state via text and badge (Section 13.13, 13.14, 13.74)."
+      },
+      "SavedProductResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "merchant_offer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Offer Id"
+          },
+          "is_saved": {
+            "type": "boolean",
+            "title": "Is Saved"
+          },
+          "saved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Saved At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "is_saved",
+          "updated_at"
+        ],
+        "title": "SavedProductResponse"
       },
       "SavedProductsTemplateSpecContract": {
         "properties": {
@@ -44699,6 +45566,91 @@
         ],
         "title": "UserPhotoItem"
       },
+      "VTOQualityFeedbackRequest": {
+        "properties": {
+          "event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Id"
+          },
+          "rating": {
+            "$ref": "#/components/schemas/VTOQualityRating"
+          },
+          "issue_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue Codes"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rating"
+        ],
+        "title": "VTOQualityFeedbackRequest"
+      },
+      "VTOQualityFeedbackResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "rating": {
+            "$ref": "#/components/schemas/VTOQualityRating"
+          },
+          "issue_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue Codes"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "RECORDED"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "rating",
+          "issue_codes"
+        ],
+        "title": "VTOQualityFeedbackResponse"
+      },
+      "VTOQualityRating": {
+        "type": "string",
+        "enum": [
+          "VERY_GOOD",
+          "GOOD",
+          "AVERAGE",
+          "POOR",
+          "VERY_POOR"
+        ],
+        "title": "VTOQualityRating"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -45733,6 +46685,19 @@
         ],
         "title": "FitFeedbackResponse"
       },
+      "fashx__feedback__enums__ConsentPurpose": {
+        "type": "string",
+        "enum": [
+          "ESSENTIAL_SERVICE",
+          "PERSONALIZED_RANKING",
+          "PRODUCT_ANALYTICS",
+          "VTO_THIRD_PARTY_PROCESSING",
+          "FIT_PROFILE_PROCESSING",
+          "FEEDBACK_EVALUATION",
+          "MODEL_TRAINING"
+        ],
+        "title": "ConsentPurpose"
+      },
       "fashx__fit__contracts__FitFeedbackResponse": {
         "properties": {
           "feedback_id": {
@@ -45878,6 +46843,16 @@
         ],
         "title": "MeasurementBasis",
         "description": "Distinguishes human body dimensions from finished garment dimensions."
+      },
+      "fashx__profile__fit_schemas__ConsentPurpose": {
+        "type": "string",
+        "enum": [
+          "fit_profile_storage",
+          "fit_recommendation_processing",
+          "third_party_fit_processing",
+          "model_training"
+        ],
+        "title": "ConsentPurpose"
       },
       "fashx__profile__fit_schemas__FitPreference": {
         "type": "string",

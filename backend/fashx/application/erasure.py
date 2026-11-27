@@ -62,6 +62,12 @@ ACCOUNT_TABLES: list[str] = [
     "product_feedback",
     "shopper_ranking_preferences",
     "ranking_events",
+    "feedback_events",
+    "feedback_processing",
+    "feedback_outbox",
+    "shopper_product_reactions",
+    "shopper_saved_products",
+    "shopper_consent_records",
 ]
 
 CORE_AUTH: list[str] = [
