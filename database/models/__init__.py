@@ -163,6 +163,12 @@ from .profile import (
     UserPreference,
     UserStyleProfile,
 )
+from .ranking import (
+    ProductFeedbackRecord,
+    RankingEvaluationRunRecord,
+    RankingEventRecord,
+    RankingPreferenceRecord,
+)
 from .size_charts import (
     InventorySnapshotRecord,
     MeasurementFieldDefinitionRecord,
@@ -387,4 +393,8 @@ __all__ = [
     "FitRecommendationCandidateRecord",
     "FitEvaluationCaseRecord",
     "FitEvaluationRunRecord",
+    "ProductFeedbackRecord",
+    "RankingPreferenceRecord",
+    "RankingEventRecord",
+    "RankingEvaluationRunRecord",
 ]

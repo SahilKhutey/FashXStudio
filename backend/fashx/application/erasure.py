@@ -59,6 +59,9 @@ ACCOUNT_TABLES: list[str] = [
     "profile_audit_events",
     "product_search_events",
     "search_sessions",
+    "product_feedback",
+    "shopper_ranking_preferences",
+    "ranking_events",
 ]
 
 CORE_AUTH: list[str] = [

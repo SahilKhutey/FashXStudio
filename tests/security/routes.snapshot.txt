@@ -1,5 +1,6 @@
 DELETE /api/v1/me
 DELETE /api/v1/media/{image_id}
+DELETE /api/v1/products/{product_id}/feedback
 DELETE /api/v1/profile/fit
 DELETE /api/v1/profile/fit/measurements/{field}
 DELETE /api/v1/profile/fit/preferences/{category}
@@ -82,6 +83,7 @@ GET /api/v1/merchant/sources/{source_id}/status
 GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
 GET /api/v1/products/{product_id}/availability
+GET /api/v1/products/{product_id}/feedback
 GET /api/v1/products/{product_id}/size-chart
 GET /api/v1/products/{product_id}/size-chart/revisions
 GET /api/v1/products/{product_id}/variants
@@ -96,11 +98,13 @@ GET /api/v1/profile/me/category-sizes
 GET /api/v1/profile/me/completeness
 GET /api/v1/profile/{user_id}/derived
 GET /api/v1/profile/{user_id}/photos/{media_id}/url
+GET /api/v1/ranking/config
 GET /api/v1/recommendations/feed/{user_id}
 GET /api/v1/search/facets
 GET /api/v1/search/products
 GET /api/v1/search/sessions/{session_id}
 GET /api/v1/search/suggestions
+GET /api/v1/shopper/preferences
 GET /api/v1/size-systems
 GET /api/v1/system/health
 GET /api/v1/system/health/live
@@ -229,6 +233,7 @@ PATCH /api/v1/customers/{customer_id}
 PATCH /api/v1/merchant/sources/{source_id}/operational-status
 PATCH /api/v1/profile/fit/measurements/{field}
 PATCH /api/v1/profile/me
+PATCH /api/v1/shopper/preferences
 POST /api/v1/account/deletion-request
 POST /api/v1/account/disable
 POST /api/v1/account/email-change
@@ -300,6 +305,7 @@ POST /api/v1/pilot/survey
 POST /api/v1/pricing/calculate
 POST /api/v1/pricing/prices
 POST /api/v1/pricing/rules
+POST /api/v1/products/{product_id}/feedback
 POST /api/v1/products/{product_id}/size-chart
 POST /api/v1/profile/fit/measurements
 POST /api/v1/profile/fit/measurements/{field}/confirm
@@ -308,6 +314,8 @@ POST /api/v1/profile/users
 POST /api/v1/profile/{user_id}/consent
 POST /api/v1/profile/{user_id}/consent/revoke
 POST /api/v1/profile/{user_id}/photos
+POST /api/v1/ranking/preview
+POST /api/v1/ranking/products
 POST /api/v1/recommendations
 POST /api/v1/recommendations/exclusions
 POST /api/v1/search/events

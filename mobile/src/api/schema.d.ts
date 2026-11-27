@@ -2496,6 +2496,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ranking/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rank Products
+         * @description Return personalized (or baseline) ranked eligible products for the authenticated shopper.
+         */
+        post: operations["rank_products_api_v1_ranking_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ranking/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ranking Configuration
+         * @description Read active versioned ranking configuration and weights.
+         */
+        get: operations["get_ranking_configuration_api_v1_ranking_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Product Feedback
+         * @description Retrieve explicit feedback submitted by the authenticated shopper for a product.
+         */
+        get: operations["get_product_feedback_api_v1_products__product_id__feedback_get"];
+        put?: never;
+        /**
+         * Submit Product Feedback
+         * @description Submit explicit product feedback for the authenticated shopper.
+         */
+        post: operations["submit_product_feedback_api_v1_products__product_id__feedback_post"];
+        /**
+         * Delete Product Feedback
+         * @description Withdraw explicit product feedback for the authenticated shopper.
+         */
+        delete: operations["delete_product_feedback_api_v1_products__product_id__feedback_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shopper/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Shopper Ranking Preferences
+         * @description Retrieve the authenticated shopper's ranking preferences.
+         */
+        get: operations["get_shopper_ranking_preferences_api_v1_shopper_preferences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Shopper Ranking Preferences
+         * @description Update the authenticated shopper's ranking preferences and invalidate cache.
+         */
+        patch: operations["update_shopper_ranking_preferences_api_v1_shopper_preferences_patch"];
+        trace?: never;
+    };
+    "/api/v1/ranking/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Ranking
+         * @description Internal/admin preview endpoint for inspecting ranking behaviour.
+         */
+        post: operations["preview_ranking_api_v1_ranking_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/feed/signals": {
         parameters: {
             query?: never;
@@ -7569,12 +7681,6 @@ export interface components {
              */
             evaluated_at: string;
         };
-        /**
-         * AvailabilityStatus
-         * @description Inventory and purchasable availability state for a product variant.
-         * @enum {string}
-         */
-        AvailabilityStatus: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "UNKNOWN" | "DISCONTINUED" | "DELISTED" | "TAKEDOWN" | "PREORDER";
         /** BatchSessionEventsRequest */
         BatchSessionEventsRequest: {
             /** Events */
@@ -10202,7 +10308,7 @@ export interface components {
          * @description Resolved feedback event with delivery mechanism and a11y live level (Section 15.68 - 15.70).
          */
         FeedbackEventContract: {
-            feedback_type: components["schemas"]["FeedbackType"];
+            feedback_type: components["schemas"]["schemas__visual__interaction__FeedbackType"];
             /** Title */
             title: string;
             /** Message */
@@ -10236,10 +10342,9 @@ export interface components {
         FeedbackReviewStatus: "PENDING_REVIEW" | "UNVERIFIED" | "CLASSIFIED" | "DISMISSED";
         /**
          * FeedbackType
-         * @description Global feedback mechanisms based on disruption hierarchy (Section 15.68 & 15.69).
          * @enum {string}
          */
-        FeedbackType: "toast" | "inline_alert" | "banner" | "dialog" | "status_badge" | "screen_announcement";
+        "FeedbackType-Input": "LIKE" | "DISLIKE" | "SAVE" | "REMOVE_SAVED" | "NOT_INTERESTED";
         /**
          * FilterAdaptationType
          * @description Filter presentation across viewports (Section 14.29 & 14.30).
@@ -13384,6 +13489,11 @@ export interface components {
             /** Context Items */
             context_items?: components["schemas"]["AIContextItemContract"][] | null;
         };
+        /**
+         * PreferencePolarity
+         * @enum {string}
+         */
+        PreferencePolarity: "LIKE" | "DISLIKE";
         /** PreferenceRequest */
         PreferenceRequest: {
             /**
@@ -13843,6 +13953,34 @@ export interface components {
             confidence?: number | null;
         };
         /**
+         * ProductFeedbackCreate
+         * @description Explicit shopper product feedback payload.
+         */
+        ProductFeedbackCreate: {
+            feedback_type: components["schemas"]["FeedbackType-Input"];
+            /**
+             * Source
+             * @default api
+             */
+            source: string;
+        };
+        /**
+         * ProductFeedbackResponse
+         * @description Persisted shopper product feedback state.
+         */
+        ProductFeedbackResponse: {
+            /** Product Id */
+            product_id: string;
+            feedback_type: components["schemas"]["fashx__ranking__enums__FeedbackType"];
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
          * ProductGalleryContract
          * @description Interactive media gallery supporting thumbnail navigation and zoom (Sections 9.7, 9.8).
          */
@@ -14071,7 +14209,7 @@ export interface components {
             /** Merchant Product Id */
             merchant_product_id: string;
             /** @default UNKNOWN */
-            overall_status: components["schemas"]["AvailabilityStatus"];
+            overall_status: components["schemas"]["fashx__catalog__size_charts__enums__AvailabilityStatus"];
             /** Variants */
             variants?: components["schemas"]["VariantStockItem"][];
             /** Last Checked At */
@@ -14401,6 +14539,157 @@ export interface components {
              * @default 9999
              */
             full: number;
+        };
+        /**
+         * RankedProductItem
+         * @description Shopper-facing ranked product item without exposing private profile data.
+         */
+        RankedProductItem: {
+            /** Product Id */
+            product_id: string;
+            /** Merchant Offer Id */
+            merchant_offer_id: string;
+            /** Title */
+            title: string;
+            /** Category Id */
+            category_id: string;
+            /** Price */
+            price?: string | null;
+            /** Currency */
+            currency?: string | null;
+            /** Position */
+            position: number;
+            /** Ranking Score */
+            ranking_score: number;
+            availability: components["schemas"]["fashx__ranking__enums__AvailabilityStatus"];
+            size_availability: components["schemas"]["SizeAvailability"];
+            /** Selected Size Available */
+            selected_size_available: boolean;
+            /** Reasons */
+            reasons: components["schemas"]["RankingReasonCode"][];
+            /** Reason Labels */
+            reason_labels: string[];
+            /**
+             * Is Sponsored
+             * @default false
+             */
+            is_sponsored: boolean;
+            /** Availability Verified At */
+            availability_verified_at?: string | null;
+            /** Ranking Version */
+            ranking_version: string;
+        };
+        /**
+         * RankedProductsResponse
+         * @description Versioned personalized or baseline ranking API response.
+         */
+        RankedProductsResponse: {
+            /** Request Id */
+            request_id: string;
+            /** Ranking Version */
+            ranking_version: string;
+            /** Config Version */
+            config_version: string;
+            /** Taxonomy Version */
+            taxonomy_version: string;
+            /**
+             * Cache Hit
+             * @default false
+             */
+            cache_hit: boolean;
+            /** Results */
+            results: components["schemas"]["RankedProductItem"][];
+            pagination: components["schemas"]["RankingPagination"];
+        };
+        /**
+         * RankingConfigResponse
+         * @description Publicly inspectable ranking configuration metadata.
+         */
+        RankingConfigResponse: {
+            /** Ranking Version */
+            ranking_version: string;
+            /** Config Version */
+            config_version: string;
+            /** Taxonomy Version */
+            taxonomy_version: string;
+            /** Supported Versions */
+            supported_versions: string[];
+            /** Weights */
+            weights: {
+                [key: string]: number;
+            };
+            /** Max Availability Age Seconds */
+            max_availability_age_seconds: number;
+            /** Cache Ttl Seconds */
+            cache_ttl_seconds: number;
+        };
+        /**
+         * RankingContext
+         * @description Search and filter context supplied by the shopper.
+         */
+        RankingContext: {
+            /** Query */
+            query?: string | null;
+            /** Category Id */
+            category_id?: string | null;
+            /** Selected Size */
+            selected_size?: string | null;
+            /** Min Price */
+            min_price?: number | string | null;
+            /** Max Price */
+            max_price?: number | string | null;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /** Reference Image Asset Id */
+            reference_image_asset_id?: string | null;
+            /** Reference Product Id */
+            reference_product_id?: string | null;
+            /**
+             * Require Selected Size
+             * @default false
+             */
+            require_selected_size: boolean;
+            /**
+             * Page
+             * @default 1
+             */
+            page: number;
+            /**
+             * Page Size
+             * @default 20
+             */
+            page_size: number;
+        };
+        /** RankingPagination */
+        RankingPagination: {
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Eligible */
+            total_eligible: number;
+            /** Has More */
+            has_more: boolean;
+        };
+        /**
+         * RankingReasonCode
+         * @enum {string}
+         */
+        RankingReasonCode: "CATEGORY_MATCH" | "STYLE_MATCH" | "COLOR_MATCH" | "PRICE_MATCH" | "SIZE_AVAILABLE" | "VISUAL_SIMILARITY" | "FEEDBACK_MATCH" | "QUALITY_VALIDATED";
+        /**
+         * RankingRequest
+         * @description Authenticated ranking request; shopper identity comes strictly from auth context.
+         */
+        RankingRequest: {
+            context: components["schemas"]["RankingContext"];
+            /**
+             * Ranking Version
+             * @default personalized-v1
+             */
+            ranking_version: string;
         };
         /**
          * RatingSpecContract
@@ -16411,6 +16700,54 @@ export interface components {
             /** Expected Version */
             expected_version?: number | null;
         };
+        /**
+         * ShopperRankingPreferencesResponse
+         * @description Persisted ranking preferences for the authenticated shopper.
+         */
+        ShopperRankingPreferencesResponse: {
+            /** Style Preferences */
+            style_preferences: components["schemas"]["StylePreferenceEntry"][];
+            /** Preferred Colors */
+            preferred_colors: string[];
+            /** Disliked Colors */
+            disliked_colors: string[];
+            /** Preferred Categories */
+            preferred_categories: string[];
+            /** Budget Min */
+            budget_min?: string | null;
+            /** Budget Max */
+            budget_max?: string | null;
+            /**
+             * Currency
+             * @default INR
+             */
+            currency: string;
+            /**
+             * Revision
+             * @default 1
+             */
+            revision: number;
+        };
+        /**
+         * ShopperRankingPreferencesUpdate
+         * @description Shopper-editable style, color, category, and budget ranking preferences.
+         */
+        ShopperRankingPreferencesUpdate: {
+            /** Style Preferences */
+            style_preferences?: components["schemas"]["StylePreferenceEntry"][] | null;
+            /** Preferred Colors */
+            preferred_colors?: string[] | null;
+            /** Disliked Colors */
+            disliked_colors?: string[] | null;
+            /** Preferred Categories */
+            preferred_categories?: string[] | null;
+            /** Budget Min */
+            budget_min?: number | string | null;
+            /** Budget Max */
+            budget_max?: number | string | null;
+            /** Currency */
+            currency?: string | null;
+        };
         /** ShoppingBudget */
         ShoppingBudget: {
             /**
@@ -16494,6 +16831,11 @@ export interface components {
             /** Expires At */
             expires_at?: string | null;
         };
+        /**
+         * SizeAvailability
+         * @enum {string}
+         */
+        SizeAvailability: "AVAILABLE" | "UNAVAILABLE" | "UNKNOWN" | "NOT_APPLICABLE";
         /**
          * SizeChartRevisionCreate
          * @description Payload to ingest a new merchant size chart revision.
@@ -17379,6 +17721,20 @@ export interface components {
              * @default medium
              */
             budget_tier: string;
+        };
+        /**
+         * StylePreferenceEntry
+         * @description Explicit shopper style preference entry.
+         */
+        StylePreferenceEntry: {
+            /** Style Id */
+            style_id: string;
+            preference: components["schemas"]["PreferencePolarity"];
+            /**
+             * Strength
+             * @default 1
+             */
+            strength: number;
         };
         /**
          * StylePreferencesTemplateSpecContract
@@ -18738,7 +19094,7 @@ export interface components {
             /** Sku */
             sku?: string | null;
             /** @default UNKNOWN */
-            status: components["schemas"]["AvailabilityStatus"];
+            status: components["schemas"]["fashx__catalog__size_charts__enums__AvailabilityStatus"];
             /**
              * Is Stale
              * @default false
@@ -19177,6 +19533,12 @@ export interface components {
          */
         fashx__catalog__acquisition__contracts_v2__SyncMode: "full" | "incremental";
         /**
+         * AvailabilityStatus
+         * @description Inventory and purchasable availability state for a product variant.
+         * @enum {string}
+         */
+        fashx__catalog__size_charts__enums__AvailabilityStatus: "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK" | "UNKNOWN" | "DISCONTINUED" | "DELISTED" | "TAKEDOWN" | "PREORDER";
+        /**
          * MeasurementBasis
          * @description Whether measurements describe the human body or the finished physical garment.
          * @enum {string}
@@ -19264,6 +19626,16 @@ export interface components {
          */
         fashx__profile__fit_schemas__FitPreference: "SLIM" | "REGULAR" | "RELAXED" | "OVERSIZED" | "NO_PREFERENCE";
         /**
+         * AvailabilityStatus
+         * @enum {string}
+         */
+        fashx__ranking__enums__AvailabilityStatus: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN" | "DISCONTINUED" | "DELISTED" | "TAKEDOWN" | "STALE";
+        /**
+         * FeedbackType
+         * @enum {string}
+         */
+        fashx__ranking__enums__FeedbackType: "LIKE" | "DISLIKE" | "SAVE" | "REMOVE_SAVED" | "NOT_INTERESTED";
+        /**
          * BreadcrumbItemContract
          * @description Canonical hierarchy breadcrumb item (Section 9.51).
          */
@@ -19309,6 +19681,12 @@ export interface components {
             /** Empty Suggestions */
             empty_suggestions?: string[];
         };
+        /**
+         * FeedbackType
+         * @description Global feedback mechanisms based on disruption hierarchy (Section 15.68 & 15.69).
+         * @enum {string}
+         */
+        schemas__visual__interaction__FeedbackType: "toast" | "inline_alert" | "banner" | "dialog" | "status_badge" | "screen_announcement";
         /**
          * SavedLookContract
          * @description Saved outfit composition supporting styling and editing workflows (Section 13.15, 13.16).
@@ -23806,6 +24184,257 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RecordExclusionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rank_products_api_v1_ranking_products_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RankingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankedProductsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_ranking_configuration_api_v1_ranking_config_get: {
+        parameters: {
+            query?: {
+                ranking_version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankingConfigResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_feedback_api_v1_products__product_id__feedback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductFeedbackResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_product_feedback_api_v1_products__product_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductFeedbackCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductFeedbackResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_product_feedback_api_v1_products__product_id__feedback_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_shopper_ranking_preferences_api_v1_shopper_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperRankingPreferencesResponse"];
+                };
+            };
+        };
+    };
+    update_shopper_ranking_preferences_api_v1_shopper_preferences_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShopperRankingPreferencesUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopperRankingPreferencesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_ranking_api_v1_ranking_preview_post: {
+        parameters: {
+            query?: {
+                shopper_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RankingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankedProductsResponse"];
                 };
             };
             /** @description Validation Error */

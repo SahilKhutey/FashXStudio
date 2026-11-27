@@ -6549,6 +6549,355 @@
         }
       }
     },
+    "/api/v1/ranking/products": {
+      "post": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Rank Products",
+        "description": "Return personalized (or baseline) ranked eligible products for the authenticated shopper.",
+        "operationId": "rank_products_api_v1_ranking_products_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankedProductsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ranking/config": {
+      "get": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Get Ranking Configuration",
+        "description": "Read active versioned ranking configuration and weights.",
+        "operationId": "get_ranking_configuration_api_v1_ranking_config_get",
+        "parameters": [
+          {
+            "name": "ranking_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "personalized-v1",
+              "title": "Ranking Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankingConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products/{product_id}/feedback": {
+      "post": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Submit Product Feedback",
+        "description": "Submit explicit product feedback for the authenticated shopper.",
+        "operationId": "submit_product_feedback_api_v1_products__product_id__feedback_post",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductFeedbackCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductFeedbackResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Get Product Feedback",
+        "description": "Retrieve explicit feedback submitted by the authenticated shopper for a product.",
+        "operationId": "get_product_feedback_api_v1_products__product_id__feedback_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductFeedbackResponse"
+                  },
+                  "title": "Response Get Product Feedback Api V1 Products  Product Id  Feedback Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Delete Product Feedback",
+        "description": "Withdraw explicit product feedback for the authenticated shopper.",
+        "operationId": "delete_product_feedback_api_v1_products__product_id__feedback_delete",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Delete Product Feedback Api V1 Products  Product Id  Feedback Delete"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shopper/preferences": {
+      "get": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Get Shopper Ranking Preferences",
+        "description": "Retrieve the authenticated shopper's ranking preferences.",
+        "operationId": "get_shopper_ranking_preferences_api_v1_shopper_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopperRankingPreferencesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Update Shopper Ranking Preferences",
+        "description": "Update the authenticated shopper's ranking preferences and invalidate cache.",
+        "operationId": "update_shopper_ranking_preferences_api_v1_shopper_preferences_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopperRankingPreferencesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopperRankingPreferencesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ranking/preview": {
+      "post": {
+        "tags": [
+          "ranking-admin"
+        ],
+        "summary": "Preview Ranking",
+        "description": "Internal/admin preview endpoint for inspecting ranking behaviour.",
+        "operationId": "preview_ranking_api_v1_ranking_preview_post",
+        "parameters": [
+          {
+            "name": "shopper_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shopper Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankedProductsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/feed/signals": {
       "post": {
         "tags": [
@@ -19144,21 +19493,6 @@
         ],
         "title": "AuthorizationDecisionResponse"
       },
-      "AvailabilityStatus": {
-        "type": "string",
-        "enum": [
-          "IN_STOCK",
-          "LOW_STOCK",
-          "OUT_OF_STOCK",
-          "UNKNOWN",
-          "DISCONTINUED",
-          "DELISTED",
-          "TAKEDOWN",
-          "PREORDER"
-        ],
-        "title": "AvailabilityStatus",
-        "description": "Inventory and purchasable availability state for a product variant."
-      },
       "BatchSessionEventsRequest": {
         "properties": {
           "events": {
@@ -24975,7 +25309,7 @@
       "FeedbackEventContract": {
         "properties": {
           "feedback_type": {
-            "$ref": "#/components/schemas/FeedbackType"
+            "$ref": "#/components/schemas/schemas__visual__interaction__FeedbackType"
           },
           "title": {
             "type": "string",
@@ -25045,18 +25379,16 @@
         "title": "FeedbackReviewStatus",
         "description": "Triage and human-review status for shopper fit feedback."
       },
-      "FeedbackType": {
+      "FeedbackType-Input": {
         "type": "string",
         "enum": [
-          "toast",
-          "inline_alert",
-          "banner",
-          "dialog",
-          "status_badge",
-          "screen_announcement"
+          "LIKE",
+          "DISLIKE",
+          "SAVE",
+          "REMOVE_SAVED",
+          "NOT_INTERESTED"
         ],
-        "title": "FeedbackType",
-        "description": "Global feedback mechanisms based on disruption hierarchy (Section 15.68 & 15.69)."
+        "title": "FeedbackType"
       },
       "FilterAdaptationType": {
         "type": "string",
@@ -31755,6 +32087,14 @@
         "title": "PostAIMessageRequestContract",
         "description": "Payload to post a message into an AI session."
       },
+      "PreferencePolarity": {
+        "type": "string",
+        "enum": [
+          "LIKE",
+          "DISLIKE"
+        ],
+        "title": "PreferencePolarity"
+      },
       "PreferenceRequest": {
         "properties": {
           "scope": {
@@ -32786,6 +33126,56 @@
         "type": "object",
         "title": "ProductFashionClassificationRequest"
       },
+      "ProductFeedbackCreate": {
+        "properties": {
+          "feedback_type": {
+            "$ref": "#/components/schemas/FeedbackType-Input"
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Source",
+            "default": "api"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feedback_type"
+        ],
+        "title": "ProductFeedbackCreate",
+        "description": "Explicit shopper product feedback payload."
+      },
+      "ProductFeedbackResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "feedback_type": {
+            "$ref": "#/components/schemas/fashx__ranking__enums__FeedbackType"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "feedback_type",
+          "is_active",
+          "created_at"
+        ],
+        "title": "ProductFeedbackResponse",
+        "description": "Persisted shopper product feedback state."
+      },
       "ProductGalleryContract": {
         "properties": {
           "items": {
@@ -33274,7 +33664,7 @@
             "title": "Merchant Product Id"
           },
           "overall_status": {
-            "$ref": "#/components/schemas/AvailabilityStatus",
+            "$ref": "#/components/schemas/fashx__catalog__size_charts__enums__AvailabilityStatus",
             "default": "UNKNOWN"
           },
           "variants": {
@@ -33980,6 +34370,396 @@
         "type": "object",
         "title": "RadiusScale",
         "description": "Border radius scale (Section 2.18)."
+      },
+      "RankedProductItem": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "merchant_offer_id": {
+            "type": "string",
+            "title": "Merchant Offer Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "category_id": {
+            "type": "string",
+            "title": "Category Id"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "ranking_score": {
+            "type": "number",
+            "title": "Ranking Score"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/fashx__ranking__enums__AvailabilityStatus"
+          },
+          "size_availability": {
+            "$ref": "#/components/schemas/SizeAvailability"
+          },
+          "selected_size_available": {
+            "type": "boolean",
+            "title": "Selected Size Available"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/RankingReasonCode"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "reason_labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Labels"
+          },
+          "is_sponsored": {
+            "type": "boolean",
+            "title": "Is Sponsored",
+            "default": false
+          },
+          "availability_verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Verified At"
+          },
+          "ranking_version": {
+            "type": "string",
+            "title": "Ranking Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "merchant_offer_id",
+          "title",
+          "category_id",
+          "position",
+          "ranking_score",
+          "availability",
+          "size_availability",
+          "selected_size_available",
+          "reasons",
+          "reason_labels",
+          "ranking_version"
+        ],
+        "title": "RankedProductItem",
+        "description": "Shopper-facing ranked product item without exposing private profile data."
+      },
+      "RankedProductsResponse": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "ranking_version": {
+            "type": "string",
+            "title": "Ranking Version"
+          },
+          "config_version": {
+            "type": "string",
+            "title": "Config Version"
+          },
+          "taxonomy_version": {
+            "type": "string",
+            "title": "Taxonomy Version"
+          },
+          "cache_hit": {
+            "type": "boolean",
+            "title": "Cache Hit",
+            "default": false
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/RankedProductItem"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/RankingPagination"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "ranking_version",
+          "config_version",
+          "taxonomy_version",
+          "results",
+          "pagination"
+        ],
+        "title": "RankedProductsResponse",
+        "description": "Versioned personalized or baseline ranking API response."
+      },
+      "RankingConfigResponse": {
+        "properties": {
+          "ranking_version": {
+            "type": "string",
+            "title": "Ranking Version"
+          },
+          "config_version": {
+            "type": "string",
+            "title": "Config Version"
+          },
+          "taxonomy_version": {
+            "type": "string",
+            "title": "Taxonomy Version"
+          },
+          "supported_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Versions"
+          },
+          "weights": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Weights"
+          },
+          "max_availability_age_seconds": {
+            "type": "integer",
+            "title": "Max Availability Age Seconds"
+          },
+          "cache_ttl_seconds": {
+            "type": "integer",
+            "title": "Cache Ttl Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ranking_version",
+          "config_version",
+          "taxonomy_version",
+          "supported_versions",
+          "weights",
+          "max_availability_age_seconds",
+          "cache_ttl_seconds"
+        ],
+        "title": "RankingConfigResponse",
+        "description": "Publicly inspectable ranking configuration metadata."
+      },
+      "RankingContext": {
+        "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query"
+          },
+          "category_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Id"
+          },
+          "selected_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Size"
+          },
+          "min_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Price"
+          },
+          "max_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Price"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "INR"
+          },
+          "reference_image_asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Image Asset Id"
+          },
+          "reference_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Product Id"
+          },
+          "require_selected_size": {
+            "type": "boolean",
+            "title": "Require Selected Size",
+            "default": false
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Page Size",
+            "default": 20
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RankingContext",
+        "description": "Search and filter context supplied by the shopper."
+      },
+      "RankingPagination": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total_eligible": {
+            "type": "integer",
+            "title": "Total Eligible"
+          },
+          "has_more": {
+            "type": "boolean",
+            "title": "Has More"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "page_size",
+          "total_eligible",
+          "has_more"
+        ],
+        "title": "RankingPagination"
+      },
+      "RankingReasonCode": {
+        "type": "string",
+        "enum": [
+          "CATEGORY_MATCH",
+          "STYLE_MATCH",
+          "COLOR_MATCH",
+          "PRICE_MATCH",
+          "SIZE_AVAILABLE",
+          "VISUAL_SIMILARITY",
+          "FEEDBACK_MATCH",
+          "QUALITY_VALIDATED"
+        ],
+        "title": "RankingReasonCode"
+      },
+      "RankingRequest": {
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/RankingContext"
+          },
+          "ranking_version": {
+            "type": "string",
+            "title": "Ranking Version",
+            "default": "personalized-v1"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context"
+        ],
+        "title": "RankingRequest",
+        "description": "Authenticated ranking request; shopper identity comes strictly from auth context."
       },
       "RatingSpecContract": {
         "properties": {
@@ -38346,6 +39126,190 @@
         "type": "object",
         "title": "ShopperProfileUpdate"
       },
+      "ShopperRankingPreferencesResponse": {
+        "properties": {
+          "style_preferences": {
+            "items": {
+              "$ref": "#/components/schemas/StylePreferenceEntry"
+            },
+            "type": "array",
+            "title": "Style Preferences"
+          },
+          "preferred_colors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Colors"
+          },
+          "disliked_colors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disliked Colors"
+          },
+          "preferred_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Preferred Categories"
+          },
+          "budget_min": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Min"
+          },
+          "budget_max": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Max"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "required": [
+          "style_preferences",
+          "preferred_colors",
+          "disliked_colors",
+          "preferred_categories"
+        ],
+        "title": "ShopperRankingPreferencesResponse",
+        "description": "Persisted ranking preferences for the authenticated shopper."
+      },
+      "ShopperRankingPreferencesUpdate": {
+        "properties": {
+          "style_preferences": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/StylePreferenceEntry"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Preferences"
+          },
+          "preferred_colors": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Colors"
+          },
+          "disliked_colors": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disliked Colors"
+          },
+          "preferred_categories": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Categories"
+          },
+          "budget_min": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Min"
+          },
+          "budget_max": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Max"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ShopperRankingPreferencesUpdate",
+        "description": "Shopper-editable style, color, category, and budget ranking preferences."
+      },
       "ShoppingBudget": {
         "properties": {
           "currency": {
@@ -38605,6 +39569,16 @@
           "url"
         ],
         "title": "SignedImageResponse"
+      },
+      "SizeAvailability": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "UNAVAILABLE",
+          "UNKNOWN",
+          "NOT_APPLICABLE"
+        ],
+        "title": "SizeAvailability"
       },
       "SizeChartRevisionCreate": {
         "properties": {
@@ -40740,6 +41714,34 @@
         ],
         "title": "StylePreferenceContract",
         "description": "User aesthetic preference settings (Section 10.33, 10.34)."
+      },
+      "StylePreferenceEntry": {
+        "properties": {
+          "style_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Style Id"
+          },
+          "preference": {
+            "$ref": "#/components/schemas/PreferencePolarity"
+          },
+          "strength": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Strength",
+            "default": 1.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "style_id",
+          "preference"
+        ],
+        "title": "StylePreferenceEntry",
+        "description": "Explicit shopper style preference entry."
       },
       "StylePreferencesTemplateSpecContract": {
         "properties": {
@@ -43871,7 +44873,7 @@
             "title": "Sku"
           },
           "status": {
-            "$ref": "#/components/schemas/AvailabilityStatus",
+            "$ref": "#/components/schemas/fashx__catalog__size_charts__enums__AvailabilityStatus",
             "default": "UNKNOWN"
           },
           "is_stale": {
@@ -44660,6 +45662,21 @@
         ],
         "title": "SyncMode"
       },
+      "fashx__catalog__size_charts__enums__AvailabilityStatus": {
+        "type": "string",
+        "enum": [
+          "IN_STOCK",
+          "LOW_STOCK",
+          "OUT_OF_STOCK",
+          "UNKNOWN",
+          "DISCONTINUED",
+          "DELISTED",
+          "TAKEDOWN",
+          "PREORDER"
+        ],
+        "title": "AvailabilityStatus",
+        "description": "Inventory and purchasable availability state for a product variant."
+      },
       "fashx__catalog__size_charts__enums__MeasurementBasis": {
         "type": "string",
         "enum": [
@@ -44873,6 +45890,30 @@
         ],
         "title": "FitPreference"
       },
+      "fashx__ranking__enums__AvailabilityStatus": {
+        "type": "string",
+        "enum": [
+          "IN_STOCK",
+          "OUT_OF_STOCK",
+          "UNKNOWN",
+          "DISCONTINUED",
+          "DELISTED",
+          "TAKEDOWN",
+          "STALE"
+        ],
+        "title": "AvailabilityStatus"
+      },
+      "fashx__ranking__enums__FeedbackType": {
+        "type": "string",
+        "enum": [
+          "LIKE",
+          "DISLIKE",
+          "SAVE",
+          "REMOVE_SAVED",
+          "NOT_INTERESTED"
+        ],
+        "title": "FeedbackType"
+      },
       "schemas__visual__detail__BreadcrumbItemContract": {
         "properties": {
           "label": {
@@ -44970,6 +46011,19 @@
         ],
         "title": "SearchResultsTemplateSpecContract",
         "description": "S03 - S07, S10: Search results template spec (Section 8.21)."
+      },
+      "schemas__visual__interaction__FeedbackType": {
+        "type": "string",
+        "enum": [
+          "toast",
+          "inline_alert",
+          "banner",
+          "dialog",
+          "status_badge",
+          "screen_announcement"
+        ],
+        "title": "FeedbackType",
+        "description": "Global feedback mechanisms based on disruption hierarchy (Section 15.68 & 15.69)."
       },
       "schemas__visual__personal__SavedLookContract": {
         "properties": {
