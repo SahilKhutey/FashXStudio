@@ -193,11 +193,14 @@ def test_revoke_leaves_zero_biometric_residue(db, tmp_path):
 
     asyncio.run(erase_biometrics(DirectUoW(db), user_id, storage=storage))
 
+    from fashx.application.erasure import USER_ID_COLUMN_OVERRIDES
+
     # All storage keys for user wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
     for t in BIOMETRIC_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0
 
@@ -461,17 +464,21 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     # Storage prefix is wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
 
+    from fashx.application.erasure import USER_ID_COLUMN_OVERRIDES
+
     # All biometric tables are empty for user
     for t in BIOMETRIC_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in biometric table {t}"
 
     # All account tables are empty for user
     for t in ACCOUNT_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in account table {t}"
 

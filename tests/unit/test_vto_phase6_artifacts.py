@@ -371,7 +371,7 @@ async def test_phase6_corrupt_provider_image_fails_without_artifact(
 
     res = await proc_uc.execute(job_id)
     assert res.status == "failed"
-    assert res.failure_reason == "quality_rejected"
+    assert res.failure_reason == "output_validation_failed"
 
     async with TryOnUnitOfWork(session_factory) as uow:
         artifact = await uow.artifacts.get_by_job_id(job_id)
