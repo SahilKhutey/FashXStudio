@@ -16,15 +16,22 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, UUIDPrimaryKeyMixin
+
+JSONBType = JSON().with_variant(JSONB(), "postgresql")
 
 
 class TryOnJob(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_jobs"
     __table_args__ = (
         Index("ix_tryon_jobs_user_id", "user_id", "created_at"),
+        Index("ix_tryon_jobs_status_created", "status", "created_at"),
+        Index("ix_tryon_jobs_prov_job", "provider", "provider_job_id"),
+        Index("ix_tryon_jobs_recovery", "status", "next_retry_at", "lease_expires_at"),
+        Index("ix_tryon_jobs_stale", "status", "heartbeat_at"),
         UniqueConstraint("user_id", "idempotency_key", name="uq_tryon_user_idempotency"),
         UniqueConstraint("artifact_key", name="uq_tryon_jobs_artifact_key"),
     )
@@ -164,7 +171,7 @@ class TryOnInputValidation(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     role: Mapped[str] = mapped_column(String(16), nullable=False)
     asset_id: Mapped[UUID] = mapped_column(nullable=False)
@@ -173,9 +180,9 @@ class TryOnInputValidation(Base, UUIDPrimaryKeyMixin):
     normalized_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
     policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    technical_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
-    visual_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
-    issues: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    technical_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
+    visual_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
+    issues: Mapped[list] = mapped_column(JSONBType, default=list, nullable=False)
     validated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -192,7 +199,7 @@ class TryOnInputAuthorizationSnapshot(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     authorization_type: Mapped[str] = mapped_column(String(32), nullable=False)
     subject_id: Mapped[UUID] = mapped_column(nullable=False)
@@ -221,7 +228,7 @@ class TryOnProviderAttempt(Base, UUIDPrimaryKeyMixin):
     )
 
     job_id: Mapped[UUID] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False, index=True
+        ForeignKey("tryon_jobs.id", ondelete="CASCADE"), nullable=False
     )
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -256,7 +263,7 @@ class TryOnJobEvent(Base, UUIDPrimaryKeyMixin):
     actor_type: Mapped[str] = mapped_column(String(32), nullable=False)
     worker_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     attempt_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    metadata_json: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    metadata_json: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -268,7 +275,6 @@ class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
     __tablename__ = "tryon_dead_letters"
     __table_args__ = (
         Index("ix_tryon_dead_letters_status_created", "status", "created_at"),
-        Index("ix_tryon_dead_letters_job", "job_id"),
     )
 
     job_id: Mapped[UUID | None] = mapped_column(
@@ -280,7 +286,7 @@ class TryOnDeadLetter(Base, UUIDPrimaryKeyMixin):
     error_summary: Mapped[str] = mapped_column(String(500), nullable=False)
     attempt_number: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     original_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    payload_reference: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    payload_reference: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     status: Mapped[str] = mapped_column(String(32), default="OPEN", nullable=False, index=True)
     resolution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     resolved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -360,11 +366,11 @@ class TryOnProviderUsage(Base, UUIDPrimaryKeyMixin):
     )
 
     tryon_job_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True
     )
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
     provider_model: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    provider_request_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     operation: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     units_consumed: Mapped[Decimal] = mapped_column(
@@ -379,7 +385,7 @@ class TryOnProviderUsage(Base, UUIDPrimaryKeyMixin):
     currency: Mapped[str] = mapped_column(String(8), default="USD", nullable=False)
     latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    raw_usage_metadata: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    raw_usage_metadata: Mapped[dict] = mapped_column(JSONBType, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -525,7 +531,7 @@ class TryOnEvaluationItem(Base, UUIDPrimaryKeyMixin):
     )
     pair_id: Mapped[str] = mapped_column(String(100), nullable=False)
     tryon_job_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True, index=True
+        ForeignKey("tryon_jobs.id", ondelete="SET NULL"), nullable=True
     )
     input_validation_status: Mapped[str] = mapped_column(String(32), nullable=False)
     job_status: Mapped[str] = mapped_column(String(32), nullable=False)
@@ -600,7 +606,7 @@ class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
     mean_non_misleading: Mapped[float] = mapped_column(Float, nullable=False)
     reviewer_rejection_rate: Mapped[float] = mapped_column(Float, nullable=False)
     critical_misleading_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    gate_failures: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    gate_failures: Mapped[list] = mapped_column(JSONBType, default=list, nullable=False)
     approved_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -609,29 +615,56 @@ class TryOnEvaluationCategoryGate(Base, UUIDPrimaryKeyMixin):
 
 
 class FitRecommendation(Base, UUIDPrimaryKeyMixin):
-    """Evidence-backed size recommendation record separate from visual try-on (Phase 07.8)."""
+    """Evidence-backed size recommendation record separate from visual try-on (Phase 07.8 + 08.3)."""
 
     __tablename__ = "fit_recommendations"
     __table_args__ = (
         Index("ix_fit_recommendations_user", "user_id"),
         Index("ix_fit_recommendations_product", "product_id"),
         Index("ix_fit_recommendations_created", "created_at"),
+        Index("ix_fit_recommendations_offer", "merchant_offer_id"),
+        Index("ix_fit_recommendations_chart", "size_chart_id"),
+        Index("ix_fit_recommendations_valid", "user_id", "is_valid"),
     )
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     product_id: Mapped[UUID] = mapped_column(
         ForeignKey("canonical_garments.id", ondelete="CASCADE"), nullable=False
     )
+    merchant_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchants.id", ondelete="SET NULL"), nullable=True
+    )
+    merchant_product_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("merchant_products.id", ondelete="SET NULL"), nullable=True
+    )
     merchant_offer_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("merchant_offers.id", ondelete="SET NULL"), nullable=True
     )
-    outcome: Mapped[str] = mapped_column(String(32), nullable=False)
-    recommended_size: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    variant_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    size_chart_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("product_size_charts.id", ondelete="SET NULL"), nullable=True
+    )
+    size_chart_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    shopper_measurement_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    category_policy_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    fit_algorithm_version: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    fit_preference_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_permission_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    outcome: Mapped[str] = mapped_column(String(40), nullable=False)
+    recommendation_status: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    recommended_size: Mapped[str | None] = mapped_column(String(64), nullable=True)
     alternative_sizes: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     explanation_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    reason_codes_json: Mapped[list[str]] = mapped_column(
+        JSON, default=list, server_default="[]", nullable=False
+    )
     evidence_json: Mapped[list[dict]] = mapped_column(JSON, default=list, nullable=False)
     fit_model_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    internal_confidence_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 3), nullable=True)
     is_valid: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    invalidation_reason: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    invalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

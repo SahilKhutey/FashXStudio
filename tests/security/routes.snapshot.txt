@@ -1,5 +1,8 @@
 DELETE /api/v1/me
 DELETE /api/v1/media/{image_id}
+DELETE /api/v1/profile/fit
+DELETE /api/v1/profile/fit/measurements/{field}
+DELETE /api/v1/profile/fit/preferences/{category}
 DELETE /api/v1/profile/{user_id}/photos/{photo_id}
 DELETE /api/v1/visual/personal/saved/{item_type}/{item_id}
 DELETE /api/v1/visual/styling/builder/{outfit_id}/slot/{slot_id}
@@ -58,6 +61,8 @@ GET /api/v1/features/runtime
 GET /api/v1/features/{feature_id}
 GET /api/v1/feed
 GET /api/v1/feedback/brands/{brand_id}/calibration
+GET /api/v1/fit/recommendations/{recommendation_id}
+GET /api/v1/fit/recommendations/{recommendation_id}/feedback
 GET /api/v1/garments/{garment_id}
 GET /api/v1/layouts
 GET /api/v1/layouts/{layout_id}
@@ -76,7 +81,16 @@ GET /api/v1/merchant/sources/{source_id}/schedule
 GET /api/v1/merchant/sources/{source_id}/status
 GET /api/v1/onboarding/style-quiz
 GET /api/v1/pilot/surveys/pending
+GET /api/v1/products/{product_id}/availability
+GET /api/v1/products/{product_id}/size-chart
+GET /api/v1/products/{product_id}/size-chart/revisions
+GET /api/v1/products/{product_id}/variants
 GET /api/v1/profile/consents
+GET /api/v1/profile/fit
+GET /api/v1/profile/fit/consents
+GET /api/v1/profile/fit/definitions
+GET /api/v1/profile/fit/measurements/history
+GET /api/v1/profile/fit/policies/{category}
 GET /api/v1/profile/me
 GET /api/v1/profile/me/category-sizes
 GET /api/v1/profile/me/completeness
@@ -87,6 +101,7 @@ GET /api/v1/search/facets
 GET /api/v1/search/products
 GET /api/v1/search/sessions/{session_id}
 GET /api/v1/search/suggestions
+GET /api/v1/size-systems
 GET /api/v1/system/health
 GET /api/v1/system/health/live
 GET /api/v1/system/health/ready
@@ -100,6 +115,7 @@ GET /api/v1/tryon/artifacts/{artifact_key}
 GET /api/v1/tryon/jobs
 GET /api/v1/tryon/jobs/{job_id}
 GET /api/v1/tryon/jobs/{job_id}/result
+GET /api/v1/tryon/presentation-policy
 GET /api/v1/visual/ai/assistant
 GET /api/v1/visual/ai/explanation/{result_id}
 GET /api/v1/visual/ai/home
@@ -211,6 +227,7 @@ GET /healthz/ready
 GET /pilot/surveys/pending
 PATCH /api/v1/customers/{customer_id}
 PATCH /api/v1/merchant/sources/{source_id}/operational-status
+PATCH /api/v1/profile/fit/measurements/{field}
 PATCH /api/v1/profile/me
 POST /api/v1/account/deletion-request
 POST /api/v1/account/disable
@@ -263,6 +280,8 @@ POST /api/v1/fashion/taxonomy
 POST /api/v1/feed/signals
 POST /api/v1/feedback/fit
 POST /api/v1/feedback/tryon
+POST /api/v1/fit/recommendations
+POST /api/v1/fit/recommendations/{recommendation_id}/feedback
 POST /api/v1/media/uploads
 POST /api/v1/media/uploads/{upload_id}/complete
 POST /api/v1/media/{image_id}/access-url
@@ -281,6 +300,9 @@ POST /api/v1/pilot/survey
 POST /api/v1/pricing/calculate
 POST /api/v1/pricing/prices
 POST /api/v1/pricing/rules
+POST /api/v1/products/{product_id}/size-chart
+POST /api/v1/profile/fit/measurements
+POST /api/v1/profile/fit/measurements/{field}/confirm
 POST /api/v1/profile/measurements
 POST /api/v1/profile/users
 POST /api/v1/profile/{user_id}/consent
@@ -335,6 +357,9 @@ PUT /api/v1/me/consents/{data_type}
 PUT /api/v1/menus/{menu_id}/customization
 PUT /api/v1/merchant/sources/{source_id}/schedule
 PUT /api/v1/profile/consents/{data_type}
+PUT /api/v1/profile/fit/consents/{purpose}
+PUT /api/v1/profile/fit/preferences
+PUT /api/v1/profile/fit/preferences/{category}
 PUT /api/v1/profile/me
 PUT /api/v1/profile/me/category-sizes
 PUT /api/v1/profile/preferences

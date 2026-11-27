@@ -252,10 +252,10 @@ async def test_worker_requeues_on_retryable_error(uow_context, tmp_path):
         model_version = "tryon-v1.6"
 
         def submit(self, req):
-            raise TryOnError("provider_unavailable", "Busy", retryable=True)
+            return "prov-job-retry"
 
         def collect(self, pid, *, deadline_s):
-            pass
+            raise TryOnError("provider_unavailable", "Busy", retryable=True)
 
     use_case = ProcessTryOnJobUseCase(
         tryon_uow=uow_context,

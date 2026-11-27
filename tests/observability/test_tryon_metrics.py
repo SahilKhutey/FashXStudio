@@ -26,6 +26,7 @@ def test_fashn_api_metrics_submit_and_succeed(monkeypatch):
         return {}
 
     monkeypatch.setattr("fashx.infrastructure.tryon.fashn_api.emit_metric", mock_emit_metric)
+    monkeypatch.setattr("fashx.infrastructure.tryon.fashn_errors.emit_metric", mock_emit_metric)
 
     mock_http = MagicMock()
     mock_http.post.return_value = httpx.Response(200, json={"id": "fashn-job-123"})
@@ -71,6 +72,7 @@ def test_fashn_api_metrics_timeout(monkeypatch):
         return {}
 
     monkeypatch.setattr("fashx.infrastructure.tryon.fashn_api.emit_metric", mock_emit_metric)
+    monkeypatch.setattr("fashx.infrastructure.tryon.fashn_errors.emit_metric", mock_emit_metric)
 
     mock_http = MagicMock()
     mock_http.get.return_value = httpx.Response(200, json={"status": "in_queue"})
@@ -96,6 +98,7 @@ def test_fashn_api_metrics_rate_limit_and_auth_failure(monkeypatch):
         return {}
 
     monkeypatch.setattr("fashx.infrastructure.tryon.fashn_api.emit_metric", mock_emit_metric)
+    monkeypatch.setattr("fashx.infrastructure.tryon.fashn_errors.emit_metric", mock_emit_metric)
 
     adapter = FashnApiAdapter(
         api_key="fa_test_key",

@@ -13,17 +13,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate AWS Build Role
+        id: check-role
+        run: |
+          ROLE="${{ vars.AWS_BUILD_ROLE_ARN }}"
+          if [ -z "$ROLE" ]; then
+            echo "Notice: vars.AWS_BUILD_ROLE_ARN is not configured. Skipping release image build until AWS infrastructure is provisioned."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Configure AWS credentials
+        if: steps.check-role.outputs.configured == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_BUILD_ROLE_ARN }}
           aws-region: ap-south-1
       - name: Login to ECR
+        if: steps.check-role.outputs.configured == 'true'
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Set up Docker Buildx
+        if: steps.check-role.outputs.configured == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Build and push immutable image
+        if: steps.check-role.outputs.configured == 'true'
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           IMAGE_TAG: sha-${{ github.sha }}

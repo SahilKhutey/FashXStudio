@@ -651,6 +651,188 @@
         }
       }
     },
+    "/api/v1/fit/recommendations": {
+      "post": {
+        "tags": [
+          "fit-recommendations"
+        ],
+        "summary": "Evaluate Fit Recommendation",
+        "description": "Evaluate product size guidance exclusively from server-resolved profile and chart evidence.",
+        "operationId": "evaluate_fit_recommendation_api_v1_fit_recommendations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FitRecommendationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FitRecommendationResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fit/recommendations/{recommendation_id}": {
+      "get": {
+        "tags": [
+          "fit-recommendations"
+        ],
+        "summary": "Get Fit Recommendation",
+        "description": "Retrieve a stored fit recommendation snapshot for the authenticated owner.",
+        "operationId": "get_fit_recommendation_api_v1_fit_recommendations__recommendation_id__get",
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Recommendation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FitRecommendationResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/fit/recommendations/{recommendation_id}/feedback": {
+      "post": {
+        "tags": [
+          "fit-recommendations"
+        ],
+        "summary": "Submit Fit Feedback",
+        "description": "Submit shopper fit feedback linked strictly to an owned recommendation snapshot.",
+        "operationId": "submit_fit_feedback_api_v1_fit_recommendations__recommendation_id__feedback_post",
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Recommendation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FitFeedbackCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/fashx__fit__contracts__FitFeedbackResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "fit-recommendations"
+        ],
+        "summary": "Get Fit Feedback",
+        "description": "Retrieve the authenticated shopper's submitted feedback for a recommendation.",
+        "operationId": "get_fit_feedback_api_v1_fit_recommendations__recommendation_id__feedback_get",
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Recommendation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/fashx__fit__contracts__FitFeedbackResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/profile/fit": {
       "get": {
         "tags": [
@@ -7143,7 +7325,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FitFeedbackResponse"
+                  "$ref": "#/components/schemas/fashx__commerce_wardrobe__router__FitFeedbackResponse"
                 }
               }
             }
@@ -20170,7 +20352,7 @@
             "title": "Category"
           },
           "fit_preference": {
-            "$ref": "#/components/schemas/FitPreference"
+            "$ref": "#/components/schemas/fashx__profile__fit_schemas__FitPreference"
           },
           "updated_at": {
             "anyOf": [
@@ -20197,7 +20379,7 @@
       "CategoryPreferenceUpdateRequest": {
         "properties": {
           "fit_preference": {
-            "$ref": "#/components/schemas/FitPreference"
+            "$ref": "#/components/schemas/FitPreference-Input"
           }
         },
         "additionalProperties": false,
@@ -20835,6 +21017,40 @@
         ],
         "title": "ComprehensiveProductDetailTemplateSpecContract",
         "description": "P02: Product Detail screen template specification (Sections 9.4, 9.5, 9.60)."
+      },
+      "ConfidenceSummary": {
+        "properties": {
+          "score": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Score"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ConfidenceType",
+            "default": "INTERNAL_EVIDENCE_SCORE"
+          },
+          "display_to_shopper": {
+            "type": "boolean",
+            "title": "Display To Shopper",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "score"
+        ],
+        "title": "ConfidenceSummary",
+        "description": "Internal evidence score \u2014 display_to_shopper remains False until calibrated."
+      },
+      "ConfidenceType": {
+        "type": "string",
+        "enum": [
+          "INTERNAL_EVIDENCE_SCORE",
+          "CALIBRATED_PROBABILITY"
+        ],
+        "title": "ConfidenceType",
+        "description": "Distinguishes internal evidence completeness scores from calibrated probabilities."
       },
       "ConfigResponse": {
         "properties": {
@@ -24818,6 +25034,17 @@
         "title": "FeedbackEventContract",
         "description": "Resolved feedback event with delivery mechanism and a11y live level (Section 15.68 - 15.70)."
       },
+      "FeedbackReviewStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_REVIEW",
+          "UNVERIFIED",
+          "CLASSIFIED",
+          "DISMISSED"
+        ],
+        "title": "FeedbackReviewStatus",
+        "description": "Triage and human-review status for shopper fit feedback."
+      },
       "FeedbackType": {
         "type": "string",
         "enum": [
@@ -25011,6 +25238,276 @@
         "title": "FitConsentUpdateRequest",
         "description": "Grant or withdraw purpose-specific fit profile consent."
       },
+      "FitEvidenceItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "status"
+        ],
+        "title": "FitEvidenceItem",
+        "description": "Single item in the transparent 'Evidence used' breakdown shown to the shopper."
+      },
+      "FitEvidenceSummary": {
+        "properties": {
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "merchant_product_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Product Id"
+          },
+          "merchant_offer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Offer Id"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "size_chart_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Chart Id"
+          },
+          "size_chart_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Chart Revision"
+          },
+          "size_system_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size System Code"
+          },
+          "measurement_basis": {
+            "$ref": "#/components/schemas/fashx__fit__enums__MeasurementBasis",
+            "default": "UNKNOWN"
+          },
+          "shopper_measurement_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shopper Measurement Revision"
+          },
+          "category_policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Policy Version"
+          },
+          "fit_algorithm_version": {
+            "type": "string",
+            "title": "Fit Algorithm Version",
+            "default": "08.3.1"
+          },
+          "fit_preference_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fit Preference Revision"
+          },
+          "fit_preference_applied": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/fashx__fit__enums__FitPreference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preference_evaluated": {
+            "type": "boolean",
+            "title": "Preference Evaluated",
+            "default": false
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "source_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Revision"
+          },
+          "source_permission_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Permission Revision"
+          },
+          "taxonomy_version": {
+            "type": "string",
+            "title": "Taxonomy Version",
+            "default": "1.0"
+          },
+          "evidence_items": {
+            "items": {
+              "$ref": "#/components/schemas/FitEvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "FitEvidenceSummary",
+        "description": "Full audit & provenance envelope attached to every recommendation snapshot."
+      },
+      "FitFeedbackCreateRequest": {
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/FitFeedbackReason"
+          },
+          "purchase_status": {
+            "$ref": "#/components/schemas/PurchaseStatus",
+            "default": "UNKNOWN"
+          },
+          "tried_on": {
+            "type": "boolean",
+            "title": "Tried On",
+            "default": false
+          },
+          "kept_item": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kept Item"
+          },
+          "selected_different_size": {
+            "type": "boolean",
+            "title": "Selected Different Size",
+            "default": false
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "FitFeedbackCreateRequest",
+        "description": "Shopper feedback submission \u2014 backend derives product, merchant, and chart revisions."
+      },
+      "FitFeedbackReason": {
+        "type": "string",
+        "enum": [
+          "SIZE_TOO_SMALL",
+          "SIZE_TOO_LARGE",
+          "FIT_TOO_TIGHT",
+          "FIT_TOO_LOOSE",
+          "LENGTH_TOO_SHORT",
+          "LENGTH_TOO_LONG",
+          "SIZE_CHART_INACCURATE",
+          "RECOMMENDATION_UNHELPFUL",
+          "OTHER"
+        ],
+        "title": "FitFeedbackReason",
+        "description": "Structured shopper feedback options for fit guidance."
+      },
       "FitFeedbackRequest": {
         "properties": {
           "user_id": {
@@ -25074,53 +25571,7 @@
         ],
         "title": "FitFeedbackRequest"
       },
-      "FitFeedbackResponse": {
-        "properties": {
-          "feedback_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Feedback Id"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
-          "brand_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Brand Id"
-          },
-          "verdict": {
-            "type": "string",
-            "title": "Verdict"
-          },
-          "brand_bias_score": {
-            "type": "number",
-            "title": "Brand Bias Score"
-          },
-          "brand_recommendation": {
-            "type": "string",
-            "title": "Brand Recommendation"
-          },
-          "total_observations": {
-            "type": "integer",
-            "title": "Total Observations"
-          }
-        },
-        "type": "object",
-        "required": [
-          "feedback_id",
-          "user_id",
-          "brand_id",
-          "verdict",
-          "brand_bias_score",
-          "brand_recommendation",
-          "total_observations"
-        ],
-        "title": "FitFeedbackResponse"
-      },
-      "FitPreference": {
+      "FitPreference-Input": {
         "type": "string",
         "enum": [
           "SLIM",
@@ -25151,7 +25602,7 @@
             "default": "CM"
           },
           "default_fit_preference": {
-            "$ref": "#/components/schemas/FitPreference",
+            "$ref": "#/components/schemas/fashx__profile__fit_schemas__FitPreference",
             "default": "NO_PREFERENCE"
           },
           "preference_updated_at": {
@@ -25207,6 +25658,231 @@
         ],
         "title": "FitProfileResponse",
         "description": "Shopper-controlled fit profile response."
+      },
+      "FitReasonCode": {
+        "type": "string",
+        "enum": [
+          "WITHIN_PUBLISHED_RANGE",
+          "ALL_REQUIRED_MEASUREMENTS_MATCH",
+          "MULTIPLE_SIZES_MATCH",
+          "MISSING_REQUIRED_MEASUREMENT",
+          "NO_MERCHANT_CHART",
+          "CHART_BASIS_UNSUPPORTED",
+          "PREFERENCE_NOT_EVALUATED",
+          "CATEGORY_NOT_VALIDATED",
+          "NO_MATCHING_SIZE",
+          "STALE_CHART",
+          "STALE_SHOPPER_MEASUREMENT",
+          "CHART_CONFLICT",
+          "PERMISSION_INVALID",
+          "VARIANT_UNAVAILABLE",
+          "EASE_POLICY_MISSING",
+          "EASE_WITHIN_POLICY",
+          "OUTSIDE_EASE_POLICY"
+        ],
+        "title": "FitReasonCode",
+        "description": "Machine-readable reason codes mapped to approved shopper explanations."
+      },
+      "FitRecommendationRequest": {
+        "properties": {
+          "product_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Product Id"
+          },
+          "merchant_offer_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Offer Id"
+          },
+          "variant_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant Id"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id"
+        ],
+        "title": "FitRecommendationRequest",
+        "description": "Shopper API request \u2014 client MUST NOT pass trusted measurements, chart, or confidence."
+      },
+      "FitRecommendationResult": {
+        "properties": {
+          "recommendation_id": {
+            "type": "string",
+            "title": "Recommendation Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RecommendationStatus"
+          },
+          "recommended_size": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecommendedSizeDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "alternative_sizes": {
+            "items": {
+              "$ref": "#/components/schemas/RecommendedSizeDetail"
+            },
+            "type": "array",
+            "title": "Alternative Sizes"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/ConfidenceSummary"
+          },
+          "reason_codes": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/FitReasonCode"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          },
+          "missing_information": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MissingDataCode"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Missing Information"
+          },
+          "explanations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Explanations"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/FitEvidenceSummary"
+          },
+          "is_valid": {
+            "type": "boolean",
+            "title": "Is Valid",
+            "default": true
+          },
+          "invalidated_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invalidated Reason"
+          },
+          "fit_guaranteed": {
+            "type": "boolean",
+            "title": "Fit Guaranteed",
+            "default": false
+          },
+          "disclaimer_code": {
+            "type": "string",
+            "title": "Disclaimer Code",
+            "default": "SIZE_GUIDANCE_NOT_FIT_GUARANTEE"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "This is size guidance based on available product and shopper information. It does not guarantee physical fit, comfort or appearance."
+          },
+          "next_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Actions"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "status",
+          "confidence",
+          "explanation",
+          "evidence"
+        ],
+        "title": "FitRecommendationResult",
+        "description": "Phase 08.3 API and domain output for fit evaluation or explicit abstention."
       },
       "FitVerdict": {
         "type": "string",
@@ -27867,7 +28543,7 @@
         ],
         "title": "MeResponse"
       },
-      "MeasurementBasis": {
+      "MeasurementBasis-Input": {
         "type": "string",
         "enum": [
           "BODY",
@@ -28902,6 +29578,23 @@
           "SUSPENDED"
         ],
         "title": "MerchantVerificationStatus"
+      },
+      "MissingDataCode": {
+        "type": "string",
+        "enum": [
+          "SHOPPER_MEASUREMENT_MISSING",
+          "SIZE_CHART_MISSING",
+          "MEASUREMENT_BASIS_UNKNOWN",
+          "CHART_STALE",
+          "CHART_CONFLICT",
+          "CATEGORY_UNSUPPORTED",
+          "VARIANT_UNAVAILABLE",
+          "SHOPPER_MEASUREMENT_STALE",
+          "FIT_POLICY_MISSING",
+          "PERMISSION_INVALID"
+        ],
+        "title": "MissingDataCode",
+        "description": "First-class missing/conflicting evidence classification codes."
       },
       "MixMatchContract": {
         "properties": {
@@ -31129,7 +31822,7 @@
       "PreferenceUpdateRequest": {
         "properties": {
           "default_fit_preference": {
-            "$ref": "#/components/schemas/FitPreference"
+            "$ref": "#/components/schemas/FitPreference-Input"
           },
           "preferred_unit": {
             "anyOf": [
@@ -32510,7 +33203,7 @@
             "$ref": "#/components/schemas/SizeSystemRef"
           },
           "measurement_basis": {
-            "$ref": "#/components/schemas/MeasurementBasis"
+            "$ref": "#/components/schemas/fashx__catalog__size_charts__enums__MeasurementBasis"
           },
           "display_unit": {
             "$ref": "#/components/schemas/MeasurementUnit",
@@ -32843,6 +33536,16 @@
         ],
         "title": "ProfileUnit",
         "description": "Supported input and normalized units for body measurements."
+      },
+      "PurchaseStatus": {
+        "type": "string",
+        "enum": [
+          "PURCHASED",
+          "NOT_PURCHASED",
+          "UNKNOWN"
+        ],
+        "title": "PurchaseStatus",
+        "description": "Shopper purchase context captured on feedback submission."
       },
       "QualityAuditResponse": {
         "properties": {
@@ -33757,6 +34460,40 @@
           "engine_version"
         ],
         "title": "RecommendationResponse"
+      },
+      "RecommendationStatus": {
+        "type": "string",
+        "enum": [
+          "RECOMMENDED",
+          "INSUFFICIENT_INFORMATION",
+          "POSSIBLE_ALTERNATIVES",
+          "NO_AVAILABLE_SIZE",
+          "UNSUPPORTED_CATEGORY",
+          "STALE_DATA",
+          "CONFLICTING_DATA"
+        ],
+        "title": "RecommendationStatus",
+        "description": "Business status for evidence-based size recommendations."
+      },
+      "RecommendedSizeDetail": {
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "title": "Variant Id"
+          },
+          "merchant_size_label": {
+            "type": "string",
+            "title": "Merchant Size Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "variant_id",
+          "merchant_size_label"
+        ],
+        "title": "RecommendedSizeDetail",
+        "description": "Selected size option identified strictly by merchant variant ID and merchant label."
       },
       "RecordExclusionRequest": {
         "properties": {
@@ -37913,7 +38650,7 @@
             "title": "Size System Code"
           },
           "measurement_basis": {
-            "$ref": "#/components/schemas/MeasurementBasis"
+            "$ref": "#/components/schemas/MeasurementBasis-Input"
           },
           "default_unit": {
             "$ref": "#/components/schemas/MeasurementUnit",
@@ -37965,7 +38702,7 @@
             "title": "Size System Code"
           },
           "measurement_basis": {
-            "$ref": "#/components/schemas/MeasurementBasis"
+            "$ref": "#/components/schemas/fashx__catalog__size_charts__enums__MeasurementBasis"
           },
           "default_unit": {
             "$ref": "#/components/schemas/MeasurementUnit"
@@ -39017,7 +39754,8 @@
           "source_slug",
           "state"
         ],
-        "title": "SourceHealthReport"
+        "title": "SourceHealthReport",
+        "description": "Health and operational telemetry for a catalog source."
       },
       "SourceHealthState": {
         "type": "string",
@@ -43921,6 +44659,219 @@
           "incremental"
         ],
         "title": "SyncMode"
+      },
+      "fashx__catalog__size_charts__enums__MeasurementBasis": {
+        "type": "string",
+        "enum": [
+          "BODY",
+          "GARMENT",
+          "UNKNOWN"
+        ],
+        "title": "MeasurementBasis",
+        "description": "Whether measurements describe the human body or the finished physical garment."
+      },
+      "fashx__commerce_wardrobe__router__FitFeedbackResponse": {
+        "properties": {
+          "feedback_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Feedback Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "brand_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Brand Id"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "brand_bias_score": {
+            "type": "number",
+            "title": "Brand Bias Score"
+          },
+          "brand_recommendation": {
+            "type": "string",
+            "title": "Brand Recommendation"
+          },
+          "total_observations": {
+            "type": "integer",
+            "title": "Total Observations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedback_id",
+          "user_id",
+          "brand_id",
+          "verdict",
+          "brand_bias_score",
+          "brand_recommendation",
+          "total_observations"
+        ],
+        "title": "FitFeedbackResponse"
+      },
+      "fashx__fit__contracts__FitFeedbackResponse": {
+        "properties": {
+          "feedback_id": {
+            "type": "string",
+            "title": "Feedback Id"
+          },
+          "recommendation_id": {
+            "type": "string",
+            "title": "Recommendation Id"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "merchant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant Id"
+          },
+          "size_chart_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Chart Id"
+          },
+          "size_chart_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Chart Revision"
+          },
+          "recommended_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommended Size"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/FitFeedbackReason"
+          },
+          "purchase_status": {
+            "$ref": "#/components/schemas/PurchaseStatus"
+          },
+          "tried_on": {
+            "type": "boolean",
+            "title": "Tried On"
+          },
+          "kept_item": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kept Item"
+          },
+          "selected_different_size": {
+            "type": "boolean",
+            "title": "Selected Different Size"
+          },
+          "feedback_basis": {
+            "type": "string",
+            "title": "Feedback Basis"
+          },
+          "review_status": {
+            "$ref": "#/components/schemas/FeedbackReviewStatus"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feedback_id",
+          "recommendation_id",
+          "product_id",
+          "reason",
+          "purchase_status",
+          "tried_on",
+          "selected_different_size",
+          "feedback_basis",
+          "review_status",
+          "created_at"
+        ],
+        "title": "FitFeedbackResponse",
+        "description": "Persisted feedback summary tied to a recommendation snapshot."
+      },
+      "fashx__fit__enums__FitPreference": {
+        "type": "string",
+        "enum": [
+          "SLIM",
+          "REGULAR",
+          "RELAXED",
+          "OVERSIZED",
+          "NO_PREFERENCE"
+        ],
+        "title": "FitPreference",
+        "description": "Subjective shopper fit preference."
+      },
+      "fashx__fit__enums__MeasurementBasis": {
+        "type": "string",
+        "enum": [
+          "BODY",
+          "GARMENT",
+          "UNKNOWN"
+        ],
+        "title": "MeasurementBasis",
+        "description": "Distinguishes human body dimensions from finished garment dimensions."
+      },
+      "fashx__profile__fit_schemas__FitPreference": {
+        "type": "string",
+        "enum": [
+          "SLIM",
+          "REGULAR",
+          "RELAXED",
+          "OVERSIZED",
+          "NO_PREFERENCE"
+        ],
+        "title": "FitPreference"
       },
       "schemas__visual__detail__BreadcrumbItemContract": {
         "properties": {

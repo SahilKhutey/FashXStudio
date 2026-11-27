@@ -22,6 +22,7 @@ from fashx.core.logging import configure_logging
 from fashx.core.observability import ContextFilter, configure_sentry
 from fashx.core.settings import get_settings
 from fashx.features.router import router as features_router
+from fashx.fit.router import router as fit_router
 from fashx.gateway.errors import install_exception_handlers
 from fashx.gateway.middleware import RequestContextMiddleware
 from fashx.health.router import healthz_router
@@ -106,6 +107,7 @@ def create_app(settings: Any | None = None) -> FastAPI:
     app.include_router(me_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(onboarding_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(features_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
+    app.include_router(fit_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(fit_profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(profile_router, prefix="/api/v1", dependencies=[Depends(get_principal)])
     app.include_router(media_router, prefix="/api/v1", dependencies=[Depends(get_principal)])

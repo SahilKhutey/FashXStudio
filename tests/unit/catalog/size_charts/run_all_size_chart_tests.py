@@ -64,7 +64,7 @@ def main():
         ("test_size_systems.py", "Phase 08.1 - Sizing System Registry (SZ-SYS-001 - 003)"),
         ("test_measurement_fields.py", "Phase 08.1 - Measurement Fields (SZ-FLD-001 - 002)"),
         ("test_units.py", "Phase 08.1 - Unit Normalization (SZ-UNT-001 - 003)"),
-        ("test_validation.py", "Phase 08.1 - Validation Service (SZ-VAL-001 - 004)"),
+        ("test_size_chart_validation.py", "Phase 08.1 - Validation Service (SZ-VAL-001 - 004)"),
         ("test_fingerprint.py", "Phase 08.1 - Canonical Fingerprint (SZ-FPT-001 - 002)"),
         ("test_freshness.py", "Phase 08.1 - Freshness Policy (SZ-FRE-001 - 004)"),
         ("test_availability.py", "Phase 08.1 - Variant Availability (SZ-AVL-001)"),

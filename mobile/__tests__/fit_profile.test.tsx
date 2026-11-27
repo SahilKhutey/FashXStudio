@@ -1,5 +1,4 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react-native";
 
 import { fitProfileApi } from "../src/features/fit-profile/api/fitProfileApi";
 import { FitPreferenceSelector } from "../src/features/fit-profile/components/FitPreferenceSelector";
@@ -11,6 +10,82 @@ import type { MeasurementDefinition, ShopperFitProfile } from "../src/features/f
 jest.mock("../src/api/client", () => ({
   api: jest.fn(),
 }));
+
+interface TestNode {
+  props: Record<string, unknown>;
+  children: (TestNode | string)[];
+  findAll: (predicate: (node: TestNode) => boolean) => TestNode[];
+}
+
+interface RendererInstance {
+  root: TestNode;
+  update: (element: React.ReactElement) => void;
+}
+
+const TestRenderer = require("react-test-renderer") as {
+  create: (element: React.ReactElement) => RendererInstance;
+  act: (callback: () => void | Promise<void>) => Promise<void>;
+};
+
+function textOf(node: TestNode | string): string {
+  if (typeof node === "string") return node;
+  return (node.children ?? []).map(textOf).join("");
+}
+
+async function renderTree(element: React.ReactElement) {
+  let renderer!: RendererInstance;
+  await TestRenderer.act(async () => {
+    renderer = TestRenderer.create(element);
+  });
+
+  const getByText = (matcher: string | RegExp): TestNode => {
+    const matches = renderer.root.findAll((node) => {
+      if (node.children.length > 0 && node.children.every((c) => typeof c === "string")) {
+        const direct = textOf(node);
+        return typeof matcher === "string" ? direct === matcher : matcher.test(direct);
+      }
+      return false;
+    });
+    const hit = matches[0];
+    if (!hit) throw new Error(`Unable to find node with text: ${String(matcher)}`);
+    return hit;
+  };
+
+  const getByLabelText = (label: string): TestNode => {
+    const matches = renderer.root.findAll((node) => node.props.accessibilityLabel === label);
+    const hit = matches[0];
+    if (!hit) throw new Error(`Unable to find node with accessibilityLabel: ${label}`);
+    return hit;
+  };
+
+  const press = async (node: TestNode) => {
+    await TestRenderer.act(async () => {
+      const handler = node.props.onPress as (() => void) | undefined;
+      if (handler) {
+        handler();
+      } else {
+        const pressables = renderer.root.findAll(
+          (n) =>
+            typeof n.props.onPress === "function" &&
+            n.findAll((c) => c === node).length > 0,
+        );
+        const owner = pressables[pressables.length - 1];
+        if (!owner) throw new Error("Node is not pressable");
+        (owner.props.onPress as () => void)();
+      }
+    });
+  };
+
+  const changeText = async (node: TestNode, value: string) => {
+    await TestRenderer.act(async () => {
+      const handler = node.props.onChangeText as ((v: string) => void) | undefined;
+      if (!handler) throw new Error("Node has no onChangeText handler");
+      handler(value);
+    });
+  };
+
+  return { getByText, getByLabelText, press, changeText };
+}
 
 describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
   beforeEach(() => {
@@ -88,7 +163,7 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
     };
 
     it("renders guidance explanation, tape position, and example format", async () => {
-      const { getByText } = await render(<MeasurementGuidanceCard definition={chestDef} />);
+      const { getByText } = await renderTree(<MeasurementGuidanceCard definition={chestDef} />);
       expect(getByText("How to measure: Chest")).toBeTruthy();
       expect(getByText(/fullest part of your chest/)).toBeTruthy();
       expect(getByText(/Wrap horizontally under arms/)).toBeTruthy();
@@ -99,7 +174,7 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
   describe("MeasurementInput component", () => {
     it("validates invalid values, previews CM conversion for inches, and submits", async () => {
       const onSave = jest.fn().mockResolvedValue(undefined);
-      const { getByLabelText, getByText } = await render(
+      const { getByLabelText, getByText, press, changeText } = await renderTree(
         <MeasurementInput
           title="Chest"
           explanation="Measure around chest."
@@ -109,23 +184,23 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
       );
 
       // Zero / invalid entry rejected inline without calling onSave
-      await fireEvent.changeText(getByLabelText("Chest measurement"), "0");
-      await fireEvent.press(getByText("Save measurement"));
+      await changeText(getByLabelText("Chest measurement"), "0");
+      await press(getByText("Save measurement"));
       expect(getByText("Enter a valid positive measurement.")).toBeTruthy();
       expect(onSave).not.toHaveBeenCalled();
 
       // Switch unit to IN and enter 38 -> preview 96.52 CM
-      await fireEvent.press(getByLabelText("Unit IN"));
-      await fireEvent.changeText(getByLabelText("Chest measurement"), "38");
+      await press(getByLabelText("Unit IN"));
+      await changeText(getByLabelText("Chest measurement"), "38");
       expect(getByText("Normalized preview: 96.52 CM")).toBeTruthy();
 
-      await fireEvent.press(getByText("Save measurement"));
+      await press(getByText("Save measurement"));
       expect(onSave).toHaveBeenCalledWith("38", "IN", false);
     });
 
     it("asks confirmation before replacing an existing saved measurement", async () => {
       const onSave = jest.fn().mockResolvedValue(undefined);
-      const { getByText } = await render(
+      const { getByText, press } = await renderTree(
         <MeasurementInput
           title="Waist"
           explanation="Measure around waist."
@@ -136,11 +211,11 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
         />,
       );
 
-      await fireEvent.press(getByText("Save measurement"));
+      await press(getByText("Save measurement"));
       expect(onSave).not.toHaveBeenCalled();
       expect(getByText(/Press Save again to confirm replacing/)).toBeTruthy();
 
-      await fireEvent.press(getByText("Confirm update"));
+      await press(getByText("Confirm update"));
       expect(onSave).toHaveBeenCalledWith("80", "CM", false);
     });
   });
@@ -148,7 +223,7 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
   describe("FitPreferenceSelector component", () => {
     it("renders subjective fit preferences with non-equivalence disclaimer", async () => {
       const onSelect = jest.fn();
-      const { getByLabelText, getByText } = await render(
+      const { getByLabelText, getByText, press } = await renderTree(
         <FitPreferenceSelector
           title="T-shirts fit"
           selected="REGULAR"
@@ -157,7 +232,7 @@ describe("Phase 08.2 Mobile: Shopper Fit Profile", () => {
       );
 
       expect(getByText(/not physical-fit verification or a universal brand size/)).toBeTruthy();
-      await fireEvent.press(getByLabelText("T-shirts fit: Relaxed"));
+      await press(getByLabelText("T-shirts fit: Relaxed"));
       expect(onSelect).toHaveBeenCalledWith("RELAXED");
     });
   });

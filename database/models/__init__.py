@@ -132,6 +132,12 @@ from .erasure import ErasureTombstone
 from .experiment import ExperimentExposure
 from .feature_flags import FeatureFlag
 from .feed import FeedImpression, FeedSignal
+from .fit import (
+    FitEvaluationCaseRecord,
+    FitEvaluationRunRecord,
+    FitRecommendationCandidateRecord,
+    FitRecommendationEvidenceRecord,
+)
 from .identity import ConsentEvent, ConsentRecord, User, UserPhoto
 from .media import MediaObject, MediaUpload, UserMedia
 from .operations import IdempotencyRecord, OutboxMessageRecord, WorkerDeadLetter
@@ -377,4 +383,8 @@ __all__ = [
     "InventorySnapshotRecord",
     "SizeChartEventRecord",
     "SizeChartQuarantineRecord",
+    "FitRecommendationEvidenceRecord",
+    "FitRecommendationCandidateRecord",
+    "FitEvaluationCaseRecord",
+    "FitEvaluationRunRecord",
 ]

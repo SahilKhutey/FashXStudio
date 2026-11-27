@@ -193,11 +193,14 @@ def test_revoke_leaves_zero_biometric_residue(db, tmp_path):
 
     asyncio.run(erase_biometrics(DirectUoW(db), user_id, storage=storage))
 
+    from fashx.application.erasure import USER_ID_COLUMN_OVERRIDES
+
     # All storage keys for user wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
     for t in BIOMETRIC_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0
 
@@ -461,17 +464,21 @@ def test_erase_account_leaves_zero_residue_on_postgres(db, tmp_path):
     # Storage prefix is wiped
     assert storage.list_prefix(f"u/{user_id}/") == []
 
+    from fashx.application.erasure import USER_ID_COLUMN_OVERRIDES
+
     # All biometric tables are empty for user
     for t in BIOMETRIC_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in biometric table {t}"
 
     # All account tables are empty for user
     for t in ACCOUNT_TABLES:
+        user_col = USER_ID_COLUMN_OVERRIDES.get(t, "user_id")
         cnt = db.execute(
-            text(f'select count(*) from "{t}" where user_id = :u'), {"u": user_id}
+            text(f'select count(*) from "{t}" where {user_col} = :u'), {"u": user_id}
         ).scalar()
         assert cnt == 0, f"Expected 0 rows in account table {t}"
 
@@ -571,24 +578,29 @@ def test_erasure_classification_matches_database(db_engine):
 
 @pytest.mark.db
 def test_loop_tables_all_have_user_id_column(db_engine):
-    """Verify that every table deleted or anonymized by user_id in loops actually has a user_id column."""
+    """Verify that every table deleted or anonymized in loops has its configured user-id column."""
     from fashx.application.erasure import (
         ACCOUNT_TABLES,
         ANONYMIZE_TABLES,
         BIOMETRIC_TABLES,
+        USER_ID_COLUMN_OVERRIDES,
     )
 
     loop_tables = BIOMETRIC_TABLES + ACCOUNT_TABLES + ANONYMIZE_TABLES
     with db_engine.connect() as conn:
-        existing_cols = conn.execute(
-            text(
-                "SELECT table_name FROM information_schema.columns "
-                "WHERE table_schema = 'public' AND column_name = 'user_id'"
-            )
-        ).scalars().all()
-    user_id_tables = set(existing_cols)
+        existing_cols = set(
+            conn.execute(
+                text(
+                    "SELECT table_name, column_name FROM information_schema.columns "
+                    "WHERE table_schema = 'public'"
+                )
+            ).fetchall()
+        )
     for tbl in loop_tables:
-        assert tbl in user_id_tables, f"Table '{tbl}' in erasure loop is missing a 'user_id' column"
+        user_col = USER_ID_COLUMN_OVERRIDES.get(tbl, "user_id")
+        assert (tbl, user_col) in existing_cols, (
+            f"Table '{tbl}' in erasure loop is missing column '{user_col}'"
+        )
 
 
 @pytest.mark.db
