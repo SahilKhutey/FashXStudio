@@ -125,6 +125,22 @@ export default function SignInScreen() {
             <Text style={styles.devButtonText}>{t("dev.loginLink")}</Text>
           </TouchableOpacity>
         ) : null}
+
+        <TouchableOpacity
+          style={styles.devButton}
+          onPress={() => router.push("/(auth)/register" as never)}
+          accessibilityRole="button"
+        >
+          <Text style={styles.devButtonText}>Create an account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.devButton}
+          onPress={() => router.push("/(auth)/forgot-password" as never)}
+          accessibilityRole="button"
+        >
+          <Text style={styles.devButtonText}>Forgot password?</Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );

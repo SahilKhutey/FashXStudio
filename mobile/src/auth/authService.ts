@@ -36,12 +36,20 @@ export class AuthService {
     if (!params.email || !params.password) {
       throw new Error("Email and password are required");
     }
-    // Simulation / fixture integration returning valid tokens
-    const dummyAccess = "ey..." + params.email;
-    const dummyId = "ey..." + params.email;
-    setInMemoryAccessToken(dummyAccess);
-    await saveAuthTokens(dummyAccess, dummyId);
-    return { accessToken: dummyAccess, idToken: dummyId };
+    const { authProviderService } = await import("./auth.instance");
+    const result = await authProviderService.login({
+      email: params.email,
+      password: params.password,
+    });
+    if (result.status !== "AUTHENTICATED") {
+      throw new Error("Account verification required before sign in");
+    }
+    const token = (await authProviderService.getAccessToken()) ?? "";
+    setInMemoryAccessToken(token || null);
+    if (token) {
+      await saveAuthTokens(token, token);
+    }
+    return { accessToken: token, idToken: token };
   }
 
   async signOut(global: boolean = true): Promise<void> {
