@@ -18,7 +18,7 @@ export type CrashSink = (payload: CrashReportPayload) => void;
 let activeSink: CrashSink | null = null;
 
 const SENSITIVE_PATTERN =
-  /(bearer\s+[a-z0-9._-]+|https?:\/\/[^\s]*\?(?:[^ \n]*signature|[^ \n]*x-amz-[^ \n]*)|data:image\/[a-z]+;base64,[^\s]+|file:\/\/[^\s]+)/gi;
+  /(bearer\s+[a-z0-9._-]+|https?:\/\/[^\s]*\?(?:[^\s]*signature|[^\s]*x-amz-)[^\s]*|data:image\/[a-z]+;base64,[^\s]+|file:\/\/[^\s]+)/gi;
 
 export function redactSensitiveText(input: string): string {
   return input.replace(SENSITIVE_PATTERN, "[REDACTED]");
