@@ -104,6 +104,11 @@ function makeUrl(path: string): string {
   return `${base}/api/v1${path}`;
 }
 
+function generateRequestId(): string {
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `mob_${Date.now().toString(36)}_${rand}`;
+}
+
 async function requestOnce<T>(
   url: string,
   init: ApiRequestInit,
@@ -121,6 +126,9 @@ async function requestOnce<T>(
   try {
     const headers = new Headers(init.headers);
     headers.set("Accept", "application/json");
+    if (!headers.has("X-Request-ID")) {
+      headers.set("X-Request-ID", generateRequestId());
+    }
 
     const hasBody = init.body !== undefined && init.body !== null;
     const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;

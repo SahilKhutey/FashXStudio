@@ -10,6 +10,11 @@ const REFRESH_TOKEN_KEY = "fashx_auth_refresh_token";
 const ID_TOKEN_KEY = "fashx_auth_id_token";
 const SUB_KEY = "fashx_auth_cognito_sub";
 
+const SECURE_STORE_OPTIONS: SecureStore.SecureStoreOptions | undefined =
+  typeof SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY !== "undefined"
+    ? { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY }
+    : undefined;
+
 export async function saveAuthTokens(
   accessToken: string,
   idToken: string,
@@ -17,15 +22,17 @@ export async function saveAuthTokens(
   sub?: string,
 ): Promise<void> {
   const promises: Promise<void>[] = [
-    SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken),
-    SecureStore.setItemAsync(ID_TOKEN_KEY, idToken),
+    SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken, SECURE_STORE_OPTIONS),
+    SecureStore.setItemAsync(ID_TOKEN_KEY, idToken, SECURE_STORE_OPTIONS),
   ];
 
   if (refreshToken) {
-    promises.push(SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken));
+    promises.push(
+      SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken, SECURE_STORE_OPTIONS),
+    );
   }
   if (sub) {
-    promises.push(SecureStore.setItemAsync(SUB_KEY, sub));
+    promises.push(SecureStore.setItemAsync(SUB_KEY, sub, SECURE_STORE_OPTIONS));
   }
 
   await Promise.all(promises);
