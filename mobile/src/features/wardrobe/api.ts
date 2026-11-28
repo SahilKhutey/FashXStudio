@@ -1,4 +1,9 @@
 import { api } from "../../api/client";
+import type {
+  CreateSavedLookRequest,
+  SavedLook,
+  SavedLooksResponse,
+} from "./types";
 
 export interface UserWardrobeItem {
   item_id: string;
@@ -49,7 +54,30 @@ export async function saveGarmentToWardrobe(params: {
 }
 
 export async function removeGarmentFromWardrobe(itemId: string): Promise<void> {
-  return api<void>(`/wardrobe/items/${itemId}`, {
+  return api<void>(`/wardrobe/items/${encodeURIComponent(itemId)}`, {
+    method: "DELETE",
+  });
+}
+
+export async function getSavedLooks(): Promise<SavedLooksResponse> {
+  return api<SavedLooksResponse>("/wardrobe/looks");
+}
+
+export async function createSavedLook(
+  request: CreateSavedLookRequest,
+): Promise<SavedLook> {
+  return api<SavedLook>("/wardrobe/looks", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+export async function getSavedLook(lookId: string): Promise<SavedLook> {
+  return api<SavedLook>(`/wardrobe/looks/${encodeURIComponent(lookId)}`);
+}
+
+export async function deleteSavedLook(lookId: string): Promise<void> {
+  return api<void>(`/wardrobe/looks/${encodeURIComponent(lookId)}`, {
     method: "DELETE",
   });
 }
