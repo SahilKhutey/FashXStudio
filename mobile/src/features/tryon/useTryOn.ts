@@ -69,6 +69,27 @@ export function useStartTryOn() {
   });
 }
 
+export function useCancelTryOn() {
+  const queryClient = useQueryClient();
+  const userId = useAuthStore((s) => s.me?.user_id);
+
+  return useMutation({
+    mutationFn: async (jobId: string) => {
+      return api<TryOnJobStatusResponse>(
+        `/tryon/jobs/${encodeURIComponent(jobId)}/cancel`,
+        {
+          method: "POST",
+          body: JSON.stringify({}),
+        },
+      );
+    },
+    onSuccess: (job, jobId) => {
+      queryClient.setQueryData(queryKeys.tryOnJob(userId ?? null, jobId), job);
+      void queryClient.invalidateQueries({ queryKey: ["tryon", "jobs"] });
+    },
+  });
+}
+
 export function useRetryTryOn() {
   const queryClient = useQueryClient();
   const userId = useAuthStore((s) => s.me?.user_id);

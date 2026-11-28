@@ -48,7 +48,14 @@ export async function submitTryOnJob(
  * Retrieves the status and output artifact URL for a try-on job.
  */
 export async function getTryOnJob(jobId: string): Promise<TryOnJobStatusResponse> {
-  return api<TryOnJobStatusResponse>(`/tryon/jobs/${jobId}`);
+  return api<TryOnJobStatusResponse>(`/tryon/jobs/${encodeURIComponent(jobId)}`);
+}
+
+export async function cancelTryOnJob(jobId: string): Promise<TryOnJobStatusResponse> {
+  return api<TryOnJobStatusResponse>(`/tryon/jobs/${encodeURIComponent(jobId)}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
 }
 
 /**
