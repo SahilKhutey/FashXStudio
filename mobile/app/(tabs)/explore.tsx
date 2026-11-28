@@ -4,10 +4,24 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useFeed, FeedItem } from "../../src/features/feed/hooks";
+import { useDebouncedValue } from "../../src/hooks/useDebouncedValue";
+import { useProductSearch } from "../../src/features/search/search.queries";
+import {
+  clearSearchFilters,
+  defaultSearchFilters,
+  updateSearchSort,
+} from "../../src/features/search/search.filters";
+import { flattenSearchPages } from "../../src/features/catalog/flatten-pages";
+import type {
+  ProductSearchItem,
+  SearchFilters,
+  SearchSortOption,
+} from "../../src/features/catalog/catalog.types";
+import { priceToMinorUnits } from "../../src/features/catalog/utils/product-links";
 import { useSaveToWardrobe } from "../../src/features/wardrobe/hooks";
 import {
   useDesignTokens,
@@ -19,22 +33,25 @@ import {
 } from "../../src/design-system";
 import { EmptyState, ErrorState } from "../../src/components/states";
 
-const CATEGORIES = [
-  { id: "all", label: "All Styles" },
-  { id: "top", label: "Tops" },
-  { id: "bottom", label: "Bottoms" },
-  { id: "one_piece", label: "Dresses & Sets" },
-  { id: "footwear", label: "Shoes" },
-  { id: "accessory", label: "Accessories" },
+const SORT_OPTIONS: { id: SearchSortOption; label: string }[] = [
+  { id: "relevance", label: "Relevance" },
+  { id: "price_low", label: "Price: Low" },
+  { id: "price_high", label: "Price: High" },
+  { id: "newest", label: "Newest" },
 ];
 
 export default function ExploreScreen() {
   const router = useRouter();
   const { colors } = useDesignTokens();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [filters, setFilters] = useState<SearchFilters>(defaultSearchFilters);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
+
+  const debouncedQuery = useDebouncedValue(filters.query, 350);
+  const activeFilters = useMemo<SearchFilters>(
+    () => ({ ...filters, query: debouncedQuery }),
+    [filters, debouncedQuery],
+  );
 
   const {
     data,
@@ -42,74 +59,51 @@ export default function ExploreScreen() {
     isError,
     refetch,
     isRefetching,
-  } = useFeed();
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useProductSearch(activeFilters);
 
   const saveMutation = useSaveToWardrobe();
 
-  // Flatten items from all feed pages
-  const allItems: FeedItem[] = useMemo(() => {
-    if (!data?.pages) return [];
-    const set = new Map<string, FeedItem>();
-    for (const page of data.pages) {
-      for (const item of page.items || []) {
-        if (!set.has(item.garment_id)) {
-          set.set(item.garment_id, item);
-        }
-      }
-    }
-    return Array.from(set.values());
-  }, [data]);
+  const items: ProductSearchItem[] = useMemo(
+    () => flattenSearchPages(data?.pages ?? []),
+    [data],
+  );
 
-  // Client-side filtering by search query and category
-  const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
-      const matchesCategory =
-        selectedCategory === "all" ||
-        item.category?.toLowerCase() === selectedCategory.toLowerCase();
-
-      const query = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        !query ||
-        item.title?.toLowerCase().includes(query) ||
-        item.brand?.toLowerCase().includes(query) ||
-        item.category?.toLowerCase().includes(query);
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [allItems, selectedCategory, searchQuery]);
-
-  const handleSave = async (item: FeedItem) => {
-    if (savedIds.has(item.garment_id) || savingId === item.garment_id) return;
-    setSavingId(item.garment_id);
+  const handleSave = async (item: ProductSearchItem) => {
+    if (savedIds.has(item.product_id) || savingId === item.product_id) return;
+    setSavingId(item.product_id);
     try {
       await saveMutation.mutateAsync({
-        garmentId: item.garment_id,
+        garmentId: item.product_id,
       });
-      setSavedIds((prev) => new Set(prev).add(item.garment_id));
+      setSavedIds((prev) => new Set(prev).add(item.product_id));
     } finally {
       setSavingId(null);
     }
   };
 
-  const renderProduct = ({ item }: { item: FeedItem }) => {
-    const isSaved = savedIds.has(item.garment_id);
-    const isSaving = savingId === item.garment_id;
+  const renderProduct = ({ item }: { item: ProductSearchItem }) => {
+    const isSaved = savedIds.has(item.product_id);
+    const isSaving = savingId === item.product_id;
 
     return (
       <View style={styles.cardWrapper}>
         <ProductCard
-          id={item.garment_id}
+          id={item.product_id}
           title={item.title}
-          brand={item.brand}
-          imageUrl={item.image_url}
-          priceMinor={item.price_minor}
-          currency="INR"
-          tryOnSupported={item.tryon_supported ?? true}
+          brand={item.brand.name}
+          imageUrl={item.primary_image_url}
+          priceMinor={priceToMinorUnits(item.price.amount)}
+          currency={item.price.currency}
+          tryOnSupported={false}
           saved={isSaved}
           saving={isSaving}
-          onOpen={() => router.push(`/garment/${item.garment_id}` as any)}
-          onSave={() => handleSave(item)}
-          onTryOn={() => router.push(`/garment/${item.garment_id}` as any)}
+          onOpen={() => router.push(`/garment/${item.product_id}` as never)}
+          onSave={() => {
+            void handleSave(item);
+          }}
         />
       </View>
     );
@@ -120,8 +114,10 @@ export default function ExploreScreen() {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.searchHeader}>
           <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={filters.query}
+            onChangeText={(query) =>
+              setFilters((cur) => ({ ...cur, query, cursor: undefined }))
+            }
             placeholder="Search styles, brands, garments..."
           />
         </View>
@@ -137,7 +133,7 @@ export default function ExploreScreen() {
     );
   }
 
-  if (isError) {
+  if (isError && items.length === 0) {
     return <ErrorState onRetry={() => void refetch()} />;
   }
 
@@ -145,35 +141,57 @@ export default function ExploreScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.searchHeader}>
         <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+          value={filters.query}
+          onChangeText={(query) =>
+            setFilters((cur) => ({ ...cur, query, cursor: undefined }))
+          }
           placeholder="Search styles, brands, garments..."
-          onClear={() => setSearchQuery("")}
+          onClear={() =>
+            setFilters((cur) => ({ ...cur, query: "", cursor: undefined }))
+          }
         />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryScroll}
         >
-          {CATEGORIES.map((cat) => (
+          {SORT_OPTIONS.map((opt) => (
             <CategoryChip
-              key={cat.id}
-              label={cat.label}
-              selected={selectedCategory === cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
+              key={opt.id}
+              label={opt.label}
+              selected={filters.sort === opt.id}
+              onPress={() => setFilters((cur) => updateSearchSort(cur, opt.id))}
               style={styles.chip}
             />
           ))}
+          <CategoryChip
+            label="In Stock"
+            selected={filters.inStock === true}
+            onPress={() =>
+              setFilters((cur) => ({
+                ...cur,
+                inStock: cur.inStock ? undefined : true,
+                cursor: undefined,
+              }))
+            }
+            style={styles.chip}
+          />
         </ScrollView>
       </View>
 
       <FlatList
-        data={filteredItems}
+        data={items}
         renderItem={renderProduct}
-        keyExtractor={(item) => item.garment_id}
+        keyExtractor={(item) => `${item.product_id}:${item.merchant_product_id}`}
         numColumns={2}
         contentContainerStyle={styles.gridContent}
         columnWrapperStyle={styles.columnWrapper}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            void fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -181,20 +199,22 @@ export default function ExploreScreen() {
             tintColor={colors.brand}
           />
         }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <Text style={styles.footerText}>Loading more products...</Text>
+          ) : null
+        }
         ListEmptyComponent={
           <EmptyState
             icon="⌕"
             title="No matching styles"
             message={
-              searchQuery
-                ? `No styles found matching "${searchQuery}". Try a different keyword or category.`
-                : "No products available in this category."
+              filters.query
+                ? `No products found matching "${filters.query}". Try a different keyword or clear filters.`
+                : "No products match your current filters."
             }
             actionLabel="Clear Filters"
-            onAction={() => {
-              setSearchQuery("");
-              setSelectedCategory("all");
-            }}
+            onAction={() => setFilters((cur) => clearSearchFilters(cur))}
           />
         }
       />
@@ -233,5 +253,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: spacing[3],
     gap: spacing[3],
+  },
+  footerText: {
+    textAlign: "center",
+    paddingVertical: spacing[3],
+    color: "#6B7280",
+    fontSize: 12,
   },
 });
